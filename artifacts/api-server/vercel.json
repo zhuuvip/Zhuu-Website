@@ -1,18 +1,9 @@
 {
   "version": 2,
-  "builds": [
+  "rewrites": [
     {
-      "src": "api/index.ts",
-      "use": "@vercel/node"
-    }
-  ],
-  "routes": [
-    {
-      "src": "/(.*)",
+      "source": "/(.*)",
       "dest": "api/index.ts"
     }
-  ],
-  "env": {
-    "ENABLE_EXPERIMENTAL_COREPACK": "1"
-  }
+  ]
 }
