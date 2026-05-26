@@ -1,0 +1,8 @@
+uploads = []
+generated = []
+
+[[outputs]]
+id = "5vViMyO188-KoYijxt5nH"
+uri = "file://zhuu-vip-source.zip"
+type = "unspecified"
+title = "ZhuuVIP Full Source Code"

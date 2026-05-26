@@ -1,0 +1,31 @@
+kind = "web"
+previewPath = "/"
+title = "ZhuuVIP"
+version = "1.0.0"
+id = "artifacts/zhuu-vip"
+router = "path"
+
+[[integratedSkills]]
+name = "react-vite"
+version = "1.0.0"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 18716
+
+[services.development]
+run = "pnpm --filter @workspace/zhuu-vip run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/zhuu-vip", "run", "build" ]
+publicDir = "artifacts/zhuu-vip/dist/public"
+serve = "static"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "18716"
+BASE_PATH = "/"

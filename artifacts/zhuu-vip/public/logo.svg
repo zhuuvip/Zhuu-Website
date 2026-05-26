@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120">
+  <defs>
+    <radialGradient id="oceanGrad" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#00d4ff" stop-opacity="0.9"/>
+      <stop offset="100%" stop-color="#9b59b6" stop-opacity="0.9"/>
+    </radialGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="3" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+  <circle cx="60" cy="60" r="58" fill="url(#oceanGrad)" opacity="0.15" stroke="#00d4ff" stroke-width="1.5"/>
+  <circle cx="60" cy="60" r="48" fill="none" stroke="#00d4ff" stroke-width="1" opacity="0.3"/>
+  <text x="50%" y="52%" dominant-baseline="middle" text-anchor="middle"
+        font-family="Orbitron, sans-serif" font-weight="700" font-size="36"
+        fill="url(#oceanGrad)" filter="url(#glow)">Z</text>
+  <text x="50%" y="75%" dominant-baseline="middle" text-anchor="middle"
+        font-family="Inter, sans-serif" font-weight="500" font-size="11"
+        fill="#00d4ff" letter-spacing="4" opacity="0.8">ZHUU</text>
+</svg>
