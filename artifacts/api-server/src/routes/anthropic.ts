@@ -12,12 +12,12 @@ import {
 
 const router = Router();
 
-const GEMINI_MODEL = "gemini-2.0-flash-lite";
+const GEMINI_MODEL = "llama-3.1-8b-instant";
 
 const SYSTEM_PROMPT = `You are Zhuu AI — a highly intelligent, reliable, and versatile AI assistant. You are especially strong in coding, programming, debugging, algorithm design, and technical explanations. You are also knowledgeable about science, math, writing, creative tasks, and general knowledge. You speak in a friendly, clear, and confident manner. When answering coding questions, always provide working, well-commented code. Your name is Zhuu AI.`;
 
 function getGeminiKey(): string | null {
-  const key = process.env.GEMINI_API_KEY;
+  const key = process.env.GROQ_API_KEY;
   return key && key.trim().length > 0 ? key.trim() : null;
 }
 
@@ -37,7 +37,7 @@ async function callGeminiWithRetry(
 ): Promise<string> {
   const apiKey = getGeminiKey();
   if (!apiKey) {
-    return "⚠️ **AI is not configured yet.** To enable Zhuu AI, please add your `GEMINI_API_KEY` in the Replit Secrets tab. Get a free key at https://aistudio.google.com/app/apikey";
+    return "⚠️ **AI is not configured yet.** To enable Zhuu AI, please add your `GROQ_API_KEY` in the Replit Secrets tab. Get a free key at https://aistudio.google.com/app/apikey";
   }
 
   const contents = history
