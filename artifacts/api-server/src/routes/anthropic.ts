@@ -57,19 +57,16 @@ async function callGeminiWithRetry(
       const timeout = setTimeout(() => controller.abort(), 25_000);
 
       const response = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${apiKey}`,
+        `https://api.groq.com/openai/v1/chat/completions`,
         {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: { "Content-Type": "application/json", "Authorization": `Bearer ${apiKey}` },
           signal: controller.signal,
           body: JSON.stringify({
-            system_instruction: { parts: [{ text: SYSTEM_PROMPT }] },
-            contents,
-            generationConfig: {
-              maxOutputTokens: 2048,
-              temperature: 0.85,
-              topP: 0.95,
-            },
+            model: GEMINI_MODEL,
+            messages: [{ role: "system", content: SYSTEM_PROMPT }, ...history.map(m => ({ role: m.role === "assistant" ? "assistant" : "user", content: m.content }))],
+            max_tokens: 2048,
+            temperature: 0.85,
           }),
         }
       );
@@ -90,7 +87,7 @@ async function callGeminiWithRetry(
       }
 
       const data = (await response.json()) as any;
-      const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+      const text = data?.choices?.[0]?.message?.content;
 
       if (!text) {
         const finishReason = data?.candidates?.[0]?.finishReason;
