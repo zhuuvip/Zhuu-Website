@@ -114,6 +114,7 @@ export default function AdminPage() {
 
   const authHeaders = async () => {
     const token = await getToken();
+    console.log("DEBUG token:", token, "API_BASE:", API_BASE);
     return {
       "Content-Type": "application/json",
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
