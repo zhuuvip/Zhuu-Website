@@ -39,9 +39,6 @@ catalogs:
     clsx:
       specifier: ^2.1.1
       version: 2.1.1
-    drizzle-orm:
-      specifier: ^0.45.2
-      version: 0.45.2
     framer-motion:
       specifier: ^12.23.24
       version: 12.40.0
@@ -191,7 +188,7 @@ importers:
         specifier: ^2
         version: 2.8.6
       drizzle-orm:
-        specifier: 'catalog:'
+        specifier: ^0.45.2
         version: 0.45.2(@types/pg@8.20.0)(pg@8.21.0)
       express:
         specifier: ^5
@@ -222,7 +219,7 @@ importers:
         specifier: ^5.0.6
         version: 5.0.6
       '@types/node':
-        specifier: 'catalog:'
+        specifier: ^25.3.3
         version: 25.9.1
       esbuild:
         specifier: 0.27.3
@@ -622,7 +619,7 @@ importers:
   lib/api-client-react:
     dependencies:
       '@tanstack/react-query':
-        specifier: 'catalog:'
+        specifier: ^5.90.21
         version: 5.100.14(react@19.1.0)
 
   lib/api-spec:
@@ -634,13 +631,13 @@ importers:
   lib/api-zod:
     dependencies:
       zod:
-        specifier: 'catalog:'
+        specifier: ^3.25.76
         version: 3.25.76
 
   lib/db:
     dependencies:
       drizzle-orm:
-        specifier: 'catalog:'
+        specifier: ^0.45.2
         version: 0.45.2(@types/pg@8.20.0)(pg@8.21.0)
       drizzle-zod:
         specifier: ^0.8.3
@@ -649,11 +646,11 @@ importers:
         specifier: ^8.20.0
         version: 8.21.0
       zod:
-        specifier: 'catalog:'
+        specifier: ^3.25.76
         version: 3.25.76
     devDependencies:
       '@types/node':
-        specifier: 'catalog:'
+        specifier: ^25.3.3
         version: 25.9.1
       '@types/pg':
         specifier: ^8.20.0
