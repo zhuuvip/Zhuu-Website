@@ -127,7 +127,7 @@ export default function AdminPage() {
       const res = await fetch(`${API_BASE}/api/admin/stats`, { headers: await authHeaders() });
       const visRes = await fetch(`${API_BASE}/api/visitors`);
       const visData = await visRes.json();
-      if (res.ok) const statsData = await res.json(); setStats({ ...statsData, visitors: visData.count ?? 0 });
+      if (res.ok) { const statsData = await res.json(); setStats({ ...statsData, visitors: visData.count ?? 0 }); }
     } catch {}
     setStatsLoading(false);
   };
