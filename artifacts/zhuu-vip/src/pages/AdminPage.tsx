@@ -42,7 +42,7 @@ interface FeedbackItem {
 }
 
 interface Stats {
-  links: number; songs: number; feedback: number; conversations: number; messages: number;
+  links: number; songs: number; feedback: number; conversations: number; messages: number; visitors?: number;
 }
 
 interface SiteSettings {
@@ -125,7 +125,9 @@ export default function AdminPage() {
     setStatsLoading(true);
     try {
       const res = await fetch(`${API_BASE}/api/admin/stats`, { headers: await authHeaders() });
-      if (res.ok) setStats(await res.json());
+      const visRes = await fetch(`${API_BASE}/api/visitors`);
+      const visData = await visRes.json();
+      if (res.ok) const statsData = await res.json(); setStats({ ...statsData, visitors: visData.count ?? 0 });
     } catch {}
     setStatsLoading(false);
   };
@@ -326,6 +328,7 @@ export default function AdminPage() {
               <StatCard label="Feedback" value={stats.feedback} icon={<MessageSquare size={18} />} color="#4ade80" />
               <StatCard label="AI Conversations" value={stats.conversations} icon={<Bot size={18} />} color="#f9a8d4" />
               <StatCard label="AI Messages" value={stats.messages} icon={<Users size={18} />} color="#fbbf24" />
+                  <StatCard label="Visitors" value={stats.visitors ?? 0} icon={<Eye size={18} />} color="#fb923c" />
             </div>
           ) : (
             <div className="text-center py-8 text-blue-300/30 text-sm">Failed to load stats. <button onClick={fetchStats} className="text-cyan-400 hover:underline">Try again</button></div>
