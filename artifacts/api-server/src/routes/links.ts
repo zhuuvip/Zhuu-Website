@@ -66,3 +66,17 @@ router.delete("/links/:id", requireAdmin, async (req, res) => {
 });
 
 export default router;
+
+router.post("/links/:id/click", async (req, res) => {
+  const id = Number(req.params.id);
+  if (isNaN(id)) return res.status(400).json({ error: "Invalid id" });
+  try {
+    await db.execute(
+      `UPDATE links SET click_count = click_count + 1 WHERE id = ${id}`
+    );
+    return res.json({ success: true });
+  } catch (err) {
+    req.log.error(err);
+    return res.status(500).json({ error: "Failed to track click" });
+  }
+});
