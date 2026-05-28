@@ -194,30 +194,7 @@ export default function FeedbackPage() {
           </button>
         </form>
       </div>
-      {/* Guestbook */}
-      {guestbook.length > 0 && (
-        <div className="mt-10">
-          <h2 className="text-2xl font-black gradient-text mb-6 text-center" style={{ fontFamily: "Poppins, Inter, sans-serif" }}>
-            🌊 Guestbook
-          </h2>
-          <div className="flex flex-col gap-3">
-            {guestbook.map((entry: any) => (
-              <div key={entry.id} className="glass-card p-4 rounded-2xl">
-                <div className="flex items-center gap-2 mb-2">
-                  <span className="font-semibold text-sm" style={{ color: "#00e5ff" }}>{entry.name || "Anonymous"}</span>
-                  {entry.rating !== null && <span className="text-lg">{RATINGS_EMOJI[entry.rating]}</span>}
-                  <span className="text-xs ml-auto" style={{ color: "rgba(0,200,220,0.35)" }}>
-                    {new Date(entry.createdAt).toLocaleDateString()}
-                  </span>
-                </div>
-                <p className="text-sm" style={{ color: "rgba(200,240,255,0.7)", lineHeight: 1.6 }}>{entry.message}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
     </div>
   </div>
   );
 }
-
