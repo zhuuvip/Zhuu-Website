@@ -102,3 +102,23 @@ router.delete("/feedback/:id", requireAdmin, async (req, res) => {
 });
 
 export default router;
+
+router.get("/guestbook", async (req, res) => {
+  try {
+    const rows = await db
+      .select({
+        id: feedbackTable.id,
+        name: feedbackTable.name,
+        message: feedbackTable.message,
+        rating: feedbackTable.rating,
+        createdAt: feedbackTable.createdAt,
+      })
+      .from(feedbackTable)
+      .orderBy(desc(feedbackTable.createdAt))
+      .limit(50);
+    res.json(rows);
+  } catch (err) {
+    req.log.error(err);
+    res.status(500).json({ error: "Failed to fetch guestbook" });
+  }
+});
