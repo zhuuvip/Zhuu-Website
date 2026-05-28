@@ -154,6 +154,7 @@ export default function LinktreePage() {
                 href={link.url}
                 target="_blank"
                 rel="noopener noreferrer"
+                onClick={() => fetch(`${API_BASE}/api/links/${link.id}/click`, { method: "POST" }).catch(() => {})}
                 data-testid={`link-item-${link.id}`}
                 style={{ textDecoration: "none" }}
               >
