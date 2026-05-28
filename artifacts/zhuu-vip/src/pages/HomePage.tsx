@@ -1,9 +1,11 @@
 import { Link } from "wouter";
+import { useEffect } from "react";
 import { Show, useUser } from "@clerk/react";
 import { ChevronRight, Shield, Waves, Zap, Bot, Lock, Gauge } from "lucide-react";
 import logoPath from "@assets/file_000000003e9c72078d0f388bef03af6a_1778462394630.png";
 
 const ADMIN_EMAIL = import.meta.env.VITE_ADMIN_EMAIL || "";
+const API_BASE = (import.meta.env.VITE_API_URL || "").replace(/\/$/, "");
 
 const FEATURES = [
   {
@@ -98,6 +100,9 @@ const HIGHLIGHTS = [
 ];
 
 export default function HomePage() {
+  useEffect(() => {
+    fetch(`${API_BASE}/api/visitors`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ page: "/" }) }).catch(() => {});
+  }, []);
   const { user } = useUser();
 
   const isAdmin =
