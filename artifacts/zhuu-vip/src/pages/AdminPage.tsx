@@ -425,6 +425,7 @@ export default function AdminPage() {
                   <div className="flex-1 min-w-0">
                     <div className="text-sm font-medium text-blue-100">{link.title}</div>
                     <div className="text-xs text-blue-300/40 truncate">{link.url}</div>
+                    <div className="text-xs text-cyan-400/60 mt-0.5">👆 {(link as any).clickCount ?? 0} clicks</div>
                   </div>
                   {link.icon && <span className="text-xs text-purple-400/60 bg-purple-400/10 px-2 py-0.5 rounded-full border border-purple-400/15">{link.icon.replace("Si", "")}</span>}
                   {link.isActive ? <Eye size={13} className="text-cyan-400/40" /> : <EyeOff size={13} className="text-blue-300/20" />}
