@@ -36,3 +36,27 @@ router.get("/admin/stats", requireAdmin, async (req, res) => {
 });
 
 export default router;
+
+// Track visitor
+router.post("/visitors", async (req, res) => {
+  const { page } = req.body as { page?: string };
+  try {
+    await db.execute(
+      `INSERT INTO visitors (page) VALUES ('${page ?? "/"}')`
+    );
+    const result = await db.execute(`SELECT COUNT(*) as count FROM visitors`);
+    return res.json({ count: (result.rows[0] as any).count });
+  } catch (err) {
+    return res.status(500).json({ error: "Failed to track visitor" });
+  }
+});
+
+// Get visitor count
+router.get("/visitors", async (req, res) => {
+  try {
+    const result = await db.execute(`SELECT COUNT(*) as count FROM visitors`);
+    return res.json({ count: (result.rows[0] as any).count });
+  } catch (err) {
+    return res.status(500).json({ error: "Failed to get visitor count" });
+  }
+});
