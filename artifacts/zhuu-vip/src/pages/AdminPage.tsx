@@ -102,6 +102,10 @@ export default function AdminPage() {
   const [settingsLoading, setSettingsLoading] = useState(false);
   const [settingsSaving, setSettingsSaving] = useState(false);
   const [settingsSaved, setSettingsSaved] = useState(false);
+  const [announcement, setAnnouncement] = useState("");
+  const [announcementColor, setAnnouncementColor] = useState("#00d4ff");
+  const [announcementSaving, setAnnouncementSaving] = useState(false);
+  const [currentAnnouncement, setCurrentAnnouncement] = useState<any>(null);
 
   // Feedback state
   const [feedback, setFeedback] = useState<FeedbackItem[]>([]);
@@ -141,6 +145,37 @@ export default function AdminPage() {
     setFeedbackLoading(false);
   };
 
+  const fetchAnnouncement = async () => {
+    try {
+      const res = await fetch(`${API_BASE}/api/announcements`);
+      const data = await res.json();
+      setCurrentAnnouncement(data);
+    } catch {}
+  };
+
+  const saveAnnouncement = async () => {
+    if (!announcement.trim()) return;
+    setAnnouncementSaving(true);
+    try {
+      await fetch(`${API_BASE}/api/announcements`, {
+        method: "POST",
+        headers: await authHeaders(),
+        body: JSON.stringify({ message: announcement, color: announcementColor }),
+      });
+      setCurrentAnnouncement({ message: announcement, color: announcementColor });
+      setAnnouncement("");
+    } catch {} finally {
+      setAnnouncementSaving(false);
+    }
+  };
+
+  const deleteAnnouncement = async () => {
+    try {
+      await fetch(`${API_BASE}/api/announcements`, { method: "DELETE", headers: await authHeaders() });
+      setCurrentAnnouncement(null);
+    } catch {}
+  };
+
   const fetchSettings = async () => {
     setSettingsLoading(true);
     try {
@@ -171,7 +206,7 @@ export default function AdminPage() {
     if (!isAdmin || !user) return;
     if (tab === "stats") fetchStats();
     if (tab === "feedback") fetchFeedback();
-    if (tab === "settings") fetchSettings();
+    if (tab === "settings") { fetchSettings(); fetchAnnouncement(); }
   }, [tab, isAdmin, user]);
 
   // Song actions
@@ -546,6 +581,32 @@ export default function AdminPage() {
               {settingsSaving ? <Loader2 size={14} className="animate-spin" /> : settingsSaved ? <CheckCircle2 size={14} /> : <Save size={14} />}
               {settingsSaved ? "Saved!" : "Save All"}
             </button>
+          </div>
+
+          {/* Announcement Banner */}
+          <div className="glass-card rounded-2xl p-5 space-y-3">
+            <h3 className="text-sm font-semibold text-cyan-300 flex items-center gap-2">📢 Announcement Banner</h3>
+            {currentAnnouncement && (
+              <div className="flex items-center justify-between px-3 py-2 rounded-xl" style={{ background: currentAnnouncement.color + "22", border: `1px solid ${currentAnnouncement.color}44`, color: currentAnnouncement.color }}>
+                <span className="text-sm">{currentAnnouncement.message}</span>
+                <button onClick={deleteAnnouncement} className="text-xs hover:opacity-70 ml-2">✕ Remove</button>
+              </div>
+            )}
+            <textarea
+              value={announcement}
+              onChange={e => setAnnouncement(e.target.value)}
+              placeholder="Type announcement message..."
+              rows={2}
+              className="w-full px-3 py-2 rounded-xl text-sm outline-none resize-none"
+              style={{ background: "rgba(0,20,40,0.6)", border: "1px solid rgba(0,200,220,0.15)", color: "rgba(200,240,255,0.9)" }}
+            />
+            <div className="flex gap-2 items-center">
+              <input type="color" value={announcementColor} onChange={e => setAnnouncementColor(e.target.value)} className="w-10 h-10 rounded-lg cursor-pointer" />
+              <button onClick={saveAnnouncement} disabled={!announcement.trim() || announcementSaving}
+                className="flex-1 py-2 rounded-xl text-sm font-medium bg-cyan-400/10 border border-cyan-400/20 text-cyan-300 hover:bg-cyan-400/20 transition-all">
+                {announcementSaving ? "Saving..." : "Post Announcement"}
+              </button>
+            </div>
           </div>
 
           {settingsLoading ? (
