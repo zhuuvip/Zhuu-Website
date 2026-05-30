@@ -4,6 +4,7 @@ import { publishableKeyFromHost } from "@clerk/react/internal";
 import { shadcn } from "@clerk/themes";
 import { Switch, Route, useLocation, Router as WouterRouter } from "wouter";
 import ShareCardPage from "./pages/ShareCardPage";
+import AnnouncementBanner from "./components/AnnouncementBanner";
 import { QueryClient, QueryClientProvider, useQueryClient } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -148,6 +149,7 @@ function AppRouter() {
   return (
     <div className="min-h-screen relative">
       <OceanCanvas />
+      <AnnouncementBanner />
       <Navigation />
       <Switch>
         <Route path="/" component={HomePage} />
