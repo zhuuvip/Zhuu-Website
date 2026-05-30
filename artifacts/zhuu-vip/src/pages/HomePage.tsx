@@ -246,6 +246,14 @@ export default function HomePage() {
               </a>
             </Show>
             <Show when="signed-in">
+              <a href="https://zhuugame.vercel.app" target="_blank" rel="noopener noreferrer">
+                <button
+                  className="neon-btn px-8 py-3.5 rounded-full font-bold text-base transition-all hover:scale-105"
+                  style={{ borderColor: "rgba(255,100,100,0.45)", color: "#ff6b6b" }}
+                >
+                  Play Zhuu-05 VOID 🎮
+                </button>
+              </a>
               <Link href="/ai">
                 <button className="neon-btn-solid px-8 py-3.5 rounded-full font-bold text-base flex items-center gap-2 transition-all hover:scale-105">
                   Open Zhuu AI ✨ <ChevronRight size={16} />
