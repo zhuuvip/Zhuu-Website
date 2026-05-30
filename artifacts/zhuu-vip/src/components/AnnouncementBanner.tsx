@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { X } from "lucide-react";
 
-const API_BASE = (import.meta.env.VITE_API_URL || "").replace(/\/$/, "");
+const API_BASE = "https://zhuuapi.vercel.app";
 
 export default function AnnouncementBanner() {
   const [announcement, setAnnouncement] = useState<any>(null);
