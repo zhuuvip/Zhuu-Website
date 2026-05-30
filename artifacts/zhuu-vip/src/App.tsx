@@ -3,6 +3,7 @@ import { ClerkProvider, useClerk, useAuth } from "@clerk/react";
 import { publishableKeyFromHost } from "@clerk/react/internal";
 import { shadcn } from "@clerk/themes";
 import { Switch, Route, useLocation, Router as WouterRouter } from "wouter";
+import ShareCardPage from "./pages/ShareCardPage";
 import { QueryClient, QueryClientProvider, useQueryClient } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -159,6 +160,7 @@ function AppRouter() {
         <Route path="/resources" component={ResourceLinksPage} />
         <Route path="/tools" component={DevToolsPage} />
         <Route path="/admin" component={AdminPage} />
+        <Route path="/sharecard" component={ShareCardPage} />
         <Route path="/sign-in/*?" component={SignInPage} />
         <Route path="/sign-up/*?" component={SignUpPage} />
         <Route component={NotFoundPage} />
