@@ -296,6 +296,16 @@ body {
 .animate-glow-pulse { animation: glow-pulse 3s ease-in-out infinite; }
 .animate-spin-slow { animation: spin-slow 8s linear infinite; }
 
+@keyframes qr-pulse {
+  0%, 100% { box-shadow: 0 0 24px rgba(0, 229, 255, .16); }
+  50% { box-shadow: 0 0 42px rgba(0, 229, 255, .36), 0 0 72px rgba(192, 132, 252, .12); }
+}
+
+@keyframes rank-shimmer {
+  0%, 100% { filter: brightness(1); transform: rotate(0deg); }
+  50% { filter: brightness(1.35); transform: rotate(3deg); }
+}
+
 /* ━━━━ Text gradient helpers ━━━━ */
 .ocean-gradient {
   background: linear-gradient(135deg, #00d4ff 0%, #9b59b6 50%, #00d4ff 100%);

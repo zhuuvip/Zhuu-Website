@@ -14,6 +14,7 @@ const NAV_ITEMS = [
   { path: "/linktree", label: "Linktree", highlight: "purple" },
   { path: "/portfolio", label: "Portfolio" },
   { path: "/community", label: "Community" },
+  { path: "/member", label: "Member", highlight: "cyan" },
   { path: "/feedback", label: "Feedback" },
   { path: "/sharecard", label: "Share Card", highlight: "cyan" },
 ];
