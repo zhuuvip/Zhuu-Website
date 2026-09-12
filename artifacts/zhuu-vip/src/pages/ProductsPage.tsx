@@ -18,7 +18,7 @@ export default function ProductsPage() {
     const text = [
       "🔔 KONFIRMASI PEMBAYARAN",
       "",
-      "Halo Admin, saya sudah melakukan pembayaran melalui QRIS DANA.",
+      "Halo Admin, saya sudah melakukan pembayaran melalui <img src="https://files.catbox.moe/7sgry7.jpeg" alt="QRIS DANA" className="mx-auto h-64 w-64 rounded-xl object-contain" />.",
       "",
       `📦 Produk: ${selected.name}`,
       `⏱️ Durasi: ${selected.duration}`,
@@ -42,9 +42,9 @@ export default function ProductsPage() {
         </div>
 
         <div className="mb-8 rounded-2xl border p-6 text-center">
-          <h2 className="mb-4 text-xl font-bold">💳 Pembayaran QRIS DANA</h2>
+          <h2 className="mb-4 text-xl font-bold">💳 Pembayaran <img src="https://files.catbox.moe/7sgry7.jpeg" alt="QRIS DANA" className="mx-auto h-64 w-64 rounded-xl object-contain" /></h2>
           <div className="mx-auto flex h-48 w-48 items-center justify-center rounded-xl border border-dashed opacity-70">
-            QRIS DANA
+            <img src="https://files.catbox.moe/7sgry7.jpeg" alt="QRIS DANA" className="mx-auto h-64 w-64 rounded-xl object-contain" />
           </div>
           <p className="mt-3 text-sm opacity-70">
             Scan QRIS di atas, lalu klik tombol konfirmasi melalui WhatsApp.
