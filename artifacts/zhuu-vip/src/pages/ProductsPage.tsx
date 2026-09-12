@@ -18,7 +18,7 @@ export default function ProductsPage() {
     const text = [
       "🔔 KONFIRMASI PEMBAYARAN",
       "",
-      "Halo Admin, saya sudah melakukan pembayaran melalui <img src="https://files.catbox.moe/7sgry7.jpeg" alt="QRIS DANA" className="mx-auto h-64 w-64 rounded-xl object-contain" />.",
+      "Halo Admin, saya sudah melakukan pembayaran melalui QRIS DANA.",
       "",
       `📦 Produk: ${selected.name}`,
       `⏱️ Durasi: ${selected.duration}`,
