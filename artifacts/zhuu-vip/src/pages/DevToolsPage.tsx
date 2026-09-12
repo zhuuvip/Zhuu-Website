@@ -691,9 +691,39 @@ function CalculatorTool() {
   );
 }
 
+function JwtDecoder() {
+  const [input, setInput] = useState("");
+  const [output, setOutput] = useState("");
+
+  const decode = () => {
+    try {
+      const parts = input.trim().split(".");
+      if (parts.length !== 3) throw new Error();
+      const decodePart = (part: string) => {
+        const normalized = part.replace(/-/g, "+").replace(/_/g, "/");
+        const padded = normalized + "=".repeat((4 - normalized.length % 4) % 4);
+        return JSON.parse(decodeURIComponent(Array.from(atob(padded)).map(c => "%" + c.charCodeAt(0).toString(16).padStart(2, "0")).join("")));
+      };
+      setOutput(JSON.stringify({ header: decodePart(parts[0]), payload: decodePart(parts[1]) }, null, 2));
+    } catch {
+      setOutput("Invalid JWT");
+    }
+  };
+
+  return (
+    <div className="space-y-4">
+      <textarea value={input} onChange={e => setInput(e.target.value)} rows={5} placeholder="Paste JWT token..." style={inputStyle({ resize: "vertical" })} />
+      <button onClick={decode} className="px-5 py-2.5 rounded-xl text-sm font-bold cursor-pointer" style={{ background: "rgba(0,200,220,0.15)", border: "1px solid rgba(0,200,220,0.35)", color: "#00e5ff" }}>Decode JWT</button>
+      {output && <div className="space-y-2"><div className="flex justify-end"><CopyBtn text={output} /></div><textarea readOnly value={output} rows={12} style={inputStyle({ color: "#7dd3fc", background: "rgba(0,10,25,0.8)", resize: "vertical" })} /></div>}
+      <p className="text-[10px]" style={{ color: "rgba(200,240,255,0.4)" }}>JWT hanya di-decode di browser. Tool ini tidak memverifikasi signature.</p>
+    </div>
+  );
+}
+
 // ─── Tool definitions ─────────────────────────────────────────────────────────
 
 const TOOLS = [
+  { id: "jwt", icon: "🔐", name: "JWT Decoder", desc: "Decode JWT header & payload", component: <JwtDecoder /> },
   { id: "calculator", icon: "🧮", name: "Calculator", desc: "Calculate mathematical expressions", component: <CalculatorTool /> },
   { id: "json",     icon: "{ }",  name: "JSON Formatter",   desc: "Format, validate & minify JSON",   component: <JsonFormatter /> },
   { id: "color",    icon: "🎨",   name: "Color Converter",  desc: "HEX → RGB → HSL conversions",     component: <ColorConverter /> },
