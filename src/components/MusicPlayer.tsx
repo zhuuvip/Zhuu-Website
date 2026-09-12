@@ -112,7 +112,7 @@ export default function MusicPlayer() {
 
       <div
         data-testid="music-player"
-        className="fixed right-4 bottom-5 sm:right-6 sm:bottom-6 z-40 pointer-events-none"
+        className="fixed top-[4.5rem] left-1/2 -translate-x-1/2 sm:top-20 sm:left-auto sm:right-5 sm:translate-x-0 z-40 pointer-events-none"
       >
         <div className="relative flex flex-col items-end gap-2">
           {/* Playlist */}
