@@ -90,7 +90,7 @@ export default function MusicPlayer() {
 
       <div
         data-testid="music-player"
-        className="fixed bottom-4 right-3 sm:bottom-5 sm:right-5 z-40 flex flex-col items-end gap-2 max-w-[calc(100vw-1rem)] pointer-events-none"
+        className="fixed top-[4.5rem] right-3 sm:top-20 sm:right-5 z-40 flex flex-col items-end gap-2 max-w-[calc(100vw-1rem)] pointer-events-none"
       >
         {/* Playlist panel */}
         {showPlaylist && !isCollapsed && (
@@ -206,7 +206,7 @@ export default function MusicPlayer() {
                 <button
                   onClick={prevSong}
                   data-testid="btn-prev-song"
-                  className="p-2.5 rounded-xl text-blue-300/60 hover:text-cyan-300 hover:bg-cyan-400/10 transition-all"
+                  className="p-2 rounded-lg text-blue-300/60 hover:text-cyan-300 hover:bg-cyan-400/10 transition-all"
                 >
                   <SkipBack size={16} />
                 </button>
@@ -214,7 +214,7 @@ export default function MusicPlayer() {
                 <button
                   onClick={() => setIsPlaying(!isPlaying)}
                   data-testid="btn-play-pause"
-                  className="w-11 h-11 rounded-full bg-gradient-to-r from-cyan-400 to-purple-500 flex items-center justify-center text-white shadow-lg hover:shadow-cyan-400/30 transition-all hover:scale-105"
+                  className="w-10 h-10 rounded-full bg-gradient-to-r from-cyan-400 to-purple-500 flex items-center justify-center text-white shadow-lg hover:shadow-cyan-400/30 transition-all hover:scale-105"
                 >
                   {isPlaying ? <Pause size={16} /> : <Play size={16} className="ml-0.5" />}
                 </button>
@@ -222,7 +222,7 @@ export default function MusicPlayer() {
                 <button
                   onClick={nextSong}
                   data-testid="btn-next-song"
-                  className="p-2.5 rounded-xl text-blue-300/60 hover:text-cyan-300 hover:bg-cyan-400/10 transition-all"
+                  className="p-2 rounded-lg text-blue-300/60 hover:text-cyan-300 hover:bg-cyan-400/10 transition-all"
                 >
                   <SkipForward size={16} />
                 </button>

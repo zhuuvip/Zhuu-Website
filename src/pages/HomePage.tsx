@@ -112,7 +112,7 @@ export default function HomePage() {
   return (
     <div className="ocean-bg min-h-screen">
       {/* Hero */}
-      <section className="hero-section flex flex-col items-center justify-center min-h-[92vh] px-4 text-center relative">
+      <section className="flex flex-col items-center justify-center min-h-[92vh] px-4 text-center relative">
         {/* Ambient glow */}
         <div
           style={{
@@ -129,9 +129,9 @@ export default function HomePage() {
           }}
         />
 
-        <div className="relative z-10 flex flex-col items-center w-full max-w-2xl">
+        <div className="relative z-10 flex flex-col items-center">
           {/* Avatar */}
-          <div className="relative mb-6 animate-float" data-testid="hero-avatar">
+          <div className="relative mb-8 animate-float" data-testid="hero-avatar">
             <div
               style={{
                 width: 136,
@@ -172,7 +172,7 @@ export default function HomePage() {
 
           {/* Status badge */}
           <div
-            className="mb-4 inline-flex items-center gap-2 px-4 py-2 rounded-full"
+            className="mb-5 inline-flex items-center gap-2 px-4 py-2 rounded-full"
             style={{
               background: "rgba(0,200,220,0.06)",
               border: "1px solid rgba(0,255,255,0.16)",
@@ -199,7 +199,7 @@ export default function HomePage() {
 
           {/* Title */}
           <h1
-            className="text-6xl md:text-8xl font-black mb-4 leading-none"
+            className="text-6xl md:text-8xl font-black mb-5 leading-none"
             style={{ fontFamily: "Poppins, Inter, sans-serif" }}
           >
             <span className="gradient-text">Zhuu</span>
@@ -207,7 +207,7 @@ export default function HomePage() {
           </h1>
 
           <p
-            className="text-lg md:text-xl max-w-lg mb-8 leading-relaxed"
+            className="text-lg md:text-xl max-w-lg mb-10 leading-relaxed"
             style={{ color: "rgba(0,200,220,0.6)" }}
           >
             Your VIP portal to the deep ocean — AI chat, speed tests, community,
@@ -215,7 +215,7 @@ export default function HomePage() {
           </p>
 
           {/* CTAs */}
-          <div className="flex flex-wrap items-center justify-center gap-3 w-full">
+          <div className="flex flex-wrap items-center justify-center gap-4">
             <Show when="signed-out">
               <Link href="/community">
                 <button className="neon-btn-solid px-8 py-3.5 rounded-full font-bold text-base transition-all hover:scale-105">
@@ -418,7 +418,7 @@ export default function HomePage() {
             <p className="mb-8 text-sm" style={{ color: "rgba(0,200,220,0.5)" }}>
               Join ZhuuVIP and explore the deep ocean community.
             </p>
-            <div className="flex flex-wrap items-center justify-center gap-3 w-full">
+            <div className="flex flex-wrap items-center justify-center gap-4">
               <Link href="/community">
                 <button className="neon-btn-solid px-10 py-3.5 rounded-full font-bold text-base transition-all hover:scale-105">
                   Join Community →

@@ -14,7 +14,6 @@ const NAV_ITEMS = [
   { path: "/linktree", label: "Linktree", highlight: "purple" },
   { path: "/portfolio", label: "Portfolio" },
   { path: "/community", label: "Community" },
-  { path: "/member", label: "Member", highlight: "cyan" },
   { path: "/feedback", label: "Feedback" },
   { path: "/sharecard", label: "Share Card", highlight: "cyan" },
 ];
@@ -58,7 +57,7 @@ export default function Navigation() {
           boxShadow: scrolled ? "0 4px 30px rgba(0,0,0,0.5)" : "none",
         }}
       >
-        <div className="max-w-7xl mx-auto px-3 sm:px-6 flex items-center justify-between h-14 sm:h-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 flex items-center justify-between h-16">
           {/* Logo */}
           <Link href="/">
             <div className="flex items-center gap-3 cursor-pointer group">
@@ -80,7 +79,7 @@ export default function Navigation() {
                 />
               </div>
               <span
-                className="gradient-text font-bold text-base sm:text-lg tracking-tight"
+                className="gradient-text font-bold text-lg tracking-tight"
                 style={{ fontFamily: "Poppins, Inter, sans-serif" }}
               >
                 ZhuuVIP
@@ -162,7 +161,7 @@ export default function Navigation() {
           </div>
 
           {/* Auth + Mobile toggle */}
-          <div className="flex items-center gap-2.5 sm:gap-3">
+          <div className="flex items-center gap-3">
             <Show when="signed-in">
               <UserButton
                 appearance={{
