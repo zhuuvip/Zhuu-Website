@@ -17,6 +17,7 @@ const NAV_ITEMS = [
   { path: "/member", label: "Member", highlight: "cyan" },
   { path: "/feedback", label: "Feedback" },
   { path: "/sharecard", label: "Share Card", highlight: "cyan" },
+  { path: "/products", label: "🛒 Products", highlight: "cyan" },
 ];
 
 export default function Navigation() {
