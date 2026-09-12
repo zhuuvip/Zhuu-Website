@@ -170,20 +170,20 @@ function useVoiceRecorder(
   const [supported, setSupported] = useState(false);
 
   const recognitionRef =
-    useRef<any>(null);
+    useRef<SpeechRecognition | null>(null);
 
   useEffect(() => {
     const SpeechRecognitionCtor =
-      (window as any).SpeechRecognition ||
-      (window as any).webkitSpeechRecognition;
+      window.SpeechRecognition ||
+      window.webkitSpeechRecognition;
 
     setSupported(!!SpeechRecognitionCtor);
   }, []);
 
   const startRecording = useCallback(() => {
     const SpeechRecognitionCtor =
-      (window as any).SpeechRecognition ||
-      (window as any).webkitSpeechRecognition;
+      window.SpeechRecognition ||
+      window.webkitSpeechRecognition;
 
     if (!SpeechRecognitionCtor) return;
 
@@ -194,7 +194,7 @@ function useVoiceRecorder(
     recognition.lang = "en-US";
 
     recognition.onresult = (
-      e: any,
+      e: SpeechRecognitionEvent,
     ) => {
       const transcript =
         e.results[0]?.[0]?.transcript;

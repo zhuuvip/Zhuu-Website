@@ -261,7 +261,7 @@ export default function AdminPage() {
     if (!linkForm.title || !linkForm.url) return;
     try {
       if (editingLinkId !== null) {
-        await updateLink.mutateAsync({ id: editingLinkId ?? undefined, data: { title: linkForm.title, url: linkForm.url, icon: linkForm.icon || undefined, sortOrder: linkForm.sortOrder, isActive: linkForm.isActive } });
+        await updateLink.mutateAsync({ id: editingLinkId, data: { title: linkForm.title, url: linkForm.url, icon: linkForm.icon || undefined, sortOrder: linkForm.sortOrder, isActive: linkForm.isActive } });
       } else {
         await createLink.mutateAsync({ data: { title: linkForm.title, url: linkForm.url, icon: linkForm.icon || undefined, sortOrder: linkForm.sortOrder } });
       }

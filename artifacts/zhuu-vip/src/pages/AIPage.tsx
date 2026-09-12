@@ -67,29 +67,44 @@ interface Attachment {
 function useVoiceRecorder(onTranscript: (text: string) => void) {
   const [recording, setRecording] = useState(false);
   const [supported, setSupported] = useState(false);
-  const recognitionRef = useRef<SpeechRecognition | null>(null);
+
+  const recognitionRef = useRef<any>(null);
 
   useEffect(() => {
-    const SpeechRecognition = window.SpeechRecognition || (window as unknown as { webkitSpeechRecognition?: typeof SpeechRecognition }).webkitSpeechRecognition;
-    setSupported(!!SpeechRecognition);
+    const SpeechRecognitionCtor =
+      (window as any).SpeechRecognition ||
+      (window as any).webkitSpeechRecognition;
+
+    setSupported(!!SpeechRecognitionCtor);
   }, []);
 
   const startRecording = useCallback(() => {
-    const SpeechRecognition = window.SpeechRecognition || (window as unknown as { webkitSpeechRecognition?: typeof SpeechRecognition }).webkitSpeechRecognition;
-    if (!SpeechRecognition) return;
-    const recognition = new SpeechRecognition();
+    const SpeechRecognitionCtor =
+      (window as any).SpeechRecognition ||
+      (window as any).webkitSpeechRecognition;
+
+    if (!SpeechRecognitionCtor) return;
+
+    const recognition = new SpeechRecognitionCtor();
+
     recognition.continuous = false;
     recognition.interimResults = false;
     recognition.lang = "en-US";
-    recognition.onresult = (e) => {
+
+    recognition.onresult = (e: any) => {
       const transcript = e.results[0]?.[0]?.transcript;
-      if (transcript) onTranscript(transcript);
+
+      if (transcript) {
+        onTranscript(transcript);
+      }
     };
+
     recognition.onend = () => setRecording(false);
     recognition.onerror = () => setRecording(false);
+
     recognitionRef.current = recognition;
-    recognition.start();
     setRecording(true);
+    recognition.start();
   }, [onTranscript]);
 
   const stopRecording = useCallback(() => {
@@ -97,7 +112,12 @@ function useVoiceRecorder(onTranscript: (text: string) => void) {
     setRecording(false);
   }, []);
 
-  return { recording, supported, startRecording, stopRecording };
+  return {
+    recording,
+    supported,
+    startRecording,
+    stopRecording,
+  };
 }
 
 function AIChat() {
