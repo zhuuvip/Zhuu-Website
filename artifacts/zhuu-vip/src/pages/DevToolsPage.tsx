@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef, useEffect } from "react";
+import { useState, useCallback, useRef, useEffect, createContext, useContext } from "react";
 import { Copy, Download, RefreshCw, Check, Shuffle } from "lucide-react";
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
@@ -720,7 +720,291 @@ function JwtDecoder() {
   );
 }
 
+const ToolUsageContext = createContext<((toolId: string) => void) | null>(null);
+
+function useToolUsage() {
+  return useContext(ToolUsageContext);
+}
+
 // ─── Tool definitions ─────────────────────────────────────────────────────────
+function SlugGenerator() {
+  const trackToolUse = useToolUsage();
+  const [input, setInput] = useState("Hello ZhuuAI Developer Tools!");
+  const [output, setOutput] = useState("");
+
+  const generate = () => {
+    const slug = input
+      .toLowerCase()
+      .trim()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/[^a-z0-9\s-]/g, "")
+      .replace(/\s+/g, "-")
+      .replace(/-+/g, "-")
+      .replace(/^-|-$/g, "");
+
+    setOutput(slug);
+    trackToolUse?.("slug");
+  };
+
+  return (
+    <div className="space-y-4">
+      <textarea
+        value={input}
+        onChange={e => setInput(e.target.value)}
+        rows={4}
+        placeholder="Masukkan judul..."
+        style={inputStyle({ resize: "vertical" })}
+      />
+      <button
+        onClick={generate}
+        className="px-5 py-2.5 rounded-xl text-sm font-bold cursor-pointer"
+        style={{
+          background: "rgba(0,200,220,0.15)",
+          border: "1px solid rgba(0,200,220,0.35)",
+          color: "#00e5ff"
+        }}
+      >
+        Generate Slug
+      </button>
+      {output && (
+        <div className="flex gap-2">
+          <input readOnly value={output} style={inputStyle()} />
+          <CopyBtn text={output} />
+        </div>
+      )}
+    </div>
+  );
+}
+
+function RandomGenerator() {
+  const [min, setMin] = useState("1");
+  const [max, setMax] = useState("100");
+  const [result, setResult] = useState("");
+
+  const generate = () => {
+    const a = Number(min);
+    const b = Number(max);
+
+    if (!Number.isFinite(a) || !Number.isFinite(b) || a > b) {
+      setResult("Range tidak valid");
+      return;
+    }
+
+    setResult(String(Math.floor(Math.random() * (b - a + 1)) + a));
+  };
+
+  return (
+    <div className="space-y-4">
+      <div className="grid grid-cols-2 gap-3">
+        <input value={min} onChange={e => setMin(e.target.value)} placeholder="Min" style={inputStyle()} />
+        <input value={max} onChange={e => setMax(e.target.value)} placeholder="Max" style={inputStyle()} />
+      </div>
+      <button
+        onClick={generate}
+        className="w-full py-3 rounded-xl text-sm font-bold cursor-pointer"
+        style={{
+          background: "rgba(0,200,220,0.15)",
+          border: "1px solid rgba(0,200,220,0.35)",
+          color: "#00e5ff"
+        }}
+      >
+        🎲 Generate Random Number
+      </button>
+      {result && (
+        <div className="text-center text-4xl font-black font-mono py-6" style={{ color: "#00e5ff" }}>
+          {result}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function WhitespaceCleaner() {
+  const trackToolUse = useToolUsage();
+  const [input, setInput] = useState("");
+  const [output, setOutput] = useState("");
+
+  const clean = () => {
+    const result = input
+      .split("\n")
+      .map(line => line.trim().replace(/\s+/g, " "))
+      .filter(Boolean)
+      .join("\n");
+
+    setOutput(result);
+    trackToolUse?.("whitespace");
+  };
+
+  return (
+    <div className="space-y-4">
+      <textarea
+        value={input}
+        onChange={e => setInput(e.target.value)}
+        rows={7}
+        placeholder="Paste text with messy spaces..."
+        style={inputStyle({ resize: "vertical" })}
+      />
+      <button
+        onClick={clean}
+        className="px-5 py-2.5 rounded-xl text-sm font-bold cursor-pointer"
+        style={{
+          background: "rgba(0,200,220,0.15)",
+          border: "1px solid rgba(0,200,220,0.35)",
+          color: "#00e5ff"
+        }}
+      >
+        Clean Text
+      </button>
+      {output && (
+        <div className="space-y-2">
+          <div className="flex justify-end">
+            <CopyBtn text={output} />
+          </div>
+          <textarea
+            readOnly
+            value={output}
+            rows={7}
+            style={inputStyle({
+              color: "#7dd3fc",
+              background: "rgba(0,10,25,0.8)",
+              resize: "vertical"
+            })}
+          />
+        </div>
+      )}
+    </div>
+  );
+}
+
+function NumberBaseConverter() {
+  const [input, setInput] = useState("255");
+  const [base, setBase] = useState(10);
+
+  let value: number | null = null;
+
+  try {
+    const parsed = parseInt(input.trim(), base);
+    if (Number.isFinite(parsed)) value = parsed;
+  } catch {}
+
+  const results = value === null ? null : [
+    ["Binary", value.toString(2)],
+    ["Octal", value.toString(8)],
+    ["Decimal", value.toString(10)],
+    ["Hexadecimal", value.toString(16).toUpperCase()],
+  ];
+
+  return (
+    <div className="space-y-4">
+      <div className="grid grid-cols-2 gap-3">
+        <input value={input} onChange={e => setInput(e.target.value)} style={inputStyle()} />
+        <select value={base} onChange={e => setBase(Number(e.target.value))} style={inputStyle()}>
+          <option value={2}>Binary (2)</option>
+          <option value={8}>Octal (8)</option>
+          <option value={10}>Decimal (10)</option>
+          <option value={16}>Hex (16)</option>
+        </select>
+      </div>
+
+      {results && (
+        <div className="space-y-2">
+          {results.map(([label, val]) => (
+            <div
+              key={label}
+              className="flex items-center gap-3 p-3 rounded-xl"
+              style={{
+                background: "rgba(0,15,30,0.6)",
+                border: "1px solid rgba(0,200,220,0.1)"
+              }}
+            >
+              <span className="w-24 text-xs font-semibold" style={{ color: "rgba(0,200,220,0.6)" }}>
+                {label}
+              </span>
+              <code className="flex-1 text-sm break-all" style={{ color: "#7dd3fc" }}>
+                {val}
+              </code>
+              <CopyBtn text={val} />
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function JsonToCsvTool() {
+  const [input, setInput] = useState('[{"name":"Zhuu","age":18},{"name":"AI","age":99}]');
+  const [output, setOutput] = useState("");
+
+  const convert = () => {
+    try {
+      const data = JSON.parse(input);
+      if (!Array.isArray(data) || !data.length || typeof data[0] !== "object") {
+        throw new Error();
+      }
+
+      const keys = [...new Set(data.flatMap((row: Record<string, unknown>) => Object.keys(row)))];
+
+      const escapeCsv = (value: unknown) => {
+        const str = value == null ? "" : typeof value === "object" ? JSON.stringify(value) : String(value);
+        return `"${str.replace(/"/g, '""')}"`;
+      };
+
+      const csv = [
+        keys.map(escapeCsv).join(","),
+        ...data.map((row: Record<string, unknown>) =>
+          keys.map(key => escapeCsv(row[key])).join(",")
+        )
+      ].join("\n");
+
+      setOutput(csv);
+    } catch {
+      setOutput("Invalid JSON array");
+    }
+  };
+
+  return (
+    <div className="space-y-4">
+      <textarea
+        value={input}
+        onChange={e => setInput(e.target.value)}
+        rows={7}
+        placeholder='[{"name":"Zhuu","age":18}]'
+        style={inputStyle({ resize: "vertical" })}
+      />
+      <button
+        onClick={convert}
+        className="px-5 py-2.5 rounded-xl text-sm font-bold cursor-pointer"
+        style={{
+          background: "rgba(0,200,220,0.15)",
+          border: "1px solid rgba(0,200,220,0.35)",
+          color: "#00e5ff"
+        }}
+      >
+        Convert JSON → CSV
+      </button>
+      {output && (
+        <div className="space-y-2">
+          <div className="flex justify-end">
+            <CopyBtn text={output} />
+          </div>
+          <textarea
+            readOnly
+            value={output}
+            rows={9}
+            style={inputStyle({
+              color: "#7dd3fc",
+              background: "rgba(0,10,25,0.8)",
+              resize: "vertical"
+            })}
+          />
+        </div>
+      )}
+    </div>
+  );
+}
+
 
 const TOOLS = [
   { id: "jwt", icon: "🔐", name: "JWT Decoder", desc: "Decode JWT header & payload", component: <JwtDecoder /> },
