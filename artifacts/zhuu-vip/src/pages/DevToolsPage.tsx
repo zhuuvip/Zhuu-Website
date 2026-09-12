@@ -1007,6 +1007,11 @@ function JsonToCsvTool() {
 
 
 const TOOLS = [
+  { id: "slug", icon: "🔗", name: "Slug Generator", desc: "Convert text into clean URL slugs", component: <SlugGenerator /> },
+  { id: "random", icon: "🎲", name: "Random Number", desc: "Generate random numbers by range", component: <RandomGenerator /> },
+  { id: "whitespace", icon: "🧹", name: "Whitespace Cleaner", desc: "Clean spaces and empty lines", component: <WhitespaceCleaner /> },
+  { id: "numberbase", icon: "01", name: "Number Base", desc: "Binary, octal, decimal & hex", component: <NumberBaseConverter /> },
+  { id: "jsoncsv", icon: "CSV", name: "JSON → CSV", desc: "Convert JSON arrays into CSV", component: <JsonToCsvTool /> },
   { id: "jwt", icon: "🔐", name: "JWT Decoder", desc: "Decode JWT header & payload", component: <JwtDecoder /> },
   { id: "calculator", icon: "🧮", name: "Calculator", desc: "Calculate mathematical expressions", component: <CalculatorTool /> },
   { id: "json",     icon: "{ }",  name: "JSON Formatter",   desc: "Format, validate & minify JSON",   component: <JsonFormatter /> },
