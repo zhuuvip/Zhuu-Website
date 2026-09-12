@@ -108,7 +108,11 @@ ZhuuAI:`;
         return null;
       };
 
-      const text = findText(data) ?? (raw.trim() || null);
+      const text =
+        data?.data?.data?.result?.chat ??
+        data?.data?.result?.chat ??
+        findText(data) ??
+        (raw.trim() || null);
 
       if (text) {
         return text;
