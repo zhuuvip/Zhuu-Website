@@ -12,106 +12,95 @@ import {
 
 const router = Router();
 
-const GEMINI_MODEL = "llama-3.3-70b-versatile";
+const SYSTEM_PROMPT = `
+You are ZhuuAI, the intelligent AI assistant of ZhuuVIP.
 
-const SYSTEM_PROMPT = `You are Zhuu AI — a highly intelligent, reliable, and versatile AI assistant. You are especially strong in coding, programming, debugging, algorithm design, and technical explanations. You are also knowledgeable about science, math, writing, creative tasks, and general knowledge. You speak in a friendly, clear, and confident manner. When answering coding questions, always provide working, well-commented code. Your name is Zhuu AI.`;
-
-function getGeminiKey(): string | null {
-  const key = process.env.GROQ_API_KEY;
-  return key && key.trim().length > 0 ? key.trim() : null;
-}
-
-function requireAuth(req: any, res: any): string | null {
-  const auth = req.auth;
-  const userId: string | undefined = auth?.userId;
-  if (!userId) {
-    res.status(401).json({ error: "Authentication required" });
-    return null;
-  }
-  return userId;
-}
+- Be natural, friendly, calm, and confident.
+- Adapt automatically to the user's language, tone, and knowledge level.
+- Be concise for simple questions and detailed when necessary.
+- Understand and maintain conversation context.
+- Be useful for programming, technology, science, mathematics, education, writing, creativity, planning, troubleshooting, and everyday conversation.
+- Think carefully before answering.
+- Never invent facts when uncertain.
+- For coding tasks, provide practical working solutions.
+- Follow the user's intent and adapt your communication style.
+- Respond naturally like a capable AI assistant.
+- Your name is ZhuuAI.
+`;
 
 async function callGeminiWithRetry(
   history: { role: string; content: string }[],
   retries = 2
 ): Promise<string> {
-  const apiKey = getGeminiKey();
-  if (!apiKey) {
-    return "⚠️ **AI is not configured yet.** To enable Zhuu AI, please add your `GROQ_API_KEY` in the Replit Secrets tab. Get a free key at https://aistudio.google.com/app/apikey";
-  }
-
-  const contents = history
+  const messages = history
     .filter((m) => m.content && m.content.trim())
-    .map((m) => ({
-      role: m.role === "assistant" ? "model" : "user",
-      parts: [{ text: m.content }],
-    }));
+    .map((m) => {
+      const role = m.role === "assistant" ? "ZhuuAI" : "User";
+      return `${role}: ${m.content.trim()}`;
+    })
+    .join("\n\n");
 
-  if (contents.length === 0) {
-    return "Please send a message to get started!";
+  if (!messages) {
+    return "Silakan kirim pesan untuk memulai percakapan dengan ZhuuAI.";
   }
+
+  const prompt = `${SYSTEM_PROMPT}
+
+Conversation:
+${messages}
+
+ZhuuAI:`;
 
   for (let attempt = 0; attempt <= retries; attempt++) {
     try {
       const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), 25_000);
+      const timeout = setTimeout(() => controller.abort(), 30_000);
 
       const response = await fetch(
-        `https://api.groq.com/openai/v1/chat/completions`,
+        `https://www.lanzapi.my.id/ai/chatgpt?prompt=${encodeURIComponent(prompt)}`,
         {
-          method: "POST",
-          headers: { "Content-Type": "application/json", "Authorization": `Bearer ${apiKey}` },
+          method: "GET",
           signal: controller.signal,
-          body: JSON.stringify({
-            model: GEMINI_MODEL,
-            messages: [{ role: "system", content: SYSTEM_PROMPT }, ...history.map(m => ({ role: m.role === "assistant" ? "assistant" : "user", content: m.content }))],
-            max_tokens: 2048,
-            temperature: 0.85,
-          }),
         }
       );
 
       clearTimeout(timeout);
 
       if (!response.ok) {
-        const errBody = await response.json().catch(() => ({}));
-        const msg = (errBody as any)?.error?.message ?? response.statusText;
-        if (response.status === 429 && attempt < retries) {
-          await new Promise((r) => setTimeout(r, 1000 * (attempt + 1)));
-          continue;
-        }
-        if (response.status === 400) {
-          return `❌ AI request error: ${msg}. Please check your API key is valid.`;
-        }
-        throw new Error(`Gemini API error ${response.status}: ${msg}`);
+        throw new Error(`AI API error ${response.status}`);
       }
 
-      const data = (await response.json()) as any;
-      const text = data?.choices?.[0]?.message?.content;
+      const data = await response.json().catch(() => null);
 
-      if (!text) {
-        const finishReason = data?.candidates?.[0]?.finishReason;
-        if (finishReason === "SAFETY") {
-          return "I can't respond to that request due to safety guidelines. Please try rephrasing your message.";
-        }
-        return "I didn't receive a valid response. Please try again.";
+      const text =
+        typeof data === "string"
+          ? data
+          : data?.response ??
+            data?.result ??
+            data?.message ??
+            data?.answer ??
+            data?.data;
+
+      if (typeof text === "string" && text.trim()) {
+        return text.trim();
       }
 
-      return text;
+      return "ZhuuAI menerima request, tetapi tidak mendapatkan jawaban yang valid. Coba lagi.";
     } catch (err: any) {
-      if (err?.name === "AbortError") {
-        if (attempt < retries) continue;
-        return "⏱️ The AI took too long to respond. Please try again with a shorter message.";
-      }
       if (attempt < retries) {
-        await new Promise((r) => setTimeout(r, 800 * (attempt + 1)));
+        await new Promise((r) => setTimeout(r, 1000 * (attempt + 1)));
         continue;
       }
-      throw err;
+
+      if (err?.name === "AbortError") {
+        return "⏱️ ZhuuAI sedang terlalu lama merespons. Coba lagi.";
+      }
+
+      return "❌ ZhuuAI sedang mengalami gangguan koneksi. Coba lagi sebentar.";
     }
   }
 
-  return "The AI failed to respond after multiple attempts. Please try again.";
+  return "❌ ZhuuAI gagal merespons. Coba lagi.";
 }
 
 router.get("/anthropic/conversations", async (req, res): Promise<void> => {
