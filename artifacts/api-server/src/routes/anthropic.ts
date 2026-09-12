@@ -115,7 +115,10 @@ ZhuuAI:`;
         (raw.trim() || null);
 
       if (text) {
-        return text;
+        return text
+          .replace(/^:::writing[\\s\\S]*?\\n/, "")
+          .replace(/\\n:::\s*$/, "")
+          .trim();
       }
 
       return "ZhuuAI menerima request, tetapi API tidak mengembalikan jawaban. Coba lagi.";
