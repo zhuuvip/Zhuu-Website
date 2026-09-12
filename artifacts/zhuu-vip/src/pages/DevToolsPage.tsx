@@ -667,9 +667,34 @@ function MarkdownPreview() {
   );
 }
 
+function CalculatorTool() {
+  const [input, setInput] = useState("12 * (8 + 2)");
+  const [result, setResult] = useState("");
+
+  const calculate = () => {
+    try {
+      if (!/^[0-9+\-*/().%\s]+$/.test(input)) throw new Error("Invalid expression");
+      const value = Function(`"use strict"; return (${input})`)();
+      if (!Number.isFinite(value)) throw new Error("Invalid result");
+      setResult(String(value));
+    } catch {
+      setResult("Error: expression tidak valid");
+    }
+  };
+
+  return (
+    <div className="space-y-4">
+      <input value={input} onChange={e => setInput(e.target.value)} onKeyDown={e => e.key === "Enter" && calculate()} placeholder="12 * (8 + 2)" style={inputStyle()} />
+      <button onClick={calculate} className="px-5 py-2.5 rounded-xl text-sm font-bold cursor-pointer" style={{ background: "rgba(0,200,220,0.15)", border: "1px solid rgba(0,200,220,0.35)", color: "#00e5ff" }}>Calculate</button>
+      {result && <div className="p-4 rounded-xl text-xl font-bold font-mono break-all" style={{ background: "rgba(0,10,25,0.8)", border: "1px solid rgba(0,200,220,0.15)", color: "#7dd3fc" }}>{result}</div>}
+    </div>
+  );
+}
+
 // ─── Tool definitions ─────────────────────────────────────────────────────────
 
 const TOOLS = [
+  { id: "calculator", icon: "🧮", name: "Calculator", desc: "Calculate mathematical expressions", component: <CalculatorTool /> },
   { id: "json",     icon: "{ }",  name: "JSON Formatter",   desc: "Format, validate & minify JSON",   component: <JsonFormatter /> },
   { id: "color",    icon: "🎨",   name: "Color Converter",  desc: "HEX → RGB → HSL conversions",     component: <ColorConverter /> },
   { id: "text",     icon: "Aa",   name: "Text Utilities",   desc: "Word count, case converter & more", component: <TextUtils /> },
