@@ -70,22 +70,51 @@ ZhuuAI:`;
         throw new Error(`AI API error ${response.status}`);
       }
 
-      const data = await response.json().catch(() => null);
+      const raw = await response.text();
 
-      const text =
-        typeof data === "string"
-          ? data
-          : data?.response ??
-            data?.result ??
-            data?.message ??
-            data?.answer ??
-            data?.data;
-
-      if (typeof text === "string" && text.trim()) {
-        return text.trim();
+      let data: any = null;
+      try {
+        data = JSON.parse(raw);
+      } catch {
+        data = null;
       }
 
-      return "ZhuuAI menerima request, tetapi tidak mendapatkan jawaban yang valid. Coba lagi.";
+      const findText = (value: any): string | null => {
+        if (typeof value === "string" && value.trim()) {
+          return value.trim();
+        }
+
+        if (!value || typeof value !== "object") {
+          return null;
+        }
+
+        const keys = [
+          "response",
+          "result",
+          "message",
+          "answer",
+          "text",
+          "content",
+          "reply",
+          "output",
+          "data",
+        ];
+
+        for (const key of keys) {
+          const found = findText(value[key]);
+          if (found) return found;
+        }
+
+        return null;
+      };
+
+      const text = findText(data) ?? (raw.trim() || null);
+
+      if (text) {
+        return text;
+      }
+
+      return "ZhuuAI menerima request, tetapi API tidak mengembalikan jawaban. Coba lagi.";
     } catch (err: any) {
       if (attempt < retries) {
         await new Promise((r) => setTimeout(r, 1000 * (attempt + 1)));
