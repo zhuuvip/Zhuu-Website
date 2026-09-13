@@ -219,6 +219,7 @@ export default function AdminPage() {
     if (tab === "stats") fetchStats();
     if (tab === "feedback") fetchFeedback();
     if (tab === "settings") { fetchSettings(); fetchAnnouncement(); }
+    if (tab === "products") loadProducts();
   }, [tab, isAdmin, user]);
 
   // Song actions
