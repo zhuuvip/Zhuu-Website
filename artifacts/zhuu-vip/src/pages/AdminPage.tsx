@@ -222,7 +222,6 @@ export default function AdminPage() {
     if (tab === "feedback") fetchFeedback();
     if (tab === "settings") { fetchSettings(); fetchAnnouncement(); }
     if (tab === "products") loadProducts();
-    if (tab === "products") loadProducts();
   }, [tab, isAdmin, user]);
 
   // Song actions
@@ -852,7 +851,6 @@ export default function AdminPage() {
                   });
                   if (!r.ok) { alert("Gagal menyimpan durasi"); return; }
                   setEditingOptionId(null);
-                  loadProducts();
                 } else {
                   setEditingOptionId(o.id);
                 }
