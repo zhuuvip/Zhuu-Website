@@ -62,7 +62,7 @@ export default function ProductsPage() {
         <div className="mb-8 rounded-2xl border p-6 text-center">
           <h2 className="mb-4 text-xl font-bold">💳 Pembayaran QRIS DANA</h2>
           <img
-            src="https://files.catbox.moe/7sgry7.jpeg"
+            src="/attached_assets/qr_ID1026531275638_12.09.26_1789202677_1789202677296.jpeg"
             alt="QRIS DANA"
             className="mx-auto h-64 w-64 rounded-xl object-contain"
           />
@@ -79,9 +79,17 @@ export default function ProductsPage() {
                 selectedProduct.id === product.id ? "ring-2" : ""
               }`}
             >
-              <div className="mb-4 flex h-16 items-center justify-center rounded-xl border text-3xl">
-                🛍️
-              </div>
+              <div className="mb-4 flex h-16 items-center justify-center rounded-xl border overflow-hidden">
+  {product.imageUrl ? (
+    <img
+      src={product.imageUrl}
+      alt={product.name}
+      className="h-full w-full object-cover"
+    />
+  ) : (
+    <span className="text-3xl">🛍️</span>
+  )}
+</div>
 
               <h3 className="text-xl font-bold">{product.name}</h3>
 

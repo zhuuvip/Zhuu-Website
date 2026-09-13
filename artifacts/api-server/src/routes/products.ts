@@ -1,12 +1,13 @@
 import { Router } from "express";
 import { db } from "@workspace/db";
 import { productsTable, productOptionsTable } from "@workspace/db";
-import { eq } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import { requireAdmin } from "../lib/auth";
 
 const router = Router();
 
 router.get("/products", async (_req, res) => {
+  await db.execute(sql`ALTER TABLE products ADD COLUMN IF NOT EXISTS image_url TEXT`);
   const products = await db.select().from(productsTable);
   const options = await db.select().from(productOptionsTable);
   return res.json(products.map(p => ({
