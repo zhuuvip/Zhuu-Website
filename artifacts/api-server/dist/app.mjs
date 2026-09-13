@@ -64582,7 +64582,6 @@ router2.delete("/products/:id", requireAdmin, async (req, res) => {
   await db.delete(productsTable).where(eq(productsTable.id, Number(req.params.id)));
   return res.json({ ok: true });
 });
-var products_default = router2;
 router2.post("/products/:id/options", requireAdmin, async (req, res) => {
   const [option] = await db.insert(productOptionsTable).values({
     productId: Number(req.params.id),
@@ -64604,6 +64603,7 @@ router2.delete("/products/options/:id", requireAdmin, async (req, res) => {
   await db.delete(productOptionsTable).where(eq(productOptionsTable.id, Number(req.params.id)));
   return res.json({ ok: true });
 });
+var products_default = router2;
 
 // src/routes/links.ts
 var import_express4 = __toESM(require_express2(), 1);

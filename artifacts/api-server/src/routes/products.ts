@@ -38,8 +38,6 @@ router.delete("/products/:id", requireAdmin, async (req, res) => {
   return res.json({ ok: true });
 });
 
-export default router;
-
 router.post("/products/:id/options", requireAdmin, async (req, res) => {
   const [option] = await db.insert(productOptionsTable).values({
     productId: Number(req.params.id),
@@ -67,3 +65,5 @@ router.delete("/products/options/:id", requireAdmin, async (req, res) => {
     .where(eq(productOptionsTable.id, Number(req.params.id)));
   return res.json({ ok: true });
 });
+
+export default router;
