@@ -839,7 +839,7 @@ export default function AdminPage() {
               className="px-3 py-2 rounded-lg bg-black/20 text-sm"
             />
 
-            <button
+            <button type="button"
               onClick={async () => {
                 if (editingOptionId === o.id) {
                   const d = document.getElementById(`duration-${o.id}`) as HTMLInputElement;
