@@ -744,7 +744,7 @@ export default function AdminPage() {
 
       <button
         onClick={async () => {
-          if (!selectedProductId || !duration) return;
+          if (!selectedProductId || !duration) { alert("Pilih produk dan isi durasi dulu"); return; }
           const r = await fetch(`${API_BASE}/api/products/${selectedProductId}/options`, {
             method: "POST",
             headers: await authHeaders(),
@@ -775,6 +775,7 @@ export default function AdminPage() {
           <button
             onClick={async () => {
               const el = document.getElementById(`product-name-${p.id}`) as HTMLInputElement;
+        if (!confirm(`Simpan perubahan ${p.name}?`)) return;
               await fetch(`${API_BASE}/api/products/${p.id}`, {
                 method: "PATCH",
                 headers: await authHeaders(),
@@ -800,7 +801,7 @@ export default function AdminPage() {
         </div>
 
         {p.options?.map((o:any) => (
-          <div key={o.id} className="grid grid-cols-[1fr_1fr_1fr_auto_auto] gap-2 items-center mt-2">
+          <div key={o.id} className="grid grid-cols-1 sm:grid-cols-[1fr_1fr_1fr_auto_auto] gap-2 items-center mt-2">
             <input
               defaultValue={o.duration}
               id={`duration-${o.id}`}
@@ -822,6 +823,7 @@ export default function AdminPage() {
             <button
               onClick={async () => {
                 const durationEl = document.getElementById(`duration-${o.id}`) as HTMLInputElement;
+          if (!confirm(`Simpan perubahan durasi ${o.duration}?`)) return;
                 const priceEl = document.getElementById(`price-${o.id}`) as HTMLInputElement;
                 const stockEl = document.getElementById(`stock-${o.id}`) as HTMLInputElement;
 
