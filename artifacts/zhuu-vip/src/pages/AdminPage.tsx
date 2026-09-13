@@ -220,6 +220,7 @@ export default function AdminPage() {
     if (tab === "feedback") fetchFeedback();
     if (tab === "settings") { fetchSettings(); fetchAnnouncement(); }
     if (tab === "products") loadProducts();
+    if (tab === "products") loadProducts();
   }, [tab, isAdmin, user]);
 
   // Song actions
@@ -719,7 +720,7 @@ export default function AdminPage() {
           if (!productName.trim()) return;
           const r = await fetch(`${API_BASE}/api/products`, {
             method: "POST",
-            headers: {"Content-Type": "application/json"},
+            headers: await authHeaders(),
             body: JSON.stringify({name: productName})
           });
           if (r.ok) {
@@ -746,7 +747,7 @@ export default function AdminPage() {
           if (!selectedProductId || !duration) return;
           const r = await fetch(`${API_BASE}/api/products/${selectedProductId}/options`, {
             method: "POST",
-            headers: {"Content-Type": "application/json"},
+            headers: await authHeaders(),
             body: JSON.stringify({duration, price, stock})
           });
           if (r.ok) {
@@ -776,7 +777,7 @@ export default function AdminPage() {
               const el = document.getElementById(`product-name-${p.id}`) as HTMLInputElement;
               await fetch(`${API_BASE}/api/products/${p.id}`, {
                 method: "PATCH",
-                headers: {"Content-Type": "application/json"},
+                headers: await authHeaders(),
                 body: JSON.stringify({name: el.value})
               });
               loadProducts();
@@ -789,7 +790,7 @@ export default function AdminPage() {
           <button
             onClick={async () => {
               if (!confirm(`Hapus ${p.name}?`)) return;
-              await fetch(`${API_BASE}/api/products/${p.id}`, {method: "DELETE"});
+              await fetch(`${API_BASE}/api/products/${p.id}`, {method: "DELETE", headers: await authHeaders()});
               loadProducts();
             }}
             className="px-3 py-2 rounded-lg bg-red-400/10 text-red-300 text-sm"
@@ -826,7 +827,7 @@ export default function AdminPage() {
 
                 await fetch(`${API_BASE}/api/products/options/${o.id}`, {
                   method: "PATCH",
-                  headers: {"Content-Type": "application/json"},
+                  headers: await authHeaders(),
                   body: JSON.stringify({
                     duration: durationEl.value,
                     price: priceEl.value,
@@ -843,7 +844,7 @@ export default function AdminPage() {
             <button
               onClick={async () => {
                 if (!confirm(`Hapus ${o.duration}?`)) return;
-                await fetch(`${API_BASE}/api/products/options/${o.id}`, {method: "DELETE"});
+                await fetch(`${API_BASE}/api/products/options/${o.id}`, {method: "DELETE", headers: await authHeaders()});
                 loadProducts();
                 }} className="px-3 py-2 rounded-lg bg-red-400/10 text-red-300 text-sm"
             >
