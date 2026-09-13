@@ -618,7 +618,7 @@ export default function AdminPage() {
               className="w-full px-3 py-2 rounded-xl text-sm outline-none resize-none"
               style={{ background: "rgba(0,20,40,0.6)", border: "1px solid rgba(0,200,220,0.15)", color: "rgba(200,240,255,0.9)" }}
             />
-            <div className="flex gap-2 items-center">
+            <div className="flex flex-col sm:flex-row gap-2 items-stretch sm:items-center">
               <input type="color" value={announcementColor} onChange={e => setAnnouncementColor(e.target.value)} className="w-10 h-10 rounded-lg cursor-pointer" />
               <button onClick={saveAnnouncement} disabled={!announcement.trim() || announcementSaving}
                 className="flex-1 py-2 rounded-xl text-sm font-medium bg-cyan-400/10 border border-cyan-400/20 text-cyan-300 hover:bg-cyan-400/20 transition-all">
@@ -767,7 +767,7 @@ export default function AdminPage() {
 
     {products.map(p => (
       <div key={p.id} className="mt-4 p-4 rounded-xl bg-black/20">
-        <div className="flex gap-2 items-center">
+        <div className="flex flex-col sm:flex-row gap-2 items-stretch sm:items-center">
           <input
             defaultValue={p.name}
             id={`product-name-${p.id}`}
@@ -791,7 +791,7 @@ export default function AdminPage() {
               setEditingProductId(p.id);
             }
           }}
-          className="px-3 py-2 rounded-lg bg-cyan-400/10 text-cyan-300 text-sm"
+          className="w-full sm:w-auto px-3 py-2 rounded-lg bg-cyan-400/10 text-cyan-300 text-sm"
         >
           {editingProductId === p.id ? "Simpan" : "Edit"}
         </button>
@@ -857,7 +857,7 @@ export default function AdminPage() {
                   setEditingOptionId(o.id);
                 }
               }}
-              className="px-3 py-2 rounded-lg bg-cyan-400/10 text-cyan-300 text-sm"
+              className="w-full sm:w-auto px-3 py-2 rounded-lg bg-cyan-400/10 text-cyan-300 text-sm"
             >
               {editingOptionId === o.id ? "Simpan" : "Edit"}
             </button>
