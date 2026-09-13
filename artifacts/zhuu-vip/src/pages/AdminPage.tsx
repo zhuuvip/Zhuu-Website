@@ -96,6 +96,8 @@ export default function AdminPage() {
   const [duration, setDuration] = useState("");
   const [price, setPrice] = useState("");
   const [stock, setStock] = useState("");
+  const [editingProductId, setEditingProductId] = useState<number | null>(null);
+  const [editingOptionId, setEditingOptionId] = useState<number | null>(null);
 
   // Link form state
   const [editingLinkId, setEditingLinkId] = useState<number | null>(null);
@@ -769,24 +771,41 @@ export default function AdminPage() {
           <input
             defaultValue={p.name}
             id={`product-name-${p.id}`}
+            disabled={editingProductId !== p.id}
             className="flex-1 px-3 py-2 rounded-lg bg-black/20 text-cyan-300 font-semibold"
           />
 
           <button
             onClick={async () => {
+            if (editingProductId === p.id) {
               const el = document.getElementById(`product-name-${p.id}`) as HTMLInputElement;
-        if (!confirm(`Simpan perubahan ${p.name}?`)) return;
-              await fetch(`${API_BASE}/api/products/${p.id}`, {
+              const r = await fetch(`${API_BASE}/api/products/${p.id}`, {
                 method: "PATCH",
                 headers: await authHeaders(),
                 body: JSON.stringify({name: el.value})
               });
+              if (!r.ok) { alert("Gagal menyimpan produk"); return; }
+              setEditingProductId(null);
+              loadProducts();
+            } else {
+              setEditingProductId(p.id);
+            }
+          }}
+          className="px-3 py-2 rounded-lg bg-cyan-400/10 text-cyan-300 text-sm"
+        >
+          {editingProductId === p.id ? "Simpan" : "Edit"}
+        </button>
+        {editingProductId === p.id && (
+          <button
+            onClick={() => {
+              setEditingProductId(null);
               loadProducts();
             }}
-            className="px-3 py-2 rounded-lg bg-cyan-400/10 text-cyan-300 text-sm"
+            className="px-3 py-2 rounded-lg bg-yellow-400/10 text-yellow-300 text-sm"
           >
-            Edit
+            Batal
           </button>
+        )}
 
           <button
             onClick={async () => {
@@ -804,44 +823,55 @@ export default function AdminPage() {
           <div key={o.id} className="grid grid-cols-1 sm:grid-cols-[1fr_1fr_1fr_auto_auto] gap-2 items-center mt-2">
             <input
               defaultValue={o.duration}
-              id={`duration-${o.id}`}
+              id={`duration-${o.id}`} disabled={editingOptionId !== o.id}
               className="px-3 py-2 rounded-lg bg-black/20 text-sm"
             />
             <input
               defaultValue={o.price}
-              id={`price-${o.id}`}
+              id={`price-${o.id}`} disabled={editingOptionId !== o.id}
               type="number"
               className="px-3 py-2 rounded-lg bg-black/20 text-sm"
             />
             <input
               defaultValue={o.stock}
-              id={`stock-${o.id}`}
+              id={`stock-${o.id}`} disabled={editingOptionId !== o.id}
               type="number"
               className="px-3 py-2 rounded-lg bg-black/20 text-sm"
             />
 
             <button
               onClick={async () => {
-                const durationEl = document.getElementById(`duration-${o.id}`) as HTMLInputElement;
-          if (!confirm(`Simpan perubahan durasi ${o.duration}?`)) return;
-                const priceEl = document.getElementById(`price-${o.id}`) as HTMLInputElement;
-                const stockEl = document.getElementById(`stock-${o.id}`) as HTMLInputElement;
-
-                await fetch(`${API_BASE}/api/products/options/${o.id}`, {
-                  method: "PATCH",
-                  headers: await authHeaders(),
-                  body: JSON.stringify({
-                    duration: durationEl.value,
-                    price: priceEl.value,
-                    stock: stockEl.value
-                  })
-                });
-                loadProducts();
+                if (editingOptionId === o.id) {
+                  const d = document.getElementById(`duration-${o.id}`) as HTMLInputElement;
+                  const pr = document.getElementById(`price-${o.id}`) as HTMLInputElement;
+                  const st = document.getElementById(`stock-${o.id}`) as HTMLInputElement;
+                  const r = await fetch(`${API_BASE}/api/products/options/${o.id}`, {
+                    method: "PATCH",
+                    headers: await authHeaders(),
+                    body: JSON.stringify({duration: d.value, price: pr.value, stock: st.value})
+                  });
+                  if (!r.ok) { alert("Gagal menyimpan durasi"); return; }
+                  setEditingOptionId(null);
+                  loadProducts();
+                } else {
+                  setEditingOptionId(o.id);
+                }
               }}
               className="px-3 py-2 rounded-lg bg-cyan-400/10 text-cyan-300 text-sm"
             >
-              Edit
+              {editingOptionId === o.id ? "Simpan" : "Edit"}
             </button>
+            {editingOptionId === o.id && (
+              <button
+                onClick={() => {
+                  setEditingOptionId(null);
+                  loadProducts();
+                }}
+                className="px-3 py-2 rounded-lg bg-yellow-400/10 text-yellow-300 text-sm"
+              >
+                Batal
+              </button>
+            )}
 
             <button
               onClick={async () => {
