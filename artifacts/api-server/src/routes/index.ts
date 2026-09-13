@@ -1,5 +1,6 @@
 import { Router, type IRouter } from "express";
 import healthRouter from "./health";
+import productsRouter from "./products";
 import linksRouter from "./links";
 import songsRouter from "./songs";
 import anthropicRouter from "./anthropic";
@@ -10,6 +11,7 @@ import settingsRouter from "./settings";
 const router: IRouter = Router();
 
 router.use(healthRouter);
+router.use(productsRouter);
 router.use(linksRouter);
 router.use(songsRouter);
 router.use(anthropicRouter);

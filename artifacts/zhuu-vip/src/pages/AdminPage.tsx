@@ -14,7 +14,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import {
   Shield, Plus, Trash2, Edit2, Save, X, Link2, Music,
   Loader2, ChevronLeft, ToggleLeft, ToggleRight, Eye, EyeOff,
-  MessageSquare, BarChart3, Star, Users, Bot, RefreshCw,
+  MessageSquare, ShoppingCart, BarChart3, Star, Users, Bot, RefreshCw,
   Settings, Image as ImageIcon, Palette, Upload, CheckCircle2,
   GripVertical, ExternalLink,
 } from "lucide-react";
@@ -50,11 +50,12 @@ interface SiteSettings {
   bannerUrl?: string; themeColor?: string; statusText?: string;
 }
 
-type Tab = "stats" | "links" | "songs" | "settings" | "feedback";
+type Tab = "stats" | "links" | "songs" | "settings" | "feedback" | "products";
 
 const iconOptions = ["SiDiscord","SiYoutube","SiTiktok","SiInstagram","SiTwitch","SiX","SiGithub","SiSpotify","SiPatreon","SiReddit","SiWhatsapp"];
 
 function StatCard({ label, value, icon, color }: { label: string; value: number; icon: React.ReactNode; color: string }) {
+
   return (
     <div className="glass-card rounded-2xl p-5 hover:border-cyan-400/30 transition-all">
       <div className="flex items-center justify-between mb-3">
@@ -64,6 +65,7 @@ function StatCard({ label, value, icon, color }: { label: string; value: number;
       <div className="text-3xl font-black" style={{ color, fontFamily: "Poppins, Inter, sans-serif" }}>
         {value.toLocaleString()}
       </div>
+
     </div>
   );
 }
@@ -84,6 +86,16 @@ export default function AdminPage() {
   const deleteLink = useDeleteLink();
 
   const [tab, setTab] = useState<Tab>("stats");
+  const [products, setProducts] = useState<any[]>([]);
+  const loadProducts = async () => {
+    const res = await fetch(`${API_BASE}/api/products`);
+    if (res.ok) setProducts(await res.json());
+  };
+  const [productName, setProductName] = useState("");
+  const [selectedProductId, setSelectedProductId] = useState("");
+  const [duration, setDuration] = useState("");
+  const [price, setPrice] = useState("");
+  const [stock, setStock] = useState("");
 
   // Link form state
   const [editingLinkId, setEditingLinkId] = useState<number | null>(null);
@@ -303,6 +315,7 @@ export default function AdminPage() {
     { id: "songs", label: "Songs", icon: <Music size={14} /> },
     { id: "settings", label: "Settings", icon: <Settings size={14} /> },
     { id: "feedback", label: "Feedback", icon: <MessageSquare size={14} /> },
+    { id: "products", label: "Products", icon: <ShoppingCart size={14} /> },
   ];
 
   if (!user) return (
@@ -321,6 +334,7 @@ export default function AdminPage() {
       </div>
     </div>
   );
+
 
   return (
     <div className="min-h-screen px-4 py-8 max-w-4xl mx-auto" data-testid="admin-page">
@@ -687,6 +701,7 @@ export default function AdminPage() {
       )}
 
       {/* Feedback Tab */}
+      {tab === "products" && (<div className="glass-card rounded-2xl p-5"><h2 className="text-lg font-semibold text-blue-100 mb-4">Products</h2><div className="grid sm:grid-cols-4 gap-2"><input value={productName} onChange={e => setProductName(e.target.value)} placeholder="Nama produk baru" className="px-3 py-2 rounded-lg bg-black/20 text-sm" /><input value={duration} onChange={e => setDuration(e.target.value)} placeholder="Durasi" className="px-3 py-2 rounded-lg bg-black/20 text-sm" /><input value={price} onChange={e => setPrice(e.target.value)} placeholder="Harga" type="number" className="px-3 py-2 rounded-lg bg-black/20 text-sm" /><input value={stock} onChange={e => setStock(e.target.value)} placeholder="Stock" type="number" className="px-3 py-2 rounded-lg bg-black/20 text-sm" /></div><div className="flex gap-2 mt-3"><button onClick={async () => { const r=await fetch(`${API_BASE}/api/products`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({name:productName})}); if(r.ok){setProductName("");loadProducts();} }} className="px-4 py-2 rounded-lg bg-cyan-400/10 text-cyan-300 text-sm">+ Add Product</button><select value={selectedProductId} onChange={e=>setSelectedProductId(e.target.value)} className="px-3 py-2 rounded-lg bg-black/20 text-sm"><option value="">Pilih produk</option>{products.map(p=><option key={p.id} value={p.id}>{p.name}</option>)}</select><button onClick={async()=>{if(!selectedProductId)return;const r=await fetch(`${API_BASE}/api/products/${selectedProductId}/options`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({duration,price,stock})});if(r.ok){setDuration("");setPrice("");setStock("");loadProducts();}}} className="px-4 py-2 rounded-lg bg-cyan-400/10 text-cyan-300 text-sm">+ Add Duration</button></div>{products.map(p=><div key={p.id} className="mt-4 p-4 rounded-xl bg-black/20"><div className="font-semibold text-cyan-300">{p.name}</div>{p.options?.map((o:any)=><div key={o.id} className="flex justify-between text-sm text-blue-200/70 mt-2"><span>{o.duration}</span><span>Rp{o.price.toLocaleString("id-ID")}</span><span>Stock {o.stock}</span></div>)}</div>)}</div>)}
       {tab === "feedback" && (
         <div className="space-y-4">
           <div className="flex items-center justify-between">

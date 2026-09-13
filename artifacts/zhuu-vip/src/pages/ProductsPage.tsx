@@ -1,17 +1,32 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const WA = "62882005730502";
 
-const products = Array.from({ length: 13 }, (_, i) => ({
-  id: `PRODUK-${String.fromCharCode(65 + i)}`,
-  name: `PRODUK ${String.fromCharCode(65 + i)}`,
-  duration: "1 DAY",
-  price: 6000,
-  stock: 10,
-}));
+const API_BASE = "https://zhuuapi.vercel.app";
 
 export default function ProductsPage() {
-  const [selected, setSelected] = useState(products[0]);
+  const [products, setProducts] = useState<any[]>([]);
+  const [selectedProduct, setSelectedProduct] = useState<any>(null);
+  const [selectedOption, setSelectedOption] = useState<any>(null);
+
+  useEffect(() => {
+    fetch(`${API_BASE}/api/products`)
+      .then(res => res.json())
+      .then(data => {
+        setProducts(data);
+        if (data.length) {
+          setSelectedProduct(data[0]);
+          setSelectedOption(data[0].options?.[0] ?? null);
+        }
+      });
+  }, []);
+
+  const selectProduct = (product: any) => {
+    setSelectedProduct(product);
+    setSelectedOption(product.options[0]);
+  };
+
+  if (!selectedProduct || !selectedOption) return <main className="min-h-screen px-4 py-10 text-center">Memuat produk...</main>;
 
   const confirmPayment = () => {
     const orderId = `ZHUU-${Date.now().toString().slice(-6)}`;
@@ -20,17 +35,20 @@ export default function ProductsPage() {
       "",
       "Halo Admin, saya sudah melakukan pembayaran melalui QRIS DANA.",
       "",
-      `📦 Produk: ${selected.name}`,
-      `⏱️ Durasi: ${selected.duration}`,
-      `💰 Total: Rp${selected.price.toLocaleString("id-ID")}`,
-      `📦 Stok: ${selected.stock}`,
+      `📦 Produk: ${selectedProduct.name}`,
+      `⏱️ Durasi: ${selectedOption.duration}`,
+      `💰 Total: Rp${selectedOption.price.toLocaleString("id-ID")}`,
+      `📦 Stok: ${selectedOption.stock}`,
       `🧾 Order ID: ${orderId}`,
       "",
       "Mohon dicek pembayaran saya.",
       "Terima kasih 🙏",
     ].join("\n");
 
-    window.open(`https://wa.me/${WA}?text=${encodeURIComponent(text)}`, "_blank");
+    window.open(
+      `https://wa.me/${WA}?text=${encodeURIComponent(text)}`,
+      "_blank"
+    );
   };
 
   return (
@@ -42,10 +60,12 @@ export default function ProductsPage() {
         </div>
 
         <div className="mb-8 rounded-2xl border p-6 text-center">
-          <h2 className="mb-4 text-xl font-bold">💳 Pembayaran <img src="https://files.catbox.moe/7sgry7.jpeg" alt="QRIS DANA" className="mx-auto h-64 w-64 rounded-xl object-contain" /></h2>
-          <div className="mx-auto flex h-48 w-48 items-center justify-center rounded-xl border border-dashed opacity-70">
-            <img src="https://files.catbox.moe/7sgry7.jpeg" alt="QRIS DANA" className="mx-auto h-64 w-64 rounded-xl object-contain" />
-          </div>
+          <h2 className="mb-4 text-xl font-bold">💳 Pembayaran QRIS DANA</h2>
+          <img
+            src="https://files.catbox.moe/7sgry7.jpeg"
+            alt="QRIS DANA"
+            className="mx-auto h-64 w-64 rounded-xl object-contain"
+          />
           <p className="mt-3 text-sm opacity-70">
             Scan QRIS di atas, lalu klik tombol konfirmasi melalui WhatsApp.
           </p>
@@ -53,36 +73,62 @@ export default function ProductsPage() {
 
         <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {products.map((product) => (
-            <button
+            <div
               key={product.id}
-              onClick={() => setSelected(product)}
-              className={`rounded-2xl border p-5 text-left transition hover:scale-[1.02] ${
-                selected.id === product.id ? "ring-2" : ""
+              className={`rounded-2xl border p-5 transition ${
+                selectedProduct.id === product.id ? "ring-2" : ""
               }`}
             >
-              <div className="mb-4 flex h-20 items-center justify-center rounded-xl border text-3xl">
+              <div className="mb-4 flex h-16 items-center justify-center rounded-xl border text-3xl">
                 🛍️
               </div>
+
               <h3 className="text-xl font-bold">{product.name}</h3>
-              <p className="mt-1 opacity-70">{product.duration}</p>
-              <p className="mt-3 text-2xl font-bold">
-                Rp{product.price.toLocaleString("id-ID")}
-              </p>
-              <p className="mt-2 text-sm">Stok: {product.stock}</p>
-            </button>
+
+              <div className="mt-4 space-y-2">
+                {product.options.map((option) => (
+                  <button
+                    key={option.duration}
+                    disabled={option.stock <= 0}
+                    onClick={() => {
+                      selectProduct(product);
+                      setSelectedOption(option);
+                    }}
+                    className={`w-full rounded-xl border p-3 text-left ${
+                      selectedProduct.id === product.id &&
+                      selectedOption.duration === option.duration
+                        ? "ring-2"
+                        : ""
+                    } ${option.stock <= 0 ? "cursor-not-allowed opacity-40" : ""}`}
+                  >
+                    <div className="flex justify-between">
+                      <span>{option.duration}</span>
+                      <span className="font-bold">
+                        Rp{option.price.toLocaleString("id-ID")}
+                      </span>
+                    </div>
+                    <div className="mt-1 text-sm opacity-60">
+                      Stock: {option.stock}
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </div>
           ))}
         </div>
 
         <div className="mx-auto mt-8 max-w-xl rounded-2xl border p-6 text-center">
-          <p className="mb-1 text-sm opacity-60">Produk dipilih</p>
-          <h2 className="text-2xl font-bold">{selected.name}</h2>
+          <p className="text-sm opacity-60">Produk dipilih</p>
+          <h2 className="text-2xl font-bold">{selectedProduct.name}</h2>
           <p className="my-2">
-            {selected.duration} • Rp{selected.price.toLocaleString("id-ID")}
+            {selectedOption.duration} • Rp
+            {selectedOption.price.toLocaleString("id-ID")}
           </p>
 
           <button
             onClick={confirmPayment}
-            className="mt-4 w-full rounded-xl px-5 py-3 font-bold"
+            disabled={selectedOption.stock <= 0}
+            className="mt-4 w-full rounded-xl px-5 py-3 font-bold disabled:opacity-40"
           >
             ✅ Sudah Bayar — Konfirmasi via WhatsApp
           </button>
