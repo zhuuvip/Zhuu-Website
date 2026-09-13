@@ -20650,27 +20650,27 @@ var require_router = __commonJS({
     var slice = Array.prototype.slice;
     var flatten = Array.prototype.flat;
     var methods = METHODS.map((method) => method.toLowerCase());
-    module.exports = Router9;
+    module.exports = Router10;
     module.exports.Route = Route;
-    function Router9(options) {
-      if (!(this instanceof Router9)) {
-        return new Router9(options);
+    function Router10(options) {
+      if (!(this instanceof Router10)) {
+        return new Router10(options);
       }
       const opts = options || {};
-      function router9(req, res, next) {
-        router9.handle(req, res, next);
+      function router10(req, res, next) {
+        router10.handle(req, res, next);
       }
-      Object.setPrototypeOf(router9, this);
-      router9.caseSensitive = opts.caseSensitive;
-      router9.mergeParams = opts.mergeParams;
-      router9.params = {};
-      router9.strict = opts.strict;
-      router9.stack = [];
-      return router9;
+      Object.setPrototypeOf(router10, this);
+      router10.caseSensitive = opts.caseSensitive;
+      router10.mergeParams = opts.mergeParams;
+      router10.params = {};
+      router10.strict = opts.strict;
+      router10.stack = [];
+      return router10;
     }
-    Router9.prototype = function() {
+    Router10.prototype = function() {
     };
-    Router9.prototype.param = function param(name, fn) {
+    Router10.prototype.param = function param(name, fn) {
       if (!name) {
         throw new TypeError("argument name is required");
       }
@@ -20690,7 +20690,7 @@ var require_router = __commonJS({
       params.push(fn);
       return this;
     };
-    Router9.prototype.handle = function handle(req, res, callback) {
+    Router10.prototype.handle = function handle(req, res, callback) {
       if (!callback) {
         throw new TypeError("argument callback is required");
       }
@@ -20817,7 +20817,7 @@ var require_router = __commonJS({
         }
       }
     };
-    Router9.prototype.use = function use(handler) {
+    Router10.prototype.use = function use(handler) {
       let offset = 0;
       let path = "/";
       if (typeof handler !== "function") {
@@ -20850,7 +20850,7 @@ var require_router = __commonJS({
       }
       return this;
     };
-    Router9.prototype.route = function route(path) {
+    Router10.prototype.route = function route(path) {
       const route2 = new Route(path);
       const layer = new Layer(path, {
         sensitive: this.caseSensitive,
@@ -20865,7 +20865,7 @@ var require_router = __commonJS({
       return route2;
     };
     methods.concat("all").forEach(function(method) {
-      Router9.prototype[method] = function(path) {
+      Router10.prototype[method] = function(path) {
         const route = this.route(path);
         route[method].apply(route, slice.call(arguments, 1));
         return this;
@@ -21048,13 +21048,13 @@ var require_application = __commonJS({
     var compileTrust = require_utils3().compileTrust;
     var resolve = __require("node:path").resolve;
     var once = require_once();
-    var Router9 = require_router();
+    var Router10 = require_router();
     var slice = Array.prototype.slice;
     var flatten = Array.prototype.flat;
     var app2 = exports = module.exports = {};
     var trustProxyDefaultSymbol = "@@symbol:trust_proxy_default";
     app2.init = function init() {
-      var router9 = null;
+      var router10 = null;
       this.cache = /* @__PURE__ */ Object.create(null);
       this.engines = /* @__PURE__ */ Object.create(null);
       this.settings = /* @__PURE__ */ Object.create(null);
@@ -21063,13 +21063,13 @@ var require_application = __commonJS({
         configurable: true,
         enumerable: true,
         get: function getrouter() {
-          if (router9 === null) {
-            router9 = new Router9({
+          if (router10 === null) {
+            router10 = new Router10({
               caseSensitive: this.enabled("case sensitive routing"),
               strict: this.enabled("strict routing")
             });
           }
-          return router9;
+          return router10;
         }
       });
     };
@@ -21140,15 +21140,15 @@ var require_application = __commonJS({
       if (fns.length === 0) {
         throw new TypeError("app.use() requires a middleware function");
       }
-      var router9 = this.router;
+      var router10 = this.router;
       fns.forEach(function(fn2) {
         if (!fn2 || !fn2.handle || !fn2.set) {
-          return router9.use(path, fn2);
+          return router10.use(path, fn2);
         }
         debug(".use app under %s", path);
         fn2.mountpath = path;
         fn2.parent = this;
-        router9.use(path, function mounted_app(req, res, next) {
+        router10.use(path, function mounted_app(req, res, next) {
           var orig = req.app;
           fn2.handle(req, res, function(err) {
             Object.setPrototypeOf(req, orig.request);
@@ -23721,7 +23721,7 @@ var require_express = __commonJS({
     var EventEmitter = __require("node:events").EventEmitter;
     var mixin = require_merge_descriptors();
     var proto = require_application();
-    var Router9 = require_router();
+    var Router10 = require_router();
     var req = require_request();
     var res = require_response();
     exports = module.exports = createApplication;
@@ -23743,8 +23743,8 @@ var require_express = __commonJS({
     exports.application = proto;
     exports.request = req;
     exports.response = res;
-    exports.Route = Router9.Route;
-    exports.Router = Router9;
+    exports.Route = Router10.Route;
+    exports.Router = Router10;
     exports.json = bodyParser.json;
     exports.raw = bodyParser.raw;
     exports.static = require_serve_static();
@@ -33690,7 +33690,7 @@ var require_lib5 = __commonJS({
 });
 
 // src/app.ts
-var import_express10 = __toESM(require_express2(), 1);
+var import_express11 = __toESM(require_express2(), 1);
 var import_cors = __toESM(require_lib3(), 1);
 var import_pino_http = __toESM(require_logger(), 1);
 
@@ -42010,7 +42010,7 @@ var getAuth = ((req, options) => {
 });
 
 // src/routes/index.ts
-var import_express9 = __toESM(require_express2(), 1);
+var import_express10 = __toESM(require_express2(), 1);
 
 // src/routes/health.ts
 var import_express = __toESM(require_express2(), 1);
@@ -46063,7 +46063,7 @@ router.get("/healthz", (_req, res) => {
 });
 var health_default = router;
 
-// src/routes/links.ts
+// src/routes/products.ts
 var import_express3 = __toESM(require_express2(), 1);
 
 // ../../node_modules/.pnpm/pg@8.21.0/node_modules/pg/esm/index.mjs
@@ -53046,6 +53046,8 @@ __export(schema_exports, {
   insertSongSchema: () => insertSongSchema,
   linksTable: () => linksTable,
   messages: () => messages,
+  productOptionsTable: () => productOptionsTable,
+  productsTable: () => productsTable,
   settingsTable: () => settingsTable,
   songsTable: () => songsTable,
   updateLinkSchema: () => updateLinkSchema
@@ -64510,6 +64512,21 @@ var settingsTable = pgTable("settings", {
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull()
 });
 
+// ../../lib/db/src/schema/products.ts
+var productsTable = pgTable("products", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull()
+});
+var productOptionsTable = pgTable("product_options", {
+  id: serial("id").primaryKey(),
+  productId: integer("product_id").notNull(),
+  duration: text("duration").notNull(),
+  price: integer("price").notNull(),
+  stock: integer("stock").notNull().default(0),
+  createdAt: timestamp("created_at").defaultNow().notNull()
+});
+
 // ../../lib/db/src/index.ts
 var { Pool: Pool3 } = esm_default;
 if (!process.env.DATABASE_URL) {
@@ -64540,9 +64557,58 @@ function requireAdmin(req, res, next) {
   next();
 }
 
-// src/routes/links.ts
+// src/routes/products.ts
 var router2 = (0, import_express3.Router)();
-router2.get("/links", async (req, res) => {
+router2.get("/products", async (_req, res) => {
+  const products = await db.select().from(productsTable);
+  const options = await db.select().from(productOptionsTable);
+  return res.json(products.map((p) => ({
+    ...p,
+    options: options.filter((o) => o.productId === p.id)
+  })));
+});
+router2.post("/products", requireAdmin, async (req, res) => {
+  const [product] = await db.insert(productsTable).values({
+    name: req.body.name
+  }).returning();
+  return res.json(product);
+});
+router2.patch("/products/:id", requireAdmin, async (req, res) => {
+  const [product] = await db.update(productsTable).set({ name: req.body.name }).where(eq(productsTable.id, Number(req.params.id))).returning();
+  return res.json(product);
+});
+router2.delete("/products/:id", requireAdmin, async (req, res) => {
+  await db.delete(productOptionsTable).where(eq(productOptionsTable.productId, Number(req.params.id)));
+  await db.delete(productsTable).where(eq(productsTable.id, Number(req.params.id)));
+  return res.json({ ok: true });
+});
+var products_default = router2;
+router2.post("/products/:id/options", requireAdmin, async (req, res) => {
+  const [option] = await db.insert(productOptionsTable).values({
+    productId: Number(req.params.id),
+    duration: req.body.duration,
+    price: Number(req.body.price),
+    stock: Number(req.body.stock ?? 0)
+  }).returning();
+  return res.json(option);
+});
+router2.patch("/products/options/:id", requireAdmin, async (req, res) => {
+  const [option] = await db.update(productOptionsTable).set({
+    duration: req.body.duration,
+    price: Number(req.body.price),
+    stock: Number(req.body.stock)
+  }).where(eq(productOptionsTable.id, Number(req.params.id))).returning();
+  return res.json(option);
+});
+router2.delete("/products/options/:id", requireAdmin, async (req, res) => {
+  await db.delete(productOptionsTable).where(eq(productOptionsTable.id, Number(req.params.id)));
+  return res.json({ ok: true });
+});
+
+// src/routes/links.ts
+var import_express4 = __toESM(require_express2(), 1);
+var router3 = (0, import_express4.Router)();
+router3.get("/links", async (req, res) => {
   try {
     const links = await db.select().from(linksTable).orderBy(linksTable.sortOrder);
     return res.json(links);
@@ -64551,7 +64617,7 @@ router2.get("/links", async (req, res) => {
     return res.status(500).json({ error: "Failed to fetch links" });
   }
 });
-router2.post("/links", requireAdmin, async (req, res) => {
+router3.post("/links", requireAdmin, async (req, res) => {
   const parsed = CreateLinkBody.safeParse(req.body);
   if (!parsed.success) return res.status(400).json({ error: parsed.error.message });
   try {
@@ -64562,7 +64628,7 @@ router2.post("/links", requireAdmin, async (req, res) => {
     return res.status(500).json({ error: "Failed to create link" });
   }
 });
-router2.patch("/links/:id", requireAdmin, async (req, res) => {
+router3.patch("/links/:id", requireAdmin, async (req, res) => {
   const params = UpdateLinkParams.safeParse({ id: Number(req.params.id) });
   if (!params.success) return res.status(400).json({ error: "Invalid id" });
   const parsed = UpdateLinkBody.safeParse(req.body);
@@ -64576,7 +64642,7 @@ router2.patch("/links/:id", requireAdmin, async (req, res) => {
     return res.status(500).json({ error: "Failed to update link" });
   }
 });
-router2.delete("/links/:id", requireAdmin, async (req, res) => {
+router3.delete("/links/:id", requireAdmin, async (req, res) => {
   const params = DeleteLinkParams.safeParse({ id: Number(req.params.id) });
   if (!params.success) return res.status(400).json({ error: "Invalid id" });
   try {
@@ -64587,8 +64653,8 @@ router2.delete("/links/:id", requireAdmin, async (req, res) => {
     return res.status(500).json({ error: "Failed to delete link" });
   }
 });
-var links_default = router2;
-router2.post("/links/:id/click", async (req, res) => {
+var links_default = router3;
+router3.post("/links/:id/click", async (req, res) => {
   const id = Number(req.params.id);
   if (isNaN(id)) return res.status(400).json({ error: "Invalid id" });
   try {
@@ -64603,9 +64669,9 @@ router2.post("/links/:id/click", async (req, res) => {
 });
 
 // src/routes/songs.ts
-var import_express4 = __toESM(require_express2(), 1);
-var router3 = (0, import_express4.Router)();
-router3.get("/songs", async (req, res) => {
+var import_express5 = __toESM(require_express2(), 1);
+var router4 = (0, import_express5.Router)();
+router4.get("/songs", async (req, res) => {
   try {
     const songs = await db.select().from(songsTable).orderBy(songsTable.sortOrder);
     return res.json(songs);
@@ -64614,7 +64680,7 @@ router3.get("/songs", async (req, res) => {
     return res.status(500).json({ error: "Failed to fetch songs" });
   }
 });
-router3.post("/songs", requireAdmin, async (req, res) => {
+router4.post("/songs", requireAdmin, async (req, res) => {
   const { title, artist, url: url2, coverUrl, duration: duration3, sortOrder } = req.body;
   if (!title || typeof title !== "string" || !artist || typeof artist !== "string" || !url2 || typeof url2 !== "string") {
     return res.status(400).json({ error: "title, artist, and url are required strings" });
@@ -64634,7 +64700,7 @@ router3.post("/songs", requireAdmin, async (req, res) => {
     return res.status(500).json({ error: "Failed to create song" });
   }
 });
-router3.patch("/songs/:id", requireAdmin, async (req, res) => {
+router4.patch("/songs/:id", requireAdmin, async (req, res) => {
   const id = Number(req.params.id);
   if (!id || isNaN(id)) return res.status(400).json({ error: "Invalid id" });
   const { title, artist, url: url2, coverUrl, duration: duration3, sortOrder } = req.body;
@@ -64655,7 +64721,7 @@ router3.patch("/songs/:id", requireAdmin, async (req, res) => {
     return res.status(500).json({ error: "Failed to update song" });
   }
 });
-router3.delete("/songs/:id", requireAdmin, async (req, res) => {
+router4.delete("/songs/:id", requireAdmin, async (req, res) => {
   const id = Number(req.params.id);
   if (!id || isNaN(id)) return res.status(400).json({ error: "Invalid id" });
   try {
@@ -64666,11 +64732,11 @@ router3.delete("/songs/:id", requireAdmin, async (req, res) => {
     return res.status(500).json({ error: "Failed to delete song" });
   }
 });
-var songs_default = router3;
+var songs_default = router4;
 
 // src/routes/anthropic.ts
-var import_express5 = __toESM(require_express2(), 1);
-var router4 = (0, import_express5.Router)();
+var import_express6 = __toESM(require_express2(), 1);
+var router5 = (0, import_express6.Router)();
 var SYSTEM_PROMPT = `
 You are ZhuuAI, the intelligent AI assistant of ZhuuVIP.
 
@@ -64773,7 +64839,7 @@ ZhuuAI:`;
   }
   return "\u274C ZhuuAI gagal merespons. Coba lagi.";
 }
-router4.get("/anthropic/conversations", async (req, res) => {
+router5.get("/anthropic/conversations", async (req, res) => {
   const userId = requireAuth(req, res);
   if (!userId) return;
   try {
@@ -64784,7 +64850,7 @@ router4.get("/anthropic/conversations", async (req, res) => {
     res.status(500).json({ error: "Failed to fetch conversations" });
   }
 });
-router4.post("/anthropic/conversations", async (req, res) => {
+router5.post("/anthropic/conversations", async (req, res) => {
   const userId = requireAuth(req, res);
   if (!userId) return;
   const parsed = CreateAnthropicConversationBody.safeParse(req.body);
@@ -64800,7 +64866,7 @@ router4.post("/anthropic/conversations", async (req, res) => {
     res.status(500).json({ error: "Failed to create conversation" });
   }
 });
-router4.get("/anthropic/conversations/:id", async (req, res) => {
+router5.get("/anthropic/conversations/:id", async (req, res) => {
   const userId = requireAuth(req, res);
   if (!userId) return;
   const params = GetAnthropicConversationParams.safeParse({ id: Number(req.params.id) });
@@ -64821,7 +64887,7 @@ router4.get("/anthropic/conversations/:id", async (req, res) => {
     res.status(500).json({ error: "Failed to fetch conversation" });
   }
 });
-router4.delete("/anthropic/conversations/:id", async (req, res) => {
+router5.delete("/anthropic/conversations/:id", async (req, res) => {
   const userId = requireAuth(req, res);
   if (!userId) return;
   const params = DeleteAnthropicConversationParams.safeParse({ id: Number(req.params.id) });
@@ -64843,7 +64909,7 @@ router4.delete("/anthropic/conversations/:id", async (req, res) => {
     res.status(500).json({ error: "Failed to delete conversation" });
   }
 });
-router4.get("/anthropic/conversations/:id/messages", async (req, res) => {
+router5.get("/anthropic/conversations/:id/messages", async (req, res) => {
   const userId = requireAuth(req, res);
   if (!userId) return;
   const params = ListAnthropicMessagesParams.safeParse({ id: Number(req.params.id) });
@@ -64864,7 +64930,7 @@ router4.get("/anthropic/conversations/:id/messages", async (req, res) => {
     res.status(500).json({ error: "Failed to fetch messages" });
   }
 });
-router4.post("/anthropic/conversations/:id/messages", async (req, res) => {
+router5.post("/anthropic/conversations/:id/messages", async (req, res) => {
   const userId = requireAuth(req, res);
   if (!userId) return;
   const params = SendAnthropicMessageParams.safeParse({ id: Number(req.params.id) });
@@ -64923,7 +64989,7 @@ router4.post("/anthropic/conversations/:id/messages", async (req, res) => {
     res.end();
   }
 });
-router4.post("/chat/stream", async (req, res) => {
+router5.post("/chat/stream", async (req, res) => {
   const { messages: msgHistory } = req.body;
   if (!msgHistory || !Array.isArray(msgHistory)) {
     res.status(400).json({ error: "messages array required" });
@@ -64959,10 +65025,10 @@ router4.post("/chat/stream", async (req, res) => {
     res.end();
   }
 });
-var anthropic_default = router4;
+var anthropic_default = router5;
 
 // src/routes/feedback.ts
-var import_express6 = __toESM(require_express2(), 1);
+var import_express7 = __toESM(require_express2(), 1);
 
 // src/lib/rateLimit.ts
 var store = /* @__PURE__ */ new Map();
@@ -64994,7 +65060,7 @@ function rateLimit(options) {
 }
 
 // src/routes/feedback.ts
-var router5 = (0, import_express6.Router)();
+var router6 = (0, import_express7.Router)();
 var RATINGS = ["\u{1F615} Not great", "\u{1F610} It's okay", "\u{1F642} Pretty good", "\u{1F60A} Really like it", "\u{1F929} Love it!"];
 var DISCORD_COLORS = {
   bug: 16739179,
@@ -65005,7 +65071,7 @@ var DISCORD_COLORS = {
   other: 9741240
 };
 var feedbackRateLimit = rateLimit({ windowMs: 6e4, max: 5, message: "Too many feedback submissions. Please wait a minute." });
-router5.post("/feedback", feedbackRateLimit, async (req, res) => {
+router6.post("/feedback", feedbackRateLimit, async (req, res) => {
   const { category, rating, name, email: email3, message } = req.body;
   if (!message?.trim()) {
     res.status(400).json({ error: "Message is required" });
@@ -65053,7 +65119,7 @@ router5.post("/feedback", feedbackRateLimit, async (req, res) => {
   }
   res.json({ ok: true });
 });
-router5.get("/feedback", requireAdmin, async (req, res) => {
+router6.get("/feedback", requireAdmin, async (req, res) => {
   try {
     const rows = await db.select().from(feedbackTable).orderBy(desc(feedbackTable.createdAt)).limit(100);
     res.json(rows);
@@ -65062,7 +65128,7 @@ router5.get("/feedback", requireAdmin, async (req, res) => {
     res.status(500).json({ error: "Failed to fetch feedback" });
   }
 });
-router5.delete("/feedback/:id", requireAdmin, async (req, res) => {
+router6.delete("/feedback/:id", requireAdmin, async (req, res) => {
   const id = Number(req.params.id);
   if (!id || isNaN(id)) {
     res.status(400).json({ error: "Invalid id" });
@@ -65076,8 +65142,8 @@ router5.delete("/feedback/:id", requireAdmin, async (req, res) => {
     res.status(500).json({ error: "Failed to delete feedback" });
   }
 });
-var feedback_default = router5;
-router5.get("/guestbook", async (req, res) => {
+var feedback_default = router6;
+router6.get("/guestbook", async (req, res) => {
   try {
     const rows = await db.select({
       id: feedbackTable.id,
@@ -65094,9 +65160,9 @@ router5.get("/guestbook", async (req, res) => {
 });
 
 // src/routes/stats.ts
-var import_express7 = __toESM(require_express2(), 1);
-var router6 = (0, import_express7.Router)();
-router6.get("/admin/stats", requireAdmin, async (req, res) => {
+var import_express8 = __toESM(require_express2(), 1);
+var router7 = (0, import_express8.Router)();
+router7.get("/admin/stats", requireAdmin, async (req, res) => {
   try {
     const [
       [{ count: linksCount }],
@@ -65123,8 +65189,8 @@ router6.get("/admin/stats", requireAdmin, async (req, res) => {
     res.status(500).json({ error: "Failed to fetch stats" });
   }
 });
-var stats_default = router6;
-router6.post("/visitors", async (req, res) => {
+var stats_default = router7;
+router7.post("/visitors", async (req, res) => {
   const { page } = req.body;
   try {
     await db.execute(
@@ -65136,7 +65202,7 @@ router6.post("/visitors", async (req, res) => {
     return res.status(500).json({ error: "Failed to track visitor" });
   }
 });
-router6.get("/visitors", async (req, res) => {
+router7.get("/visitors", async (req, res) => {
   try {
     const result = await db.execute(`SELECT COUNT(*) as count FROM visitors`);
     return res.json({ count: result.rows[0].count });
@@ -65146,8 +65212,8 @@ router6.get("/visitors", async (req, res) => {
 });
 
 // src/routes/settings.ts
-var import_express8 = __toESM(require_express2(), 1);
-var router7 = (0, import_express8.Router)();
+var import_express9 = __toESM(require_express2(), 1);
+var router8 = (0, import_express9.Router)();
 var SETTINGS_KEYS = [
   "profileName",
   "profileBio",
@@ -65164,7 +65230,7 @@ async function getAllSettings() {
   }
   return result;
 }
-router7.get("/settings", async (req, res) => {
+router8.get("/settings", async (req, res) => {
   try {
     const settings = await getAllSettings();
     return res.json(settings);
@@ -65173,7 +65239,7 @@ router7.get("/settings", async (req, res) => {
     return res.status(500).json({ error: "Failed to fetch settings" });
   }
 });
-router7.put("/settings", requireAdmin, async (req, res) => {
+router8.put("/settings", requireAdmin, async (req, res) => {
   const body = req.body;
   try {
     for (const key of SETTINGS_KEYS) {
@@ -65189,8 +65255,8 @@ router7.put("/settings", requireAdmin, async (req, res) => {
     return res.status(500).json({ error: "Failed to update settings" });
   }
 });
-var settings_default = router7;
-router7.get("/announcements", async (req, res) => {
+var settings_default = router8;
+router8.get("/announcements", async (req, res) => {
   try {
     const result = await db.execute(`SELECT * FROM announcements WHERE is_active = true ORDER BY created_at DESC LIMIT 1`);
     return res.json(result.rows[0] || null);
@@ -65198,7 +65264,7 @@ router7.get("/announcements", async (req, res) => {
     return res.status(500).json({ error: "Failed to fetch announcement" });
   }
 });
-router7.post("/announcements", requireAdmin, async (req, res) => {
+router8.post("/announcements", requireAdmin, async (req, res) => {
   const { message, color } = req.body;
   if (!message?.trim()) return res.status(400).json({ error: "Message required" });
   try {
@@ -65211,7 +65277,7 @@ router7.post("/announcements", requireAdmin, async (req, res) => {
     return res.status(500).json({ error: "Failed to create announcement" });
   }
 });
-router7.delete("/announcements", requireAdmin, async (req, res) => {
+router8.delete("/announcements", requireAdmin, async (req, res) => {
   try {
     await db.execute(`UPDATE announcements SET is_active = false`);
     return res.json({ success: true });
@@ -65221,15 +65287,16 @@ router7.delete("/announcements", requireAdmin, async (req, res) => {
 });
 
 // src/routes/index.ts
-var router8 = (0, import_express9.Router)();
-router8.use(health_default);
-router8.use(links_default);
-router8.use(songs_default);
-router8.use(anthropic_default);
-router8.use(feedback_default);
-router8.use(stats_default);
-router8.use(settings_default);
-var routes_default = router8;
+var router9 = (0, import_express10.Router)();
+router9.use(health_default);
+router9.use(products_default);
+router9.use(links_default);
+router9.use(songs_default);
+router9.use(anthropic_default);
+router9.use(feedback_default);
+router9.use(stats_default);
+router9.use(settings_default);
+var routes_default = router9;
 
 // src/lib/logger.ts
 var import_pino = __toESM(require_pino(), 1);
@@ -65250,7 +65317,7 @@ var logger = (0, import_pino.default)({
 });
 
 // src/app.ts
-var app = (0, import_express10.default)();
+var app = (0, import_express11.default)();
 app.use(
   (0, import_pino_http.default)({
     logger,
@@ -65264,7 +65331,7 @@ app.use(
     allowedHeaders: ["Content-Type", "Authorization"]
   })
 );
-app.use(import_express10.default.json());
+app.use(import_express11.default.json());
 app.use(clerkMiddleware());
 app.use("/api", routes_default);
 var app_default = app;

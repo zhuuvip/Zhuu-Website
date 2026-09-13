@@ -701,7 +701,159 @@ export default function AdminPage() {
       )}
 
       {/* Feedback Tab */}
-      {tab === "products" && (<div className="glass-card rounded-2xl p-5"><h2 className="text-lg font-semibold text-blue-100 mb-4">Products</h2><div className="grid sm:grid-cols-4 gap-2"><input value={productName} onChange={e => setProductName(e.target.value)} placeholder="Nama produk baru" className="px-3 py-2 rounded-lg bg-black/20 text-sm" /><input value={duration} onChange={e => setDuration(e.target.value)} placeholder="Durasi" className="px-3 py-2 rounded-lg bg-black/20 text-sm" /><input value={price} onChange={e => setPrice(e.target.value)} placeholder="Harga" type="number" className="px-3 py-2 rounded-lg bg-black/20 text-sm" /><input value={stock} onChange={e => setStock(e.target.value)} placeholder="Stock" type="number" className="px-3 py-2 rounded-lg bg-black/20 text-sm" /></div><div className="flex gap-2 mt-3"><button onClick={async () => { const r=await fetch(`${API_BASE}/api/products`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({name:productName})}); if(r.ok){setProductName("");loadProducts();} }} className="px-4 py-2 rounded-lg bg-cyan-400/10 text-cyan-300 text-sm">+ Add Product</button><select value={selectedProductId} onChange={e=>setSelectedProductId(e.target.value)} className="px-3 py-2 rounded-lg bg-black/20 text-sm"><option value="">Pilih produk</option>{products.map(p=><option key={p.id} value={p.id}>{p.name}</option>)}</select><button onClick={async()=>{if(!selectedProductId)return;const r=await fetch(`${API_BASE}/api/products/${selectedProductId}/options`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({duration,price,stock})});if(r.ok){setDuration("");setPrice("");setStock("");loadProducts();}}} className="px-4 py-2 rounded-lg bg-cyan-400/10 text-cyan-300 text-sm">+ Add Duration</button></div>{products.map(p=><div key={p.id} className="mt-4 p-4 rounded-xl bg-black/20"><div className="font-semibold text-cyan-300">{p.name}</div>{p.options?.map((o:any)=><div key={o.id} className="flex justify-between text-sm text-blue-200/70 mt-2"><span>{o.duration}</span><span>Rp{o.price.toLocaleString("id-ID")}</span><span>Stock {o.stock}</span></div>)}</div>)}</div>)}
+      {tab === "products" && (
+  <div className="glass-card rounded-2xl p-5">
+    <h2 className="text-lg font-semibold text-blue-100 mb-4">Products</h2>
+
+    <div className="grid sm:grid-cols-4 gap-2">
+      <input value={productName} onChange={e => setProductName(e.target.value)} placeholder="Nama produk" className="px-3 py-2 rounded-lg bg-black/20 text-sm" />
+      <input value={duration} onChange={e => setDuration(e.target.value)} placeholder="Durasi" className="px-3 py-2 rounded-lg bg-black/20 text-sm" />
+      <input value={price} onChange={e => setPrice(e.target.value)} placeholder="Harga" type="number" className="px-3 py-2 rounded-lg bg-black/20 text-sm" />
+      <input value={stock} onChange={e => setStock(e.target.value)} placeholder="Stock" type="number" className="px-3 py-2 rounded-lg bg-black/20 text-sm" />
+    </div>
+
+    <div className="flex gap-2 mt-3 flex-wrap">
+      <button
+        onClick={async () => {
+          if (!productName.trim()) return;
+          const r = await fetch(`${API_BASE}/api/products`, {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({name: productName})
+          });
+          if (r.ok) {
+            setProductName("");
+            loadProducts();
+          }
+        }}
+        className="px-4 py-2 rounded-lg bg-cyan-400/10 text-cyan-300 text-sm"
+      >
+        + Add Product
+      </button>
+
+      <select
+        value={selectedProductId}
+        onChange={e => setSelectedProductId(e.target.value)}
+        className="px-3 py-2 rounded-lg bg-black/20 text-sm"
+      >
+        <option value="">Pilih produk</option>
+        {products.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
+      </select>
+
+      <button
+        onClick={async () => {
+          if (!selectedProductId || !duration) return;
+          const r = await fetch(`${API_BASE}/api/products/${selectedProductId}/options`, {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({duration, price, stock})
+          });
+          if (r.ok) {
+            setDuration("");
+            setPrice("");
+            setStock("");
+            loadProducts();
+          }
+        }}
+        className="px-4 py-2 rounded-lg bg-cyan-400/10 text-cyan-300 text-sm"
+      >
+        + Add Duration
+      </button>
+    </div>
+
+    {products.map(p => (
+      <div key={p.id} className="mt-4 p-4 rounded-xl bg-black/20">
+        <div className="flex gap-2 items-center">
+          <input
+            defaultValue={p.name}
+            id={`product-name-${p.id}`}
+            className="flex-1 px-3 py-2 rounded-lg bg-black/20 text-cyan-300 font-semibold"
+          />
+
+          <button
+            onClick={async () => {
+              const el = document.getElementById(`product-name-${p.id}`) as HTMLInputElement;
+              await fetch(`${API_BASE}/api/products/${p.id}`, {
+                method: "PATCH",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({name: el.value})
+              });
+              loadProducts();
+            }}
+            className="px-3 py-2 rounded-lg bg-cyan-400/10 text-cyan-300 text-sm"
+          >
+            Edit
+          </button>
+
+          <button
+            onClick={async () => {
+              if (!confirm(`Hapus ${p.name}?`)) return;
+              await fetch(`${API_BASE}/api/products/${p.id}`, {method: "DELETE"});
+              loadProducts();
+            }}
+            className="px-3 py-2 rounded-lg bg-red-400/10 text-red-300 text-sm"
+          >
+            Hapus
+          </button>
+        </div>
+
+        {p.options?.map((o:any) => (
+          <div key={o.id} className="grid grid-cols-[1fr_1fr_1fr_auto_auto] gap-2 items-center mt-2">
+            <input
+              defaultValue={o.duration}
+              id={`duration-${o.id}`}
+              className="px-3 py-2 rounded-lg bg-black/20 text-sm"
+            />
+            <input
+              defaultValue={o.price}
+              id={`price-${o.id}`}
+              type="number"
+              className="px-3 py-2 rounded-lg bg-black/20 text-sm"
+            />
+            <input
+              defaultValue={o.stock}
+              id={`stock-${o.id}`}
+              type="number"
+              className="px-3 py-2 rounded-lg bg-black/20 text-sm"
+            />
+
+            <button
+              onClick={async () => {
+                const durationEl = document.getElementById(`duration-${o.id}`) as HTMLInputElement;
+                const priceEl = document.getElementById(`price-${o.id}`) as HTMLInputElement;
+                const stockEl = document.getElementById(`stock-${o.id}`) as HTMLInputElement;
+
+                await fetch(`${API_BASE}/api/products/options/${o.id}`, {
+                  method: "PATCH",
+                  headers: {"Content-Type": "application/json"},
+                  body: JSON.stringify({
+                    duration: durationEl.value,
+                    price: priceEl.value,
+                    stock: stockEl.value
+                  })
+                });
+                loadProducts();
+              }}
+              className="px-3 py-2 rounded-lg bg-cyan-400/10 text-cyan-300 text-sm"
+            >
+              Edit
+            </button>
+
+            <button
+              onClick={async () => {
+                if (!confirm(`Hapus ${o.duration}?`)) return;
+                await fetch(`${API_BASE}/api/products/options/${o.id}`, {method: "DELETE"});
+                loadProducts();
+                }} className="px-3 py-2 rounded-lg bg-red-400/10 text-red-300 text-sm"
+            >
+              Hapus
+            </button>
+          </div>
+        ))}
+      </div>
+    ))}
+  </div>
+      )}
       {tab === "feedback" && (
         <div className="space-y-4">
           <div className="flex items-center justify-between">
