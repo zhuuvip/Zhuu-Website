@@ -8,6 +8,23 @@ const router = Router();
 
 router.get("/products", async (_req, res) => {
   await db.execute(sql`ALTER TABLE products ADD COLUMN IF NOT EXISTS image_url TEXT`);
+  await db.execute(sql`
+    CREATE TABLE IF NOT EXISTS orders (
+      id SERIAL PRIMARY KEY,
+      invoice TEXT NOT NULL UNIQUE,
+      product_id INTEGER NOT NULL,
+      option_id INTEGER NOT NULL,
+      product_name TEXT NOT NULL,
+      duration TEXT NOT NULL,
+      amount INTEGER NOT NULL,
+      whatsapp TEXT,
+      status TEXT NOT NULL DEFAULT 'PENDING',
+      payment_ref TEXT,
+      qr_content TEXT,
+      qr_image TEXT,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    )
+  `);
   const products = await db.select().from(productsTable);
   const options = await db.select().from(productOptionsTable);
   return res.json(products.map(p => ({

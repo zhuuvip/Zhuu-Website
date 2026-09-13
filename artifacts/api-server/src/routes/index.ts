@@ -7,6 +7,7 @@ import anthropicRouter from "./anthropic";
 import feedbackRouter from "./feedback";
 import statsRouter from "./stats";
 import settingsRouter from "./settings";
+import ordersRouter from "./orders";
 
 const router: IRouter = Router();
 
@@ -18,5 +19,6 @@ router.use(anthropicRouter);
 router.use(feedbackRouter);
 router.use(statsRouter);
 router.use(settingsRouter);
+router.use(ordersRouter);
 
 export default router;
