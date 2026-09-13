@@ -92,6 +92,7 @@ export default function AdminPage() {
     if (res.ok) setProducts(await res.json());
   };
   const [productName, setProductName] = useState("");
+const [imageUrl, setImageUrl] = useState("");
   const [selectedProductId, setSelectedProductId] = useState("");
   const [duration, setDuration] = useState("");
   const [price, setPrice] = useState("");
@@ -710,6 +711,7 @@ export default function AdminPage() {
 
     <div className="grid sm:grid-cols-4 gap-2">
       <input value={productName} onChange={e => setProductName(e.target.value)} placeholder="Nama produk" className="px-3 py-2 rounded-lg bg-black/20 text-sm" />
+          <input value={imageUrl} onChange={e => setImageUrl(e.target.value)} placeholder="URL gambar produk" className="px-3 py-2 rounded-lg bg-black/20 text-sm" />
       <input value={duration} onChange={e => setDuration(e.target.value)} placeholder="Durasi" className="px-3 py-2 rounded-lg bg-black/20 text-sm" />
       <input value={price} onChange={e => setPrice(e.target.value)} placeholder="Harga" type="number" className="px-3 py-2 rounded-lg bg-black/20 text-sm" />
       <input value={stock} onChange={e => setStock(e.target.value)} placeholder="Stock" type="number" className="px-3 py-2 rounded-lg bg-black/20 text-sm" />
@@ -722,7 +724,7 @@ export default function AdminPage() {
           const r = await fetch(`${API_BASE}/api/products`, {
             method: "POST",
             headers: await authHeaders(),
-            body: JSON.stringify({name: productName})
+            body: JSON.stringify({name: productName, imageUrl: imageUrl || null})
           });
           if (r.ok) {
             setProductName("");
@@ -778,10 +780,11 @@ export default function AdminPage() {
             onClick={async () => {
             if (editingProductId === p.id) {
               const el = document.getElementById(`product-name-${p.id}`) as HTMLInputElement;
+            const img = document.getElementById(`product-image-${p.id}`) as HTMLInputElement;
               const r = await fetch(`${API_BASE}/api/products/${p.id}`, {
                 method: "PATCH",
                 headers: await authHeaders(),
-                body: JSON.stringify({name: el.value})
+                body: JSON.stringify({name: el.value, imageUrl: img.value || null})
               });
               if (!r.ok) { alert("Gagal menyimpan produk"); return; }
               setEditingProductId(null);
