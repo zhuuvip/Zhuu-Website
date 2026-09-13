@@ -69,6 +69,9 @@ export default function ProductsPage() {
           <p className="mt-3 text-sm opacity-70">
             Scan QRIS di atas, lalu klik tombol konfirmasi melalui WhatsApp.
           </p>
+          <a href="/attached_assets/qr_ID1026531275638_12.09.26_1789202677_1789202677296.jpeg" download="QRIS-DANA-ZhuuVIP.jpeg" className="mx-auto mt-4 inline-flex items-center justify-center rounded-xl border px-5 py-3 font-semibold transition hover:scale-105">
+            ⬇️ Download QRIS
+          </a>
         </div>
 
         <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
