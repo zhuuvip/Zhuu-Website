@@ -4,6 +4,8 @@ export const productsTable = pgTable("products", {
   id: serial("id").primaryKey(),
   name: text("name").notNull(),
   imageUrl: text("image_url"),
+  deliveryType: text("delivery_type").default("WHATSAPP"),
+  deliveryValue: text("delivery_value"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
