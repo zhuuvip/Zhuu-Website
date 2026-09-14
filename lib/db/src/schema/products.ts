@@ -17,3 +17,12 @@ export const productOptionsTable = pgTable("product_options", {
   stock: integer("stock").notNull().default(0),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
+
+export const productKeysTable = pgTable("product_keys", {
+  id: serial("id").primaryKey(),
+  productId: integer("product_id").notNull(),
+  optionId: integer("option_id").notNull(),
+  key: text("key").notNull().unique(),
+  status: text("status").notNull().default("READY"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});

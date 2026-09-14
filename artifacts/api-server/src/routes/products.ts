@@ -11,6 +11,16 @@ router.get("/products", async (_req, res) => {
   await db.execute(sql`ALTER TABLE products ADD COLUMN IF NOT EXISTS delivery_type TEXT DEFAULT 'WHATSAPP'`);
   await db.execute(sql`ALTER TABLE products ADD COLUMN IF NOT EXISTS delivery_value TEXT`);
   await db.execute(sql`
+    CREATE TABLE IF NOT EXISTS product_keys (
+      id SERIAL PRIMARY KEY,
+      product_id INTEGER NOT NULL,
+      option_id INTEGER NOT NULL,
+      key TEXT NOT NULL UNIQUE,
+      status TEXT NOT NULL DEFAULT 'READY',
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    )
+  `);
+  await db.execute(sql`
     CREATE TABLE IF NOT EXISTS orders (
       id SERIAL PRIMARY KEY,
       invoice TEXT NOT NULL UNIQUE,
