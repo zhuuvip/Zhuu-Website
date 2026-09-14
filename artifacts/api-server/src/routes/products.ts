@@ -8,6 +8,8 @@ const router = Router();
 
 router.get("/products", async (_req, res) => {
   await db.execute(sql`ALTER TABLE products ADD COLUMN IF NOT EXISTS image_url TEXT`);
+  await db.execute(sql`ALTER TABLE products ADD COLUMN IF NOT EXISTS delivery_type TEXT DEFAULT 'WHATSAPP'`);
+  await db.execute(sql`ALTER TABLE products ADD COLUMN IF NOT EXISTS delivery_value TEXT`);
   await db.execute(sql`
     CREATE TABLE IF NOT EXISTS orders (
       id SERIAL PRIMARY KEY,
