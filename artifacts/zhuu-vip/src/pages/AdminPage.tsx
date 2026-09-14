@@ -93,6 +93,7 @@ export default function AdminPage() {
   };
   const [productName, setProductName] = useState("");
 const [imageUrl, setImageUrl] = useState("");
+  const [deliveryType, setDeliveryType] = useState("WHATSAPP");
   const [selectedProductId, setSelectedProductId] = useState("");
   const [duration, setDuration] = useState("");
   const [price, setPrice] = useState("");
@@ -712,6 +713,7 @@ const [imageUrl, setImageUrl] = useState("");
     <div className="grid sm:grid-cols-4 gap-2">
       <input value={productName} onChange={e => setProductName(e.target.value)} placeholder="Nama produk" className="px-3 py-2 rounded-lg bg-black/20 text-sm" />
           <input value={imageUrl} onChange={e => setImageUrl(e.target.value)} placeholder="URL gambar produk" className="px-3 py-2 rounded-lg bg-black/20 text-sm" />
+            <select value={deliveryType} onChange={e => setDeliveryType(e.target.value)} className="px-3 py-2 rounded-lg bg-black/20 text-sm"><option value="WHATSAPP">WhatsApp</option><option value="DOWNLOAD">Download</option><option value="KEY">Key</option></select>
       <input value={duration} onChange={e => setDuration(e.target.value)} placeholder="Durasi" className="px-3 py-2 rounded-lg bg-black/20 text-sm" />
       <input value={price} onChange={e => setPrice(e.target.value)} placeholder="Harga" type="number" className="px-3 py-2 rounded-lg bg-black/20 text-sm" />
       <input value={stock} onChange={e => setStock(e.target.value)} placeholder="Stock" type="number" className="px-3 py-2 rounded-lg bg-black/20 text-sm" />
@@ -724,7 +726,7 @@ const [imageUrl, setImageUrl] = useState("");
           const r = await fetch(`${API_BASE}/api/products`, {
             method: "POST",
             headers: await authHeaders(),
-            body: JSON.stringify({name: productName, imageUrl: imageUrl || null})
+            body: JSON.stringify({name: productName, imageUrl: imageUrl || null, deliveryType})
           });
           if (r.ok) {
             setProductName("");
