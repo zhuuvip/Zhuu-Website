@@ -87,6 +87,20 @@ export default function AdminPage() {
 
   const [tab, setTab] = useState<Tab>("stats");
   const [products, setProducts] = useState<any[]>([]);
+const addKeys = async (productId: number, optionId: number) => {
+  const keys = keyInput.split("\n").map(k => k.trim()).filter(Boolean);
+  if (!keys.length) { alert("Isi key dulu"); return; }
+  const r = await fetch(`${API_BASE}/api/products/${productId}/options/${optionId}/keys`, {
+    method: "POST",
+    headers: await authHeaders(),
+    body: JSON.stringify({ keys }),
+  });
+  if (!r.ok) { alert("Gagal menambahkan key"); return; }
+  const data = await r.json();
+  alert(`Berhasil tambah ${data.added} key`);
+  setKeyInput("");
+  loadProducts();
+};
   const loadProducts = async () => {
     const res = await fetch(`${API_BASE}/api/products`);
     if (res.ok) setProducts(await res.json());
@@ -100,6 +114,7 @@ const [imageUrl, setImageUrl] = useState("");
   const [stock, setStock] = useState("");
   const [editingProductId, setEditingProductId] = useState<number | null>(null);
   const [editingOptionId, setEditingOptionId] = useState<number | null>(null);
+  const [keyInput, setKeyInput] = useState("");
 
   // Link form state
   const [editingLinkId, setEditingLinkId] = useState<number | null>(null);

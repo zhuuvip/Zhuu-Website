@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { db } from "@workspace/db";
-import { productsTable, productOptionsTable } from "@workspace/db";
+import { productsTable, productOptionsTable, productKeysTable } from "@workspace/db";
 import { eq, sql } from "drizzle-orm";
 import { requireAdmin } from "../lib/auth";
 
@@ -95,6 +95,38 @@ router.delete("/products/options/:id", requireAdmin, async (req, res) => {
   await db.delete(productOptionsTable)
     .where(eq(productOptionsTable.id, Number(req.params.id)));
   return res.json({ ok: true });
+});
+
+router.post("/products/:productId/options/:optionId/keys", requireAdmin, async (req, res) => {
+  const productId = Number(req.params.productId);
+  const optionId = Number(req.params.optionId);
+  const keys = Array.isArray(req.body.keys) ? req.body.keys : [];
+
+  if (!Number.isInteger(productId) || !Number.isInteger(optionId) || !keys.length) {
+    return res.status(400).json({ error: "Product, option, dan keys wajib diisi" });
+  }
+
+  const cleanKeys = [...new Set(
+    keys.map((key: unknown) => String(key).trim()).filter(Boolean)
+  )];
+
+  const values = cleanKeys.map((key) => ({
+    productId,
+    optionId,
+    key,
+    status: "READY",
+  }));
+
+  const inserted = await db
+    .insert(productKeysTable)
+    .values(values)
+    .onConflictDoNothing({ target: productKeysTable.key })
+    .returning();
+
+  return res.json({
+    added: inserted.length,
+    skipped: cleanKeys.length - inserted.length,
+  });
 });
 
 export default router;
