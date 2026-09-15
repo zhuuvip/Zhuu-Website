@@ -50,7 +50,7 @@ interface SiteSettings {
   bannerUrl?: string; themeColor?: string; statusText?: string;
 }
 
-type Tab = "stats" | "links" | "songs" | "settings" | "feedback" | "products";
+type Tab = "stats" | "links" | "songs" | "settings" | "feedback" | "products" | "orders";
 
 const iconOptions = ["SiDiscord","SiYoutube","SiTiktok","SiInstagram","SiTwitch","SiX","SiGithub","SiSpotify","SiPatreon","SiReddit","SiWhatsapp"];
 
@@ -87,8 +87,49 @@ export default function AdminPage() {
 
   const [tab, setTab] = useState<Tab>("stats");
   const [products, setProducts] = useState<any[]>([]);
+  const [orders, setOrders] = useState<any[]>([]);
+  const [ordersLoading, setOrdersLoading] = useState(false);
+
+  const loadOrders = async () => {
+    try {
+      setOrdersLoading(true);
+      const res = await fetch(`${API_BASE}/api/admin/orders`, {
+        headers: await authHeaders(),
+      });
+      if (res.ok) setOrders(await res.json());
+    } catch {}
+    setOrdersLoading(false);
+  };
+
+  const confirmOrder = async (id: number) => {
+    if (!confirm("Konfirmasi pembayaran order ini?")) return;
+
+    try {
+      const res = await fetch(`${API_BASE}/api/admin/orders/${id}/confirm`, {
+        method: "PATCH",
+        headers: await authHeaders(),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        alert(data.error || "Gagal mengonfirmasi order");
+        return;
+      }
+
+      alert(
+        data.deliveryKey
+          ? `Pembayaran dikonfirmasi.\\n\\nKey: ${data.deliveryKey}`
+          : "Pembayaran berhasil dikonfirmasi."
+      );
+
+      loadOrders();
+    } catch {
+      alert("Gagal terhubung ke server");
+    }
+  };
 const addKeys = async (productId: number, optionId: number) => {
-  const keys = keyInput.split("\n").map(k => k.trim()).filter(Boolean);
+  const keys = (keyInputs[optionId] || "").split("\n").map(k => k.trim()).filter(Boolean);
   if (!keys.length) { alert("Isi key dulu"); return; }
   const r = await fetch(`${API_BASE}/api/products/${productId}/options/${optionId}/keys`, {
     method: "POST",
@@ -98,7 +139,7 @@ const addKeys = async (productId: number, optionId: number) => {
   if (!r.ok) { alert("Gagal menambahkan key"); return; }
   const data = await r.json();
   alert(`Berhasil tambah ${data.added} key`);
-  setKeyInput("");
+  setKeyInputs(prev => ({ ...prev, [optionId]: "" }));
   loadProducts();
 };
   const loadProducts = async () => {
@@ -114,7 +155,7 @@ const [imageUrl, setImageUrl] = useState("");
   const [stock, setStock] = useState("");
   const [editingProductId, setEditingProductId] = useState<number | null>(null);
   const [editingOptionId, setEditingOptionId] = useState<number | null>(null);
-  const [keyInput, setKeyInput] = useState("");
+  const [keyInputs, setKeyInputs] = useState<Record<number, string>>({});
 
   // Link form state
   const [editingLinkId, setEditingLinkId] = useState<number | null>(null);
@@ -237,6 +278,7 @@ const saveSettings = async () => {
     if (tab === "feedback") fetchFeedback();
     if (tab === "settings") { fetchSettings(); fetchAnnouncement(); }
     if (tab === "products") loadProducts();
+    if (tab === "orders") loadOrders();
   }, [tab, isAdmin, user]);
 
   // Song actions
@@ -334,6 +376,7 @@ const saveSettings = async () => {
     { id: "settings", label: "Settings", icon: <Settings size={14} /> },
     { id: "feedback", label: "Feedback", icon: <MessageSquare size={14} /> },
     { id: "products", label: "Products", icon: <ShoppingCart size={14} /> },
+    { id: "orders", label: "Orders", icon: <ShoppingCart size={14} /> },
   ];
 
   if (!user) return (
@@ -920,8 +963,8 @@ const saveSettings = async () => {
               {p.deliveryType === "KEY" && (
                 <div className="col-span-full mt-2 flex flex-col gap-2">
                   <textarea
-                    value={keyInput}
-                    onChange={e => setKeyInput(e.target.value)}
+                    value={keyInputs[o.id] || ""}
+                    onChange={e => setKeyInputs(prev => ({ ...prev, [o.id]: e.target.value }))}
                     placeholder="Paste key, satu key per baris"
                     className="w-full min-h-[80px] px-3 py-2 rounded-lg bg-black/20 text-sm"
                   />
@@ -939,6 +982,79 @@ const saveSettings = async () => {
     ))}
   </div>
       )}
+      {tab === "orders" && (
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <h2 className="text-lg font-semibold text-blue-100">Orders</h2>
+            <button
+              onClick={loadOrders}
+              className="rounded-xl border border-white/10 px-4 py-2 text-sm hover:bg-white/5"
+            >
+              ↻ Refresh
+            </button>
+          </div>
+
+          {ordersLoading ? (
+            <div className="rounded-2xl border border-white/10 p-6 text-center text-blue-200/60">
+              Memuat order...
+            </div>
+          ) : orders.length === 0 ? (
+            <div className="rounded-2xl border border-white/10 p-6 text-center text-blue-200/60">
+              Belum ada order.
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {orders.map((order: any) => (
+                <div
+                  key={order.id}
+                  className="rounded-2xl border border-white/10 bg-white/[0.03] p-4"
+                >
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                    <div className="space-y-1">
+                      <div className="font-semibold text-blue-100">
+                        {order.productName}
+                      </div>
+                      <div className="text-sm text-blue-200/70">
+                        {order.duration} • Rp{Number(order.amount).toLocaleString("id-ID")}
+                      </div>
+                      <div className="text-xs text-blue-200/50">
+                        Invoice: {order.invoice}
+                      </div>
+                      {order.whatsapp && (
+                        <div className="text-xs text-blue-200/50">
+                          WhatsApp: {order.whatsapp}
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      <span
+                        className={`rounded-full px-3 py-1 text-xs font-semibold ${
+                          order.status === "PAID"
+                            ? "bg-emerald-400/15 text-emerald-300"
+                            : "bg-yellow-400/15 text-yellow-300"
+                        }`}
+                      >
+                        {order.status}
+                      </span>
+
+                      {order.status === "PENDING" && (
+                        <button
+                          onClick={() => confirmOrder(order.id)}
+                          className="rounded-xl bg-cyan-400/15 px-4 py-2 text-sm font-semibold text-cyan-300 hover:bg-cyan-400/25"
+                        >
+                          ✓ Konfirmasi
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
       {tab === "feedback" && (
         <div className="space-y-4">
           <div className="flex items-center justify-between">

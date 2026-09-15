@@ -103,7 +103,20 @@ router.post("/products/:productId/options/:optionId/keys", requireAdmin, async (
   const keys = Array.isArray(req.body.keys) ? req.body.keys : [];
 
   if (!Number.isInteger(productId) || !Number.isInteger(optionId) || !keys.length) {
-    return res.status(400).json({ error: "Product, option, dan keys wajib diisi" });
+    return res.status(400).json({
+      error: "Product, option, dan keys wajib diisi",
+    });
+  }
+
+  const [option] = await db
+    .select()
+    .from(productOptionsTable)
+    .where(eq(productOptionsTable.id, optionId));
+
+  if (!option || option.productId !== productId) {
+    return res.status(400).json({
+      error: "Durasi tidak cocok dengan produk",
+    });
   }
 
   const cleanKeys = [...new Set(
@@ -123,9 +136,19 @@ router.post("/products/:productId/options/:optionId/keys", requireAdmin, async (
     .onConflictDoNothing({ target: productKeysTable.key })
     .returning();
 
+  if (inserted.length > 0) {
+    await db
+      .update(productOptionsTable)
+      .set({
+        stock: option.stock + inserted.length,
+      })
+      .where(eq(productOptionsTable.id, optionId));
+  }
+
   return res.json({
     added: inserted.length,
     skipped: cleanKeys.length - inserted.length,
+    stock: option.stock + inserted.length,
   });
 });
 

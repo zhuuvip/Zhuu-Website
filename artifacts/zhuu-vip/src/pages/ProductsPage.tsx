@@ -28,27 +28,51 @@ export default function ProductsPage() {
 
   if (!selectedProduct || !selectedOption) return <main className="min-h-screen px-4 py-10 text-center">Memuat produk...</main>;
 
-  const confirmPayment = () => {
-    const orderId = `ZHUU-${Date.now().toString().slice(-6)}`;
-    const text = [
-      "🔔 KONFIRMASI PEMBAYARAN",
-      "",
-      "Halo Admin, saya sudah melakukan pembayaran melalui QRIS DANA.",
-      "",
-      `📦 Produk: ${selectedProduct.name}`,
-      `⏱️ Durasi: ${selectedOption.duration}`,
-      `💰 Total: Rp${selectedOption.price.toLocaleString("id-ID")}`,
-      `📦 Stok: ${selectedOption.stock}`,
-      `🧾 Order ID: ${orderId}`,
-      "",
-      "Mohon dicek pembayaran saya.",
-      "Terima kasih 🙏",
-    ].join("\n");
+  const confirmPayment = async () => {
+    try {
+      const r = await fetch(`${API_BASE}/api/orders`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          productId: selectedProduct.id,
+          optionId: selectedOption.id,
+          whatsapp: WA,
+        }),
+      });
 
-    window.open(
-      `https://wa.me/${WA}?text=${encodeURIComponent(text)}`,
-      "_blank"
-    );
+      const data = await r.json();
+
+      if (!r.ok) {
+        alert(data.error || "Gagal membuat order");
+        return;
+      }
+
+      const orderId = data.invoice || `ZHUU-${Date.now().toString().slice(-6)}`;
+
+      const text = [
+        "🔔 KONFIRMASI PEMBAYARAN",
+        "",
+        "Halo Admin, saya sudah melakukan pembayaran melalui QRIS DANA.",
+        "",
+        `📦 Produk: ${selectedProduct.name}`,
+        `⏱️ Durasi: ${selectedOption.duration}`,
+        `💰 Total: Rp${selectedOption.price.toLocaleString("id-ID")}`,
+        `🧾 Invoice: ${orderId}`,
+        data.deliveryKey ? `🔑 Key: ${data.deliveryKey}` : "",
+        "",
+        "Mohon dicek pembayaran saya.",
+        "Terima kasih 🙏",
+      ].filter(Boolean).join("\\n");
+
+      window.open(
+        `https://wa.me/${WA}?text=${encodeURIComponent(text)}`,
+        "_blank"
+      );
+    } catch (e) {
+      alert("Gagal terhubung ke server");
+    }
   };
 
   return (
