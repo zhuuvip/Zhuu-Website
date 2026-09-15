@@ -746,7 +746,9 @@ const saveSettings = async () => {
             setProductName("");
             loadProducts();
           }
-          } catch (e) { }
+          } catch (e) {
+            alert("Gagal menambahkan produk");
+          }
         }}
         className="px-4 py-2 rounded-lg bg-cyan-400/10 text-cyan-300 text-sm"
       >
@@ -777,7 +779,9 @@ const saveSettings = async () => {
             setStock("");
             loadProducts();
           }
-          } catch (e) { }
+          } catch (e) {
+            alert("Gagal menambahkan durasi");
+          }
         }}
         className="px-4 py-2 rounded-lg bg-cyan-400/10 text-cyan-300 text-sm"
       >
@@ -810,11 +814,11 @@ const saveSettings = async () => {
             onClick={async () => {
             if (editingProductId === p.id) { alert("SIMPAN DIKLIK");
               const el = document.getElementById(`product-name-${p.id}`) as HTMLInputElement;
-            const img = document.getElementById(`product-image-${p.id}`) as HTMLInputElement;
-              const headers = await authHeaders(); let r; try { r = await fetch(`${API_BASE}/api/products/${p.id}`, {
+            const typeEl = document.getElementById(`delivery-type-${p.id}`) as HTMLSelectElement;
+              try { const r = await fetch(`${API_BASE}/api/products/${p.id}`, {
                 method: "PATCH",
-      headers: await authHeaders(),
-                body: JSON.stringify({name: el.value, imageUrl: img.value || null, deliveryType: (document.getElementById(`delivery-type-${p.id}`) as HTMLSelectElement).value})
+                headers: await authHeaders(),
+                body: JSON.stringify({name: el.value, imageUrl: p.imageUrl || null, deliveryType: typeEl.value})
               });
               if (!r.ok) { alert("Gagal menyimpan produk"); return; }
               setEditingProductId(null);

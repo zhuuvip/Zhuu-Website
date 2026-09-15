@@ -47,7 +47,7 @@ router.get("/products", async (_req, res) => {
 
 router.post("/products", requireAdmin, async (req, res) => {
   const [product] = await db.insert(productsTable).values({
-    name: req.body.name,
+    name: req.body.name, deliveryType: req.body.deliveryType || "WHATSAPP",
     imageUrl: req.body.imageUrl || null,
   }).returning();
   return res.json(product);
@@ -55,7 +55,7 @@ router.post("/products", requireAdmin, async (req, res) => {
 
 router.patch("/products/:id", requireAdmin, async (req, res) => {
   const [product] = await db.update(productsTable)
-    .set({ name: req.body.name, imageUrl: req.body.imageUrl || null, deliveryType: req.body.deliveryType || "WHATSAPP" })
+    .set({ name: req.body.name, deliveryType: req.body.deliveryType || "WHATSAPP", imageUrl: req.body.imageUrl || null })
     .where(eq(productsTable.id, Number(req.params.id)))
     .returning();
   return res.json(product);
