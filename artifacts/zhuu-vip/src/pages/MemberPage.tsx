@@ -1,3 +1,4 @@
+import { useAuth } from "@clerk/react";
 import { useEffect, useState } from "react";
 import { Link } from "wouter";
 import {
@@ -19,7 +20,6 @@ import {
 import RankBadge, { type RankType } from "@/components/RankBadge";
 
 const QUICK_AMOUNTS = [10000, 25000, 50000, 100000, 250000];
-const STARTING_BALANCE = 185000;
 const QRIS_CODE = "https://api.qrserver.com/v1/create-qr-code/?size=420x420&data=QRIS-ZHUUVIP-TOPUP";
 
 const formatRupiah = (value: number) => `Rp${new Intl.NumberFormat("id-ID").format(value)}`;
@@ -50,13 +50,15 @@ function BalanceCard({ balance }: { balance: number }) {
 }
 
 function TopUpFlow() {
+  const { getToken } = useAuth();
   const [step, setStep] = useState<"choose" | "waiting" | "success">("choose");
   const [amount, setAmount] = useState(50000);
   const [custom, setCustom] = useState("");
   const [checking, setChecking] = useState(false);
   const [seconds, setSeconds] = useState(900);
-  const [balance, setBalance] = useState(STARTING_BALANCE);
-  const [animatedBalance, setAnimatedBalance] = useState(STARTING_BALANCE);
+  const [balance, setBalance] = useState(0);
+  const [animatedBalance, setAnimatedBalance] = useState(0);
+  const [depositRef, setDepositRef] = useState("");
 
   const selectedAmount = custom ? Number(custom.replace(/\D/g, "")) : amount;
   const newBalance = balance + selectedAmount;
@@ -84,13 +86,40 @@ function TopUpFlow() {
   const timerLabel = `${String(Math.floor(seconds / 60)).padStart(2, "0")}:${String(seconds % 60).padStart(2, "0")}`;
   const progress = (seconds / 900) * 100;
 
-  const checkPayment = () => {
-    setChecking(true);
-    window.setTimeout(() => {
+  const checkPayment = async () => {
+    try {
+      setChecking(true);
+
+      const token = await getToken();
+      if (!token) {
+        alert("Silakan login terlebih dahulu.");
+        setChecking(false);
+        return;
+      }
+
+      const res = await fetch("https://zhuuapi.vercel.app/api/wallet", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const data = await res.json().catch(() => ({}));
+
+      if (!res.ok) {
+        throw new Error(data.error || "Gagal mengecek saldo");
+      }
+
+      setBalance(Number(data.balance || 0));
       setChecking(false);
-      setBalance(newBalance);
-      setStep("success");
-    }, 1300);
+
+      alert(
+        "Deposit masih PENDING.\n\n" +
+        "Saldo akan bertambah setelah deposit dikonfirmasi admin."
+      );
+    } catch (error) {
+      setChecking(false);
+      alert(error instanceof Error ? error.message : "Gagal mengecek pembayaran.");
+    }
   };
 
   if (step === "waiting") {
@@ -98,6 +127,16 @@ function TopUpFlow() {
       <div className="glass-card rounded-[24px] p-5 text-center sm:p-7">
         <div className="mb-5 flex items-center justify-between text-left"><div><p className="text-xs uppercase tracking-[.2em] text-cyan-300/45">Payment request</p><h3 className="mt-1 text-lg font-bold text-cyan-50">Scan untuk membayar</h3></div><button onClick={() => setStep("choose")} className="rounded-full p-2 text-cyan-200/60 hover:bg-cyan-300/10 hover:text-cyan-200" aria-label="Close payment"><X className="size-4" /></button></div>
         <div className="mx-auto mb-5 max-w-[260px] rounded-[22px] border border-cyan-300/40 bg-cyan-50 p-3 shadow-[0_0_28px_rgba(0,229,255,.18)]" style={{ animation: "qr-pulse 2.4s ease-in-out infinite" }}><img src={QRIS_CODE} alt="QRIS payment code" className="aspect-square w-full rounded-xl" /></div>
+        {depositRef && (
+          <div className="mb-4 rounded-xl border border-cyan-300/10 bg-cyan-300/5 px-4 py-3 text-center">
+            <p className="text-[10px] uppercase tracking-wider text-cyan-100/35">
+              Deposit Reference
+            </p>
+            <p className="mt-1 font-mono text-xs font-bold text-cyan-200">
+              {depositRef}
+            </p>
+          </div>
+        )}
         <div className="mb-5 flex items-center justify-center gap-3 text-xs text-cyan-100/60"><div className="relative flex size-10 items-center justify-center rounded-full border border-cyan-300/20"><svg className="absolute inset-[-3px] size-12 -rotate-90"><circle cx="24" cy="24" r="21" fill="none" stroke="rgba(0,229,255,.12)" strokeWidth="2" /><circle cx="24" cy="24" r="21" fill="none" stroke="#00e5ff" strokeWidth="2" strokeDasharray="132" strokeDashoffset={132 - 132 * (progress / 100)} strokeLinecap="round" /></svg><span className="font-mono text-[10px] text-cyan-200">{Math.ceil(seconds / 60)}m</span></div><span>Berlaku sampai <b className="font-mono text-cyan-200">{timerLabel}</b></span></div>
         <div className="mb-6 flex justify-center gap-2 text-[10px] text-cyan-100/45"><span className="rounded-lg border border-cyan-300/10 bg-cyan-300/5 px-2 py-1">GoPay</span><span className="rounded-lg border border-cyan-300/10 bg-cyan-300/5 px-2 py-1">OVO</span><span className="rounded-lg border border-cyan-300/10 bg-cyan-300/5 px-2 py-1">DANA</span><span className="rounded-lg border border-cyan-300/10 bg-cyan-300/5 px-2 py-1">QRIS</span></div>
         <button onClick={checkPayment} disabled={checking} className="neon-btn-solid flex w-full items-center justify-center gap-2 rounded-xl py-3.5 font-bold disabled:cursor-wait disabled:opacity-70">{checking ? <Loader2 className="size-4 animate-spin" /> : <RefreshCw className="size-4" />} {checking ? "Memeriksa pembayaran..." : "Cek Status Pembayaran"}</button>
@@ -110,7 +149,42 @@ function TopUpFlow() {
     return <div className="glass-card rounded-[24px] p-8 text-center"><div className="mx-auto mb-5 flex size-20 items-center justify-center rounded-full border border-emerald-300/40 bg-emerald-300/10 shadow-[0_0_40px_rgba(52,211,153,.3)]"><Check className="size-10 text-emerald-300" /></div><p className="text-xs uppercase tracking-[.2em] text-emerald-300/60">Transaction complete</p><h3 className="mt-2 text-2xl font-black text-cyan-50">Saldo berhasil ditambahkan!</h3><p className="mt-2 text-lg font-bold text-cyan-300">+{formatRupiah(selectedAmount)}</p><div className="my-7 rounded-2xl border border-cyan-300/15 bg-cyan-300/5 p-4"><span className="text-xs text-cyan-100/45">Saldo baru</span><div className="mt-1 text-2xl font-black gradient-text">{formatRupiah(animatedBalance)}</div></div><div className="flex flex-col gap-3 sm:flex-row"><Link href="/portfolio" className="neon-btn-solid flex flex-1 items-center justify-center rounded-xl py-3 text-sm font-bold">Lihat Role Shop <ChevronRight className="ml-1 size-4" /></Link><button onClick={() => setStep("choose")} className="neon-btn flex flex-1 items-center justify-center rounded-xl py-3 text-sm font-bold">Kembali ke Wallet</button></div></div>;
   }
 
-  return <div className="flex flex-col gap-5"><BalanceCard balance={balance} /><div className="glass-card rounded-[24px] p-5 sm:p-7"><div className="mb-5 flex items-end justify-between"><div><p className="text-xs uppercase tracking-[.2em] text-cyan-300/45">Auto QRIS</p><h3 className="mt-1 text-xl font-bold text-cyan-50">Pilih nominal top up</h3></div><Zap className="size-5 text-cyan-300" /></div><div className="grid grid-cols-3 gap-2 sm:grid-cols-5">{QUICK_AMOUNTS.map((quick) => <button key={quick} onClick={() => { setAmount(quick); setCustom(""); }} className={`rounded-xl border px-2 py-3 text-sm font-bold transition-all ${!custom && amount === quick ? "border-cyan-300 bg-cyan-300/15 text-cyan-200 shadow-[0_0_18px_rgba(0,229,255,.16)]" : "border-cyan-300/15 bg-cyan-300/5 text-cyan-100/60 hover:border-cyan-300/40 hover:text-cyan-200"}`}>{formatRupiah(quick).replace("Rp", "")}</button>)}</div><label className="mt-5 block text-xs text-cyan-100/45" htmlFor="custom-amount">Nominal custom</label><div className="relative mt-2"><span className="absolute left-4 top-1/2 -translate-y-1/2 text-sm text-cyan-100/45">Rp</span><input id="custom-amount" value={custom ? new Intl.NumberFormat("id-ID").format(Number(custom.replace(/\D/g, ""))) : ""} onChange={(event) => setCustom(event.target.value)} placeholder="Masukkan nominal lain" className="w-full rounded-xl border border-cyan-300/15 bg-cyan-300/5 px-4 py-3 pl-11 text-sm text-cyan-100 outline-none placeholder:text-cyan-100/25 focus:border-cyan-300/50 focus:ring-2 focus:ring-cyan-300/10" inputMode="numeric" /></div><button onClick={() => selectedAmount >= 10000 && setStep("waiting")} disabled={selectedAmount < 10000} className="neon-btn-solid mt-5 flex w-full items-center justify-center gap-2 rounded-xl py-3.5 font-bold disabled:cursor-not-allowed disabled:opacity-40">Top Up {formatRupiah(selectedAmount)} <ChevronRight className="size-4" /></button><p className="mt-3 text-center text-[11px] text-cyan-100/35">Minimal Rp10.000 · via QRIS (semua e-wallet & bank)</p></div></div>;
+  return <div className="flex flex-col gap-5"><BalanceCard balance={balance} /><div className="glass-card rounded-[24px] p-5 sm:p-7"><div className="mb-5 flex items-end justify-between"><div><p className="text-xs uppercase tracking-[.2em] text-cyan-300/45">Auto QRIS</p><h3 className="mt-1 text-xl font-bold text-cyan-50">Pilih nominal top up</h3></div><Zap className="size-5 text-cyan-300" /></div><div className="grid grid-cols-3 gap-2 sm:grid-cols-5">{QUICK_AMOUNTS.map((quick) => <button key={quick} onClick={() => { setAmount(quick); setCustom(""); }} className={`rounded-xl border px-2 py-3 text-sm font-bold transition-all ${!custom && amount === quick ? "border-cyan-300 bg-cyan-300/15 text-cyan-200 shadow-[0_0_18px_rgba(0,229,255,.16)]" : "border-cyan-300/15 bg-cyan-300/5 text-cyan-100/60 hover:border-cyan-300/40 hover:text-cyan-200"}`}>{formatRupiah(quick).replace("Rp", "")}</button>)}</div><label className="mt-5 block text-xs text-cyan-100/45" htmlFor="custom-amount">Nominal custom</label><div className="relative mt-2"><span className="absolute left-4 top-1/2 -translate-y-1/2 text-sm text-cyan-100/45">Rp</span><input id="custom-amount" value={custom ? new Intl.NumberFormat("id-ID").format(Number(custom.replace(/\D/g, ""))) : ""} onChange={(event) => setCustom(event.target.value)} placeholder="Masukkan nominal lain" className="w-full rounded-xl border border-cyan-300/15 bg-cyan-300/5 px-4 py-3 pl-11 text-sm text-cyan-100 outline-none placeholder:text-cyan-100/25 focus:border-cyan-300/50 focus:ring-2 focus:ring-cyan-300/10" inputMode="numeric" /></div><button onClick={async () => {
+              if (selectedAmount < 10000) return;
+
+              try {
+                const token = await getToken();
+                if (!token) {
+                  alert("Silakan login terlebih dahulu.");
+                  return;
+                }
+
+                setChecking(true);
+
+                const res = await fetch("https://zhuuapi.vercel.app/api/wallet/deposit", {
+                  method: "POST",
+                  headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                  },
+                  body: JSON.stringify({ amount: selectedAmount }),
+                });
+
+                const data = await res.json().catch(() => ({}));
+
+                if (!res.ok) {
+                  throw new Error(data.error || "Gagal membuat deposit");
+                }
+
+                setDepositRef(data.reference || "");
+                setChecking(false);
+                setSeconds(900);
+                setStep("waiting");
+              } catch (error) {
+                setChecking(false);
+                alert(error instanceof Error ? error.message : "Gagal membuat deposit.");
+              }
+            }} disabled={selectedAmount < 10000} className="neon-btn-solid mt-5 flex w-full items-center justify-center gap-2 rounded-xl py-3.5 font-bold disabled:cursor-not-allowed disabled:opacity-40">Top Up {formatRupiah(selectedAmount)} <ChevronRight className="size-4" /></button><p className="mt-3 text-center text-[11px] text-cyan-100/35">Minimal Rp10.000 · via QRIS (semua e-wallet & bank)</p></div></div>;
 }
 
 function RankSection() {
