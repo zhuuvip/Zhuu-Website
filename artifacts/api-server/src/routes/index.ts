@@ -1,5 +1,5 @@
 import walletRouter from "./wallet.js";
-import { Router, type IRouter } from "express";
+import { Router } from "express";
 import healthRouter from "./health.js";
 import productsRouter from "./products.js";
 import linksRouter from "./links.js";
@@ -10,7 +10,7 @@ import statsRouter from "./stats.js";
 import settingsRouter from "./settings.js";
 import ordersRouter from "./orders.js";
 
-const router: IRouter = Router();
+const router = Router();
 
 router.use(healthRouter);
 router.use(productsRouter);
