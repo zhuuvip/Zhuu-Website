@@ -4,6 +4,7 @@ import { walletsTable, walletTransactionsTable } from "@workspace/db";
 import { eq, and, desc, sql } from "drizzle-orm";
 import { getAuth } from "@clerk/express";
 import { requireAdmin } from "../lib/auth";
+import midtransClient from "midtrans-client";
 
 const router = Router();
 
@@ -99,13 +100,30 @@ router.post("/wallet/deposit", async (req, res) => {
 
     if (!Number.isInteger(amount) || amount < 1000) {
       return res.status(400).json({
-        error: "Minimal deposit Rp10.000",
+        error: "Minimal deposit Rp1.000",
       });
     }
 
     const reference =
       `DEP-${new Date().toISOString().slice(0, 10).replace(/-/g, "")}-` +
       Math.random().toString(36).slice(2, 8).toUpperCase();
+
+    const snap = new midtransClient.CoreApi({
+      isProduction: true,
+      serverKey: process.env.MIDTRANS_SERVER_KEY!,
+      clientKey: "",
+    });
+
+    const midtrans = await snap.charge({
+      payment_type: "qris",
+      transaction_details: {
+        order_id: reference,
+        gross_amount: amount,
+      },
+      qris: {
+        acquirer: "gopay",
+      },
+    });
 
     const [transaction] = await db
       .insert(walletTransactionsTable)
@@ -114,14 +132,14 @@ router.post("/wallet/deposit", async (req, res) => {
         type: "DEPOSIT",
         amount,
         reference,
-        description: "Deposit QRIS DANA",
+        description: "Deposit QRIS Midtrans",
         status: "PENDING",
       })
       .returning();
 
     return res.json({
       transaction,
-      qrisProvider: "DANA",
+      qrisProvider: "MIDTRANS",
       status: "PENDING",
     });
   } catch (err) {

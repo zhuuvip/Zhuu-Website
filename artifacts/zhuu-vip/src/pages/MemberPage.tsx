@@ -59,6 +59,7 @@ function TopUpFlow() {
   const [balance, setBalance] = useState(0);
   const [animatedBalance, setAnimatedBalance] = useState(0);
   const [depositRef, setDepositRef] = useState("");
+  const [qrUrl, setQrUrl] = useState("");
 
   const selectedAmount = custom ? Number(custom.replace(/\D/g, "")) : amount;
   const newBalance = balance + selectedAmount;
@@ -126,7 +127,7 @@ function TopUpFlow() {
     return (
       <div className="glass-card rounded-[24px] p-5 text-center sm:p-7">
         <div className="mb-5 flex items-center justify-between text-left"><div><p className="text-xs uppercase tracking-[.2em] text-cyan-300/45">Payment request</p><h3 className="mt-1 text-lg font-bold text-cyan-50">Scan untuk membayar</h3></div><button onClick={() => setStep("choose")} className="rounded-full p-2 text-cyan-200/60 hover:bg-cyan-300/10 hover:text-cyan-200" aria-label="Close payment"><X className="size-4" /></button></div>
-        <div className="mx-auto mb-5 max-w-[260px] rounded-[22px] border border-cyan-300/40 bg-cyan-50 p-3 shadow-[0_0_28px_rgba(0,229,255,.18)]" style={{ animation: "qr-pulse 2.4s ease-in-out infinite" }}><img src={QRIS_CODE} alt="QRIS payment code" className="aspect-square w-full rounded-xl" /></div>
+        <div className="mx-auto mb-5 max-w-[260px] rounded-[22px] border border-cyan-300/40 bg-cyan-50 p-3 shadow-[0_0_28px_rgba(0,229,255,.18)]" style={{ animation: "qr-pulse 2.4s ease-in-out infinite" }}><img src={qrUrl || QRIS_CODE} alt="QRIS payment code" className="aspect-square w-full rounded-xl" /></div>
         {depositRef && (
           <div className="mb-4 rounded-xl border border-cyan-300/10 bg-cyan-300/5 px-4 py-3 text-center">
             <p className="text-[10px] uppercase tracking-wider text-cyan-100/35">
@@ -176,7 +177,8 @@ function TopUpFlow() {
                   throw new Error(data.error || "Gagal membuat deposit");
                 }
 
-                setDepositRef(data.reference || "");
+                setDepositRef(data.transaction?.reference || "");
+      setQrUrl(data.qrUrl || "");
                 setChecking(false);
                 setSeconds(900);
                 setStep("waiting");

@@ -194,12 +194,12 @@ var require_common = __commonJS({
           if (!debug.enabled) {
             return;
           }
-          const self = debug;
+          const self2 = debug;
           const curr = Number(/* @__PURE__ */ new Date());
           const ms = curr - (prevTime || curr);
-          self.diff = ms;
-          self.prev = prevTime;
-          self.curr = curr;
+          self2.diff = ms;
+          self2.prev = prevTime;
+          self2.curr = curr;
           prevTime = curr;
           args[0] = createDebug2.coerce(args[0]);
           if (typeof args[0] !== "string") {
@@ -214,15 +214,15 @@ var require_common = __commonJS({
             const formatter = createDebug2.formatters[format];
             if (typeof formatter === "function") {
               const val = args[index];
-              match2 = formatter.call(self, val);
+              match2 = formatter.call(self2, val);
               args.splice(index, 1);
               index--;
             }
             return match2;
           });
-          createDebug2.formatArgs.call(self, args);
-          const logFn = self.log || createDebug2.log;
-          logFn.apply(self, args);
+          createDebug2.formatArgs.call(self2, args);
+          const logFn = self2.log || createDebug2.log;
+          logFn.apply(self2, args);
         }
         debug.namespace = namespace;
         debug.useColors = createDebug2.useColors();
@@ -20699,7 +20699,7 @@ var require_router = __commonJS({
       let methods2;
       const protohost = getProtohost(req.url) || "";
       let removed = "";
-      const self = this;
+      const self2 = this;
       let slashAdded = false;
       let sync = 0;
       const paramcalled = {};
@@ -20776,9 +20776,9 @@ var require_router = __commonJS({
         if (route) {
           req.route = route;
         }
-        req.params = self.mergeParams ? mergeParams(layer.params, parentParams) : layer.params;
+        req.params = self2.mergeParams ? mergeParams(layer.params, parentParams) : layer.params;
         const layerPath = layer.path;
-        processParams(self.params, layer, paramcalled, req, res, function(err2) {
+        processParams(self2.params, layer, paramcalled, req, res, function(err2) {
           if (err2) {
             next(layerError || err2);
           } else if (route) {
@@ -22873,54 +22873,54 @@ var require_send = __commonJS({
     };
     SendStream.prototype.sendFile = function sendFile(path2) {
       var i = 0;
-      var self = this;
+      var self2 = this;
       debug('stat "%s"', path2);
       fs.stat(path2, function onstat(err, stat) {
         var pathEndsWithSep = path2[path2.length - 1] === sep;
         if (err && err.code === "ENOENT" && !extname(path2) && !pathEndsWithSep) {
           return next(err);
         }
-        if (err) return self.onStatError(err);
-        if (stat.isDirectory()) return self.redirect(path2);
-        if (pathEndsWithSep) return self.error(404);
-        self.emit("file", path2, stat);
-        self.send(path2, stat);
+        if (err) return self2.onStatError(err);
+        if (stat.isDirectory()) return self2.redirect(path2);
+        if (pathEndsWithSep) return self2.error(404);
+        self2.emit("file", path2, stat);
+        self2.send(path2, stat);
       });
       function next(err) {
-        if (self._extensions.length <= i) {
-          return err ? self.onStatError(err) : self.error(404);
+        if (self2._extensions.length <= i) {
+          return err ? self2.onStatError(err) : self2.error(404);
         }
-        var p = path2 + "." + self._extensions[i++];
+        var p = path2 + "." + self2._extensions[i++];
         debug('stat "%s"', p);
         fs.stat(p, function(err2, stat) {
           if (err2) return next(err2);
           if (stat.isDirectory()) return next();
-          self.emit("file", p, stat);
-          self.send(p, stat);
+          self2.emit("file", p, stat);
+          self2.send(p, stat);
         });
       }
     };
     SendStream.prototype.sendIndex = function sendIndex(path2) {
       var i = -1;
-      var self = this;
+      var self2 = this;
       function next(err) {
-        if (++i >= self._index.length) {
-          if (err) return self.onStatError(err);
-          return self.error(404);
+        if (++i >= self2._index.length) {
+          if (err) return self2.onStatError(err);
+          return self2.error(404);
         }
-        var p = join(path2, self._index[i]);
+        var p = join(path2, self2._index[i]);
         debug('stat "%s"', p);
         fs.stat(p, function(err2, stat) {
           if (err2) return next(err2);
           if (stat.isDirectory()) return next();
-          self.emit("file", p, stat);
-          self.send(p, stat);
+          self2.emit("file", p, stat);
+          self2.send(p, stat);
         });
       }
       next();
     };
     SendStream.prototype.stream = function stream(path2, options) {
-      var self = this;
+      var self2 = this;
       var res = this.res;
       var stream2 = fs.createReadStream(path2, options);
       this.emit("stream", stream2);
@@ -22931,10 +22931,10 @@ var require_send = __commonJS({
       onFinished(res, cleanup);
       stream2.on("error", function onerror(err) {
         cleanup();
-        self.onStatError(err);
+        self2.onStatError(err);
       });
       stream2.on("end", function onend() {
-        self.emit("end");
+        self2.emit("end");
       });
     };
     SendStream.prototype.type = function type(path2) {
@@ -23510,15 +23510,15 @@ var require_response = __commonJS({
       var done = callback;
       var opts = options || {};
       var req = this.req;
-      var self = this;
+      var self2 = this;
       if (typeof options === "function") {
         done = options;
         opts = {};
       }
-      opts._locals = self.locals;
+      opts._locals = self2.locals;
       done = done || function(err, str) {
         if (err) return req.next(err);
-        self.send(str);
+        self2.send(str);
       };
       app2.render(view, opts, done);
     };
@@ -31699,33 +31699,33 @@ var require_connection = __commonJS({
         this.ssl = config2.ssl || false;
         this._ending = false;
         this._emitMessage = false;
-        const self = this;
+        const self2 = this;
         this.on("newListener", function(eventName) {
           if (eventName === "message") {
-            self._emitMessage = true;
+            self2._emitMessage = true;
           }
         });
       }
       connect(port2, host) {
-        const self = this;
+        const self2 = this;
         this._connecting = true;
         this.stream.setNoDelay(true);
         this.stream.connect(port2, host);
         this.stream.once("connect", function() {
-          if (self._keepAlive) {
-            self.stream.setKeepAlive(true, self._keepAliveInitialDelayMillis);
+          if (self2._keepAlive) {
+            self2.stream.setKeepAlive(true, self2._keepAliveInitialDelayMillis);
           }
-          self.emit("connect");
+          self2.emit("connect");
         });
         const reportStreamError = function(error40) {
-          if (self._ending && (error40.code === "ECONNRESET" || error40.code === "EPIPE")) {
+          if (self2._ending && (error40.code === "ECONNRESET" || error40.code === "EPIPE")) {
             return;
           }
-          self.emit("error", error40);
+          self2.emit("error", error40);
         };
         this.stream.on("error", reportStreamError);
         this.stream.on("close", function() {
-          self.emit("end");
+          self2.emit("end");
         });
         if (!this.ssl) {
           return this.attachListeners(this.stream);
@@ -31736,19 +31736,19 @@ var require_connection = __commonJS({
             case "S":
               break;
             case "N":
-              self.stream.end();
-              return self.emit("error", new Error("The server does not support SSL connections"));
+              self2.stream.end();
+              return self2.emit("error", new Error("The server does not support SSL connections"));
             default:
-              self.stream.end();
-              return self.emit("error", new Error("There was an error establishing an SSL connection"));
+              self2.stream.end();
+              return self2.emit("error", new Error("There was an error establishing an SSL connection"));
           }
           const options = {
-            socket: self.stream
+            socket: self2.stream
           };
-          if (self.ssl !== true) {
-            Object.assign(options, self.ssl);
-            if ("key" in self.ssl) {
-              options.key = self.ssl.key;
+          if (self2.ssl !== true) {
+            Object.assign(options, self2.ssl);
+            if ("key" in self2.ssl) {
+              options.key = self2.ssl.key;
             }
           }
           const net = __require("net");
@@ -31756,13 +31756,13 @@ var require_connection = __commonJS({
             options.servername = host;
           }
           try {
-            self.stream = getSecureStream(options);
+            self2.stream = getSecureStream(options);
           } catch (err) {
-            return self.emit("error", err);
+            return self2.emit("error", err);
           }
-          self.attachListeners(self.stream);
-          self.stream.on("error", reportStreamError);
-          self.emit("sslconnect");
+          self2.attachListeners(self2.stream);
+          self2.stream.on("error", reportStreamError);
+          self2.emit("sslconnect");
         });
       }
       attachListeners(stream) {
@@ -31904,9 +31904,9 @@ var require_split2 = __commonJS({
       }
       cb();
     }
-    function push(self, val) {
+    function push(self2, val) {
       if (val !== void 0) {
-        self.push(val);
+        self2.push(val);
       }
     }
     function noop2(incoming) {
@@ -32275,7 +32275,7 @@ var require_client = __commonJS({
         this._queryQueue.length = 0;
       }
       _connect(callback) {
-        const self = this;
+        const self2 = this;
         const con = this.connection;
         this._connectionCallback = callback;
         if (this._connecting || this._connected) {
@@ -32301,14 +32301,14 @@ var require_client = __commonJS({
           con.connect(this.port, this.host);
         }
         con.on("connect", function() {
-          if (self.ssl) {
+          if (self2.ssl) {
             con.requestSsl();
           } else {
-            con.startup(self.getStartupConf());
+            con.startup(self2.getStartupConf());
           }
         });
         con.on("sslconnect", function() {
-          con.startup(self.getStartupConf());
+          con.startup(self2.getStartupConf());
         });
         this._attachListeners(con);
         con.once("end", () => {
@@ -33288,34 +33288,34 @@ var require_query2 = __commonJS({
     };
     NativeQuery.prototype.submit = function(client) {
       this.state = "running";
-      const self = this;
+      const self2 = this;
       this.native = client.native;
       client.native.arrayMode = this._arrayMode;
       let after = function(err, rows, results) {
         client.native.arrayMode = false;
         setImmediate(function() {
-          self.emit("_done");
+          self2.emit("_done");
         });
         if (err) {
-          return self.handleError(err);
+          return self2.handleError(err);
         }
-        if (self._emitRowEvents) {
+        if (self2._emitRowEvents) {
           if (results.length > 1) {
             rows.forEach((rowOfRows, i) => {
               rowOfRows.forEach((row) => {
-                self.emit("row", row, results[i]);
+                self2.emit("row", row, results[i]);
               });
             });
           } else {
             rows.forEach(function(row) {
-              self.emit("row", row, results);
+              self2.emit("row", row, results);
             });
           }
         }
-        self.state = "end";
-        self.emit("end", results);
-        if (self.callback) {
-          self.callback(null, results);
+        self2.state = "end";
+        self2.emit("end", results);
+        if (self2.callback) {
+          self2.callback(null, results);
         }
       };
       if (process.domain) {
@@ -33337,8 +33337,8 @@ var require_query2 = __commonJS({
         }
         return client.native.prepare(this.name, this.text, values.length, function(err) {
           if (err) return after(err);
-          client.namedQueries[self.name] = self.text;
-          return self.native.execute(self.name, values, after);
+          client.namedQueries[self2.name] = self2.text;
+          return self2.native.execute(self2.name, values, after);
         });
       } else if (this.values) {
         if (!Array.isArray(this.values)) {
@@ -33420,34 +33420,34 @@ var require_client2 = __commonJS({
       this._queryQueue.length = 0;
     };
     Client3.prototype._connect = function(cb) {
-      const self = this;
+      const self2 = this;
       if (this._connecting) {
         process.nextTick(() => cb(new Error("Client has already been connected. You cannot reuse a client.")));
         return;
       }
       this._connecting = true;
       this.connectionParameters.getLibpqConnectionString(function(err, conString) {
-        if (self.connectionParameters.nativeConnectionString) conString = self.connectionParameters.nativeConnectionString;
+        if (self2.connectionParameters.nativeConnectionString) conString = self2.connectionParameters.nativeConnectionString;
         if (err) return cb(err);
-        self.native.connect(conString, function(err2) {
+        self2.native.connect(conString, function(err2) {
           if (err2) {
-            self.native.end();
+            self2.native.end();
             return cb(err2);
           }
-          self._connected = true;
-          self.native.on("error", function(err3) {
-            self._queryable = false;
-            self._errorAllQueries(err3);
-            self.emit("error", err3);
+          self2._connected = true;
+          self2.native.on("error", function(err3) {
+            self2._queryable = false;
+            self2._errorAllQueries(err3);
+            self2.emit("error", err3);
           });
-          self.native.on("notification", function(msg) {
-            self.emit("notification", {
+          self2.native.on("notification", function(msg) {
+            self2.emit("notification", {
               channel: msg.relname,
               payload: msg.extra
             });
           });
-          self.emit("connect");
-          self._pulseQueryQueue(true);
+          self2.emit("connect");
+          self2._pulseQueryQueue(true);
           cb(null, this);
         });
       });
@@ -33540,7 +33540,7 @@ var require_client2 = __commonJS({
       return result;
     };
     Client3.prototype.end = function(cb) {
-      const self = this;
+      const self2 = this;
       this._ending = true;
       if (this._connecting && !this._connected) {
         this.once("connect", () => {
@@ -33555,10 +33555,10 @@ var require_client2 = __commonJS({
         });
       }
       this.native.end(function() {
-        self._connected = false;
-        self._errorAllQueries(new Error("Connection terminated"));
+        self2._connected = false;
+        self2._errorAllQueries(new Error("Connection terminated"));
         process.nextTick(() => {
-          self.emit("end");
+          self2.emit("end");
           if (cb) cb();
         });
       });
@@ -33583,9 +33583,9 @@ var require_client2 = __commonJS({
       }
       this._activeQuery = query;
       query.submit(this);
-      const self = this;
+      const self2 = this;
       query.once("_done", function() {
-        self._pulseQueryQueue();
+        self2._pulseQueryQueue();
       });
     };
     Client3.prototype.cancel = function(query) {
@@ -33686,6 +33686,22334 @@ var require_lib5 = __commonJS({
         return native;
       }
     });
+  }
+});
+
+// ../../node_modules/.pnpm/lodash@4.18.1/node_modules/lodash/lodash.js
+var require_lodash = __commonJS({
+  "../../node_modules/.pnpm/lodash@4.18.1/node_modules/lodash/lodash.js"(exports, module) {
+    (function() {
+      var undefined2;
+      var VERSION = "4.18.1";
+      var LARGE_ARRAY_SIZE = 200;
+      var CORE_ERROR_TEXT = "Unsupported core-js use. Try https://npms.io/search?q=ponyfill.", FUNC_ERROR_TEXT = "Expected a function", INVALID_TEMPL_VAR_ERROR_TEXT = "Invalid `variable` option passed into `_.template`", INVALID_TEMPL_IMPORTS_ERROR_TEXT = "Invalid `imports` option passed into `_.template`";
+      var HASH_UNDEFINED = "__lodash_hash_undefined__";
+      var MAX_MEMOIZE_SIZE = 500;
+      var PLACEHOLDER = "__lodash_placeholder__";
+      var CLONE_DEEP_FLAG = 1, CLONE_FLAT_FLAG = 2, CLONE_SYMBOLS_FLAG = 4;
+      var COMPARE_PARTIAL_FLAG = 1, COMPARE_UNORDERED_FLAG = 2;
+      var WRAP_BIND_FLAG = 1, WRAP_BIND_KEY_FLAG = 2, WRAP_CURRY_BOUND_FLAG = 4, WRAP_CURRY_FLAG = 8, WRAP_CURRY_RIGHT_FLAG = 16, WRAP_PARTIAL_FLAG = 32, WRAP_PARTIAL_RIGHT_FLAG = 64, WRAP_ARY_FLAG = 128, WRAP_REARG_FLAG = 256, WRAP_FLIP_FLAG = 512;
+      var DEFAULT_TRUNC_LENGTH = 30, DEFAULT_TRUNC_OMISSION = "...";
+      var HOT_COUNT = 800, HOT_SPAN = 16;
+      var LAZY_FILTER_FLAG = 1, LAZY_MAP_FLAG = 2, LAZY_WHILE_FLAG = 3;
+      var INFINITY = 1 / 0, MAX_SAFE_INTEGER = 9007199254740991, MAX_INTEGER = 17976931348623157e292, NAN = 0 / 0;
+      var MAX_ARRAY_LENGTH = 4294967295, MAX_ARRAY_INDEX = MAX_ARRAY_LENGTH - 1, HALF_MAX_ARRAY_LENGTH = MAX_ARRAY_LENGTH >>> 1;
+      var wrapFlags = [
+        ["ary", WRAP_ARY_FLAG],
+        ["bind", WRAP_BIND_FLAG],
+        ["bindKey", WRAP_BIND_KEY_FLAG],
+        ["curry", WRAP_CURRY_FLAG],
+        ["curryRight", WRAP_CURRY_RIGHT_FLAG],
+        ["flip", WRAP_FLIP_FLAG],
+        ["partial", WRAP_PARTIAL_FLAG],
+        ["partialRight", WRAP_PARTIAL_RIGHT_FLAG],
+        ["rearg", WRAP_REARG_FLAG]
+      ];
+      var argsTag = "[object Arguments]", arrayTag = "[object Array]", asyncTag = "[object AsyncFunction]", boolTag = "[object Boolean]", dateTag = "[object Date]", domExcTag = "[object DOMException]", errorTag = "[object Error]", funcTag = "[object Function]", genTag = "[object GeneratorFunction]", mapTag = "[object Map]", numberTag = "[object Number]", nullTag = "[object Null]", objectTag = "[object Object]", promiseTag = "[object Promise]", proxyTag = "[object Proxy]", regexpTag = "[object RegExp]", setTag = "[object Set]", stringTag = "[object String]", symbolTag = "[object Symbol]", undefinedTag = "[object Undefined]", weakMapTag = "[object WeakMap]", weakSetTag = "[object WeakSet]";
+      var arrayBufferTag = "[object ArrayBuffer]", dataViewTag = "[object DataView]", float32Tag = "[object Float32Array]", float64Tag = "[object Float64Array]", int8Tag = "[object Int8Array]", int16Tag = "[object Int16Array]", int32Tag = "[object Int32Array]", uint8Tag = "[object Uint8Array]", uint8ClampedTag = "[object Uint8ClampedArray]", uint16Tag = "[object Uint16Array]", uint32Tag = "[object Uint32Array]";
+      var reEmptyStringLeading = /\b__p \+= '';/g, reEmptyStringMiddle = /\b(__p \+=) '' \+/g, reEmptyStringTrailing = /(__e\(.*?\)|\b__t\)) \+\n'';/g;
+      var reEscapedHtml = /&(?:amp|lt|gt|quot|#39);/g, reUnescapedHtml = /[&<>"']/g, reHasEscapedHtml = RegExp(reEscapedHtml.source), reHasUnescapedHtml = RegExp(reUnescapedHtml.source);
+      var reEscape = /<%-([\s\S]+?)%>/g, reEvaluate = /<%([\s\S]+?)%>/g, reInterpolate = /<%=([\s\S]+?)%>/g;
+      var reIsDeepProp = /\.|\[(?:[^[\]]*|(["'])(?:(?!\1)[^\\]|\\.)*?\1)\]/, reIsPlainProp = /^\w*$/, rePropName = /[^.[\]]+|\[(?:(-?\d+(?:\.\d+)?)|(["'])((?:(?!\2)[^\\]|\\.)*?)\2)\]|(?=(?:\.|\[\])(?:\.|\[\]|$))/g;
+      var reRegExpChar = /[\\^$.*+?()[\]{}|]/g, reHasRegExpChar = RegExp(reRegExpChar.source);
+      var reTrimStart = /^\s+/;
+      var reWhitespace = /\s/;
+      var reWrapComment = /\{(?:\n\/\* \[wrapped with .+\] \*\/)?\n?/, reWrapDetails = /\{\n\/\* \[wrapped with (.+)\] \*/, reSplitDetails = /,? & /;
+      var reAsciiWord = /[^\x00-\x2f\x3a-\x40\x5b-\x60\x7b-\x7f]+/g;
+      var reForbiddenIdentifierChars = /[()=,{}\[\]\/\s]/;
+      var reEscapeChar = /\\(\\)?/g;
+      var reEsTemplate = /\$\{([^\\}]*(?:\\.[^\\}]*)*)\}/g;
+      var reFlags = /\w*$/;
+      var reIsBadHex = /^[-+]0x[0-9a-f]+$/i;
+      var reIsBinary = /^0b[01]+$/i;
+      var reIsHostCtor = /^\[object .+?Constructor\]$/;
+      var reIsOctal = /^0o[0-7]+$/i;
+      var reIsUint = /^(?:0|[1-9]\d*)$/;
+      var reLatin = /[\xc0-\xd6\xd8-\xf6\xf8-\xff\u0100-\u017f]/g;
+      var reNoMatch = /($^)/;
+      var reUnescapedString = /['\n\r\u2028\u2029\\]/g;
+      var rsAstralRange = "\\ud800-\\udfff", rsComboMarksRange = "\\u0300-\\u036f", reComboHalfMarksRange = "\\ufe20-\\ufe2f", rsComboSymbolsRange = "\\u20d0-\\u20ff", rsComboRange = rsComboMarksRange + reComboHalfMarksRange + rsComboSymbolsRange, rsDingbatRange = "\\u2700-\\u27bf", rsLowerRange = "a-z\\xdf-\\xf6\\xf8-\\xff", rsMathOpRange = "\\xac\\xb1\\xd7\\xf7", rsNonCharRange = "\\x00-\\x2f\\x3a-\\x40\\x5b-\\x60\\x7b-\\xbf", rsPunctuationRange = "\\u2000-\\u206f", rsSpaceRange = " \\t\\x0b\\f\\xa0\\ufeff\\n\\r\\u2028\\u2029\\u1680\\u180e\\u2000\\u2001\\u2002\\u2003\\u2004\\u2005\\u2006\\u2007\\u2008\\u2009\\u200a\\u202f\\u205f\\u3000", rsUpperRange = "A-Z\\xc0-\\xd6\\xd8-\\xde", rsVarRange = "\\ufe0e\\ufe0f", rsBreakRange = rsMathOpRange + rsNonCharRange + rsPunctuationRange + rsSpaceRange;
+      var rsApos = "['\u2019]", rsAstral = "[" + rsAstralRange + "]", rsBreak = "[" + rsBreakRange + "]", rsCombo = "[" + rsComboRange + "]", rsDigits = "\\d+", rsDingbat = "[" + rsDingbatRange + "]", rsLower = "[" + rsLowerRange + "]", rsMisc = "[^" + rsAstralRange + rsBreakRange + rsDigits + rsDingbatRange + rsLowerRange + rsUpperRange + "]", rsFitz = "\\ud83c[\\udffb-\\udfff]", rsModifier = "(?:" + rsCombo + "|" + rsFitz + ")", rsNonAstral = "[^" + rsAstralRange + "]", rsRegional = "(?:\\ud83c[\\udde6-\\uddff]){2}", rsSurrPair = "[\\ud800-\\udbff][\\udc00-\\udfff]", rsUpper = "[" + rsUpperRange + "]", rsZWJ = "\\u200d";
+      var rsMiscLower = "(?:" + rsLower + "|" + rsMisc + ")", rsMiscUpper = "(?:" + rsUpper + "|" + rsMisc + ")", rsOptContrLower = "(?:" + rsApos + "(?:d|ll|m|re|s|t|ve))?", rsOptContrUpper = "(?:" + rsApos + "(?:D|LL|M|RE|S|T|VE))?", reOptMod = rsModifier + "?", rsOptVar = "[" + rsVarRange + "]?", rsOptJoin = "(?:" + rsZWJ + "(?:" + [rsNonAstral, rsRegional, rsSurrPair].join("|") + ")" + rsOptVar + reOptMod + ")*", rsOrdLower = "\\d*(?:1st|2nd|3rd|(?![123])\\dth)(?=\\b|[A-Z_])", rsOrdUpper = "\\d*(?:1ST|2ND|3RD|(?![123])\\dTH)(?=\\b|[a-z_])", rsSeq = rsOptVar + reOptMod + rsOptJoin, rsEmoji = "(?:" + [rsDingbat, rsRegional, rsSurrPair].join("|") + ")" + rsSeq, rsSymbol = "(?:" + [rsNonAstral + rsCombo + "?", rsCombo, rsRegional, rsSurrPair, rsAstral].join("|") + ")";
+      var reApos = RegExp(rsApos, "g");
+      var reComboMark = RegExp(rsCombo, "g");
+      var reUnicode = RegExp(rsFitz + "(?=" + rsFitz + ")|" + rsSymbol + rsSeq, "g");
+      var reUnicodeWord = RegExp([
+        rsUpper + "?" + rsLower + "+" + rsOptContrLower + "(?=" + [rsBreak, rsUpper, "$"].join("|") + ")",
+        rsMiscUpper + "+" + rsOptContrUpper + "(?=" + [rsBreak, rsUpper + rsMiscLower, "$"].join("|") + ")",
+        rsUpper + "?" + rsMiscLower + "+" + rsOptContrLower,
+        rsUpper + "+" + rsOptContrUpper,
+        rsOrdUpper,
+        rsOrdLower,
+        rsDigits,
+        rsEmoji
+      ].join("|"), "g");
+      var reHasUnicode = RegExp("[" + rsZWJ + rsAstralRange + rsComboRange + rsVarRange + "]");
+      var reHasUnicodeWord = /[a-z][A-Z]|[A-Z]{2}[a-z]|[0-9][a-zA-Z]|[a-zA-Z][0-9]|[^a-zA-Z0-9 ]/;
+      var contextProps = [
+        "Array",
+        "Buffer",
+        "DataView",
+        "Date",
+        "Error",
+        "Float32Array",
+        "Float64Array",
+        "Function",
+        "Int8Array",
+        "Int16Array",
+        "Int32Array",
+        "Map",
+        "Math",
+        "Object",
+        "Promise",
+        "RegExp",
+        "Set",
+        "String",
+        "Symbol",
+        "TypeError",
+        "Uint8Array",
+        "Uint8ClampedArray",
+        "Uint16Array",
+        "Uint32Array",
+        "WeakMap",
+        "_",
+        "clearTimeout",
+        "isFinite",
+        "parseInt",
+        "setTimeout"
+      ];
+      var templateCounter = -1;
+      var typedArrayTags = {};
+      typedArrayTags[float32Tag] = typedArrayTags[float64Tag] = typedArrayTags[int8Tag] = typedArrayTags[int16Tag] = typedArrayTags[int32Tag] = typedArrayTags[uint8Tag] = typedArrayTags[uint8ClampedTag] = typedArrayTags[uint16Tag] = typedArrayTags[uint32Tag] = true;
+      typedArrayTags[argsTag] = typedArrayTags[arrayTag] = typedArrayTags[arrayBufferTag] = typedArrayTags[boolTag] = typedArrayTags[dataViewTag] = typedArrayTags[dateTag] = typedArrayTags[errorTag] = typedArrayTags[funcTag] = typedArrayTags[mapTag] = typedArrayTags[numberTag] = typedArrayTags[objectTag] = typedArrayTags[regexpTag] = typedArrayTags[setTag] = typedArrayTags[stringTag] = typedArrayTags[weakMapTag] = false;
+      var cloneableTags = {};
+      cloneableTags[argsTag] = cloneableTags[arrayTag] = cloneableTags[arrayBufferTag] = cloneableTags[dataViewTag] = cloneableTags[boolTag] = cloneableTags[dateTag] = cloneableTags[float32Tag] = cloneableTags[float64Tag] = cloneableTags[int8Tag] = cloneableTags[int16Tag] = cloneableTags[int32Tag] = cloneableTags[mapTag] = cloneableTags[numberTag] = cloneableTags[objectTag] = cloneableTags[regexpTag] = cloneableTags[setTag] = cloneableTags[stringTag] = cloneableTags[symbolTag] = cloneableTags[uint8Tag] = cloneableTags[uint8ClampedTag] = cloneableTags[uint16Tag] = cloneableTags[uint32Tag] = true;
+      cloneableTags[errorTag] = cloneableTags[funcTag] = cloneableTags[weakMapTag] = false;
+      var deburredLetters = {
+        // Latin-1 Supplement block.
+        "\xC0": "A",
+        "\xC1": "A",
+        "\xC2": "A",
+        "\xC3": "A",
+        "\xC4": "A",
+        "\xC5": "A",
+        "\xE0": "a",
+        "\xE1": "a",
+        "\xE2": "a",
+        "\xE3": "a",
+        "\xE4": "a",
+        "\xE5": "a",
+        "\xC7": "C",
+        "\xE7": "c",
+        "\xD0": "D",
+        "\xF0": "d",
+        "\xC8": "E",
+        "\xC9": "E",
+        "\xCA": "E",
+        "\xCB": "E",
+        "\xE8": "e",
+        "\xE9": "e",
+        "\xEA": "e",
+        "\xEB": "e",
+        "\xCC": "I",
+        "\xCD": "I",
+        "\xCE": "I",
+        "\xCF": "I",
+        "\xEC": "i",
+        "\xED": "i",
+        "\xEE": "i",
+        "\xEF": "i",
+        "\xD1": "N",
+        "\xF1": "n",
+        "\xD2": "O",
+        "\xD3": "O",
+        "\xD4": "O",
+        "\xD5": "O",
+        "\xD6": "O",
+        "\xD8": "O",
+        "\xF2": "o",
+        "\xF3": "o",
+        "\xF4": "o",
+        "\xF5": "o",
+        "\xF6": "o",
+        "\xF8": "o",
+        "\xD9": "U",
+        "\xDA": "U",
+        "\xDB": "U",
+        "\xDC": "U",
+        "\xF9": "u",
+        "\xFA": "u",
+        "\xFB": "u",
+        "\xFC": "u",
+        "\xDD": "Y",
+        "\xFD": "y",
+        "\xFF": "y",
+        "\xC6": "Ae",
+        "\xE6": "ae",
+        "\xDE": "Th",
+        "\xFE": "th",
+        "\xDF": "ss",
+        // Latin Extended-A block.
+        "\u0100": "A",
+        "\u0102": "A",
+        "\u0104": "A",
+        "\u0101": "a",
+        "\u0103": "a",
+        "\u0105": "a",
+        "\u0106": "C",
+        "\u0108": "C",
+        "\u010A": "C",
+        "\u010C": "C",
+        "\u0107": "c",
+        "\u0109": "c",
+        "\u010B": "c",
+        "\u010D": "c",
+        "\u010E": "D",
+        "\u0110": "D",
+        "\u010F": "d",
+        "\u0111": "d",
+        "\u0112": "E",
+        "\u0114": "E",
+        "\u0116": "E",
+        "\u0118": "E",
+        "\u011A": "E",
+        "\u0113": "e",
+        "\u0115": "e",
+        "\u0117": "e",
+        "\u0119": "e",
+        "\u011B": "e",
+        "\u011C": "G",
+        "\u011E": "G",
+        "\u0120": "G",
+        "\u0122": "G",
+        "\u011D": "g",
+        "\u011F": "g",
+        "\u0121": "g",
+        "\u0123": "g",
+        "\u0124": "H",
+        "\u0126": "H",
+        "\u0125": "h",
+        "\u0127": "h",
+        "\u0128": "I",
+        "\u012A": "I",
+        "\u012C": "I",
+        "\u012E": "I",
+        "\u0130": "I",
+        "\u0129": "i",
+        "\u012B": "i",
+        "\u012D": "i",
+        "\u012F": "i",
+        "\u0131": "i",
+        "\u0134": "J",
+        "\u0135": "j",
+        "\u0136": "K",
+        "\u0137": "k",
+        "\u0138": "k",
+        "\u0139": "L",
+        "\u013B": "L",
+        "\u013D": "L",
+        "\u013F": "L",
+        "\u0141": "L",
+        "\u013A": "l",
+        "\u013C": "l",
+        "\u013E": "l",
+        "\u0140": "l",
+        "\u0142": "l",
+        "\u0143": "N",
+        "\u0145": "N",
+        "\u0147": "N",
+        "\u014A": "N",
+        "\u0144": "n",
+        "\u0146": "n",
+        "\u0148": "n",
+        "\u014B": "n",
+        "\u014C": "O",
+        "\u014E": "O",
+        "\u0150": "O",
+        "\u014D": "o",
+        "\u014F": "o",
+        "\u0151": "o",
+        "\u0154": "R",
+        "\u0156": "R",
+        "\u0158": "R",
+        "\u0155": "r",
+        "\u0157": "r",
+        "\u0159": "r",
+        "\u015A": "S",
+        "\u015C": "S",
+        "\u015E": "S",
+        "\u0160": "S",
+        "\u015B": "s",
+        "\u015D": "s",
+        "\u015F": "s",
+        "\u0161": "s",
+        "\u0162": "T",
+        "\u0164": "T",
+        "\u0166": "T",
+        "\u0163": "t",
+        "\u0165": "t",
+        "\u0167": "t",
+        "\u0168": "U",
+        "\u016A": "U",
+        "\u016C": "U",
+        "\u016E": "U",
+        "\u0170": "U",
+        "\u0172": "U",
+        "\u0169": "u",
+        "\u016B": "u",
+        "\u016D": "u",
+        "\u016F": "u",
+        "\u0171": "u",
+        "\u0173": "u",
+        "\u0174": "W",
+        "\u0175": "w",
+        "\u0176": "Y",
+        "\u0177": "y",
+        "\u0178": "Y",
+        "\u0179": "Z",
+        "\u017B": "Z",
+        "\u017D": "Z",
+        "\u017A": "z",
+        "\u017C": "z",
+        "\u017E": "z",
+        "\u0132": "IJ",
+        "\u0133": "ij",
+        "\u0152": "Oe",
+        "\u0153": "oe",
+        "\u0149": "'n",
+        "\u017F": "s"
+      };
+      var htmlEscapes = {
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#39;"
+      };
+      var htmlUnescapes = {
+        "&amp;": "&",
+        "&lt;": "<",
+        "&gt;": ">",
+        "&quot;": '"',
+        "&#39;": "'"
+      };
+      var stringEscapes = {
+        "\\": "\\",
+        "'": "'",
+        "\n": "n",
+        "\r": "r",
+        "\u2028": "u2028",
+        "\u2029": "u2029"
+      };
+      var freeParseFloat = parseFloat, freeParseInt = parseInt;
+      var freeGlobal = typeof global == "object" && global && global.Object === Object && global;
+      var freeSelf = typeof self == "object" && self && self.Object === Object && self;
+      var root = freeGlobal || freeSelf || Function("return this")();
+      var freeExports = typeof exports == "object" && exports && !exports.nodeType && exports;
+      var freeModule = freeExports && typeof module == "object" && module && !module.nodeType && module;
+      var moduleExports = freeModule && freeModule.exports === freeExports;
+      var freeProcess = moduleExports && freeGlobal.process;
+      var nodeUtil = (function() {
+        try {
+          var types3 = freeModule && freeModule.require && freeModule.require("util").types;
+          if (types3) {
+            return types3;
+          }
+          return freeProcess && freeProcess.binding && freeProcess.binding("util");
+        } catch (e) {
+        }
+      })();
+      var nodeIsArrayBuffer = nodeUtil && nodeUtil.isArrayBuffer, nodeIsDate = nodeUtil && nodeUtil.isDate, nodeIsMap = nodeUtil && nodeUtil.isMap, nodeIsRegExp = nodeUtil && nodeUtil.isRegExp, nodeIsSet = nodeUtil && nodeUtil.isSet, nodeIsTypedArray = nodeUtil && nodeUtil.isTypedArray;
+      function apply(func, thisArg, args) {
+        switch (args.length) {
+          case 0:
+            return func.call(thisArg);
+          case 1:
+            return func.call(thisArg, args[0]);
+          case 2:
+            return func.call(thisArg, args[0], args[1]);
+          case 3:
+            return func.call(thisArg, args[0], args[1], args[2]);
+        }
+        return func.apply(thisArg, args);
+      }
+      function arrayAggregator(array2, setter, iteratee, accumulator) {
+        var index = -1, length = array2 == null ? 0 : array2.length;
+        while (++index < length) {
+          var value = array2[index];
+          setter(accumulator, value, iteratee(value), array2);
+        }
+        return accumulator;
+      }
+      function arrayEach(array2, iteratee) {
+        var index = -1, length = array2 == null ? 0 : array2.length;
+        while (++index < length) {
+          if (iteratee(array2[index], index, array2) === false) {
+            break;
+          }
+        }
+        return array2;
+      }
+      function arrayEachRight(array2, iteratee) {
+        var length = array2 == null ? 0 : array2.length;
+        while (length--) {
+          if (iteratee(array2[length], length, array2) === false) {
+            break;
+          }
+        }
+        return array2;
+      }
+      function arrayEvery(array2, predicate) {
+        var index = -1, length = array2 == null ? 0 : array2.length;
+        while (++index < length) {
+          if (!predicate(array2[index], index, array2)) {
+            return false;
+          }
+        }
+        return true;
+      }
+      function arrayFilter(array2, predicate) {
+        var index = -1, length = array2 == null ? 0 : array2.length, resIndex = 0, result = [];
+        while (++index < length) {
+          var value = array2[index];
+          if (predicate(value, index, array2)) {
+            result[resIndex++] = value;
+          }
+        }
+        return result;
+      }
+      function arrayIncludes(array2, value) {
+        var length = array2 == null ? 0 : array2.length;
+        return !!length && baseIndexOf(array2, value, 0) > -1;
+      }
+      function arrayIncludesWith(array2, value, comparator) {
+        var index = -1, length = array2 == null ? 0 : array2.length;
+        while (++index < length) {
+          if (comparator(value, array2[index])) {
+            return true;
+          }
+        }
+        return false;
+      }
+      function arrayMap(array2, iteratee) {
+        var index = -1, length = array2 == null ? 0 : array2.length, result = Array(length);
+        while (++index < length) {
+          result[index] = iteratee(array2[index], index, array2);
+        }
+        return result;
+      }
+      function arrayPush(array2, values) {
+        var index = -1, length = values.length, offset = array2.length;
+        while (++index < length) {
+          array2[offset + index] = values[index];
+        }
+        return array2;
+      }
+      function arrayReduce(array2, iteratee, accumulator, initAccum) {
+        var index = -1, length = array2 == null ? 0 : array2.length;
+        if (initAccum && length) {
+          accumulator = array2[++index];
+        }
+        while (++index < length) {
+          accumulator = iteratee(accumulator, array2[index], index, array2);
+        }
+        return accumulator;
+      }
+      function arrayReduceRight(array2, iteratee, accumulator, initAccum) {
+        var length = array2 == null ? 0 : array2.length;
+        if (initAccum && length) {
+          accumulator = array2[--length];
+        }
+        while (length--) {
+          accumulator = iteratee(accumulator, array2[length], length, array2);
+        }
+        return accumulator;
+      }
+      function arraySome(array2, predicate) {
+        var index = -1, length = array2 == null ? 0 : array2.length;
+        while (++index < length) {
+          if (predicate(array2[index], index, array2)) {
+            return true;
+          }
+        }
+        return false;
+      }
+      var asciiSize = baseProperty("length");
+      function asciiToArray(string4) {
+        return string4.split("");
+      }
+      function asciiWords(string4) {
+        return string4.match(reAsciiWord) || [];
+      }
+      function baseFindKey(collection, predicate, eachFunc) {
+        var result;
+        eachFunc(collection, function(value, key, collection2) {
+          if (predicate(value, key, collection2)) {
+            result = key;
+            return false;
+          }
+        });
+        return result;
+      }
+      function baseFindIndex(array2, predicate, fromIndex, fromRight) {
+        var length = array2.length, index = fromIndex + (fromRight ? 1 : -1);
+        while (fromRight ? index-- : ++index < length) {
+          if (predicate(array2[index], index, array2)) {
+            return index;
+          }
+        }
+        return -1;
+      }
+      function baseIndexOf(array2, value, fromIndex) {
+        return value === value ? strictIndexOf(array2, value, fromIndex) : baseFindIndex(array2, baseIsNaN, fromIndex);
+      }
+      function baseIndexOfWith(array2, value, fromIndex, comparator) {
+        var index = fromIndex - 1, length = array2.length;
+        while (++index < length) {
+          if (comparator(array2[index], value)) {
+            return index;
+          }
+        }
+        return -1;
+      }
+      function baseIsNaN(value) {
+        return value !== value;
+      }
+      function baseMean(array2, iteratee) {
+        var length = array2 == null ? 0 : array2.length;
+        return length ? baseSum(array2, iteratee) / length : NAN;
+      }
+      function baseProperty(key) {
+        return function(object2) {
+          return object2 == null ? undefined2 : object2[key];
+        };
+      }
+      function basePropertyOf(object2) {
+        return function(key) {
+          return object2 == null ? undefined2 : object2[key];
+        };
+      }
+      function baseReduce(collection, iteratee, accumulator, initAccum, eachFunc) {
+        eachFunc(collection, function(value, index, collection2) {
+          accumulator = initAccum ? (initAccum = false, value) : iteratee(accumulator, value, index, collection2);
+        });
+        return accumulator;
+      }
+      function baseSortBy(array2, comparer) {
+        var length = array2.length;
+        array2.sort(comparer);
+        while (length--) {
+          array2[length] = array2[length].value;
+        }
+        return array2;
+      }
+      function baseSum(array2, iteratee) {
+        var result, index = -1, length = array2.length;
+        while (++index < length) {
+          var current = iteratee(array2[index]);
+          if (current !== undefined2) {
+            result = result === undefined2 ? current : result + current;
+          }
+        }
+        return result;
+      }
+      function baseTimes(n, iteratee) {
+        var index = -1, result = Array(n);
+        while (++index < n) {
+          result[index] = iteratee(index);
+        }
+        return result;
+      }
+      function baseToPairs(object2, props) {
+        return arrayMap(props, function(key) {
+          return [key, object2[key]];
+        });
+      }
+      function baseTrim(string4) {
+        return string4 ? string4.slice(0, trimmedEndIndex(string4) + 1).replace(reTrimStart, "") : string4;
+      }
+      function baseUnary(func) {
+        return function(value) {
+          return func(value);
+        };
+      }
+      function baseValues(object2, props) {
+        return arrayMap(props, function(key) {
+          return object2[key];
+        });
+      }
+      function cacheHas(cache2, key) {
+        return cache2.has(key);
+      }
+      function charsStartIndex(strSymbols, chrSymbols) {
+        var index = -1, length = strSymbols.length;
+        while (++index < length && baseIndexOf(chrSymbols, strSymbols[index], 0) > -1) {
+        }
+        return index;
+      }
+      function charsEndIndex(strSymbols, chrSymbols) {
+        var index = strSymbols.length;
+        while (index-- && baseIndexOf(chrSymbols, strSymbols[index], 0) > -1) {
+        }
+        return index;
+      }
+      function countHolders(array2, placeholder) {
+        var length = array2.length, result = 0;
+        while (length--) {
+          if (array2[length] === placeholder) {
+            ++result;
+          }
+        }
+        return result;
+      }
+      var deburrLetter = basePropertyOf(deburredLetters);
+      var escapeHtmlChar = basePropertyOf(htmlEscapes);
+      function escapeStringChar(chr) {
+        return "\\" + stringEscapes[chr];
+      }
+      function getValue(object2, key) {
+        return object2 == null ? undefined2 : object2[key];
+      }
+      function hasUnicode(string4) {
+        return reHasUnicode.test(string4);
+      }
+      function hasUnicodeWord(string4) {
+        return reHasUnicodeWord.test(string4);
+      }
+      function iteratorToArray(iterator) {
+        var data, result = [];
+        while (!(data = iterator.next()).done) {
+          result.push(data.value);
+        }
+        return result;
+      }
+      function mapToArray(map2) {
+        var index = -1, result = Array(map2.size);
+        map2.forEach(function(value, key) {
+          result[++index] = [key, value];
+        });
+        return result;
+      }
+      function overArg(func, transform2) {
+        return function(arg) {
+          return func(transform2(arg));
+        };
+      }
+      function replaceHolders(array2, placeholder) {
+        var index = -1, length = array2.length, resIndex = 0, result = [];
+        while (++index < length) {
+          var value = array2[index];
+          if (value === placeholder || value === PLACEHOLDER) {
+            array2[index] = PLACEHOLDER;
+            result[resIndex++] = index;
+          }
+        }
+        return result;
+      }
+      function setToArray(set2) {
+        var index = -1, result = Array(set2.size);
+        set2.forEach(function(value) {
+          result[++index] = value;
+        });
+        return result;
+      }
+      function setToPairs(set2) {
+        var index = -1, result = Array(set2.size);
+        set2.forEach(function(value) {
+          result[++index] = [value, value];
+        });
+        return result;
+      }
+      function strictIndexOf(array2, value, fromIndex) {
+        var index = fromIndex - 1, length = array2.length;
+        while (++index < length) {
+          if (array2[index] === value) {
+            return index;
+          }
+        }
+        return -1;
+      }
+      function strictLastIndexOf(array2, value, fromIndex) {
+        var index = fromIndex + 1;
+        while (index--) {
+          if (array2[index] === value) {
+            return index;
+          }
+        }
+        return index;
+      }
+      function stringSize(string4) {
+        return hasUnicode(string4) ? unicodeSize(string4) : asciiSize(string4);
+      }
+      function stringToArray(string4) {
+        return hasUnicode(string4) ? unicodeToArray(string4) : asciiToArray(string4);
+      }
+      function trimmedEndIndex(string4) {
+        var index = string4.length;
+        while (index-- && reWhitespace.test(string4.charAt(index))) {
+        }
+        return index;
+      }
+      var unescapeHtmlChar = basePropertyOf(htmlUnescapes);
+      function unicodeSize(string4) {
+        var result = reUnicode.lastIndex = 0;
+        while (reUnicode.test(string4)) {
+          ++result;
+        }
+        return result;
+      }
+      function unicodeToArray(string4) {
+        return string4.match(reUnicode) || [];
+      }
+      function unicodeWords(string4) {
+        return string4.match(reUnicodeWord) || [];
+      }
+      var runInContext = (function runInContext2(context) {
+        context = context == null ? root : _2.defaults(root.Object(), context, _2.pick(root, contextProps));
+        var Array2 = context.Array, Date2 = context.Date, Error2 = context.Error, Function2 = context.Function, Math2 = context.Math, Object2 = context.Object, RegExp2 = context.RegExp, String2 = context.String, TypeError2 = context.TypeError;
+        var arrayProto = Array2.prototype, funcProto = Function2.prototype, objectProto = Object2.prototype;
+        var coreJsData = context["__core-js_shared__"];
+        var funcToString = funcProto.toString;
+        var hasOwnProperty = objectProto.hasOwnProperty;
+        var idCounter = 0;
+        var maskSrcKey = (function() {
+          var uid = /[^.]+$/.exec(coreJsData && coreJsData.keys && coreJsData.keys.IE_PROTO || "");
+          return uid ? "Symbol(src)_1." + uid : "";
+        })();
+        var nativeObjectToString = objectProto.toString;
+        var objectCtorString = funcToString.call(Object2);
+        var oldDash = root._;
+        var reIsNative = RegExp2(
+          "^" + funcToString.call(hasOwnProperty).replace(reRegExpChar, "\\$&").replace(/hasOwnProperty|(function).*?(?=\\\()| for .+?(?=\\\])/g, "$1.*?") + "$"
+        );
+        var Buffer2 = moduleExports ? context.Buffer : undefined2, Symbol2 = context.Symbol, Uint8Array2 = context.Uint8Array, allocUnsafe = Buffer2 ? Buffer2.allocUnsafe : undefined2, getPrototype = overArg(Object2.getPrototypeOf, Object2), objectCreate = Object2.create, propertyIsEnumerable = objectProto.propertyIsEnumerable, splice = arrayProto.splice, spreadableSymbol = Symbol2 ? Symbol2.isConcatSpreadable : undefined2, symIterator = Symbol2 ? Symbol2.iterator : undefined2, symToStringTag = Symbol2 ? Symbol2.toStringTag : undefined2;
+        var defineProperty = (function() {
+          try {
+            var func = getNative(Object2, "defineProperty");
+            func({}, "", {});
+            return func;
+          } catch (e) {
+          }
+        })();
+        var ctxClearTimeout = context.clearTimeout !== root.clearTimeout && context.clearTimeout, ctxNow = Date2 && Date2.now !== root.Date.now && Date2.now, ctxSetTimeout = context.setTimeout !== root.setTimeout && context.setTimeout;
+        var nativeCeil = Math2.ceil, nativeFloor = Math2.floor, nativeGetSymbols = Object2.getOwnPropertySymbols, nativeIsBuffer = Buffer2 ? Buffer2.isBuffer : undefined2, nativeIsFinite = context.isFinite, nativeJoin = arrayProto.join, nativeKeys = overArg(Object2.keys, Object2), nativeMax = Math2.max, nativeMin = Math2.min, nativeNow = Date2.now, nativeParseInt = context.parseInt, nativeRandom = Math2.random, nativeReverse = arrayProto.reverse;
+        var DataView2 = getNative(context, "DataView"), Map2 = getNative(context, "Map"), Promise2 = getNative(context, "Promise"), Set2 = getNative(context, "Set"), WeakMap2 = getNative(context, "WeakMap"), nativeCreate = getNative(Object2, "create");
+        var metaMap = WeakMap2 && new WeakMap2();
+        var realNames = {};
+        var dataViewCtorString = toSource(DataView2), mapCtorString = toSource(Map2), promiseCtorString = toSource(Promise2), setCtorString = toSource(Set2), weakMapCtorString = toSource(WeakMap2);
+        var symbolProto = Symbol2 ? Symbol2.prototype : undefined2, symbolValueOf = symbolProto ? symbolProto.valueOf : undefined2, symbolToString = symbolProto ? symbolProto.toString : undefined2;
+        function lodash(value) {
+          if (isObjectLike(value) && !isArray(value) && !(value instanceof LazyWrapper)) {
+            if (value instanceof LodashWrapper) {
+              return value;
+            }
+            if (hasOwnProperty.call(value, "__wrapped__")) {
+              return wrapperClone(value);
+            }
+          }
+          return new LodashWrapper(value);
+        }
+        var baseCreate = /* @__PURE__ */ (function() {
+          function object2() {
+          }
+          return function(proto) {
+            if (!isObject3(proto)) {
+              return {};
+            }
+            if (objectCreate) {
+              return objectCreate(proto);
+            }
+            object2.prototype = proto;
+            var result2 = new object2();
+            object2.prototype = undefined2;
+            return result2;
+          };
+        })();
+        function baseLodash() {
+        }
+        function LodashWrapper(value, chainAll) {
+          this.__wrapped__ = value;
+          this.__actions__ = [];
+          this.__chain__ = !!chainAll;
+          this.__index__ = 0;
+          this.__values__ = undefined2;
+        }
+        lodash.templateSettings = {
+          /**
+           * Used to detect `data` property values to be HTML-escaped.
+           *
+           * @memberOf _.templateSettings
+           * @type {RegExp}
+           */
+          "escape": reEscape,
+          /**
+           * Used to detect code to be evaluated.
+           *
+           * @memberOf _.templateSettings
+           * @type {RegExp}
+           */
+          "evaluate": reEvaluate,
+          /**
+           * Used to detect `data` property values to inject.
+           *
+           * @memberOf _.templateSettings
+           * @type {RegExp}
+           */
+          "interpolate": reInterpolate,
+          /**
+           * Used to reference the data object in the template text.
+           *
+           * @memberOf _.templateSettings
+           * @type {string}
+           */
+          "variable": "",
+          /**
+           * Used to import variables into the compiled template.
+           *
+           * @memberOf _.templateSettings
+           * @type {Object}
+           */
+          "imports": {
+            /**
+             * A reference to the `lodash` function.
+             *
+             * @memberOf _.templateSettings.imports
+             * @type {Function}
+             */
+            "_": lodash
+          }
+        };
+        lodash.prototype = baseLodash.prototype;
+        lodash.prototype.constructor = lodash;
+        LodashWrapper.prototype = baseCreate(baseLodash.prototype);
+        LodashWrapper.prototype.constructor = LodashWrapper;
+        function LazyWrapper(value) {
+          this.__wrapped__ = value;
+          this.__actions__ = [];
+          this.__dir__ = 1;
+          this.__filtered__ = false;
+          this.__iteratees__ = [];
+          this.__takeCount__ = MAX_ARRAY_LENGTH;
+          this.__views__ = [];
+        }
+        function lazyClone() {
+          var result2 = new LazyWrapper(this.__wrapped__);
+          result2.__actions__ = copyArray(this.__actions__);
+          result2.__dir__ = this.__dir__;
+          result2.__filtered__ = this.__filtered__;
+          result2.__iteratees__ = copyArray(this.__iteratees__);
+          result2.__takeCount__ = this.__takeCount__;
+          result2.__views__ = copyArray(this.__views__);
+          return result2;
+        }
+        function lazyReverse() {
+          if (this.__filtered__) {
+            var result2 = new LazyWrapper(this);
+            result2.__dir__ = -1;
+            result2.__filtered__ = true;
+          } else {
+            result2 = this.clone();
+            result2.__dir__ *= -1;
+          }
+          return result2;
+        }
+        function lazyValue() {
+          var array2 = this.__wrapped__.value(), dir = this.__dir__, isArr = isArray(array2), isRight = dir < 0, arrLength = isArr ? array2.length : 0, view = getView(0, arrLength, this.__views__), start = view.start, end = view.end, length = end - start, index = isRight ? end : start - 1, iteratees = this.__iteratees__, iterLength = iteratees.length, resIndex = 0, takeCount = nativeMin(length, this.__takeCount__);
+          if (!isArr || !isRight && arrLength == length && takeCount == length) {
+            return baseWrapperValue(array2, this.__actions__);
+          }
+          var result2 = [];
+          outer:
+            while (length-- && resIndex < takeCount) {
+              index += dir;
+              var iterIndex = -1, value = array2[index];
+              while (++iterIndex < iterLength) {
+                var data = iteratees[iterIndex], iteratee2 = data.iteratee, type = data.type, computed = iteratee2(value);
+                if (type == LAZY_MAP_FLAG) {
+                  value = computed;
+                } else if (!computed) {
+                  if (type == LAZY_FILTER_FLAG) {
+                    continue outer;
+                  } else {
+                    break outer;
+                  }
+                }
+              }
+              result2[resIndex++] = value;
+            }
+          return result2;
+        }
+        LazyWrapper.prototype = baseCreate(baseLodash.prototype);
+        LazyWrapper.prototype.constructor = LazyWrapper;
+        function Hash(entries) {
+          var index = -1, length = entries == null ? 0 : entries.length;
+          this.clear();
+          while (++index < length) {
+            var entry = entries[index];
+            this.set(entry[0], entry[1]);
+          }
+        }
+        function hashClear() {
+          this.__data__ = nativeCreate ? nativeCreate(null) : {};
+          this.size = 0;
+        }
+        function hashDelete(key) {
+          var result2 = this.has(key) && delete this.__data__[key];
+          this.size -= result2 ? 1 : 0;
+          return result2;
+        }
+        function hashGet(key) {
+          var data = this.__data__;
+          if (nativeCreate) {
+            var result2 = data[key];
+            return result2 === HASH_UNDEFINED ? undefined2 : result2;
+          }
+          return hasOwnProperty.call(data, key) ? data[key] : undefined2;
+        }
+        function hashHas(key) {
+          var data = this.__data__;
+          return nativeCreate ? data[key] !== undefined2 : hasOwnProperty.call(data, key);
+        }
+        function hashSet(key, value) {
+          var data = this.__data__;
+          this.size += this.has(key) ? 0 : 1;
+          data[key] = nativeCreate && value === undefined2 ? HASH_UNDEFINED : value;
+          return this;
+        }
+        Hash.prototype.clear = hashClear;
+        Hash.prototype["delete"] = hashDelete;
+        Hash.prototype.get = hashGet;
+        Hash.prototype.has = hashHas;
+        Hash.prototype.set = hashSet;
+        function ListCache(entries) {
+          var index = -1, length = entries == null ? 0 : entries.length;
+          this.clear();
+          while (++index < length) {
+            var entry = entries[index];
+            this.set(entry[0], entry[1]);
+          }
+        }
+        function listCacheClear() {
+          this.__data__ = [];
+          this.size = 0;
+        }
+        function listCacheDelete(key) {
+          var data = this.__data__, index = assocIndexOf(data, key);
+          if (index < 0) {
+            return false;
+          }
+          var lastIndex = data.length - 1;
+          if (index == lastIndex) {
+            data.pop();
+          } else {
+            splice.call(data, index, 1);
+          }
+          --this.size;
+          return true;
+        }
+        function listCacheGet(key) {
+          var data = this.__data__, index = assocIndexOf(data, key);
+          return index < 0 ? undefined2 : data[index][1];
+        }
+        function listCacheHas(key) {
+          return assocIndexOf(this.__data__, key) > -1;
+        }
+        function listCacheSet(key, value) {
+          var data = this.__data__, index = assocIndexOf(data, key);
+          if (index < 0) {
+            ++this.size;
+            data.push([key, value]);
+          } else {
+            data[index][1] = value;
+          }
+          return this;
+        }
+        ListCache.prototype.clear = listCacheClear;
+        ListCache.prototype["delete"] = listCacheDelete;
+        ListCache.prototype.get = listCacheGet;
+        ListCache.prototype.has = listCacheHas;
+        ListCache.prototype.set = listCacheSet;
+        function MapCache(entries) {
+          var index = -1, length = entries == null ? 0 : entries.length;
+          this.clear();
+          while (++index < length) {
+            var entry = entries[index];
+            this.set(entry[0], entry[1]);
+          }
+        }
+        function mapCacheClear() {
+          this.size = 0;
+          this.__data__ = {
+            "hash": new Hash(),
+            "map": new (Map2 || ListCache)(),
+            "string": new Hash()
+          };
+        }
+        function mapCacheDelete(key) {
+          var result2 = getMapData(this, key)["delete"](key);
+          this.size -= result2 ? 1 : 0;
+          return result2;
+        }
+        function mapCacheGet(key) {
+          return getMapData(this, key).get(key);
+        }
+        function mapCacheHas(key) {
+          return getMapData(this, key).has(key);
+        }
+        function mapCacheSet(key, value) {
+          var data = getMapData(this, key), size2 = data.size;
+          data.set(key, value);
+          this.size += data.size == size2 ? 0 : 1;
+          return this;
+        }
+        MapCache.prototype.clear = mapCacheClear;
+        MapCache.prototype["delete"] = mapCacheDelete;
+        MapCache.prototype.get = mapCacheGet;
+        MapCache.prototype.has = mapCacheHas;
+        MapCache.prototype.set = mapCacheSet;
+        function SetCache(values2) {
+          var index = -1, length = values2 == null ? 0 : values2.length;
+          this.__data__ = new MapCache();
+          while (++index < length) {
+            this.add(values2[index]);
+          }
+        }
+        function setCacheAdd(value) {
+          this.__data__.set(value, HASH_UNDEFINED);
+          return this;
+        }
+        function setCacheHas(value) {
+          return this.__data__.has(value);
+        }
+        SetCache.prototype.add = SetCache.prototype.push = setCacheAdd;
+        SetCache.prototype.has = setCacheHas;
+        function Stack(entries) {
+          var data = this.__data__ = new ListCache(entries);
+          this.size = data.size;
+        }
+        function stackClear() {
+          this.__data__ = new ListCache();
+          this.size = 0;
+        }
+        function stackDelete(key) {
+          var data = this.__data__, result2 = data["delete"](key);
+          this.size = data.size;
+          return result2;
+        }
+        function stackGet(key) {
+          return this.__data__.get(key);
+        }
+        function stackHas(key) {
+          return this.__data__.has(key);
+        }
+        function stackSet(key, value) {
+          var data = this.__data__;
+          if (data instanceof ListCache) {
+            var pairs = data.__data__;
+            if (!Map2 || pairs.length < LARGE_ARRAY_SIZE - 1) {
+              pairs.push([key, value]);
+              this.size = ++data.size;
+              return this;
+            }
+            data = this.__data__ = new MapCache(pairs);
+          }
+          data.set(key, value);
+          this.size = data.size;
+          return this;
+        }
+        Stack.prototype.clear = stackClear;
+        Stack.prototype["delete"] = stackDelete;
+        Stack.prototype.get = stackGet;
+        Stack.prototype.has = stackHas;
+        Stack.prototype.set = stackSet;
+        function arrayLikeKeys(value, inherited) {
+          var isArr = isArray(value), isArg = !isArr && isArguments(value), isBuff = !isArr && !isArg && isBuffer(value), isType = !isArr && !isArg && !isBuff && isTypedArray(value), skipIndexes = isArr || isArg || isBuff || isType, result2 = skipIndexes ? baseTimes(value.length, String2) : [], length = result2.length;
+          for (var key in value) {
+            if ((inherited || hasOwnProperty.call(value, key)) && !(skipIndexes && // Safari 9 has enumerable `arguments.length` in strict mode.
+            (key == "length" || // Node.js 0.10 has enumerable non-index properties on buffers.
+            isBuff && (key == "offset" || key == "parent") || // PhantomJS 2 has enumerable non-index properties on typed arrays.
+            isType && (key == "buffer" || key == "byteLength" || key == "byteOffset") || // Skip index properties.
+            isIndex(key, length)))) {
+              result2.push(key);
+            }
+          }
+          return result2;
+        }
+        function arraySample(array2) {
+          var length = array2.length;
+          return length ? array2[baseRandom(0, length - 1)] : undefined2;
+        }
+        function arraySampleSize(array2, n) {
+          return shuffleSelf(copyArray(array2), baseClamp(n, 0, array2.length));
+        }
+        function arrayShuffle(array2) {
+          return shuffleSelf(copyArray(array2));
+        }
+        function assignMergeValue(object2, key, value) {
+          if (value !== undefined2 && !eq2(object2[key], value) || value === undefined2 && !(key in object2)) {
+            baseAssignValue(object2, key, value);
+          }
+        }
+        function assignValue(object2, key, value) {
+          var objValue = object2[key];
+          if (!(hasOwnProperty.call(object2, key) && eq2(objValue, value)) || value === undefined2 && !(key in object2)) {
+            baseAssignValue(object2, key, value);
+          }
+        }
+        function assocIndexOf(array2, key) {
+          var length = array2.length;
+          while (length--) {
+            if (eq2(array2[length][0], key)) {
+              return length;
+            }
+          }
+          return -1;
+        }
+        function baseAggregator(collection, setter, iteratee2, accumulator) {
+          baseEach(collection, function(value, key, collection2) {
+            setter(accumulator, value, iteratee2(value), collection2);
+          });
+          return accumulator;
+        }
+        function baseAssign(object2, source) {
+          return object2 && copyObject(source, keys(source), object2);
+        }
+        function baseAssignIn(object2, source) {
+          return object2 && copyObject(source, keysIn(source), object2);
+        }
+        function baseAssignValue(object2, key, value) {
+          if (key == "__proto__" && defineProperty) {
+            defineProperty(object2, key, {
+              "configurable": true,
+              "enumerable": true,
+              "value": value,
+              "writable": true
+            });
+          } else {
+            object2[key] = value;
+          }
+        }
+        function baseAt(object2, paths) {
+          var index = -1, length = paths.length, result2 = Array2(length), skip = object2 == null;
+          while (++index < length) {
+            result2[index] = skip ? undefined2 : get(object2, paths[index]);
+          }
+          return result2;
+        }
+        function baseClamp(number4, lower, upper) {
+          if (number4 === number4) {
+            if (upper !== undefined2) {
+              number4 = number4 <= upper ? number4 : upper;
+            }
+            if (lower !== undefined2) {
+              number4 = number4 >= lower ? number4 : lower;
+            }
+          }
+          return number4;
+        }
+        function baseClone(value, bitmask, customizer, key, object2, stack) {
+          var result2, isDeep = bitmask & CLONE_DEEP_FLAG, isFlat = bitmask & CLONE_FLAT_FLAG, isFull = bitmask & CLONE_SYMBOLS_FLAG;
+          if (customizer) {
+            result2 = object2 ? customizer(value, key, object2, stack) : customizer(value);
+          }
+          if (result2 !== undefined2) {
+            return result2;
+          }
+          if (!isObject3(value)) {
+            return value;
+          }
+          var isArr = isArray(value);
+          if (isArr) {
+            result2 = initCloneArray(value);
+            if (!isDeep) {
+              return copyArray(value, result2);
+            }
+          } else {
+            var tag = getTag(value), isFunc = tag == funcTag || tag == genTag;
+            if (isBuffer(value)) {
+              return cloneBuffer(value, isDeep);
+            }
+            if (tag == objectTag || tag == argsTag || isFunc && !object2) {
+              result2 = isFlat || isFunc ? {} : initCloneObject(value);
+              if (!isDeep) {
+                return isFlat ? copySymbolsIn(value, baseAssignIn(result2, value)) : copySymbols(value, baseAssign(result2, value));
+              }
+            } else {
+              if (!cloneableTags[tag]) {
+                return object2 ? value : {};
+              }
+              result2 = initCloneByTag(value, tag, isDeep);
+            }
+          }
+          stack || (stack = new Stack());
+          var stacked = stack.get(value);
+          if (stacked) {
+            return stacked;
+          }
+          stack.set(value, result2);
+          if (isSet(value)) {
+            value.forEach(function(subValue) {
+              result2.add(baseClone(subValue, bitmask, customizer, subValue, value, stack));
+            });
+          } else if (isMap(value)) {
+            value.forEach(function(subValue, key2) {
+              result2.set(key2, baseClone(subValue, bitmask, customizer, key2, value, stack));
+            });
+          }
+          var keysFunc = isFull ? isFlat ? getAllKeysIn : getAllKeys : isFlat ? keysIn : keys;
+          var props = isArr ? undefined2 : keysFunc(value);
+          arrayEach(props || value, function(subValue, key2) {
+            if (props) {
+              key2 = subValue;
+              subValue = value[key2];
+            }
+            assignValue(result2, key2, baseClone(subValue, bitmask, customizer, key2, value, stack));
+          });
+          return result2;
+        }
+        function baseConforms(source) {
+          var props = keys(source);
+          return function(object2) {
+            return baseConformsTo(object2, source, props);
+          };
+        }
+        function baseConformsTo(object2, source, props) {
+          var length = props.length;
+          if (object2 == null) {
+            return !length;
+          }
+          object2 = Object2(object2);
+          while (length--) {
+            var key = props[length], predicate = source[key], value = object2[key];
+            if (value === undefined2 && !(key in object2) || !predicate(value)) {
+              return false;
+            }
+          }
+          return true;
+        }
+        function baseDelay(func, wait, args) {
+          if (typeof func != "function") {
+            throw new TypeError2(FUNC_ERROR_TEXT);
+          }
+          return setTimeout2(function() {
+            func.apply(undefined2, args);
+          }, wait);
+        }
+        function baseDifference(array2, values2, iteratee2, comparator) {
+          var index = -1, includes2 = arrayIncludes, isCommon = true, length = array2.length, result2 = [], valuesLength = values2.length;
+          if (!length) {
+            return result2;
+          }
+          if (iteratee2) {
+            values2 = arrayMap(values2, baseUnary(iteratee2));
+          }
+          if (comparator) {
+            includes2 = arrayIncludesWith;
+            isCommon = false;
+          } else if (values2.length >= LARGE_ARRAY_SIZE) {
+            includes2 = cacheHas;
+            isCommon = false;
+            values2 = new SetCache(values2);
+          }
+          outer:
+            while (++index < length) {
+              var value = array2[index], computed = iteratee2 == null ? value : iteratee2(value);
+              value = comparator || value !== 0 ? value : 0;
+              if (isCommon && computed === computed) {
+                var valuesIndex = valuesLength;
+                while (valuesIndex--) {
+                  if (values2[valuesIndex] === computed) {
+                    continue outer;
+                  }
+                }
+                result2.push(value);
+              } else if (!includes2(values2, computed, comparator)) {
+                result2.push(value);
+              }
+            }
+          return result2;
+        }
+        var baseEach = createBaseEach(baseForOwn);
+        var baseEachRight = createBaseEach(baseForOwnRight, true);
+        function baseEvery(collection, predicate) {
+          var result2 = true;
+          baseEach(collection, function(value, index, collection2) {
+            result2 = !!predicate(value, index, collection2);
+            return result2;
+          });
+          return result2;
+        }
+        function baseExtremum(array2, iteratee2, comparator) {
+          var index = -1, length = array2.length;
+          while (++index < length) {
+            var value = array2[index], current = iteratee2(value);
+            if (current != null && (computed === undefined2 ? current === current && !isSymbol(current) : comparator(current, computed))) {
+              var computed = current, result2 = value;
+            }
+          }
+          return result2;
+        }
+        function baseFill(array2, value, start, end) {
+          var length = array2.length;
+          start = toInteger(start);
+          if (start < 0) {
+            start = -start > length ? 0 : length + start;
+          }
+          end = end === undefined2 || end > length ? length : toInteger(end);
+          if (end < 0) {
+            end += length;
+          }
+          end = start > end ? 0 : toLength(end);
+          while (start < end) {
+            array2[start++] = value;
+          }
+          return array2;
+        }
+        function baseFilter(collection, predicate) {
+          var result2 = [];
+          baseEach(collection, function(value, index, collection2) {
+            if (predicate(value, index, collection2)) {
+              result2.push(value);
+            }
+          });
+          return result2;
+        }
+        function baseFlatten(array2, depth, predicate, isStrict, result2) {
+          var index = -1, length = array2.length;
+          predicate || (predicate = isFlattenable);
+          result2 || (result2 = []);
+          while (++index < length) {
+            var value = array2[index];
+            if (depth > 0 && predicate(value)) {
+              if (depth > 1) {
+                baseFlatten(value, depth - 1, predicate, isStrict, result2);
+              } else {
+                arrayPush(result2, value);
+              }
+            } else if (!isStrict) {
+              result2[result2.length] = value;
+            }
+          }
+          return result2;
+        }
+        var baseFor = createBaseFor();
+        var baseForRight = createBaseFor(true);
+        function baseForOwn(object2, iteratee2) {
+          return object2 && baseFor(object2, iteratee2, keys);
+        }
+        function baseForOwnRight(object2, iteratee2) {
+          return object2 && baseForRight(object2, iteratee2, keys);
+        }
+        function baseFunctions(object2, props) {
+          return arrayFilter(props, function(key) {
+            return isFunction(object2[key]);
+          });
+        }
+        function baseGet(object2, path) {
+          path = castPath(path, object2);
+          var index = 0, length = path.length;
+          while (object2 != null && index < length) {
+            object2 = object2[toKey(path[index++])];
+          }
+          return index && index == length ? object2 : undefined2;
+        }
+        function baseGetAllKeys(object2, keysFunc, symbolsFunc) {
+          var result2 = keysFunc(object2);
+          return isArray(object2) ? result2 : arrayPush(result2, symbolsFunc(object2));
+        }
+        function baseGetTag(value) {
+          if (value == null) {
+            return value === undefined2 ? undefinedTag : nullTag;
+          }
+          return symToStringTag && symToStringTag in Object2(value) ? getRawTag(value) : objectToString(value);
+        }
+        function baseGt(value, other) {
+          return value > other;
+        }
+        function baseHas(object2, key) {
+          return object2 != null && hasOwnProperty.call(object2, key);
+        }
+        function baseHasIn(object2, key) {
+          return object2 != null && key in Object2(object2);
+        }
+        function baseInRange(number4, start, end) {
+          return number4 >= nativeMin(start, end) && number4 < nativeMax(start, end);
+        }
+        function baseIntersection(arrays, iteratee2, comparator) {
+          var includes2 = comparator ? arrayIncludesWith : arrayIncludes, length = arrays[0].length, othLength = arrays.length, othIndex = othLength, caches = Array2(othLength), maxLength = Infinity, result2 = [];
+          while (othIndex--) {
+            var array2 = arrays[othIndex];
+            if (othIndex && iteratee2) {
+              array2 = arrayMap(array2, baseUnary(iteratee2));
+            }
+            maxLength = nativeMin(array2.length, maxLength);
+            caches[othIndex] = !comparator && (iteratee2 || length >= 120 && array2.length >= 120) ? new SetCache(othIndex && array2) : undefined2;
+          }
+          array2 = arrays[0];
+          var index = -1, seen = caches[0];
+          outer:
+            while (++index < length && result2.length < maxLength) {
+              var value = array2[index], computed = iteratee2 ? iteratee2(value) : value;
+              value = comparator || value !== 0 ? value : 0;
+              if (!(seen ? cacheHas(seen, computed) : includes2(result2, computed, comparator))) {
+                othIndex = othLength;
+                while (--othIndex) {
+                  var cache2 = caches[othIndex];
+                  if (!(cache2 ? cacheHas(cache2, computed) : includes2(arrays[othIndex], computed, comparator))) {
+                    continue outer;
+                  }
+                }
+                if (seen) {
+                  seen.push(computed);
+                }
+                result2.push(value);
+              }
+            }
+          return result2;
+        }
+        function baseInverter(object2, setter, iteratee2, accumulator) {
+          baseForOwn(object2, function(value, key, object3) {
+            setter(accumulator, iteratee2(value), key, object3);
+          });
+          return accumulator;
+        }
+        function baseInvoke(object2, path, args) {
+          path = castPath(path, object2);
+          object2 = parent(object2, path);
+          var func = object2 == null ? object2 : object2[toKey(last(path))];
+          return func == null ? undefined2 : apply(func, object2, args);
+        }
+        function baseIsArguments(value) {
+          return isObjectLike(value) && baseGetTag(value) == argsTag;
+        }
+        function baseIsArrayBuffer(value) {
+          return isObjectLike(value) && baseGetTag(value) == arrayBufferTag;
+        }
+        function baseIsDate(value) {
+          return isObjectLike(value) && baseGetTag(value) == dateTag;
+        }
+        function baseIsEqual(value, other, bitmask, customizer, stack) {
+          if (value === other) {
+            return true;
+          }
+          if (value == null || other == null || !isObjectLike(value) && !isObjectLike(other)) {
+            return value !== value && other !== other;
+          }
+          return baseIsEqualDeep(value, other, bitmask, customizer, baseIsEqual, stack);
+        }
+        function baseIsEqualDeep(object2, other, bitmask, customizer, equalFunc, stack) {
+          var objIsArr = isArray(object2), othIsArr = isArray(other), objTag = objIsArr ? arrayTag : getTag(object2), othTag = othIsArr ? arrayTag : getTag(other);
+          objTag = objTag == argsTag ? objectTag : objTag;
+          othTag = othTag == argsTag ? objectTag : othTag;
+          var objIsObj = objTag == objectTag, othIsObj = othTag == objectTag, isSameTag = objTag == othTag;
+          if (isSameTag && isBuffer(object2)) {
+            if (!isBuffer(other)) {
+              return false;
+            }
+            objIsArr = true;
+            objIsObj = false;
+          }
+          if (isSameTag && !objIsObj) {
+            stack || (stack = new Stack());
+            return objIsArr || isTypedArray(object2) ? equalArrays(object2, other, bitmask, customizer, equalFunc, stack) : equalByTag(object2, other, objTag, bitmask, customizer, equalFunc, stack);
+          }
+          if (!(bitmask & COMPARE_PARTIAL_FLAG)) {
+            var objIsWrapped = objIsObj && hasOwnProperty.call(object2, "__wrapped__"), othIsWrapped = othIsObj && hasOwnProperty.call(other, "__wrapped__");
+            if (objIsWrapped || othIsWrapped) {
+              var objUnwrapped = objIsWrapped ? object2.value() : object2, othUnwrapped = othIsWrapped ? other.value() : other;
+              stack || (stack = new Stack());
+              return equalFunc(objUnwrapped, othUnwrapped, bitmask, customizer, stack);
+            }
+          }
+          if (!isSameTag) {
+            return false;
+          }
+          stack || (stack = new Stack());
+          return equalObjects(object2, other, bitmask, customizer, equalFunc, stack);
+        }
+        function baseIsMap(value) {
+          return isObjectLike(value) && getTag(value) == mapTag;
+        }
+        function baseIsMatch(object2, source, matchData, customizer) {
+          var index = matchData.length, length = index, noCustomizer = !customizer;
+          if (object2 == null) {
+            return !length;
+          }
+          object2 = Object2(object2);
+          while (index--) {
+            var data = matchData[index];
+            if (noCustomizer && data[2] ? data[1] !== object2[data[0]] : !(data[0] in object2)) {
+              return false;
+            }
+          }
+          while (++index < length) {
+            data = matchData[index];
+            var key = data[0], objValue = object2[key], srcValue = data[1];
+            if (noCustomizer && data[2]) {
+              if (objValue === undefined2 && !(key in object2)) {
+                return false;
+              }
+            } else {
+              var stack = new Stack();
+              if (customizer) {
+                var result2 = customizer(objValue, srcValue, key, object2, source, stack);
+              }
+              if (!(result2 === undefined2 ? baseIsEqual(srcValue, objValue, COMPARE_PARTIAL_FLAG | COMPARE_UNORDERED_FLAG, customizer, stack) : result2)) {
+                return false;
+              }
+            }
+          }
+          return true;
+        }
+        function baseIsNative(value) {
+          if (!isObject3(value) || isMasked(value)) {
+            return false;
+          }
+          var pattern = isFunction(value) ? reIsNative : reIsHostCtor;
+          return pattern.test(toSource(value));
+        }
+        function baseIsRegExp(value) {
+          return isObjectLike(value) && baseGetTag(value) == regexpTag;
+        }
+        function baseIsSet(value) {
+          return isObjectLike(value) && getTag(value) == setTag;
+        }
+        function baseIsTypedArray(value) {
+          return isObjectLike(value) && isLength(value.length) && !!typedArrayTags[baseGetTag(value)];
+        }
+        function baseIteratee(value) {
+          if (typeof value == "function") {
+            return value;
+          }
+          if (value == null) {
+            return identity;
+          }
+          if (typeof value == "object") {
+            return isArray(value) ? baseMatchesProperty(value[0], value[1]) : baseMatches(value);
+          }
+          return property(value);
+        }
+        function baseKeys(object2) {
+          if (!isPrototype(object2)) {
+            return nativeKeys(object2);
+          }
+          var result2 = [];
+          for (var key in Object2(object2)) {
+            if (hasOwnProperty.call(object2, key) && key != "constructor") {
+              result2.push(key);
+            }
+          }
+          return result2;
+        }
+        function baseKeysIn(object2) {
+          if (!isObject3(object2)) {
+            return nativeKeysIn(object2);
+          }
+          var isProto = isPrototype(object2), result2 = [];
+          for (var key in object2) {
+            if (!(key == "constructor" && (isProto || !hasOwnProperty.call(object2, key)))) {
+              result2.push(key);
+            }
+          }
+          return result2;
+        }
+        function baseLt(value, other) {
+          return value < other;
+        }
+        function baseMap(collection, iteratee2) {
+          var index = -1, result2 = isArrayLike(collection) ? Array2(collection.length) : [];
+          baseEach(collection, function(value, key, collection2) {
+            result2[++index] = iteratee2(value, key, collection2);
+          });
+          return result2;
+        }
+        function baseMatches(source) {
+          var matchData = getMatchData(source);
+          if (matchData.length == 1 && matchData[0][2]) {
+            return matchesStrictComparable(matchData[0][0], matchData[0][1]);
+          }
+          return function(object2) {
+            return object2 === source || baseIsMatch(object2, source, matchData);
+          };
+        }
+        function baseMatchesProperty(path, srcValue) {
+          if (isKey(path) && isStrictComparable(srcValue)) {
+            return matchesStrictComparable(toKey(path), srcValue);
+          }
+          return function(object2) {
+            var objValue = get(object2, path);
+            return objValue === undefined2 && objValue === srcValue ? hasIn(object2, path) : baseIsEqual(srcValue, objValue, COMPARE_PARTIAL_FLAG | COMPARE_UNORDERED_FLAG);
+          };
+        }
+        function baseMerge(object2, source, srcIndex, customizer, stack) {
+          if (object2 === source) {
+            return;
+          }
+          baseFor(source, function(srcValue, key) {
+            stack || (stack = new Stack());
+            if (isObject3(srcValue)) {
+              baseMergeDeep(object2, source, key, srcIndex, baseMerge, customizer, stack);
+            } else {
+              var newValue = customizer ? customizer(safeGet(object2, key), srcValue, key + "", object2, source, stack) : undefined2;
+              if (newValue === undefined2) {
+                newValue = srcValue;
+              }
+              assignMergeValue(object2, key, newValue);
+            }
+          }, keysIn);
+        }
+        function baseMergeDeep(object2, source, key, srcIndex, mergeFunc, customizer, stack) {
+          var objValue = safeGet(object2, key), srcValue = safeGet(source, key), stacked = stack.get(srcValue);
+          if (stacked) {
+            assignMergeValue(object2, key, stacked);
+            return;
+          }
+          var newValue = customizer ? customizer(objValue, srcValue, key + "", object2, source, stack) : undefined2;
+          var isCommon = newValue === undefined2;
+          if (isCommon) {
+            var isArr = isArray(srcValue), isBuff = !isArr && isBuffer(srcValue), isTyped = !isArr && !isBuff && isTypedArray(srcValue);
+            newValue = srcValue;
+            if (isArr || isBuff || isTyped) {
+              if (isArray(objValue)) {
+                newValue = objValue;
+              } else if (isArrayLikeObject(objValue)) {
+                newValue = copyArray(objValue);
+              } else if (isBuff) {
+                isCommon = false;
+                newValue = cloneBuffer(srcValue, true);
+              } else if (isTyped) {
+                isCommon = false;
+                newValue = cloneTypedArray(srcValue, true);
+              } else {
+                newValue = [];
+              }
+            } else if (isPlainObject2(srcValue) || isArguments(srcValue)) {
+              newValue = objValue;
+              if (isArguments(objValue)) {
+                newValue = toPlainObject(objValue);
+              } else if (!isObject3(objValue) || isFunction(objValue)) {
+                newValue = initCloneObject(srcValue);
+              }
+            } else {
+              isCommon = false;
+            }
+          }
+          if (isCommon) {
+            stack.set(srcValue, newValue);
+            mergeFunc(newValue, srcValue, srcIndex, customizer, stack);
+            stack["delete"](srcValue);
+          }
+          assignMergeValue(object2, key, newValue);
+        }
+        function baseNth(array2, n) {
+          var length = array2.length;
+          if (!length) {
+            return;
+          }
+          n += n < 0 ? length : 0;
+          return isIndex(n, length) ? array2[n] : undefined2;
+        }
+        function baseOrderBy(collection, iteratees, orders) {
+          if (iteratees.length) {
+            iteratees = arrayMap(iteratees, function(iteratee2) {
+              if (isArray(iteratee2)) {
+                return function(value) {
+                  return baseGet(value, iteratee2.length === 1 ? iteratee2[0] : iteratee2);
+                };
+              }
+              return iteratee2;
+            });
+          } else {
+            iteratees = [identity];
+          }
+          var index = -1;
+          iteratees = arrayMap(iteratees, baseUnary(getIteratee()));
+          var result2 = baseMap(collection, function(value, key, collection2) {
+            var criteria = arrayMap(iteratees, function(iteratee2) {
+              return iteratee2(value);
+            });
+            return { "criteria": criteria, "index": ++index, "value": value };
+          });
+          return baseSortBy(result2, function(object2, other) {
+            return compareMultiple(object2, other, orders);
+          });
+        }
+        function basePick(object2, paths) {
+          return basePickBy(object2, paths, function(value, path) {
+            return hasIn(object2, path);
+          });
+        }
+        function basePickBy(object2, paths, predicate) {
+          var index = -1, length = paths.length, result2 = {};
+          while (++index < length) {
+            var path = paths[index], value = baseGet(object2, path);
+            if (predicate(value, path)) {
+              baseSet(result2, castPath(path, object2), value);
+            }
+          }
+          return result2;
+        }
+        function basePropertyDeep(path) {
+          return function(object2) {
+            return baseGet(object2, path);
+          };
+        }
+        function basePullAll(array2, values2, iteratee2, comparator) {
+          var indexOf2 = comparator ? baseIndexOfWith : baseIndexOf, index = -1, length = values2.length, seen = array2;
+          if (array2 === values2) {
+            values2 = copyArray(values2);
+          }
+          if (iteratee2) {
+            seen = arrayMap(array2, baseUnary(iteratee2));
+          }
+          while (++index < length) {
+            var fromIndex = 0, value = values2[index], computed = iteratee2 ? iteratee2(value) : value;
+            while ((fromIndex = indexOf2(seen, computed, fromIndex, comparator)) > -1) {
+              if (seen !== array2) {
+                splice.call(seen, fromIndex, 1);
+              }
+              splice.call(array2, fromIndex, 1);
+            }
+          }
+          return array2;
+        }
+        function basePullAt(array2, indexes) {
+          var length = array2 ? indexes.length : 0, lastIndex = length - 1;
+          while (length--) {
+            var index = indexes[length];
+            if (length == lastIndex || index !== previous) {
+              var previous = index;
+              if (isIndex(index)) {
+                splice.call(array2, index, 1);
+              } else {
+                baseUnset(array2, index);
+              }
+            }
+          }
+          return array2;
+        }
+        function baseRandom(lower, upper) {
+          return lower + nativeFloor(nativeRandom() * (upper - lower + 1));
+        }
+        function baseRange(start, end, step, fromRight) {
+          var index = -1, length = nativeMax(nativeCeil((end - start) / (step || 1)), 0), result2 = Array2(length);
+          while (length--) {
+            result2[fromRight ? length : ++index] = start;
+            start += step;
+          }
+          return result2;
+        }
+        function baseRepeat(string4, n) {
+          var result2 = "";
+          if (!string4 || n < 1 || n > MAX_SAFE_INTEGER) {
+            return result2;
+          }
+          do {
+            if (n % 2) {
+              result2 += string4;
+            }
+            n = nativeFloor(n / 2);
+            if (n) {
+              string4 += string4;
+            }
+          } while (n);
+          return result2;
+        }
+        function baseRest(func, start) {
+          return setToString(overRest(func, start, identity), func + "");
+        }
+        function baseSample(collection) {
+          return arraySample(values(collection));
+        }
+        function baseSampleSize(collection, n) {
+          var array2 = values(collection);
+          return shuffleSelf(array2, baseClamp(n, 0, array2.length));
+        }
+        function baseSet(object2, path, value, customizer) {
+          if (!isObject3(object2)) {
+            return object2;
+          }
+          path = castPath(path, object2);
+          var index = -1, length = path.length, lastIndex = length - 1, nested = object2;
+          while (nested != null && ++index < length) {
+            var key = toKey(path[index]), newValue = value;
+            if (key === "__proto__" || key === "constructor" || key === "prototype") {
+              return object2;
+            }
+            if (index != lastIndex) {
+              var objValue = nested[key];
+              newValue = customizer ? customizer(objValue, key, nested) : undefined2;
+              if (newValue === undefined2) {
+                newValue = isObject3(objValue) ? objValue : isIndex(path[index + 1]) ? [] : {};
+              }
+            }
+            assignValue(nested, key, newValue);
+            nested = nested[key];
+          }
+          return object2;
+        }
+        var baseSetData = !metaMap ? identity : function(func, data) {
+          metaMap.set(func, data);
+          return func;
+        };
+        var baseSetToString = !defineProperty ? identity : function(func, string4) {
+          return defineProperty(func, "toString", {
+            "configurable": true,
+            "enumerable": false,
+            "value": constant(string4),
+            "writable": true
+          });
+        };
+        function baseShuffle(collection) {
+          return shuffleSelf(values(collection));
+        }
+        function baseSlice(array2, start, end) {
+          var index = -1, length = array2.length;
+          if (start < 0) {
+            start = -start > length ? 0 : length + start;
+          }
+          end = end > length ? length : end;
+          if (end < 0) {
+            end += length;
+          }
+          length = start > end ? 0 : end - start >>> 0;
+          start >>>= 0;
+          var result2 = Array2(length);
+          while (++index < length) {
+            result2[index] = array2[index + start];
+          }
+          return result2;
+        }
+        function baseSome(collection, predicate) {
+          var result2;
+          baseEach(collection, function(value, index, collection2) {
+            result2 = predicate(value, index, collection2);
+            return !result2;
+          });
+          return !!result2;
+        }
+        function baseSortedIndex(array2, value, retHighest) {
+          var low = 0, high = array2 == null ? low : array2.length;
+          if (typeof value == "number" && value === value && high <= HALF_MAX_ARRAY_LENGTH) {
+            while (low < high) {
+              var mid = low + high >>> 1, computed = array2[mid];
+              if (computed !== null && !isSymbol(computed) && (retHighest ? computed <= value : computed < value)) {
+                low = mid + 1;
+              } else {
+                high = mid;
+              }
+            }
+            return high;
+          }
+          return baseSortedIndexBy(array2, value, identity, retHighest);
+        }
+        function baseSortedIndexBy(array2, value, iteratee2, retHighest) {
+          var low = 0, high = array2 == null ? 0 : array2.length;
+          if (high === 0) {
+            return 0;
+          }
+          value = iteratee2(value);
+          var valIsNaN = value !== value, valIsNull = value === null, valIsSymbol = isSymbol(value), valIsUndefined = value === undefined2;
+          while (low < high) {
+            var mid = nativeFloor((low + high) / 2), computed = iteratee2(array2[mid]), othIsDefined = computed !== undefined2, othIsNull = computed === null, othIsReflexive = computed === computed, othIsSymbol = isSymbol(computed);
+            if (valIsNaN) {
+              var setLow = retHighest || othIsReflexive;
+            } else if (valIsUndefined) {
+              setLow = othIsReflexive && (retHighest || othIsDefined);
+            } else if (valIsNull) {
+              setLow = othIsReflexive && othIsDefined && (retHighest || !othIsNull);
+            } else if (valIsSymbol) {
+              setLow = othIsReflexive && othIsDefined && !othIsNull && (retHighest || !othIsSymbol);
+            } else if (othIsNull || othIsSymbol) {
+              setLow = false;
+            } else {
+              setLow = retHighest ? computed <= value : computed < value;
+            }
+            if (setLow) {
+              low = mid + 1;
+            } else {
+              high = mid;
+            }
+          }
+          return nativeMin(high, MAX_ARRAY_INDEX);
+        }
+        function baseSortedUniq(array2, iteratee2) {
+          var index = -1, length = array2.length, resIndex = 0, result2 = [];
+          while (++index < length) {
+            var value = array2[index], computed = iteratee2 ? iteratee2(value) : value;
+            if (!index || !eq2(computed, seen)) {
+              var seen = computed;
+              result2[resIndex++] = value === 0 ? 0 : value;
+            }
+          }
+          return result2;
+        }
+        function baseToNumber(value) {
+          if (typeof value == "number") {
+            return value;
+          }
+          if (isSymbol(value)) {
+            return NAN;
+          }
+          return +value;
+        }
+        function baseToString(value) {
+          if (typeof value == "string") {
+            return value;
+          }
+          if (isArray(value)) {
+            return arrayMap(value, baseToString) + "";
+          }
+          if (isSymbol(value)) {
+            return symbolToString ? symbolToString.call(value) : "";
+          }
+          var result2 = value + "";
+          return result2 == "0" && 1 / value == -INFINITY ? "-0" : result2;
+        }
+        function baseUniq(array2, iteratee2, comparator) {
+          var index = -1, includes2 = arrayIncludes, length = array2.length, isCommon = true, result2 = [], seen = result2;
+          if (comparator) {
+            isCommon = false;
+            includes2 = arrayIncludesWith;
+          } else if (length >= LARGE_ARRAY_SIZE) {
+            var set3 = iteratee2 ? null : createSet(array2);
+            if (set3) {
+              return setToArray(set3);
+            }
+            isCommon = false;
+            includes2 = cacheHas;
+            seen = new SetCache();
+          } else {
+            seen = iteratee2 ? [] : result2;
+          }
+          outer:
+            while (++index < length) {
+              var value = array2[index], computed = iteratee2 ? iteratee2(value) : value;
+              value = comparator || value !== 0 ? value : 0;
+              if (isCommon && computed === computed) {
+                var seenIndex = seen.length;
+                while (seenIndex--) {
+                  if (seen[seenIndex] === computed) {
+                    continue outer;
+                  }
+                }
+                if (iteratee2) {
+                  seen.push(computed);
+                }
+                result2.push(value);
+              } else if (!includes2(seen, computed, comparator)) {
+                if (seen !== result2) {
+                  seen.push(computed);
+                }
+                result2.push(value);
+              }
+            }
+          return result2;
+        }
+        function baseUnset(object2, path) {
+          path = castPath(path, object2);
+          var index = -1, length = path.length;
+          if (!length) {
+            return true;
+          }
+          while (++index < length) {
+            var key = toKey(path[index]);
+            if (key === "__proto__" && !hasOwnProperty.call(object2, "__proto__")) {
+              return false;
+            }
+            if ((key === "constructor" || key === "prototype") && index < length - 1) {
+              return false;
+            }
+          }
+          var obj = parent(object2, path);
+          return obj == null || delete obj[toKey(last(path))];
+        }
+        function baseUpdate(object2, path, updater, customizer) {
+          return baseSet(object2, path, updater(baseGet(object2, path)), customizer);
+        }
+        function baseWhile(array2, predicate, isDrop, fromRight) {
+          var length = array2.length, index = fromRight ? length : -1;
+          while ((fromRight ? index-- : ++index < length) && predicate(array2[index], index, array2)) {
+          }
+          return isDrop ? baseSlice(array2, fromRight ? 0 : index, fromRight ? index + 1 : length) : baseSlice(array2, fromRight ? index + 1 : 0, fromRight ? length : index);
+        }
+        function baseWrapperValue(value, actions) {
+          var result2 = value;
+          if (result2 instanceof LazyWrapper) {
+            result2 = result2.value();
+          }
+          return arrayReduce(actions, function(result3, action) {
+            return action.func.apply(action.thisArg, arrayPush([result3], action.args));
+          }, result2);
+        }
+        function baseXor(arrays, iteratee2, comparator) {
+          var length = arrays.length;
+          if (length < 2) {
+            return length ? baseUniq(arrays[0]) : [];
+          }
+          var index = -1, result2 = Array2(length);
+          while (++index < length) {
+            var array2 = arrays[index], othIndex = -1;
+            while (++othIndex < length) {
+              if (othIndex != index) {
+                result2[index] = baseDifference(result2[index] || array2, arrays[othIndex], iteratee2, comparator);
+              }
+            }
+          }
+          return baseUniq(baseFlatten(result2, 1), iteratee2, comparator);
+        }
+        function baseZipObject(props, values2, assignFunc) {
+          var index = -1, length = props.length, valsLength = values2.length, result2 = {};
+          while (++index < length) {
+            var value = index < valsLength ? values2[index] : undefined2;
+            assignFunc(result2, props[index], value);
+          }
+          return result2;
+        }
+        function castArrayLikeObject(value) {
+          return isArrayLikeObject(value) ? value : [];
+        }
+        function castFunction(value) {
+          return typeof value == "function" ? value : identity;
+        }
+        function castPath(value, object2) {
+          if (isArray(value)) {
+            return value;
+          }
+          return isKey(value, object2) ? [value] : stringToPath(toString(value));
+        }
+        var castRest = baseRest;
+        function castSlice(array2, start, end) {
+          var length = array2.length;
+          end = end === undefined2 ? length : end;
+          return !start && end >= length ? array2 : baseSlice(array2, start, end);
+        }
+        var clearTimeout2 = ctxClearTimeout || function(id) {
+          return root.clearTimeout(id);
+        };
+        function cloneBuffer(buffer, isDeep) {
+          if (isDeep) {
+            return buffer.slice();
+          }
+          var length = buffer.length, result2 = allocUnsafe ? allocUnsafe(length) : new buffer.constructor(length);
+          buffer.copy(result2);
+          return result2;
+        }
+        function cloneArrayBuffer(arrayBuffer) {
+          var result2 = new arrayBuffer.constructor(arrayBuffer.byteLength);
+          new Uint8Array2(result2).set(new Uint8Array2(arrayBuffer));
+          return result2;
+        }
+        function cloneDataView(dataView, isDeep) {
+          var buffer = isDeep ? cloneArrayBuffer(dataView.buffer) : dataView.buffer;
+          return new dataView.constructor(buffer, dataView.byteOffset, dataView.byteLength);
+        }
+        function cloneRegExp(regexp) {
+          var result2 = new regexp.constructor(regexp.source, reFlags.exec(regexp));
+          result2.lastIndex = regexp.lastIndex;
+          return result2;
+        }
+        function cloneSymbol(symbol2) {
+          return symbolValueOf ? Object2(symbolValueOf.call(symbol2)) : {};
+        }
+        function cloneTypedArray(typedArray, isDeep) {
+          var buffer = isDeep ? cloneArrayBuffer(typedArray.buffer) : typedArray.buffer;
+          return new typedArray.constructor(buffer, typedArray.byteOffset, typedArray.length);
+        }
+        function compareAscending(value, other) {
+          if (value !== other) {
+            var valIsDefined = value !== undefined2, valIsNull = value === null, valIsReflexive = value === value, valIsSymbol = isSymbol(value);
+            var othIsDefined = other !== undefined2, othIsNull = other === null, othIsReflexive = other === other, othIsSymbol = isSymbol(other);
+            if (!othIsNull && !othIsSymbol && !valIsSymbol && value > other || valIsSymbol && othIsDefined && othIsReflexive && !othIsNull && !othIsSymbol || valIsNull && othIsDefined && othIsReflexive || !valIsDefined && othIsReflexive || !valIsReflexive) {
+              return 1;
+            }
+            if (!valIsNull && !valIsSymbol && !othIsSymbol && value < other || othIsSymbol && valIsDefined && valIsReflexive && !valIsNull && !valIsSymbol || othIsNull && valIsDefined && valIsReflexive || !othIsDefined && valIsReflexive || !othIsReflexive) {
+              return -1;
+            }
+          }
+          return 0;
+        }
+        function compareMultiple(object2, other, orders) {
+          var index = -1, objCriteria = object2.criteria, othCriteria = other.criteria, length = objCriteria.length, ordersLength = orders.length;
+          while (++index < length) {
+            var result2 = compareAscending(objCriteria[index], othCriteria[index]);
+            if (result2) {
+              if (index >= ordersLength) {
+                return result2;
+              }
+              var order = orders[index];
+              return result2 * (order == "desc" ? -1 : 1);
+            }
+          }
+          return object2.index - other.index;
+        }
+        function composeArgs(args, partials, holders, isCurried) {
+          var argsIndex = -1, argsLength = args.length, holdersLength = holders.length, leftIndex = -1, leftLength = partials.length, rangeLength = nativeMax(argsLength - holdersLength, 0), result2 = Array2(leftLength + rangeLength), isUncurried = !isCurried;
+          while (++leftIndex < leftLength) {
+            result2[leftIndex] = partials[leftIndex];
+          }
+          while (++argsIndex < holdersLength) {
+            if (isUncurried || argsIndex < argsLength) {
+              result2[holders[argsIndex]] = args[argsIndex];
+            }
+          }
+          while (rangeLength--) {
+            result2[leftIndex++] = args[argsIndex++];
+          }
+          return result2;
+        }
+        function composeArgsRight(args, partials, holders, isCurried) {
+          var argsIndex = -1, argsLength = args.length, holdersIndex = -1, holdersLength = holders.length, rightIndex = -1, rightLength = partials.length, rangeLength = nativeMax(argsLength - holdersLength, 0), result2 = Array2(rangeLength + rightLength), isUncurried = !isCurried;
+          while (++argsIndex < rangeLength) {
+            result2[argsIndex] = args[argsIndex];
+          }
+          var offset = argsIndex;
+          while (++rightIndex < rightLength) {
+            result2[offset + rightIndex] = partials[rightIndex];
+          }
+          while (++holdersIndex < holdersLength) {
+            if (isUncurried || argsIndex < argsLength) {
+              result2[offset + holders[holdersIndex]] = args[argsIndex++];
+            }
+          }
+          return result2;
+        }
+        function copyArray(source, array2) {
+          var index = -1, length = source.length;
+          array2 || (array2 = Array2(length));
+          while (++index < length) {
+            array2[index] = source[index];
+          }
+          return array2;
+        }
+        function copyObject(source, props, object2, customizer) {
+          var isNew = !object2;
+          object2 || (object2 = {});
+          var index = -1, length = props.length;
+          while (++index < length) {
+            var key = props[index];
+            var newValue = customizer ? customizer(object2[key], source[key], key, object2, source) : undefined2;
+            if (newValue === undefined2) {
+              newValue = source[key];
+            }
+            if (isNew) {
+              baseAssignValue(object2, key, newValue);
+            } else {
+              assignValue(object2, key, newValue);
+            }
+          }
+          return object2;
+        }
+        function copySymbols(source, object2) {
+          return copyObject(source, getSymbols(source), object2);
+        }
+        function copySymbolsIn(source, object2) {
+          return copyObject(source, getSymbolsIn(source), object2);
+        }
+        function createAggregator(setter, initializer3) {
+          return function(collection, iteratee2) {
+            var func = isArray(collection) ? arrayAggregator : baseAggregator, accumulator = initializer3 ? initializer3() : {};
+            return func(collection, setter, getIteratee(iteratee2, 2), accumulator);
+          };
+        }
+        function createAssigner(assigner) {
+          return baseRest(function(object2, sources) {
+            var index = -1, length = sources.length, customizer = length > 1 ? sources[length - 1] : undefined2, guard = length > 2 ? sources[2] : undefined2;
+            customizer = assigner.length > 3 && typeof customizer == "function" ? (length--, customizer) : undefined2;
+            if (guard && isIterateeCall(sources[0], sources[1], guard)) {
+              customizer = length < 3 ? undefined2 : customizer;
+              length = 1;
+            }
+            object2 = Object2(object2);
+            while (++index < length) {
+              var source = sources[index];
+              if (source) {
+                assigner(object2, source, index, customizer);
+              }
+            }
+            return object2;
+          });
+        }
+        function createBaseEach(eachFunc, fromRight) {
+          return function(collection, iteratee2) {
+            if (collection == null) {
+              return collection;
+            }
+            if (!isArrayLike(collection)) {
+              return eachFunc(collection, iteratee2);
+            }
+            var length = collection.length, index = fromRight ? length : -1, iterable = Object2(collection);
+            while (fromRight ? index-- : ++index < length) {
+              if (iteratee2(iterable[index], index, iterable) === false) {
+                break;
+              }
+            }
+            return collection;
+          };
+        }
+        function createBaseFor(fromRight) {
+          return function(object2, iteratee2, keysFunc) {
+            var index = -1, iterable = Object2(object2), props = keysFunc(object2), length = props.length;
+            while (length--) {
+              var key = props[fromRight ? length : ++index];
+              if (iteratee2(iterable[key], key, iterable) === false) {
+                break;
+              }
+            }
+            return object2;
+          };
+        }
+        function createBind(func, bitmask, thisArg) {
+          var isBind = bitmask & WRAP_BIND_FLAG, Ctor = createCtor(func);
+          function wrapper() {
+            var fn = this && this !== root && this instanceof wrapper ? Ctor : func;
+            return fn.apply(isBind ? thisArg : this, arguments);
+          }
+          return wrapper;
+        }
+        function createCaseFirst(methodName) {
+          return function(string4) {
+            string4 = toString(string4);
+            var strSymbols = hasUnicode(string4) ? stringToArray(string4) : undefined2;
+            var chr = strSymbols ? strSymbols[0] : string4.charAt(0);
+            var trailing = strSymbols ? castSlice(strSymbols, 1).join("") : string4.slice(1);
+            return chr[methodName]() + trailing;
+          };
+        }
+        function createCompounder(callback) {
+          return function(string4) {
+            return arrayReduce(words(deburr(string4).replace(reApos, "")), callback, "");
+          };
+        }
+        function createCtor(Ctor) {
+          return function() {
+            var args = arguments;
+            switch (args.length) {
+              case 0:
+                return new Ctor();
+              case 1:
+                return new Ctor(args[0]);
+              case 2:
+                return new Ctor(args[0], args[1]);
+              case 3:
+                return new Ctor(args[0], args[1], args[2]);
+              case 4:
+                return new Ctor(args[0], args[1], args[2], args[3]);
+              case 5:
+                return new Ctor(args[0], args[1], args[2], args[3], args[4]);
+              case 6:
+                return new Ctor(args[0], args[1], args[2], args[3], args[4], args[5]);
+              case 7:
+                return new Ctor(args[0], args[1], args[2], args[3], args[4], args[5], args[6]);
+            }
+            var thisBinding = baseCreate(Ctor.prototype), result2 = Ctor.apply(thisBinding, args);
+            return isObject3(result2) ? result2 : thisBinding;
+          };
+        }
+        function createCurry(func, bitmask, arity) {
+          var Ctor = createCtor(func);
+          function wrapper() {
+            var length = arguments.length, args = Array2(length), index = length, placeholder = getHolder(wrapper);
+            while (index--) {
+              args[index] = arguments[index];
+            }
+            var holders = length < 3 && args[0] !== placeholder && args[length - 1] !== placeholder ? [] : replaceHolders(args, placeholder);
+            length -= holders.length;
+            if (length < arity) {
+              return createRecurry(
+                func,
+                bitmask,
+                createHybrid,
+                wrapper.placeholder,
+                undefined2,
+                args,
+                holders,
+                undefined2,
+                undefined2,
+                arity - length
+              );
+            }
+            var fn = this && this !== root && this instanceof wrapper ? Ctor : func;
+            return apply(fn, this, args);
+          }
+          return wrapper;
+        }
+        function createFind(findIndexFunc) {
+          return function(collection, predicate, fromIndex) {
+            var iterable = Object2(collection);
+            if (!isArrayLike(collection)) {
+              var iteratee2 = getIteratee(predicate, 3);
+              collection = keys(collection);
+              predicate = function(key) {
+                return iteratee2(iterable[key], key, iterable);
+              };
+            }
+            var index = findIndexFunc(collection, predicate, fromIndex);
+            return index > -1 ? iterable[iteratee2 ? collection[index] : index] : undefined2;
+          };
+        }
+        function createFlow(fromRight) {
+          return flatRest(function(funcs) {
+            var length = funcs.length, index = length, prereq = LodashWrapper.prototype.thru;
+            if (fromRight) {
+              funcs.reverse();
+            }
+            while (index--) {
+              var func = funcs[index];
+              if (typeof func != "function") {
+                throw new TypeError2(FUNC_ERROR_TEXT);
+              }
+              if (prereq && !wrapper && getFuncName(func) == "wrapper") {
+                var wrapper = new LodashWrapper([], true);
+              }
+            }
+            index = wrapper ? index : length;
+            while (++index < length) {
+              func = funcs[index];
+              var funcName = getFuncName(func), data = funcName == "wrapper" ? getData(func) : undefined2;
+              if (data && isLaziable(data[0]) && data[1] == (WRAP_ARY_FLAG | WRAP_CURRY_FLAG | WRAP_PARTIAL_FLAG | WRAP_REARG_FLAG) && !data[4].length && data[9] == 1) {
+                wrapper = wrapper[getFuncName(data[0])].apply(wrapper, data[3]);
+              } else {
+                wrapper = func.length == 1 && isLaziable(func) ? wrapper[funcName]() : wrapper.thru(func);
+              }
+            }
+            return function() {
+              var args = arguments, value = args[0];
+              if (wrapper && args.length == 1 && isArray(value)) {
+                return wrapper.plant(value).value();
+              }
+              var index2 = 0, result2 = length ? funcs[index2].apply(this, args) : value;
+              while (++index2 < length) {
+                result2 = funcs[index2].call(this, result2);
+              }
+              return result2;
+            };
+          });
+        }
+        function createHybrid(func, bitmask, thisArg, partials, holders, partialsRight, holdersRight, argPos, ary2, arity) {
+          var isAry = bitmask & WRAP_ARY_FLAG, isBind = bitmask & WRAP_BIND_FLAG, isBindKey = bitmask & WRAP_BIND_KEY_FLAG, isCurried = bitmask & (WRAP_CURRY_FLAG | WRAP_CURRY_RIGHT_FLAG), isFlip = bitmask & WRAP_FLIP_FLAG, Ctor = isBindKey ? undefined2 : createCtor(func);
+          function wrapper() {
+            var length = arguments.length, args = Array2(length), index = length;
+            while (index--) {
+              args[index] = arguments[index];
+            }
+            if (isCurried) {
+              var placeholder = getHolder(wrapper), holdersCount = countHolders(args, placeholder);
+            }
+            if (partials) {
+              args = composeArgs(args, partials, holders, isCurried);
+            }
+            if (partialsRight) {
+              args = composeArgsRight(args, partialsRight, holdersRight, isCurried);
+            }
+            length -= holdersCount;
+            if (isCurried && length < arity) {
+              var newHolders = replaceHolders(args, placeholder);
+              return createRecurry(
+                func,
+                bitmask,
+                createHybrid,
+                wrapper.placeholder,
+                thisArg,
+                args,
+                newHolders,
+                argPos,
+                ary2,
+                arity - length
+              );
+            }
+            var thisBinding = isBind ? thisArg : this, fn = isBindKey ? thisBinding[func] : func;
+            length = args.length;
+            if (argPos) {
+              args = reorder(args, argPos);
+            } else if (isFlip && length > 1) {
+              args.reverse();
+            }
+            if (isAry && ary2 < length) {
+              args.length = ary2;
+            }
+            if (this && this !== root && this instanceof wrapper) {
+              fn = Ctor || createCtor(fn);
+            }
+            return fn.apply(thisBinding, args);
+          }
+          return wrapper;
+        }
+        function createInverter(setter, toIteratee) {
+          return function(object2, iteratee2) {
+            return baseInverter(object2, setter, toIteratee(iteratee2), {});
+          };
+        }
+        function createMathOperation(operator, defaultValue) {
+          return function(value, other) {
+            var result2;
+            if (value === undefined2 && other === undefined2) {
+              return defaultValue;
+            }
+            if (value !== undefined2) {
+              result2 = value;
+            }
+            if (other !== undefined2) {
+              if (result2 === undefined2) {
+                return other;
+              }
+              if (typeof value == "string" || typeof other == "string") {
+                value = baseToString(value);
+                other = baseToString(other);
+              } else {
+                value = baseToNumber(value);
+                other = baseToNumber(other);
+              }
+              result2 = operator(value, other);
+            }
+            return result2;
+          };
+        }
+        function createOver(arrayFunc) {
+          return flatRest(function(iteratees) {
+            iteratees = arrayMap(iteratees, baseUnary(getIteratee()));
+            return baseRest(function(args) {
+              var thisArg = this;
+              return arrayFunc(iteratees, function(iteratee2) {
+                return apply(iteratee2, thisArg, args);
+              });
+            });
+          });
+        }
+        function createPadding(length, chars) {
+          chars = chars === undefined2 ? " " : baseToString(chars);
+          var charsLength = chars.length;
+          if (charsLength < 2) {
+            return charsLength ? baseRepeat(chars, length) : chars;
+          }
+          var result2 = baseRepeat(chars, nativeCeil(length / stringSize(chars)));
+          return hasUnicode(chars) ? castSlice(stringToArray(result2), 0, length).join("") : result2.slice(0, length);
+        }
+        function createPartial(func, bitmask, thisArg, partials) {
+          var isBind = bitmask & WRAP_BIND_FLAG, Ctor = createCtor(func);
+          function wrapper() {
+            var argsIndex = -1, argsLength = arguments.length, leftIndex = -1, leftLength = partials.length, args = Array2(leftLength + argsLength), fn = this && this !== root && this instanceof wrapper ? Ctor : func;
+            while (++leftIndex < leftLength) {
+              args[leftIndex] = partials[leftIndex];
+            }
+            while (argsLength--) {
+              args[leftIndex++] = arguments[++argsIndex];
+            }
+            return apply(fn, isBind ? thisArg : this, args);
+          }
+          return wrapper;
+        }
+        function createRange(fromRight) {
+          return function(start, end, step) {
+            if (step && typeof step != "number" && isIterateeCall(start, end, step)) {
+              end = step = undefined2;
+            }
+            start = toFinite(start);
+            if (end === undefined2) {
+              end = start;
+              start = 0;
+            } else {
+              end = toFinite(end);
+            }
+            step = step === undefined2 ? start < end ? 1 : -1 : toFinite(step);
+            return baseRange(start, end, step, fromRight);
+          };
+        }
+        function createRelationalOperation(operator) {
+          return function(value, other) {
+            if (!(typeof value == "string" && typeof other == "string")) {
+              value = toNumber(value);
+              other = toNumber(other);
+            }
+            return operator(value, other);
+          };
+        }
+        function createRecurry(func, bitmask, wrapFunc, placeholder, thisArg, partials, holders, argPos, ary2, arity) {
+          var isCurry = bitmask & WRAP_CURRY_FLAG, newHolders = isCurry ? holders : undefined2, newHoldersRight = isCurry ? undefined2 : holders, newPartials = isCurry ? partials : undefined2, newPartialsRight = isCurry ? undefined2 : partials;
+          bitmask |= isCurry ? WRAP_PARTIAL_FLAG : WRAP_PARTIAL_RIGHT_FLAG;
+          bitmask &= ~(isCurry ? WRAP_PARTIAL_RIGHT_FLAG : WRAP_PARTIAL_FLAG);
+          if (!(bitmask & WRAP_CURRY_BOUND_FLAG)) {
+            bitmask &= ~(WRAP_BIND_FLAG | WRAP_BIND_KEY_FLAG);
+          }
+          var newData = [
+            func,
+            bitmask,
+            thisArg,
+            newPartials,
+            newHolders,
+            newPartialsRight,
+            newHoldersRight,
+            argPos,
+            ary2,
+            arity
+          ];
+          var result2 = wrapFunc.apply(undefined2, newData);
+          if (isLaziable(func)) {
+            setData(result2, newData);
+          }
+          result2.placeholder = placeholder;
+          return setWrapToString(result2, func, bitmask);
+        }
+        function createRound(methodName) {
+          var func = Math2[methodName];
+          return function(number4, precision) {
+            number4 = toNumber(number4);
+            precision = precision == null ? 0 : nativeMin(toInteger(precision), 292);
+            if (precision && nativeIsFinite(number4)) {
+              var pair = (toString(number4) + "e").split("e"), value = func(pair[0] + "e" + (+pair[1] + precision));
+              pair = (toString(value) + "e").split("e");
+              return +(pair[0] + "e" + (+pair[1] - precision));
+            }
+            return func(number4);
+          };
+        }
+        var createSet = !(Set2 && 1 / setToArray(new Set2([, -0]))[1] == INFINITY) ? noop2 : function(values2) {
+          return new Set2(values2);
+        };
+        function createToPairs(keysFunc) {
+          return function(object2) {
+            var tag = getTag(object2);
+            if (tag == mapTag) {
+              return mapToArray(object2);
+            }
+            if (tag == setTag) {
+              return setToPairs(object2);
+            }
+            return baseToPairs(object2, keysFunc(object2));
+          };
+        }
+        function createWrap(func, bitmask, thisArg, partials, holders, argPos, ary2, arity) {
+          var isBindKey = bitmask & WRAP_BIND_KEY_FLAG;
+          if (!isBindKey && typeof func != "function") {
+            throw new TypeError2(FUNC_ERROR_TEXT);
+          }
+          var length = partials ? partials.length : 0;
+          if (!length) {
+            bitmask &= ~(WRAP_PARTIAL_FLAG | WRAP_PARTIAL_RIGHT_FLAG);
+            partials = holders = undefined2;
+          }
+          ary2 = ary2 === undefined2 ? ary2 : nativeMax(toInteger(ary2), 0);
+          arity = arity === undefined2 ? arity : toInteger(arity);
+          length -= holders ? holders.length : 0;
+          if (bitmask & WRAP_PARTIAL_RIGHT_FLAG) {
+            var partialsRight = partials, holdersRight = holders;
+            partials = holders = undefined2;
+          }
+          var data = isBindKey ? undefined2 : getData(func);
+          var newData = [
+            func,
+            bitmask,
+            thisArg,
+            partials,
+            holders,
+            partialsRight,
+            holdersRight,
+            argPos,
+            ary2,
+            arity
+          ];
+          if (data) {
+            mergeData(newData, data);
+          }
+          func = newData[0];
+          bitmask = newData[1];
+          thisArg = newData[2];
+          partials = newData[3];
+          holders = newData[4];
+          arity = newData[9] = newData[9] === undefined2 ? isBindKey ? 0 : func.length : nativeMax(newData[9] - length, 0);
+          if (!arity && bitmask & (WRAP_CURRY_FLAG | WRAP_CURRY_RIGHT_FLAG)) {
+            bitmask &= ~(WRAP_CURRY_FLAG | WRAP_CURRY_RIGHT_FLAG);
+          }
+          if (!bitmask || bitmask == WRAP_BIND_FLAG) {
+            var result2 = createBind(func, bitmask, thisArg);
+          } else if (bitmask == WRAP_CURRY_FLAG || bitmask == WRAP_CURRY_RIGHT_FLAG) {
+            result2 = createCurry(func, bitmask, arity);
+          } else if ((bitmask == WRAP_PARTIAL_FLAG || bitmask == (WRAP_BIND_FLAG | WRAP_PARTIAL_FLAG)) && !holders.length) {
+            result2 = createPartial(func, bitmask, thisArg, partials);
+          } else {
+            result2 = createHybrid.apply(undefined2, newData);
+          }
+          var setter = data ? baseSetData : setData;
+          return setWrapToString(setter(result2, newData), func, bitmask);
+        }
+        function customDefaultsAssignIn(objValue, srcValue, key, object2) {
+          if (objValue === undefined2 || eq2(objValue, objectProto[key]) && !hasOwnProperty.call(object2, key)) {
+            return srcValue;
+          }
+          return objValue;
+        }
+        function customDefaultsMerge(objValue, srcValue, key, object2, source, stack) {
+          if (isObject3(objValue) && isObject3(srcValue)) {
+            stack.set(srcValue, objValue);
+            baseMerge(objValue, srcValue, undefined2, customDefaultsMerge, stack);
+            stack["delete"](srcValue);
+          }
+          return objValue;
+        }
+        function customOmitClone(value) {
+          return isPlainObject2(value) ? undefined2 : value;
+        }
+        function equalArrays(array2, other, bitmask, customizer, equalFunc, stack) {
+          var isPartial = bitmask & COMPARE_PARTIAL_FLAG, arrLength = array2.length, othLength = other.length;
+          if (arrLength != othLength && !(isPartial && othLength > arrLength)) {
+            return false;
+          }
+          var arrStacked = stack.get(array2);
+          var othStacked = stack.get(other);
+          if (arrStacked && othStacked) {
+            return arrStacked == other && othStacked == array2;
+          }
+          var index = -1, result2 = true, seen = bitmask & COMPARE_UNORDERED_FLAG ? new SetCache() : undefined2;
+          stack.set(array2, other);
+          stack.set(other, array2);
+          while (++index < arrLength) {
+            var arrValue = array2[index], othValue = other[index];
+            if (customizer) {
+              var compared = isPartial ? customizer(othValue, arrValue, index, other, array2, stack) : customizer(arrValue, othValue, index, array2, other, stack);
+            }
+            if (compared !== undefined2) {
+              if (compared) {
+                continue;
+              }
+              result2 = false;
+              break;
+            }
+            if (seen) {
+              if (!arraySome(other, function(othValue2, othIndex) {
+                if (!cacheHas(seen, othIndex) && (arrValue === othValue2 || equalFunc(arrValue, othValue2, bitmask, customizer, stack))) {
+                  return seen.push(othIndex);
+                }
+              })) {
+                result2 = false;
+                break;
+              }
+            } else if (!(arrValue === othValue || equalFunc(arrValue, othValue, bitmask, customizer, stack))) {
+              result2 = false;
+              break;
+            }
+          }
+          stack["delete"](array2);
+          stack["delete"](other);
+          return result2;
+        }
+        function equalByTag(object2, other, tag, bitmask, customizer, equalFunc, stack) {
+          switch (tag) {
+            case dataViewTag:
+              if (object2.byteLength != other.byteLength || object2.byteOffset != other.byteOffset) {
+                return false;
+              }
+              object2 = object2.buffer;
+              other = other.buffer;
+            case arrayBufferTag:
+              if (object2.byteLength != other.byteLength || !equalFunc(new Uint8Array2(object2), new Uint8Array2(other))) {
+                return false;
+              }
+              return true;
+            case boolTag:
+            case dateTag:
+            case numberTag:
+              return eq2(+object2, +other);
+            case errorTag:
+              return object2.name == other.name && object2.message == other.message;
+            case regexpTag:
+            case stringTag:
+              return object2 == other + "";
+            case mapTag:
+              var convert = mapToArray;
+            case setTag:
+              var isPartial = bitmask & COMPARE_PARTIAL_FLAG;
+              convert || (convert = setToArray);
+              if (object2.size != other.size && !isPartial) {
+                return false;
+              }
+              var stacked = stack.get(object2);
+              if (stacked) {
+                return stacked == other;
+              }
+              bitmask |= COMPARE_UNORDERED_FLAG;
+              stack.set(object2, other);
+              var result2 = equalArrays(convert(object2), convert(other), bitmask, customizer, equalFunc, stack);
+              stack["delete"](object2);
+              return result2;
+            case symbolTag:
+              if (symbolValueOf) {
+                return symbolValueOf.call(object2) == symbolValueOf.call(other);
+              }
+          }
+          return false;
+        }
+        function equalObjects(object2, other, bitmask, customizer, equalFunc, stack) {
+          var isPartial = bitmask & COMPARE_PARTIAL_FLAG, objProps = getAllKeys(object2), objLength = objProps.length, othProps = getAllKeys(other), othLength = othProps.length;
+          if (objLength != othLength && !isPartial) {
+            return false;
+          }
+          var index = objLength;
+          while (index--) {
+            var key = objProps[index];
+            if (!(isPartial ? key in other : hasOwnProperty.call(other, key))) {
+              return false;
+            }
+          }
+          var objStacked = stack.get(object2);
+          var othStacked = stack.get(other);
+          if (objStacked && othStacked) {
+            return objStacked == other && othStacked == object2;
+          }
+          var result2 = true;
+          stack.set(object2, other);
+          stack.set(other, object2);
+          var skipCtor = isPartial;
+          while (++index < objLength) {
+            key = objProps[index];
+            var objValue = object2[key], othValue = other[key];
+            if (customizer) {
+              var compared = isPartial ? customizer(othValue, objValue, key, other, object2, stack) : customizer(objValue, othValue, key, object2, other, stack);
+            }
+            if (!(compared === undefined2 ? objValue === othValue || equalFunc(objValue, othValue, bitmask, customizer, stack) : compared)) {
+              result2 = false;
+              break;
+            }
+            skipCtor || (skipCtor = key == "constructor");
+          }
+          if (result2 && !skipCtor) {
+            var objCtor = object2.constructor, othCtor = other.constructor;
+            if (objCtor != othCtor && ("constructor" in object2 && "constructor" in other) && !(typeof objCtor == "function" && objCtor instanceof objCtor && typeof othCtor == "function" && othCtor instanceof othCtor)) {
+              result2 = false;
+            }
+          }
+          stack["delete"](object2);
+          stack["delete"](other);
+          return result2;
+        }
+        function flatRest(func) {
+          return setToString(overRest(func, undefined2, flatten), func + "");
+        }
+        function getAllKeys(object2) {
+          return baseGetAllKeys(object2, keys, getSymbols);
+        }
+        function getAllKeysIn(object2) {
+          return baseGetAllKeys(object2, keysIn, getSymbolsIn);
+        }
+        var getData = !metaMap ? noop2 : function(func) {
+          return metaMap.get(func);
+        };
+        function getFuncName(func) {
+          var result2 = func.name + "", array2 = realNames[result2], length = hasOwnProperty.call(realNames, result2) ? array2.length : 0;
+          while (length--) {
+            var data = array2[length], otherFunc = data.func;
+            if (otherFunc == null || otherFunc == func) {
+              return data.name;
+            }
+          }
+          return result2;
+        }
+        function getHolder(func) {
+          var object2 = hasOwnProperty.call(lodash, "placeholder") ? lodash : func;
+          return object2.placeholder;
+        }
+        function getIteratee() {
+          var result2 = lodash.iteratee || iteratee;
+          result2 = result2 === iteratee ? baseIteratee : result2;
+          return arguments.length ? result2(arguments[0], arguments[1]) : result2;
+        }
+        function getMapData(map3, key) {
+          var data = map3.__data__;
+          return isKeyable(key) ? data[typeof key == "string" ? "string" : "hash"] : data.map;
+        }
+        function getMatchData(object2) {
+          var result2 = keys(object2), length = result2.length;
+          while (length--) {
+            var key = result2[length], value = object2[key];
+            result2[length] = [key, value, isStrictComparable(value)];
+          }
+          return result2;
+        }
+        function getNative(object2, key) {
+          var value = getValue(object2, key);
+          return baseIsNative(value) ? value : undefined2;
+        }
+        function getRawTag(value) {
+          var isOwn = hasOwnProperty.call(value, symToStringTag), tag = value[symToStringTag];
+          try {
+            value[symToStringTag] = undefined2;
+            var unmasked = true;
+          } catch (e) {
+          }
+          var result2 = nativeObjectToString.call(value);
+          if (unmasked) {
+            if (isOwn) {
+              value[symToStringTag] = tag;
+            } else {
+              delete value[symToStringTag];
+            }
+          }
+          return result2;
+        }
+        var getSymbols = !nativeGetSymbols ? stubArray : function(object2) {
+          if (object2 == null) {
+            return [];
+          }
+          object2 = Object2(object2);
+          return arrayFilter(nativeGetSymbols(object2), function(symbol2) {
+            return propertyIsEnumerable.call(object2, symbol2);
+          });
+        };
+        var getSymbolsIn = !nativeGetSymbols ? stubArray : function(object2) {
+          var result2 = [];
+          while (object2) {
+            arrayPush(result2, getSymbols(object2));
+            object2 = getPrototype(object2);
+          }
+          return result2;
+        };
+        var getTag = baseGetTag;
+        if (DataView2 && getTag(new DataView2(new ArrayBuffer(1))) != dataViewTag || Map2 && getTag(new Map2()) != mapTag || Promise2 && getTag(Promise2.resolve()) != promiseTag || Set2 && getTag(new Set2()) != setTag || WeakMap2 && getTag(new WeakMap2()) != weakMapTag) {
+          getTag = function(value) {
+            var result2 = baseGetTag(value), Ctor = result2 == objectTag ? value.constructor : undefined2, ctorString = Ctor ? toSource(Ctor) : "";
+            if (ctorString) {
+              switch (ctorString) {
+                case dataViewCtorString:
+                  return dataViewTag;
+                case mapCtorString:
+                  return mapTag;
+                case promiseCtorString:
+                  return promiseTag;
+                case setCtorString:
+                  return setTag;
+                case weakMapCtorString:
+                  return weakMapTag;
+              }
+            }
+            return result2;
+          };
+        }
+        function getView(start, end, transforms) {
+          var index = -1, length = transforms.length;
+          while (++index < length) {
+            var data = transforms[index], size2 = data.size;
+            switch (data.type) {
+              case "drop":
+                start += size2;
+                break;
+              case "dropRight":
+                end -= size2;
+                break;
+              case "take":
+                end = nativeMin(end, start + size2);
+                break;
+              case "takeRight":
+                start = nativeMax(start, end - size2);
+                break;
+            }
+          }
+          return { "start": start, "end": end };
+        }
+        function getWrapDetails(source) {
+          var match2 = source.match(reWrapDetails);
+          return match2 ? match2[1].split(reSplitDetails) : [];
+        }
+        function hasPath(object2, path, hasFunc) {
+          path = castPath(path, object2);
+          var index = -1, length = path.length, result2 = false;
+          while (++index < length) {
+            var key = toKey(path[index]);
+            if (!(result2 = object2 != null && hasFunc(object2, key))) {
+              break;
+            }
+            object2 = object2[key];
+          }
+          if (result2 || ++index != length) {
+            return result2;
+          }
+          length = object2 == null ? 0 : object2.length;
+          return !!length && isLength(length) && isIndex(key, length) && (isArray(object2) || isArguments(object2));
+        }
+        function initCloneArray(array2) {
+          var length = array2.length, result2 = new array2.constructor(length);
+          if (length && typeof array2[0] == "string" && hasOwnProperty.call(array2, "index")) {
+            result2.index = array2.index;
+            result2.input = array2.input;
+          }
+          return result2;
+        }
+        function initCloneObject(object2) {
+          return typeof object2.constructor == "function" && !isPrototype(object2) ? baseCreate(getPrototype(object2)) : {};
+        }
+        function initCloneByTag(object2, tag, isDeep) {
+          var Ctor = object2.constructor;
+          switch (tag) {
+            case arrayBufferTag:
+              return cloneArrayBuffer(object2);
+            case boolTag:
+            case dateTag:
+              return new Ctor(+object2);
+            case dataViewTag:
+              return cloneDataView(object2, isDeep);
+            case float32Tag:
+            case float64Tag:
+            case int8Tag:
+            case int16Tag:
+            case int32Tag:
+            case uint8Tag:
+            case uint8ClampedTag:
+            case uint16Tag:
+            case uint32Tag:
+              return cloneTypedArray(object2, isDeep);
+            case mapTag:
+              return new Ctor();
+            case numberTag:
+            case stringTag:
+              return new Ctor(object2);
+            case regexpTag:
+              return cloneRegExp(object2);
+            case setTag:
+              return new Ctor();
+            case symbolTag:
+              return cloneSymbol(object2);
+          }
+        }
+        function insertWrapDetails(source, details) {
+          var length = details.length;
+          if (!length) {
+            return source;
+          }
+          var lastIndex = length - 1;
+          details[lastIndex] = (length > 1 ? "& " : "") + details[lastIndex];
+          details = details.join(length > 2 ? ", " : " ");
+          return source.replace(reWrapComment, "{\n/* [wrapped with " + details + "] */\n");
+        }
+        function isFlattenable(value) {
+          return isArray(value) || isArguments(value) || !!(spreadableSymbol && value && value[spreadableSymbol]);
+        }
+        function isIndex(value, length) {
+          var type = typeof value;
+          length = length == null ? MAX_SAFE_INTEGER : length;
+          return !!length && (type == "number" || type != "symbol" && reIsUint.test(value)) && (value > -1 && value % 1 == 0 && value < length);
+        }
+        function isIterateeCall(value, index, object2) {
+          if (!isObject3(object2)) {
+            return false;
+          }
+          var type = typeof index;
+          if (type == "number" ? isArrayLike(object2) && isIndex(index, object2.length) : type == "string" && index in object2) {
+            return eq2(object2[index], value);
+          }
+          return false;
+        }
+        function isKey(value, object2) {
+          if (isArray(value)) {
+            return false;
+          }
+          var type = typeof value;
+          if (type == "number" || type == "symbol" || type == "boolean" || value == null || isSymbol(value)) {
+            return true;
+          }
+          return reIsPlainProp.test(value) || !reIsDeepProp.test(value) || object2 != null && value in Object2(object2);
+        }
+        function isKeyable(value) {
+          var type = typeof value;
+          return type == "string" || type == "number" || type == "symbol" || type == "boolean" ? value !== "__proto__" : value === null;
+        }
+        function isLaziable(func) {
+          var funcName = getFuncName(func), other = lodash[funcName];
+          if (typeof other != "function" || !(funcName in LazyWrapper.prototype)) {
+            return false;
+          }
+          if (func === other) {
+            return true;
+          }
+          var data = getData(other);
+          return !!data && func === data[0];
+        }
+        function isMasked(func) {
+          return !!maskSrcKey && maskSrcKey in func;
+        }
+        var isMaskable = coreJsData ? isFunction : stubFalse;
+        function isPrototype(value) {
+          var Ctor = value && value.constructor, proto = typeof Ctor == "function" && Ctor.prototype || objectProto;
+          return value === proto;
+        }
+        function isStrictComparable(value) {
+          return value === value && !isObject3(value);
+        }
+        function matchesStrictComparable(key, srcValue) {
+          return function(object2) {
+            if (object2 == null) {
+              return false;
+            }
+            return object2[key] === srcValue && (srcValue !== undefined2 || key in Object2(object2));
+          };
+        }
+        function memoizeCapped(func) {
+          var result2 = memoize(func, function(key) {
+            if (cache2.size === MAX_MEMOIZE_SIZE) {
+              cache2.clear();
+            }
+            return key;
+          });
+          var cache2 = result2.cache;
+          return result2;
+        }
+        function mergeData(data, source) {
+          var bitmask = data[1], srcBitmask = source[1], newBitmask = bitmask | srcBitmask, isCommon = newBitmask < (WRAP_BIND_FLAG | WRAP_BIND_KEY_FLAG | WRAP_ARY_FLAG);
+          var isCombo = srcBitmask == WRAP_ARY_FLAG && bitmask == WRAP_CURRY_FLAG || srcBitmask == WRAP_ARY_FLAG && bitmask == WRAP_REARG_FLAG && data[7].length <= source[8] || srcBitmask == (WRAP_ARY_FLAG | WRAP_REARG_FLAG) && source[7].length <= source[8] && bitmask == WRAP_CURRY_FLAG;
+          if (!(isCommon || isCombo)) {
+            return data;
+          }
+          if (srcBitmask & WRAP_BIND_FLAG) {
+            data[2] = source[2];
+            newBitmask |= bitmask & WRAP_BIND_FLAG ? 0 : WRAP_CURRY_BOUND_FLAG;
+          }
+          var value = source[3];
+          if (value) {
+            var partials = data[3];
+            data[3] = partials ? composeArgs(partials, value, source[4]) : value;
+            data[4] = partials ? replaceHolders(data[3], PLACEHOLDER) : source[4];
+          }
+          value = source[5];
+          if (value) {
+            partials = data[5];
+            data[5] = partials ? composeArgsRight(partials, value, source[6]) : value;
+            data[6] = partials ? replaceHolders(data[5], PLACEHOLDER) : source[6];
+          }
+          value = source[7];
+          if (value) {
+            data[7] = value;
+          }
+          if (srcBitmask & WRAP_ARY_FLAG) {
+            data[8] = data[8] == null ? source[8] : nativeMin(data[8], source[8]);
+          }
+          if (data[9] == null) {
+            data[9] = source[9];
+          }
+          data[0] = source[0];
+          data[1] = newBitmask;
+          return data;
+        }
+        function nativeKeysIn(object2) {
+          var result2 = [];
+          if (object2 != null) {
+            for (var key in Object2(object2)) {
+              result2.push(key);
+            }
+          }
+          return result2;
+        }
+        function objectToString(value) {
+          return nativeObjectToString.call(value);
+        }
+        function overRest(func, start, transform3) {
+          start = nativeMax(start === undefined2 ? func.length - 1 : start, 0);
+          return function() {
+            var args = arguments, index = -1, length = nativeMax(args.length - start, 0), array2 = Array2(length);
+            while (++index < length) {
+              array2[index] = args[start + index];
+            }
+            index = -1;
+            var otherArgs = Array2(start + 1);
+            while (++index < start) {
+              otherArgs[index] = args[index];
+            }
+            otherArgs[start] = transform3(array2);
+            return apply(func, this, otherArgs);
+          };
+        }
+        function parent(object2, path) {
+          return path.length < 2 ? object2 : baseGet(object2, baseSlice(path, 0, -1));
+        }
+        function reorder(array2, indexes) {
+          var arrLength = array2.length, length = nativeMin(indexes.length, arrLength), oldArray = copyArray(array2);
+          while (length--) {
+            var index = indexes[length];
+            array2[length] = isIndex(index, arrLength) ? oldArray[index] : undefined2;
+          }
+          return array2;
+        }
+        function safeGet(object2, key) {
+          if (key === "constructor" && typeof object2[key] === "function") {
+            return;
+          }
+          if (key == "__proto__") {
+            return;
+          }
+          return object2[key];
+        }
+        var setData = shortOut(baseSetData);
+        var setTimeout2 = ctxSetTimeout || function(func, wait) {
+          return root.setTimeout(func, wait);
+        };
+        var setToString = shortOut(baseSetToString);
+        function setWrapToString(wrapper, reference, bitmask) {
+          var source = reference + "";
+          return setToString(wrapper, insertWrapDetails(source, updateWrapDetails(getWrapDetails(source), bitmask)));
+        }
+        function shortOut(func) {
+          var count = 0, lastCalled = 0;
+          return function() {
+            var stamp = nativeNow(), remaining = HOT_SPAN - (stamp - lastCalled);
+            lastCalled = stamp;
+            if (remaining > 0) {
+              if (++count >= HOT_COUNT) {
+                return arguments[0];
+              }
+            } else {
+              count = 0;
+            }
+            return func.apply(undefined2, arguments);
+          };
+        }
+        function shuffleSelf(array2, size2) {
+          var index = -1, length = array2.length, lastIndex = length - 1;
+          size2 = size2 === undefined2 ? length : size2;
+          while (++index < size2) {
+            var rand = baseRandom(index, lastIndex), value = array2[rand];
+            array2[rand] = array2[index];
+            array2[index] = value;
+          }
+          array2.length = size2;
+          return array2;
+        }
+        var stringToPath = memoizeCapped(function(string4) {
+          var result2 = [];
+          if (string4.charCodeAt(0) === 46) {
+            result2.push("");
+          }
+          string4.replace(rePropName, function(match2, number4, quote, subString) {
+            result2.push(quote ? subString.replace(reEscapeChar, "$1") : number4 || match2);
+          });
+          return result2;
+        });
+        function toKey(value) {
+          if (typeof value == "string" || isSymbol(value)) {
+            return value;
+          }
+          var result2 = value + "";
+          return result2 == "0" && 1 / value == -INFINITY ? "-0" : result2;
+        }
+        function toSource(func) {
+          if (func != null) {
+            try {
+              return funcToString.call(func);
+            } catch (e) {
+            }
+            try {
+              return func + "";
+            } catch (e) {
+            }
+          }
+          return "";
+        }
+        function updateWrapDetails(details, bitmask) {
+          arrayEach(wrapFlags, function(pair) {
+            var value = "_." + pair[0];
+            if (bitmask & pair[1] && !arrayIncludes(details, value)) {
+              details.push(value);
+            }
+          });
+          return details.sort();
+        }
+        function wrapperClone(wrapper) {
+          if (wrapper instanceof LazyWrapper) {
+            return wrapper.clone();
+          }
+          var result2 = new LodashWrapper(wrapper.__wrapped__, wrapper.__chain__);
+          result2.__actions__ = copyArray(wrapper.__actions__);
+          result2.__index__ = wrapper.__index__;
+          result2.__values__ = wrapper.__values__;
+          return result2;
+        }
+        function chunk(array2, size2, guard) {
+          if (guard ? isIterateeCall(array2, size2, guard) : size2 === undefined2) {
+            size2 = 1;
+          } else {
+            size2 = nativeMax(toInteger(size2), 0);
+          }
+          var length = array2 == null ? 0 : array2.length;
+          if (!length || size2 < 1) {
+            return [];
+          }
+          var index = 0, resIndex = 0, result2 = Array2(nativeCeil(length / size2));
+          while (index < length) {
+            result2[resIndex++] = baseSlice(array2, index, index += size2);
+          }
+          return result2;
+        }
+        function compact(array2) {
+          var index = -1, length = array2 == null ? 0 : array2.length, resIndex = 0, result2 = [];
+          while (++index < length) {
+            var value = array2[index];
+            if (value) {
+              result2[resIndex++] = value;
+            }
+          }
+          return result2;
+        }
+        function concat() {
+          var length = arguments.length;
+          if (!length) {
+            return [];
+          }
+          var args = Array2(length - 1), array2 = arguments[0], index = length;
+          while (index--) {
+            args[index - 1] = arguments[index];
+          }
+          return arrayPush(isArray(array2) ? copyArray(array2) : [array2], baseFlatten(args, 1));
+        }
+        var difference = baseRest(function(array2, values2) {
+          return isArrayLikeObject(array2) ? baseDifference(array2, baseFlatten(values2, 1, isArrayLikeObject, true)) : [];
+        });
+        var differenceBy = baseRest(function(array2, values2) {
+          var iteratee2 = last(values2);
+          if (isArrayLikeObject(iteratee2)) {
+            iteratee2 = undefined2;
+          }
+          return isArrayLikeObject(array2) ? baseDifference(array2, baseFlatten(values2, 1, isArrayLikeObject, true), getIteratee(iteratee2, 2)) : [];
+        });
+        var differenceWith = baseRest(function(array2, values2) {
+          var comparator = last(values2);
+          if (isArrayLikeObject(comparator)) {
+            comparator = undefined2;
+          }
+          return isArrayLikeObject(array2) ? baseDifference(array2, baseFlatten(values2, 1, isArrayLikeObject, true), undefined2, comparator) : [];
+        });
+        function drop(array2, n, guard) {
+          var length = array2 == null ? 0 : array2.length;
+          if (!length) {
+            return [];
+          }
+          n = guard || n === undefined2 ? 1 : toInteger(n);
+          return baseSlice(array2, n < 0 ? 0 : n, length);
+        }
+        function dropRight(array2, n, guard) {
+          var length = array2 == null ? 0 : array2.length;
+          if (!length) {
+            return [];
+          }
+          n = guard || n === undefined2 ? 1 : toInteger(n);
+          n = length - n;
+          return baseSlice(array2, 0, n < 0 ? 0 : n);
+        }
+        function dropRightWhile(array2, predicate) {
+          return array2 && array2.length ? baseWhile(array2, getIteratee(predicate, 3), true, true) : [];
+        }
+        function dropWhile(array2, predicate) {
+          return array2 && array2.length ? baseWhile(array2, getIteratee(predicate, 3), true) : [];
+        }
+        function fill(array2, value, start, end) {
+          var length = array2 == null ? 0 : array2.length;
+          if (!length) {
+            return [];
+          }
+          if (start && typeof start != "number" && isIterateeCall(array2, value, start)) {
+            start = 0;
+            end = length;
+          }
+          return baseFill(array2, value, start, end);
+        }
+        function findIndex(array2, predicate, fromIndex) {
+          var length = array2 == null ? 0 : array2.length;
+          if (!length) {
+            return -1;
+          }
+          var index = fromIndex == null ? 0 : toInteger(fromIndex);
+          if (index < 0) {
+            index = nativeMax(length + index, 0);
+          }
+          return baseFindIndex(array2, getIteratee(predicate, 3), index);
+        }
+        function findLastIndex(array2, predicate, fromIndex) {
+          var length = array2 == null ? 0 : array2.length;
+          if (!length) {
+            return -1;
+          }
+          var index = length - 1;
+          if (fromIndex !== undefined2) {
+            index = toInteger(fromIndex);
+            index = fromIndex < 0 ? nativeMax(length + index, 0) : nativeMin(index, length - 1);
+          }
+          return baseFindIndex(array2, getIteratee(predicate, 3), index, true);
+        }
+        function flatten(array2) {
+          var length = array2 == null ? 0 : array2.length;
+          return length ? baseFlatten(array2, 1) : [];
+        }
+        function flattenDeep(array2) {
+          var length = array2 == null ? 0 : array2.length;
+          return length ? baseFlatten(array2, INFINITY) : [];
+        }
+        function flattenDepth(array2, depth) {
+          var length = array2 == null ? 0 : array2.length;
+          if (!length) {
+            return [];
+          }
+          depth = depth === undefined2 ? 1 : toInteger(depth);
+          return baseFlatten(array2, depth);
+        }
+        function fromPairs(pairs) {
+          var index = -1, length = pairs == null ? 0 : pairs.length, result2 = {};
+          while (++index < length) {
+            var pair = pairs[index];
+            baseAssignValue(result2, pair[0], pair[1]);
+          }
+          return result2;
+        }
+        function head(array2) {
+          return array2 && array2.length ? array2[0] : undefined2;
+        }
+        function indexOf(array2, value, fromIndex) {
+          var length = array2 == null ? 0 : array2.length;
+          if (!length) {
+            return -1;
+          }
+          var index = fromIndex == null ? 0 : toInteger(fromIndex);
+          if (index < 0) {
+            index = nativeMax(length + index, 0);
+          }
+          return baseIndexOf(array2, value, index);
+        }
+        function initial(array2) {
+          var length = array2 == null ? 0 : array2.length;
+          return length ? baseSlice(array2, 0, -1) : [];
+        }
+        var intersection2 = baseRest(function(arrays) {
+          var mapped = arrayMap(arrays, castArrayLikeObject);
+          return mapped.length && mapped[0] === arrays[0] ? baseIntersection(mapped) : [];
+        });
+        var intersectionBy = baseRest(function(arrays) {
+          var iteratee2 = last(arrays), mapped = arrayMap(arrays, castArrayLikeObject);
+          if (iteratee2 === last(mapped)) {
+            iteratee2 = undefined2;
+          } else {
+            mapped.pop();
+          }
+          return mapped.length && mapped[0] === arrays[0] ? baseIntersection(mapped, getIteratee(iteratee2, 2)) : [];
+        });
+        var intersectionWith = baseRest(function(arrays) {
+          var comparator = last(arrays), mapped = arrayMap(arrays, castArrayLikeObject);
+          comparator = typeof comparator == "function" ? comparator : undefined2;
+          if (comparator) {
+            mapped.pop();
+          }
+          return mapped.length && mapped[0] === arrays[0] ? baseIntersection(mapped, undefined2, comparator) : [];
+        });
+        function join(array2, separator) {
+          return array2 == null ? "" : nativeJoin.call(array2, separator);
+        }
+        function last(array2) {
+          var length = array2 == null ? 0 : array2.length;
+          return length ? array2[length - 1] : undefined2;
+        }
+        function lastIndexOf(array2, value, fromIndex) {
+          var length = array2 == null ? 0 : array2.length;
+          if (!length) {
+            return -1;
+          }
+          var index = length;
+          if (fromIndex !== undefined2) {
+            index = toInteger(fromIndex);
+            index = index < 0 ? nativeMax(length + index, 0) : nativeMin(index, length - 1);
+          }
+          return value === value ? strictLastIndexOf(array2, value, index) : baseFindIndex(array2, baseIsNaN, index, true);
+        }
+        function nth(array2, n) {
+          return array2 && array2.length ? baseNth(array2, toInteger(n)) : undefined2;
+        }
+        var pull = baseRest(pullAll);
+        function pullAll(array2, values2) {
+          return array2 && array2.length && values2 && values2.length ? basePullAll(array2, values2) : array2;
+        }
+        function pullAllBy(array2, values2, iteratee2) {
+          return array2 && array2.length && values2 && values2.length ? basePullAll(array2, values2, getIteratee(iteratee2, 2)) : array2;
+        }
+        function pullAllWith(array2, values2, comparator) {
+          return array2 && array2.length && values2 && values2.length ? basePullAll(array2, values2, undefined2, comparator) : array2;
+        }
+        var pullAt = flatRest(function(array2, indexes) {
+          var length = array2 == null ? 0 : array2.length, result2 = baseAt(array2, indexes);
+          basePullAt(array2, arrayMap(indexes, function(index) {
+            return isIndex(index, length) ? +index : index;
+          }).sort(compareAscending));
+          return result2;
+        });
+        function remove(array2, predicate) {
+          var result2 = [];
+          if (!(array2 && array2.length)) {
+            return result2;
+          }
+          var index = -1, indexes = [], length = array2.length;
+          predicate = getIteratee(predicate, 3);
+          while (++index < length) {
+            var value = array2[index];
+            if (predicate(value, index, array2)) {
+              result2.push(value);
+              indexes.push(index);
+            }
+          }
+          basePullAt(array2, indexes);
+          return result2;
+        }
+        function reverse(array2) {
+          return array2 == null ? array2 : nativeReverse.call(array2);
+        }
+        function slice(array2, start, end) {
+          var length = array2 == null ? 0 : array2.length;
+          if (!length) {
+            return [];
+          }
+          if (end && typeof end != "number" && isIterateeCall(array2, start, end)) {
+            start = 0;
+            end = length;
+          } else {
+            start = start == null ? 0 : toInteger(start);
+            end = end === undefined2 ? length : toInteger(end);
+          }
+          return baseSlice(array2, start, end);
+        }
+        function sortedIndex(array2, value) {
+          return baseSortedIndex(array2, value);
+        }
+        function sortedIndexBy(array2, value, iteratee2) {
+          return baseSortedIndexBy(array2, value, getIteratee(iteratee2, 2));
+        }
+        function sortedIndexOf(array2, value) {
+          var length = array2 == null ? 0 : array2.length;
+          if (length) {
+            var index = baseSortedIndex(array2, value);
+            if (index < length && eq2(array2[index], value)) {
+              return index;
+            }
+          }
+          return -1;
+        }
+        function sortedLastIndex(array2, value) {
+          return baseSortedIndex(array2, value, true);
+        }
+        function sortedLastIndexBy(array2, value, iteratee2) {
+          return baseSortedIndexBy(array2, value, getIteratee(iteratee2, 2), true);
+        }
+        function sortedLastIndexOf(array2, value) {
+          var length = array2 == null ? 0 : array2.length;
+          if (length) {
+            var index = baseSortedIndex(array2, value, true) - 1;
+            if (eq2(array2[index], value)) {
+              return index;
+            }
+          }
+          return -1;
+        }
+        function sortedUniq(array2) {
+          return array2 && array2.length ? baseSortedUniq(array2) : [];
+        }
+        function sortedUniqBy(array2, iteratee2) {
+          return array2 && array2.length ? baseSortedUniq(array2, getIteratee(iteratee2, 2)) : [];
+        }
+        function tail(array2) {
+          var length = array2 == null ? 0 : array2.length;
+          return length ? baseSlice(array2, 1, length) : [];
+        }
+        function take(array2, n, guard) {
+          if (!(array2 && array2.length)) {
+            return [];
+          }
+          n = guard || n === undefined2 ? 1 : toInteger(n);
+          return baseSlice(array2, 0, n < 0 ? 0 : n);
+        }
+        function takeRight(array2, n, guard) {
+          var length = array2 == null ? 0 : array2.length;
+          if (!length) {
+            return [];
+          }
+          n = guard || n === undefined2 ? 1 : toInteger(n);
+          n = length - n;
+          return baseSlice(array2, n < 0 ? 0 : n, length);
+        }
+        function takeRightWhile(array2, predicate) {
+          return array2 && array2.length ? baseWhile(array2, getIteratee(predicate, 3), false, true) : [];
+        }
+        function takeWhile(array2, predicate) {
+          return array2 && array2.length ? baseWhile(array2, getIteratee(predicate, 3)) : [];
+        }
+        var union3 = baseRest(function(arrays) {
+          return baseUniq(baseFlatten(arrays, 1, isArrayLikeObject, true));
+        });
+        var unionBy = baseRest(function(arrays) {
+          var iteratee2 = last(arrays);
+          if (isArrayLikeObject(iteratee2)) {
+            iteratee2 = undefined2;
+          }
+          return baseUniq(baseFlatten(arrays, 1, isArrayLikeObject, true), getIteratee(iteratee2, 2));
+        });
+        var unionWith = baseRest(function(arrays) {
+          var comparator = last(arrays);
+          comparator = typeof comparator == "function" ? comparator : undefined2;
+          return baseUniq(baseFlatten(arrays, 1, isArrayLikeObject, true), undefined2, comparator);
+        });
+        function uniq(array2) {
+          return array2 && array2.length ? baseUniq(array2) : [];
+        }
+        function uniqBy(array2, iteratee2) {
+          return array2 && array2.length ? baseUniq(array2, getIteratee(iteratee2, 2)) : [];
+        }
+        function uniqWith(array2, comparator) {
+          comparator = typeof comparator == "function" ? comparator : undefined2;
+          return array2 && array2.length ? baseUniq(array2, undefined2, comparator) : [];
+        }
+        function unzip(array2) {
+          if (!(array2 && array2.length)) {
+            return [];
+          }
+          var length = 0;
+          array2 = arrayFilter(array2, function(group) {
+            if (isArrayLikeObject(group)) {
+              length = nativeMax(group.length, length);
+              return true;
+            }
+          });
+          return baseTimes(length, function(index) {
+            return arrayMap(array2, baseProperty(index));
+          });
+        }
+        function unzipWith(array2, iteratee2) {
+          if (!(array2 && array2.length)) {
+            return [];
+          }
+          var result2 = unzip(array2);
+          if (iteratee2 == null) {
+            return result2;
+          }
+          return arrayMap(result2, function(group) {
+            return apply(iteratee2, undefined2, group);
+          });
+        }
+        var without = baseRest(function(array2, values2) {
+          return isArrayLikeObject(array2) ? baseDifference(array2, values2) : [];
+        });
+        var xor = baseRest(function(arrays) {
+          return baseXor(arrayFilter(arrays, isArrayLikeObject));
+        });
+        var xorBy = baseRest(function(arrays) {
+          var iteratee2 = last(arrays);
+          if (isArrayLikeObject(iteratee2)) {
+            iteratee2 = undefined2;
+          }
+          return baseXor(arrayFilter(arrays, isArrayLikeObject), getIteratee(iteratee2, 2));
+        });
+        var xorWith = baseRest(function(arrays) {
+          var comparator = last(arrays);
+          comparator = typeof comparator == "function" ? comparator : undefined2;
+          return baseXor(arrayFilter(arrays, isArrayLikeObject), undefined2, comparator);
+        });
+        var zip = baseRest(unzip);
+        function zipObject(props, values2) {
+          return baseZipObject(props || [], values2 || [], assignValue);
+        }
+        function zipObjectDeep(props, values2) {
+          return baseZipObject(props || [], values2 || [], baseSet);
+        }
+        var zipWith = baseRest(function(arrays) {
+          var length = arrays.length, iteratee2 = length > 1 ? arrays[length - 1] : undefined2;
+          iteratee2 = typeof iteratee2 == "function" ? (arrays.pop(), iteratee2) : undefined2;
+          return unzipWith(arrays, iteratee2);
+        });
+        function chain(value) {
+          var result2 = lodash(value);
+          result2.__chain__ = true;
+          return result2;
+        }
+        function tap(value, interceptor) {
+          interceptor(value);
+          return value;
+        }
+        function thru(value, interceptor) {
+          return interceptor(value);
+        }
+        var wrapperAt = flatRest(function(paths) {
+          var length = paths.length, start = length ? paths[0] : 0, value = this.__wrapped__, interceptor = function(object2) {
+            return baseAt(object2, paths);
+          };
+          if (length > 1 || this.__actions__.length || !(value instanceof LazyWrapper) || !isIndex(start)) {
+            return this.thru(interceptor);
+          }
+          value = value.slice(start, +start + (length ? 1 : 0));
+          value.__actions__.push({
+            "func": thru,
+            "args": [interceptor],
+            "thisArg": undefined2
+          });
+          return new LodashWrapper(value, this.__chain__).thru(function(array2) {
+            if (length && !array2.length) {
+              array2.push(undefined2);
+            }
+            return array2;
+          });
+        });
+        function wrapperChain() {
+          return chain(this);
+        }
+        function wrapperCommit() {
+          return new LodashWrapper(this.value(), this.__chain__);
+        }
+        function wrapperNext() {
+          if (this.__values__ === undefined2) {
+            this.__values__ = toArray(this.value());
+          }
+          var done = this.__index__ >= this.__values__.length, value = done ? undefined2 : this.__values__[this.__index__++];
+          return { "done": done, "value": value };
+        }
+        function wrapperToIterator() {
+          return this;
+        }
+        function wrapperPlant(value) {
+          var result2, parent2 = this;
+          while (parent2 instanceof baseLodash) {
+            var clone3 = wrapperClone(parent2);
+            clone3.__index__ = 0;
+            clone3.__values__ = undefined2;
+            if (result2) {
+              previous.__wrapped__ = clone3;
+            } else {
+              result2 = clone3;
+            }
+            var previous = clone3;
+            parent2 = parent2.__wrapped__;
+          }
+          previous.__wrapped__ = value;
+          return result2;
+        }
+        function wrapperReverse() {
+          var value = this.__wrapped__;
+          if (value instanceof LazyWrapper) {
+            var wrapped = value;
+            if (this.__actions__.length) {
+              wrapped = new LazyWrapper(this);
+            }
+            wrapped = wrapped.reverse();
+            wrapped.__actions__.push({
+              "func": thru,
+              "args": [reverse],
+              "thisArg": undefined2
+            });
+            return new LodashWrapper(wrapped, this.__chain__);
+          }
+          return this.thru(reverse);
+        }
+        function wrapperValue() {
+          return baseWrapperValue(this.__wrapped__, this.__actions__);
+        }
+        var countBy = createAggregator(function(result2, value, key) {
+          if (hasOwnProperty.call(result2, key)) {
+            ++result2[key];
+          } else {
+            baseAssignValue(result2, key, 1);
+          }
+        });
+        function every(collection, predicate, guard) {
+          var func = isArray(collection) ? arrayEvery : baseEvery;
+          if (guard && isIterateeCall(collection, predicate, guard)) {
+            predicate = undefined2;
+          }
+          return func(collection, getIteratee(predicate, 3));
+        }
+        function filter(collection, predicate) {
+          var func = isArray(collection) ? arrayFilter : baseFilter;
+          return func(collection, getIteratee(predicate, 3));
+        }
+        var find = createFind(findIndex);
+        var findLast = createFind(findLastIndex);
+        function flatMap(collection, iteratee2) {
+          return baseFlatten(map2(collection, iteratee2), 1);
+        }
+        function flatMapDeep(collection, iteratee2) {
+          return baseFlatten(map2(collection, iteratee2), INFINITY);
+        }
+        function flatMapDepth(collection, iteratee2, depth) {
+          depth = depth === undefined2 ? 1 : toInteger(depth);
+          return baseFlatten(map2(collection, iteratee2), depth);
+        }
+        function forEach(collection, iteratee2) {
+          var func = isArray(collection) ? arrayEach : baseEach;
+          return func(collection, getIteratee(iteratee2, 3));
+        }
+        function forEachRight(collection, iteratee2) {
+          var func = isArray(collection) ? arrayEachRight : baseEachRight;
+          return func(collection, getIteratee(iteratee2, 3));
+        }
+        var groupBy = createAggregator(function(result2, value, key) {
+          if (hasOwnProperty.call(result2, key)) {
+            result2[key].push(value);
+          } else {
+            baseAssignValue(result2, key, [value]);
+          }
+        });
+        function includes(collection, value, fromIndex, guard) {
+          collection = isArrayLike(collection) ? collection : values(collection);
+          fromIndex = fromIndex && !guard ? toInteger(fromIndex) : 0;
+          var length = collection.length;
+          if (fromIndex < 0) {
+            fromIndex = nativeMax(length + fromIndex, 0);
+          }
+          return isString(collection) ? fromIndex <= length && collection.indexOf(value, fromIndex) > -1 : !!length && baseIndexOf(collection, value, fromIndex) > -1;
+        }
+        var invokeMap = baseRest(function(collection, path, args) {
+          var index = -1, isFunc = typeof path == "function", result2 = isArrayLike(collection) ? Array2(collection.length) : [];
+          baseEach(collection, function(value) {
+            result2[++index] = isFunc ? apply(path, value, args) : baseInvoke(value, path, args);
+          });
+          return result2;
+        });
+        var keyBy = createAggregator(function(result2, value, key) {
+          baseAssignValue(result2, key, value);
+        });
+        function map2(collection, iteratee2) {
+          var func = isArray(collection) ? arrayMap : baseMap;
+          return func(collection, getIteratee(iteratee2, 3));
+        }
+        function orderBy(collection, iteratees, orders, guard) {
+          if (collection == null) {
+            return [];
+          }
+          if (!isArray(iteratees)) {
+            iteratees = iteratees == null ? [] : [iteratees];
+          }
+          orders = guard ? undefined2 : orders;
+          if (!isArray(orders)) {
+            orders = orders == null ? [] : [orders];
+          }
+          return baseOrderBy(collection, iteratees, orders);
+        }
+        var partition = createAggregator(function(result2, value, key) {
+          result2[key ? 0 : 1].push(value);
+        }, function() {
+          return [[], []];
+        });
+        function reduce(collection, iteratee2, accumulator) {
+          var func = isArray(collection) ? arrayReduce : baseReduce, initAccum = arguments.length < 3;
+          return func(collection, getIteratee(iteratee2, 4), accumulator, initAccum, baseEach);
+        }
+        function reduceRight(collection, iteratee2, accumulator) {
+          var func = isArray(collection) ? arrayReduceRight : baseReduce, initAccum = arguments.length < 3;
+          return func(collection, getIteratee(iteratee2, 4), accumulator, initAccum, baseEachRight);
+        }
+        function reject(collection, predicate) {
+          var func = isArray(collection) ? arrayFilter : baseFilter;
+          return func(collection, negate(getIteratee(predicate, 3)));
+        }
+        function sample(collection) {
+          var func = isArray(collection) ? arraySample : baseSample;
+          return func(collection);
+        }
+        function sampleSize(collection, n, guard) {
+          if (guard ? isIterateeCall(collection, n, guard) : n === undefined2) {
+            n = 1;
+          } else {
+            n = toInteger(n);
+          }
+          var func = isArray(collection) ? arraySampleSize : baseSampleSize;
+          return func(collection, n);
+        }
+        function shuffle(collection) {
+          var func = isArray(collection) ? arrayShuffle : baseShuffle;
+          return func(collection);
+        }
+        function size(collection) {
+          if (collection == null) {
+            return 0;
+          }
+          if (isArrayLike(collection)) {
+            return isString(collection) ? stringSize(collection) : collection.length;
+          }
+          var tag = getTag(collection);
+          if (tag == mapTag || tag == setTag) {
+            return collection.size;
+          }
+          return baseKeys(collection).length;
+        }
+        function some(collection, predicate, guard) {
+          var func = isArray(collection) ? arraySome : baseSome;
+          if (guard && isIterateeCall(collection, predicate, guard)) {
+            predicate = undefined2;
+          }
+          return func(collection, getIteratee(predicate, 3));
+        }
+        var sortBy = baseRest(function(collection, iteratees) {
+          if (collection == null) {
+            return [];
+          }
+          var length = iteratees.length;
+          if (length > 1 && isIterateeCall(collection, iteratees[0], iteratees[1])) {
+            iteratees = [];
+          } else if (length > 2 && isIterateeCall(iteratees[0], iteratees[1], iteratees[2])) {
+            iteratees = [iteratees[0]];
+          }
+          return baseOrderBy(collection, baseFlatten(iteratees, 1), []);
+        });
+        var now = ctxNow || function() {
+          return root.Date.now();
+        };
+        function after(n, func) {
+          if (typeof func != "function") {
+            throw new TypeError2(FUNC_ERROR_TEXT);
+          }
+          n = toInteger(n);
+          return function() {
+            if (--n < 1) {
+              return func.apply(this, arguments);
+            }
+          };
+        }
+        function ary(func, n, guard) {
+          n = guard ? undefined2 : n;
+          n = func && n == null ? func.length : n;
+          return createWrap(func, WRAP_ARY_FLAG, undefined2, undefined2, undefined2, undefined2, n);
+        }
+        function before(n, func) {
+          var result2;
+          if (typeof func != "function") {
+            throw new TypeError2(FUNC_ERROR_TEXT);
+          }
+          n = toInteger(n);
+          return function() {
+            if (--n > 0) {
+              result2 = func.apply(this, arguments);
+            }
+            if (n <= 1) {
+              func = undefined2;
+            }
+            return result2;
+          };
+        }
+        var bind = baseRest(function(func, thisArg, partials) {
+          var bitmask = WRAP_BIND_FLAG;
+          if (partials.length) {
+            var holders = replaceHolders(partials, getHolder(bind));
+            bitmask |= WRAP_PARTIAL_FLAG;
+          }
+          return createWrap(func, bitmask, thisArg, partials, holders);
+        });
+        var bindKey = baseRest(function(object2, key, partials) {
+          var bitmask = WRAP_BIND_FLAG | WRAP_BIND_KEY_FLAG;
+          if (partials.length) {
+            var holders = replaceHolders(partials, getHolder(bindKey));
+            bitmask |= WRAP_PARTIAL_FLAG;
+          }
+          return createWrap(key, bitmask, object2, partials, holders);
+        });
+        function curry(func, arity, guard) {
+          arity = guard ? undefined2 : arity;
+          var result2 = createWrap(func, WRAP_CURRY_FLAG, undefined2, undefined2, undefined2, undefined2, undefined2, arity);
+          result2.placeholder = curry.placeholder;
+          return result2;
+        }
+        function curryRight(func, arity, guard) {
+          arity = guard ? undefined2 : arity;
+          var result2 = createWrap(func, WRAP_CURRY_RIGHT_FLAG, undefined2, undefined2, undefined2, undefined2, undefined2, arity);
+          result2.placeholder = curryRight.placeholder;
+          return result2;
+        }
+        function debounce(func, wait, options) {
+          var lastArgs, lastThis, maxWait, result2, timerId, lastCallTime, lastInvokeTime = 0, leading = false, maxing = false, trailing = true;
+          if (typeof func != "function") {
+            throw new TypeError2(FUNC_ERROR_TEXT);
+          }
+          wait = toNumber(wait) || 0;
+          if (isObject3(options)) {
+            leading = !!options.leading;
+            maxing = "maxWait" in options;
+            maxWait = maxing ? nativeMax(toNumber(options.maxWait) || 0, wait) : maxWait;
+            trailing = "trailing" in options ? !!options.trailing : trailing;
+          }
+          function invokeFunc(time4) {
+            var args = lastArgs, thisArg = lastThis;
+            lastArgs = lastThis = undefined2;
+            lastInvokeTime = time4;
+            result2 = func.apply(thisArg, args);
+            return result2;
+          }
+          function leadingEdge(time4) {
+            lastInvokeTime = time4;
+            timerId = setTimeout2(timerExpired, wait);
+            return leading ? invokeFunc(time4) : result2;
+          }
+          function remainingWait(time4) {
+            var timeSinceLastCall = time4 - lastCallTime, timeSinceLastInvoke = time4 - lastInvokeTime, timeWaiting = wait - timeSinceLastCall;
+            return maxing ? nativeMin(timeWaiting, maxWait - timeSinceLastInvoke) : timeWaiting;
+          }
+          function shouldInvoke(time4) {
+            var timeSinceLastCall = time4 - lastCallTime, timeSinceLastInvoke = time4 - lastInvokeTime;
+            return lastCallTime === undefined2 || timeSinceLastCall >= wait || timeSinceLastCall < 0 || maxing && timeSinceLastInvoke >= maxWait;
+          }
+          function timerExpired() {
+            var time4 = now();
+            if (shouldInvoke(time4)) {
+              return trailingEdge(time4);
+            }
+            timerId = setTimeout2(timerExpired, remainingWait(time4));
+          }
+          function trailingEdge(time4) {
+            timerId = undefined2;
+            if (trailing && lastArgs) {
+              return invokeFunc(time4);
+            }
+            lastArgs = lastThis = undefined2;
+            return result2;
+          }
+          function cancel() {
+            if (timerId !== undefined2) {
+              clearTimeout2(timerId);
+            }
+            lastInvokeTime = 0;
+            lastArgs = lastCallTime = lastThis = timerId = undefined2;
+          }
+          function flush() {
+            return timerId === undefined2 ? result2 : trailingEdge(now());
+          }
+          function debounced() {
+            var time4 = now(), isInvoking = shouldInvoke(time4);
+            lastArgs = arguments;
+            lastThis = this;
+            lastCallTime = time4;
+            if (isInvoking) {
+              if (timerId === undefined2) {
+                return leadingEdge(lastCallTime);
+              }
+              if (maxing) {
+                clearTimeout2(timerId);
+                timerId = setTimeout2(timerExpired, wait);
+                return invokeFunc(lastCallTime);
+              }
+            }
+            if (timerId === undefined2) {
+              timerId = setTimeout2(timerExpired, wait);
+            }
+            return result2;
+          }
+          debounced.cancel = cancel;
+          debounced.flush = flush;
+          return debounced;
+        }
+        var defer = baseRest(function(func, args) {
+          return baseDelay(func, 1, args);
+        });
+        var delay = baseRest(function(func, wait, args) {
+          return baseDelay(func, toNumber(wait) || 0, args);
+        });
+        function flip(func) {
+          return createWrap(func, WRAP_FLIP_FLAG);
+        }
+        function memoize(func, resolver) {
+          if (typeof func != "function" || resolver != null && typeof resolver != "function") {
+            throw new TypeError2(FUNC_ERROR_TEXT);
+          }
+          var memoized = function() {
+            var args = arguments, key = resolver ? resolver.apply(this, args) : args[0], cache2 = memoized.cache;
+            if (cache2.has(key)) {
+              return cache2.get(key);
+            }
+            var result2 = func.apply(this, args);
+            memoized.cache = cache2.set(key, result2) || cache2;
+            return result2;
+          };
+          memoized.cache = new (memoize.Cache || MapCache)();
+          return memoized;
+        }
+        memoize.Cache = MapCache;
+        function negate(predicate) {
+          if (typeof predicate != "function") {
+            throw new TypeError2(FUNC_ERROR_TEXT);
+          }
+          return function() {
+            var args = arguments;
+            switch (args.length) {
+              case 0:
+                return !predicate.call(this);
+              case 1:
+                return !predicate.call(this, args[0]);
+              case 2:
+                return !predicate.call(this, args[0], args[1]);
+              case 3:
+                return !predicate.call(this, args[0], args[1], args[2]);
+            }
+            return !predicate.apply(this, args);
+          };
+        }
+        function once(func) {
+          return before(2, func);
+        }
+        var overArgs = castRest(function(func, transforms) {
+          transforms = transforms.length == 1 && isArray(transforms[0]) ? arrayMap(transforms[0], baseUnary(getIteratee())) : arrayMap(baseFlatten(transforms, 1), baseUnary(getIteratee()));
+          var funcsLength = transforms.length;
+          return baseRest(function(args) {
+            var index = -1, length = nativeMin(args.length, funcsLength);
+            while (++index < length) {
+              args[index] = transforms[index].call(this, args[index]);
+            }
+            return apply(func, this, args);
+          });
+        });
+        var partial2 = baseRest(function(func, partials) {
+          var holders = replaceHolders(partials, getHolder(partial2));
+          return createWrap(func, WRAP_PARTIAL_FLAG, undefined2, partials, holders);
+        });
+        var partialRight = baseRest(function(func, partials) {
+          var holders = replaceHolders(partials, getHolder(partialRight));
+          return createWrap(func, WRAP_PARTIAL_RIGHT_FLAG, undefined2, partials, holders);
+        });
+        var rearg = flatRest(function(func, indexes) {
+          return createWrap(func, WRAP_REARG_FLAG, undefined2, undefined2, undefined2, indexes);
+        });
+        function rest(func, start) {
+          if (typeof func != "function") {
+            throw new TypeError2(FUNC_ERROR_TEXT);
+          }
+          start = start === undefined2 ? start : toInteger(start);
+          return baseRest(func, start);
+        }
+        function spread(func, start) {
+          if (typeof func != "function") {
+            throw new TypeError2(FUNC_ERROR_TEXT);
+          }
+          start = start == null ? 0 : nativeMax(toInteger(start), 0);
+          return baseRest(function(args) {
+            var array2 = args[start], otherArgs = castSlice(args, 0, start);
+            if (array2) {
+              arrayPush(otherArgs, array2);
+            }
+            return apply(func, this, otherArgs);
+          });
+        }
+        function throttle(func, wait, options) {
+          var leading = true, trailing = true;
+          if (typeof func != "function") {
+            throw new TypeError2(FUNC_ERROR_TEXT);
+          }
+          if (isObject3(options)) {
+            leading = "leading" in options ? !!options.leading : leading;
+            trailing = "trailing" in options ? !!options.trailing : trailing;
+          }
+          return debounce(func, wait, {
+            "leading": leading,
+            "maxWait": wait,
+            "trailing": trailing
+          });
+        }
+        function unary(func) {
+          return ary(func, 1);
+        }
+        function wrap(value, wrapper) {
+          return partial2(castFunction(wrapper), value);
+        }
+        function castArray() {
+          if (!arguments.length) {
+            return [];
+          }
+          var value = arguments[0];
+          return isArray(value) ? value : [value];
+        }
+        function clone2(value) {
+          return baseClone(value, CLONE_SYMBOLS_FLAG);
+        }
+        function cloneWith(value, customizer) {
+          customizer = typeof customizer == "function" ? customizer : undefined2;
+          return baseClone(value, CLONE_SYMBOLS_FLAG, customizer);
+        }
+        function cloneDeep(value) {
+          return baseClone(value, CLONE_DEEP_FLAG | CLONE_SYMBOLS_FLAG);
+        }
+        function cloneDeepWith(value, customizer) {
+          customizer = typeof customizer == "function" ? customizer : undefined2;
+          return baseClone(value, CLONE_DEEP_FLAG | CLONE_SYMBOLS_FLAG, customizer);
+        }
+        function conformsTo(object2, source) {
+          return source == null || baseConformsTo(object2, source, keys(source));
+        }
+        function eq2(value, other) {
+          return value === other || value !== value && other !== other;
+        }
+        var gt2 = createRelationalOperation(baseGt);
+        var gte2 = createRelationalOperation(function(value, other) {
+          return value >= other;
+        });
+        var isArguments = baseIsArguments(/* @__PURE__ */ (function() {
+          return arguments;
+        })()) ? baseIsArguments : function(value) {
+          return isObjectLike(value) && hasOwnProperty.call(value, "callee") && !propertyIsEnumerable.call(value, "callee");
+        };
+        var isArray = Array2.isArray;
+        var isArrayBuffer = nodeIsArrayBuffer ? baseUnary(nodeIsArrayBuffer) : baseIsArrayBuffer;
+        function isArrayLike(value) {
+          return value != null && isLength(value.length) && !isFunction(value);
+        }
+        function isArrayLikeObject(value) {
+          return isObjectLike(value) && isArrayLike(value);
+        }
+        function isBoolean(value) {
+          return value === true || value === false || isObjectLike(value) && baseGetTag(value) == boolTag;
+        }
+        var isBuffer = nativeIsBuffer || stubFalse;
+        var isDate = nodeIsDate ? baseUnary(nodeIsDate) : baseIsDate;
+        function isElement(value) {
+          return isObjectLike(value) && value.nodeType === 1 && !isPlainObject2(value);
+        }
+        function isEmpty(value) {
+          if (value == null) {
+            return true;
+          }
+          if (isArrayLike(value) && (isArray(value) || typeof value == "string" || typeof value.splice == "function" || isBuffer(value) || isTypedArray(value) || isArguments(value))) {
+            return !value.length;
+          }
+          var tag = getTag(value);
+          if (tag == mapTag || tag == setTag) {
+            return !value.size;
+          }
+          if (isPrototype(value)) {
+            return !baseKeys(value).length;
+          }
+          for (var key in value) {
+            if (hasOwnProperty.call(value, key)) {
+              return false;
+            }
+          }
+          return true;
+        }
+        function isEqual(value, other) {
+          return baseIsEqual(value, other);
+        }
+        function isEqualWith(value, other, customizer) {
+          customizer = typeof customizer == "function" ? customizer : undefined2;
+          var result2 = customizer ? customizer(value, other) : undefined2;
+          return result2 === undefined2 ? baseIsEqual(value, other, undefined2, customizer) : !!result2;
+        }
+        function isError(value) {
+          if (!isObjectLike(value)) {
+            return false;
+          }
+          var tag = baseGetTag(value);
+          return tag == errorTag || tag == domExcTag || typeof value.message == "string" && typeof value.name == "string" && !isPlainObject2(value);
+        }
+        function isFinite2(value) {
+          return typeof value == "number" && nativeIsFinite(value);
+        }
+        function isFunction(value) {
+          if (!isObject3(value)) {
+            return false;
+          }
+          var tag = baseGetTag(value);
+          return tag == funcTag || tag == genTag || tag == asyncTag || tag == proxyTag;
+        }
+        function isInteger(value) {
+          return typeof value == "number" && value == toInteger(value);
+        }
+        function isLength(value) {
+          return typeof value == "number" && value > -1 && value % 1 == 0 && value <= MAX_SAFE_INTEGER;
+        }
+        function isObject3(value) {
+          var type = typeof value;
+          return value != null && (type == "object" || type == "function");
+        }
+        function isObjectLike(value) {
+          return value != null && typeof value == "object";
+        }
+        var isMap = nodeIsMap ? baseUnary(nodeIsMap) : baseIsMap;
+        function isMatch(object2, source) {
+          return object2 === source || baseIsMatch(object2, source, getMatchData(source));
+        }
+        function isMatchWith(object2, source, customizer) {
+          customizer = typeof customizer == "function" ? customizer : undefined2;
+          return baseIsMatch(object2, source, getMatchData(source), customizer);
+        }
+        function isNaN2(value) {
+          return isNumber(value) && value != +value;
+        }
+        function isNative(value) {
+          if (isMaskable(value)) {
+            throw new Error2(CORE_ERROR_TEXT);
+          }
+          return baseIsNative(value);
+        }
+        function isNull2(value) {
+          return value === null;
+        }
+        function isNil(value) {
+          return value == null;
+        }
+        function isNumber(value) {
+          return typeof value == "number" || isObjectLike(value) && baseGetTag(value) == numberTag;
+        }
+        function isPlainObject2(value) {
+          if (!isObjectLike(value) || baseGetTag(value) != objectTag) {
+            return false;
+          }
+          var proto = getPrototype(value);
+          if (proto === null) {
+            return true;
+          }
+          var Ctor = hasOwnProperty.call(proto, "constructor") && proto.constructor;
+          return typeof Ctor == "function" && Ctor instanceof Ctor && funcToString.call(Ctor) == objectCtorString;
+        }
+        var isRegExp = nodeIsRegExp ? baseUnary(nodeIsRegExp) : baseIsRegExp;
+        function isSafeInteger(value) {
+          return isInteger(value) && value >= -MAX_SAFE_INTEGER && value <= MAX_SAFE_INTEGER;
+        }
+        var isSet = nodeIsSet ? baseUnary(nodeIsSet) : baseIsSet;
+        function isString(value) {
+          return typeof value == "string" || !isArray(value) && isObjectLike(value) && baseGetTag(value) == stringTag;
+        }
+        function isSymbol(value) {
+          return typeof value == "symbol" || isObjectLike(value) && baseGetTag(value) == symbolTag;
+        }
+        var isTypedArray = nodeIsTypedArray ? baseUnary(nodeIsTypedArray) : baseIsTypedArray;
+        function isUndefined(value) {
+          return value === undefined2;
+        }
+        function isWeakMap(value) {
+          return isObjectLike(value) && getTag(value) == weakMapTag;
+        }
+        function isWeakSet(value) {
+          return isObjectLike(value) && baseGetTag(value) == weakSetTag;
+        }
+        var lt2 = createRelationalOperation(baseLt);
+        var lte2 = createRelationalOperation(function(value, other) {
+          return value <= other;
+        });
+        function toArray(value) {
+          if (!value) {
+            return [];
+          }
+          if (isArrayLike(value)) {
+            return isString(value) ? stringToArray(value) : copyArray(value);
+          }
+          if (symIterator && value[symIterator]) {
+            return iteratorToArray(value[symIterator]());
+          }
+          var tag = getTag(value), func = tag == mapTag ? mapToArray : tag == setTag ? setToArray : values;
+          return func(value);
+        }
+        function toFinite(value) {
+          if (!value) {
+            return value === 0 ? value : 0;
+          }
+          value = toNumber(value);
+          if (value === INFINITY || value === -INFINITY) {
+            var sign = value < 0 ? -1 : 1;
+            return sign * MAX_INTEGER;
+          }
+          return value === value ? value : 0;
+        }
+        function toInteger(value) {
+          var result2 = toFinite(value), remainder = result2 % 1;
+          return result2 === result2 ? remainder ? result2 - remainder : result2 : 0;
+        }
+        function toLength(value) {
+          return value ? baseClamp(toInteger(value), 0, MAX_ARRAY_LENGTH) : 0;
+        }
+        function toNumber(value) {
+          if (typeof value == "number") {
+            return value;
+          }
+          if (isSymbol(value)) {
+            return NAN;
+          }
+          if (isObject3(value)) {
+            var other = typeof value.valueOf == "function" ? value.valueOf() : value;
+            value = isObject3(other) ? other + "" : other;
+          }
+          if (typeof value != "string") {
+            return value === 0 ? value : +value;
+          }
+          value = baseTrim(value);
+          var isBinary = reIsBinary.test(value);
+          return isBinary || reIsOctal.test(value) ? freeParseInt(value.slice(2), isBinary ? 2 : 8) : reIsBadHex.test(value) ? NAN : +value;
+        }
+        function toPlainObject(value) {
+          return copyObject(value, keysIn(value));
+        }
+        function toSafeInteger(value) {
+          return value ? baseClamp(toInteger(value), -MAX_SAFE_INTEGER, MAX_SAFE_INTEGER) : value === 0 ? value : 0;
+        }
+        function toString(value) {
+          return value == null ? "" : baseToString(value);
+        }
+        var assign = createAssigner(function(object2, source) {
+          if (isPrototype(source) || isArrayLike(source)) {
+            copyObject(source, keys(source), object2);
+            return;
+          }
+          for (var key in source) {
+            if (hasOwnProperty.call(source, key)) {
+              assignValue(object2, key, source[key]);
+            }
+          }
+        });
+        var assignIn = createAssigner(function(object2, source) {
+          copyObject(source, keysIn(source), object2);
+        });
+        var assignInWith = createAssigner(function(object2, source, srcIndex, customizer) {
+          copyObject(source, keysIn(source), object2, customizer);
+        });
+        var assignWith = createAssigner(function(object2, source, srcIndex, customizer) {
+          copyObject(source, keys(source), object2, customizer);
+        });
+        var at = flatRest(baseAt);
+        function create(prototype, properties) {
+          var result2 = baseCreate(prototype);
+          return properties == null ? result2 : baseAssign(result2, properties);
+        }
+        var defaults2 = baseRest(function(object2, sources) {
+          object2 = Object2(object2);
+          var index = -1;
+          var length = sources.length;
+          var guard = length > 2 ? sources[2] : undefined2;
+          if (guard && isIterateeCall(sources[0], sources[1], guard)) {
+            length = 1;
+          }
+          while (++index < length) {
+            var source = sources[index];
+            var props = keysIn(source);
+            var propsIndex = -1;
+            var propsLength = props.length;
+            while (++propsIndex < propsLength) {
+              var key = props[propsIndex];
+              var value = object2[key];
+              if (value === undefined2 || eq2(value, objectProto[key]) && !hasOwnProperty.call(object2, key)) {
+                object2[key] = source[key];
+              }
+            }
+          }
+          return object2;
+        });
+        var defaultsDeep = baseRest(function(args) {
+          args.push(undefined2, customDefaultsMerge);
+          return apply(mergeWith, undefined2, args);
+        });
+        function findKey(object2, predicate) {
+          return baseFindKey(object2, getIteratee(predicate, 3), baseForOwn);
+        }
+        function findLastKey(object2, predicate) {
+          return baseFindKey(object2, getIteratee(predicate, 3), baseForOwnRight);
+        }
+        function forIn(object2, iteratee2) {
+          return object2 == null ? object2 : baseFor(object2, getIteratee(iteratee2, 3), keysIn);
+        }
+        function forInRight(object2, iteratee2) {
+          return object2 == null ? object2 : baseForRight(object2, getIteratee(iteratee2, 3), keysIn);
+        }
+        function forOwn(object2, iteratee2) {
+          return object2 && baseForOwn(object2, getIteratee(iteratee2, 3));
+        }
+        function forOwnRight(object2, iteratee2) {
+          return object2 && baseForOwnRight(object2, getIteratee(iteratee2, 3));
+        }
+        function functions(object2) {
+          return object2 == null ? [] : baseFunctions(object2, keys(object2));
+        }
+        function functionsIn(object2) {
+          return object2 == null ? [] : baseFunctions(object2, keysIn(object2));
+        }
+        function get(object2, path, defaultValue) {
+          var result2 = object2 == null ? undefined2 : baseGet(object2, path);
+          return result2 === undefined2 ? defaultValue : result2;
+        }
+        function has(object2, path) {
+          return object2 != null && hasPath(object2, path, baseHas);
+        }
+        function hasIn(object2, path) {
+          return object2 != null && hasPath(object2, path, baseHasIn);
+        }
+        var invert = createInverter(function(result2, value, key) {
+          if (value != null && typeof value.toString != "function") {
+            value = nativeObjectToString.call(value);
+          }
+          result2[value] = key;
+        }, constant(identity));
+        var invertBy = createInverter(function(result2, value, key) {
+          if (value != null && typeof value.toString != "function") {
+            value = nativeObjectToString.call(value);
+          }
+          if (hasOwnProperty.call(result2, value)) {
+            result2[value].push(key);
+          } else {
+            result2[value] = [key];
+          }
+        }, getIteratee);
+        var invoke = baseRest(baseInvoke);
+        function keys(object2) {
+          return isArrayLike(object2) ? arrayLikeKeys(object2) : baseKeys(object2);
+        }
+        function keysIn(object2) {
+          return isArrayLike(object2) ? arrayLikeKeys(object2, true) : baseKeysIn(object2);
+        }
+        function mapKeys(object2, iteratee2) {
+          var result2 = {};
+          iteratee2 = getIteratee(iteratee2, 3);
+          baseForOwn(object2, function(value, key, object3) {
+            baseAssignValue(result2, iteratee2(value, key, object3), value);
+          });
+          return result2;
+        }
+        function mapValues(object2, iteratee2) {
+          var result2 = {};
+          iteratee2 = getIteratee(iteratee2, 3);
+          baseForOwn(object2, function(value, key, object3) {
+            baseAssignValue(result2, key, iteratee2(value, key, object3));
+          });
+          return result2;
+        }
+        var merge2 = createAssigner(function(object2, source, srcIndex) {
+          baseMerge(object2, source, srcIndex);
+        });
+        var mergeWith = createAssigner(function(object2, source, srcIndex, customizer) {
+          baseMerge(object2, source, srcIndex, customizer);
+        });
+        var omit2 = flatRest(function(object2, paths) {
+          var result2 = {};
+          if (object2 == null) {
+            return result2;
+          }
+          var isDeep = false;
+          paths = arrayMap(paths, function(path) {
+            path = castPath(path, object2);
+            isDeep || (isDeep = path.length > 1);
+            return path;
+          });
+          copyObject(object2, getAllKeysIn(object2), result2);
+          if (isDeep) {
+            result2 = baseClone(result2, CLONE_DEEP_FLAG | CLONE_FLAT_FLAG | CLONE_SYMBOLS_FLAG, customOmitClone);
+          }
+          var length = paths.length;
+          while (length--) {
+            baseUnset(result2, paths[length]);
+          }
+          return result2;
+        });
+        function omitBy(object2, predicate) {
+          return pickBy(object2, negate(getIteratee(predicate)));
+        }
+        var pick2 = flatRest(function(object2, paths) {
+          return object2 == null ? {} : basePick(object2, paths);
+        });
+        function pickBy(object2, predicate) {
+          if (object2 == null) {
+            return {};
+          }
+          var props = arrayMap(getAllKeysIn(object2), function(prop) {
+            return [prop];
+          });
+          predicate = getIteratee(predicate);
+          return basePickBy(object2, props, function(value, path) {
+            return predicate(value, path[0]);
+          });
+        }
+        function result(object2, path, defaultValue) {
+          path = castPath(path, object2);
+          var index = -1, length = path.length;
+          if (!length) {
+            length = 1;
+            object2 = undefined2;
+          }
+          while (++index < length) {
+            var value = object2 == null ? undefined2 : object2[toKey(path[index])];
+            if (value === undefined2) {
+              index = length;
+              value = defaultValue;
+            }
+            object2 = isFunction(value) ? value.call(object2) : value;
+          }
+          return object2;
+        }
+        function set2(object2, path, value) {
+          return object2 == null ? object2 : baseSet(object2, path, value);
+        }
+        function setWith(object2, path, value, customizer) {
+          customizer = typeof customizer == "function" ? customizer : undefined2;
+          return object2 == null ? object2 : baseSet(object2, path, value, customizer);
+        }
+        var toPairs = createToPairs(keys);
+        var toPairsIn = createToPairs(keysIn);
+        function transform2(object2, iteratee2, accumulator) {
+          var isArr = isArray(object2), isArrLike = isArr || isBuffer(object2) || isTypedArray(object2);
+          iteratee2 = getIteratee(iteratee2, 4);
+          if (accumulator == null) {
+            var Ctor = object2 && object2.constructor;
+            if (isArrLike) {
+              accumulator = isArr ? new Ctor() : [];
+            } else if (isObject3(object2)) {
+              accumulator = isFunction(Ctor) ? baseCreate(getPrototype(object2)) : {};
+            } else {
+              accumulator = {};
+            }
+          }
+          (isArrLike ? arrayEach : baseForOwn)(object2, function(value, index, object3) {
+            return iteratee2(accumulator, value, index, object3);
+          });
+          return accumulator;
+        }
+        function unset(object2, path) {
+          return object2 == null ? true : baseUnset(object2, path);
+        }
+        function update(object2, path, updater) {
+          return object2 == null ? object2 : baseUpdate(object2, path, castFunction(updater));
+        }
+        function updateWith(object2, path, updater, customizer) {
+          customizer = typeof customizer == "function" ? customizer : undefined2;
+          return object2 == null ? object2 : baseUpdate(object2, path, castFunction(updater), customizer);
+        }
+        function values(object2) {
+          return object2 == null ? [] : baseValues(object2, keys(object2));
+        }
+        function valuesIn(object2) {
+          return object2 == null ? [] : baseValues(object2, keysIn(object2));
+        }
+        function clamp(number4, lower, upper) {
+          if (upper === undefined2) {
+            upper = lower;
+            lower = undefined2;
+          }
+          if (upper !== undefined2) {
+            upper = toNumber(upper);
+            upper = upper === upper ? upper : 0;
+          }
+          if (lower !== undefined2) {
+            lower = toNumber(lower);
+            lower = lower === lower ? lower : 0;
+          }
+          return baseClamp(toNumber(number4), lower, upper);
+        }
+        function inRange(number4, start, end) {
+          start = toFinite(start);
+          if (end === undefined2) {
+            end = start;
+            start = 0;
+          } else {
+            end = toFinite(end);
+          }
+          number4 = toNumber(number4);
+          return baseInRange(number4, start, end);
+        }
+        function random(lower, upper, floating) {
+          if (floating && typeof floating != "boolean" && isIterateeCall(lower, upper, floating)) {
+            upper = floating = undefined2;
+          }
+          if (floating === undefined2) {
+            if (typeof upper == "boolean") {
+              floating = upper;
+              upper = undefined2;
+            } else if (typeof lower == "boolean") {
+              floating = lower;
+              lower = undefined2;
+            }
+          }
+          if (lower === undefined2 && upper === undefined2) {
+            lower = 0;
+            upper = 1;
+          } else {
+            lower = toFinite(lower);
+            if (upper === undefined2) {
+              upper = lower;
+              lower = 0;
+            } else {
+              upper = toFinite(upper);
+            }
+          }
+          if (lower > upper) {
+            var temp = lower;
+            lower = upper;
+            upper = temp;
+          }
+          if (floating || lower % 1 || upper % 1) {
+            var rand = nativeRandom();
+            return nativeMin(lower + rand * (upper - lower + freeParseFloat("1e-" + ((rand + "").length - 1))), upper);
+          }
+          return baseRandom(lower, upper);
+        }
+        var camelCase = createCompounder(function(result2, word, index) {
+          word = word.toLowerCase();
+          return result2 + (index ? capitalize(word) : word);
+        });
+        function capitalize(string4) {
+          return upperFirst(toString(string4).toLowerCase());
+        }
+        function deburr(string4) {
+          string4 = toString(string4);
+          return string4 && string4.replace(reLatin, deburrLetter).replace(reComboMark, "");
+        }
+        function endsWith(string4, target, position) {
+          string4 = toString(string4);
+          target = baseToString(target);
+          var length = string4.length;
+          position = position === undefined2 ? length : baseClamp(toInteger(position), 0, length);
+          var end = position;
+          position -= target.length;
+          return position >= 0 && string4.slice(position, end) == target;
+        }
+        function escape2(string4) {
+          string4 = toString(string4);
+          return string4 && reHasUnescapedHtml.test(string4) ? string4.replace(reUnescapedHtml, escapeHtmlChar) : string4;
+        }
+        function escapeRegExp(string4) {
+          string4 = toString(string4);
+          return string4 && reHasRegExpChar.test(string4) ? string4.replace(reRegExpChar, "\\$&") : string4;
+        }
+        var kebabCase = createCompounder(function(result2, word, index) {
+          return result2 + (index ? "-" : "") + word.toLowerCase();
+        });
+        var lowerCase = createCompounder(function(result2, word, index) {
+          return result2 + (index ? " " : "") + word.toLowerCase();
+        });
+        var lowerFirst = createCaseFirst("toLowerCase");
+        function pad(string4, length, chars) {
+          string4 = toString(string4);
+          length = toInteger(length);
+          var strLength = length ? stringSize(string4) : 0;
+          if (!length || strLength >= length) {
+            return string4;
+          }
+          var mid = (length - strLength) / 2;
+          return createPadding(nativeFloor(mid), chars) + string4 + createPadding(nativeCeil(mid), chars);
+        }
+        function padEnd(string4, length, chars) {
+          string4 = toString(string4);
+          length = toInteger(length);
+          var strLength = length ? stringSize(string4) : 0;
+          return length && strLength < length ? string4 + createPadding(length - strLength, chars) : string4;
+        }
+        function padStart(string4, length, chars) {
+          string4 = toString(string4);
+          length = toInteger(length);
+          var strLength = length ? stringSize(string4) : 0;
+          return length && strLength < length ? createPadding(length - strLength, chars) + string4 : string4;
+        }
+        function parseInt2(string4, radix, guard) {
+          if (guard || radix == null) {
+            radix = 0;
+          } else if (radix) {
+            radix = +radix;
+          }
+          return nativeParseInt(toString(string4).replace(reTrimStart, ""), radix || 0);
+        }
+        function repeat(string4, n, guard) {
+          if (guard ? isIterateeCall(string4, n, guard) : n === undefined2) {
+            n = 1;
+          } else {
+            n = toInteger(n);
+          }
+          return baseRepeat(toString(string4), n);
+        }
+        function replace() {
+          var args = arguments, string4 = toString(args[0]);
+          return args.length < 3 ? string4 : string4.replace(args[1], args[2]);
+        }
+        var snakeCase2 = createCompounder(function(result2, word, index) {
+          return result2 + (index ? "_" : "") + word.toLowerCase();
+        });
+        function split2(string4, separator, limit) {
+          if (limit && typeof limit != "number" && isIterateeCall(string4, separator, limit)) {
+            separator = limit = undefined2;
+          }
+          limit = limit === undefined2 ? MAX_ARRAY_LENGTH : limit >>> 0;
+          if (!limit) {
+            return [];
+          }
+          string4 = toString(string4);
+          if (string4 && (typeof separator == "string" || separator != null && !isRegExp(separator))) {
+            separator = baseToString(separator);
+            if (!separator && hasUnicode(string4)) {
+              return castSlice(stringToArray(string4), 0, limit);
+            }
+          }
+          return string4.split(separator, limit);
+        }
+        var startCase = createCompounder(function(result2, word, index) {
+          return result2 + (index ? " " : "") + upperFirst(word);
+        });
+        function startsWith(string4, target, position) {
+          string4 = toString(string4);
+          position = position == null ? 0 : baseClamp(toInteger(position), 0, string4.length);
+          target = baseToString(target);
+          return string4.slice(position, position + target.length) == target;
+        }
+        function template(string4, options, guard) {
+          var settings = lodash.templateSettings;
+          if (guard && isIterateeCall(string4, options, guard)) {
+            options = undefined2;
+          }
+          string4 = toString(string4);
+          options = assignWith({}, options, settings, customDefaultsAssignIn);
+          var imports = assignWith({}, options.imports, settings.imports, customDefaultsAssignIn), importsKeys = keys(imports), importsValues = baseValues(imports, importsKeys);
+          arrayEach(importsKeys, function(key) {
+            if (reForbiddenIdentifierChars.test(key)) {
+              throw new Error2(INVALID_TEMPL_IMPORTS_ERROR_TEXT);
+            }
+          });
+          var isEscaping, isEvaluating, index = 0, interpolate = options.interpolate || reNoMatch, source = "__p += '";
+          var reDelimiters = RegExp2(
+            (options.escape || reNoMatch).source + "|" + interpolate.source + "|" + (interpolate === reInterpolate ? reEsTemplate : reNoMatch).source + "|" + (options.evaluate || reNoMatch).source + "|$",
+            "g"
+          );
+          var sourceURL = "//# sourceURL=" + (hasOwnProperty.call(options, "sourceURL") ? (options.sourceURL + "").replace(/\s/g, " ") : "lodash.templateSources[" + ++templateCounter + "]") + "\n";
+          string4.replace(reDelimiters, function(match2, escapeValue, interpolateValue, esTemplateValue, evaluateValue, offset) {
+            interpolateValue || (interpolateValue = esTemplateValue);
+            source += string4.slice(index, offset).replace(reUnescapedString, escapeStringChar);
+            if (escapeValue) {
+              isEscaping = true;
+              source += "' +\n__e(" + escapeValue + ") +\n'";
+            }
+            if (evaluateValue) {
+              isEvaluating = true;
+              source += "';\n" + evaluateValue + ";\n__p += '";
+            }
+            if (interpolateValue) {
+              source += "' +\n((__t = (" + interpolateValue + ")) == null ? '' : __t) +\n'";
+            }
+            index = offset + match2.length;
+            return match2;
+          });
+          source += "';\n";
+          var variable = hasOwnProperty.call(options, "variable") && options.variable;
+          if (!variable) {
+            source = "with (obj) {\n" + source + "\n}\n";
+          } else if (reForbiddenIdentifierChars.test(variable)) {
+            throw new Error2(INVALID_TEMPL_VAR_ERROR_TEXT);
+          }
+          source = (isEvaluating ? source.replace(reEmptyStringLeading, "") : source).replace(reEmptyStringMiddle, "$1").replace(reEmptyStringTrailing, "$1;");
+          source = "function(" + (variable || "obj") + ") {\n" + (variable ? "" : "obj || (obj = {});\n") + "var __t, __p = ''" + (isEscaping ? ", __e = _.escape" : "") + (isEvaluating ? ", __j = Array.prototype.join;\nfunction print() { __p += __j.call(arguments, '') }\n" : ";\n") + source + "return __p\n}";
+          var result2 = attempt(function() {
+            return Function2(importsKeys, sourceURL + "return " + source).apply(undefined2, importsValues);
+          });
+          result2.source = source;
+          if (isError(result2)) {
+            throw result2;
+          }
+          return result2;
+        }
+        function toLower(value) {
+          return toString(value).toLowerCase();
+        }
+        function toUpper(value) {
+          return toString(value).toUpperCase();
+        }
+        function trim(string4, chars, guard) {
+          string4 = toString(string4);
+          if (string4 && (guard || chars === undefined2)) {
+            return baseTrim(string4);
+          }
+          if (!string4 || !(chars = baseToString(chars))) {
+            return string4;
+          }
+          var strSymbols = stringToArray(string4), chrSymbols = stringToArray(chars), start = charsStartIndex(strSymbols, chrSymbols), end = charsEndIndex(strSymbols, chrSymbols) + 1;
+          return castSlice(strSymbols, start, end).join("");
+        }
+        function trimEnd(string4, chars, guard) {
+          string4 = toString(string4);
+          if (string4 && (guard || chars === undefined2)) {
+            return string4.slice(0, trimmedEndIndex(string4) + 1);
+          }
+          if (!string4 || !(chars = baseToString(chars))) {
+            return string4;
+          }
+          var strSymbols = stringToArray(string4), end = charsEndIndex(strSymbols, stringToArray(chars)) + 1;
+          return castSlice(strSymbols, 0, end).join("");
+        }
+        function trimStart(string4, chars, guard) {
+          string4 = toString(string4);
+          if (string4 && (guard || chars === undefined2)) {
+            return string4.replace(reTrimStart, "");
+          }
+          if (!string4 || !(chars = baseToString(chars))) {
+            return string4;
+          }
+          var strSymbols = stringToArray(string4), start = charsStartIndex(strSymbols, stringToArray(chars));
+          return castSlice(strSymbols, start).join("");
+        }
+        function truncate(string4, options) {
+          var length = DEFAULT_TRUNC_LENGTH, omission = DEFAULT_TRUNC_OMISSION;
+          if (isObject3(options)) {
+            var separator = "separator" in options ? options.separator : separator;
+            length = "length" in options ? toInteger(options.length) : length;
+            omission = "omission" in options ? baseToString(options.omission) : omission;
+          }
+          string4 = toString(string4);
+          var strLength = string4.length;
+          if (hasUnicode(string4)) {
+            var strSymbols = stringToArray(string4);
+            strLength = strSymbols.length;
+          }
+          if (length >= strLength) {
+            return string4;
+          }
+          var end = length - stringSize(omission);
+          if (end < 1) {
+            return omission;
+          }
+          var result2 = strSymbols ? castSlice(strSymbols, 0, end).join("") : string4.slice(0, end);
+          if (separator === undefined2) {
+            return result2 + omission;
+          }
+          if (strSymbols) {
+            end += result2.length - end;
+          }
+          if (isRegExp(separator)) {
+            if (string4.slice(end).search(separator)) {
+              var match2, substring = result2;
+              if (!separator.global) {
+                separator = RegExp2(separator.source, toString(reFlags.exec(separator)) + "g");
+              }
+              separator.lastIndex = 0;
+              while (match2 = separator.exec(substring)) {
+                var newEnd = match2.index;
+              }
+              result2 = result2.slice(0, newEnd === undefined2 ? end : newEnd);
+            }
+          } else if (string4.indexOf(baseToString(separator), end) != end) {
+            var index = result2.lastIndexOf(separator);
+            if (index > -1) {
+              result2 = result2.slice(0, index);
+            }
+          }
+          return result2 + omission;
+        }
+        function unescape2(string4) {
+          string4 = toString(string4);
+          return string4 && reHasEscapedHtml.test(string4) ? string4.replace(reEscapedHtml, unescapeHtmlChar) : string4;
+        }
+        var upperCase = createCompounder(function(result2, word, index) {
+          return result2 + (index ? " " : "") + word.toUpperCase();
+        });
+        var upperFirst = createCaseFirst("toUpperCase");
+        function words(string4, pattern, guard) {
+          string4 = toString(string4);
+          pattern = guard ? undefined2 : pattern;
+          if (pattern === undefined2) {
+            return hasUnicodeWord(string4) ? unicodeWords(string4) : asciiWords(string4);
+          }
+          return string4.match(pattern) || [];
+        }
+        var attempt = baseRest(function(func, args) {
+          try {
+            return apply(func, undefined2, args);
+          } catch (e) {
+            return isError(e) ? e : new Error2(e);
+          }
+        });
+        var bindAll = flatRest(function(object2, methodNames) {
+          arrayEach(methodNames, function(key) {
+            key = toKey(key);
+            baseAssignValue(object2, key, bind(object2[key], object2));
+          });
+          return object2;
+        });
+        function cond(pairs) {
+          var length = pairs == null ? 0 : pairs.length, toIteratee = getIteratee();
+          pairs = !length ? [] : arrayMap(pairs, function(pair) {
+            if (typeof pair[1] != "function") {
+              throw new TypeError2(FUNC_ERROR_TEXT);
+            }
+            return [toIteratee(pair[0]), pair[1]];
+          });
+          return baseRest(function(args) {
+            var index = -1;
+            while (++index < length) {
+              var pair = pairs[index];
+              if (apply(pair[0], this, args)) {
+                return apply(pair[1], this, args);
+              }
+            }
+          });
+        }
+        function conforms(source) {
+          return baseConforms(baseClone(source, CLONE_DEEP_FLAG));
+        }
+        function constant(value) {
+          return function() {
+            return value;
+          };
+        }
+        function defaultTo(value, defaultValue) {
+          return value == null || value !== value ? defaultValue : value;
+        }
+        var flow = createFlow();
+        var flowRight = createFlow(true);
+        function identity(value) {
+          return value;
+        }
+        function iteratee(func) {
+          return baseIteratee(typeof func == "function" ? func : baseClone(func, CLONE_DEEP_FLAG));
+        }
+        function matches2(source) {
+          return baseMatches(baseClone(source, CLONE_DEEP_FLAG));
+        }
+        function matchesProperty(path, srcValue) {
+          return baseMatchesProperty(path, baseClone(srcValue, CLONE_DEEP_FLAG));
+        }
+        var method = baseRest(function(path, args) {
+          return function(object2) {
+            return baseInvoke(object2, path, args);
+          };
+        });
+        var methodOf = baseRest(function(object2, args) {
+          return function(path) {
+            return baseInvoke(object2, path, args);
+          };
+        });
+        function mixin(object2, source, options) {
+          var props = keys(source), methodNames = baseFunctions(source, props);
+          if (options == null && !(isObject3(source) && (methodNames.length || !props.length))) {
+            options = source;
+            source = object2;
+            object2 = this;
+            methodNames = baseFunctions(source, keys(source));
+          }
+          var chain2 = !(isObject3(options) && "chain" in options) || !!options.chain, isFunc = isFunction(object2);
+          arrayEach(methodNames, function(methodName) {
+            var func = source[methodName];
+            object2[methodName] = func;
+            if (isFunc) {
+              object2.prototype[methodName] = function() {
+                var chainAll = this.__chain__;
+                if (chain2 || chainAll) {
+                  var result2 = object2(this.__wrapped__), actions = result2.__actions__ = copyArray(this.__actions__);
+                  actions.push({ "func": func, "args": arguments, "thisArg": object2 });
+                  result2.__chain__ = chainAll;
+                  return result2;
+                }
+                return func.apply(object2, arrayPush([this.value()], arguments));
+              };
+            }
+          });
+          return object2;
+        }
+        function noConflict() {
+          if (root._ === this) {
+            root._ = oldDash;
+          }
+          return this;
+        }
+        function noop2() {
+        }
+        function nthArg(n) {
+          n = toInteger(n);
+          return baseRest(function(args) {
+            return baseNth(args, n);
+          });
+        }
+        var over = createOver(arrayMap);
+        var overEvery = createOver(arrayEvery);
+        var overSome = createOver(arraySome);
+        function property(path) {
+          return isKey(path) ? baseProperty(toKey(path)) : basePropertyDeep(path);
+        }
+        function propertyOf(object2) {
+          return function(path) {
+            return object2 == null ? undefined2 : baseGet(object2, path);
+          };
+        }
+        var range = createRange();
+        var rangeRight = createRange(true);
+        function stubArray() {
+          return [];
+        }
+        function stubFalse() {
+          return false;
+        }
+        function stubObject() {
+          return {};
+        }
+        function stubString() {
+          return "";
+        }
+        function stubTrue() {
+          return true;
+        }
+        function times(n, iteratee2) {
+          n = toInteger(n);
+          if (n < 1 || n > MAX_SAFE_INTEGER) {
+            return [];
+          }
+          var index = MAX_ARRAY_LENGTH, length = nativeMin(n, MAX_ARRAY_LENGTH);
+          iteratee2 = getIteratee(iteratee2);
+          n -= MAX_ARRAY_LENGTH;
+          var result2 = baseTimes(length, iteratee2);
+          while (++index < n) {
+            iteratee2(index);
+          }
+          return result2;
+        }
+        function toPath(value) {
+          if (isArray(value)) {
+            return arrayMap(value, toKey);
+          }
+          return isSymbol(value) ? [value] : copyArray(stringToPath(toString(value)));
+        }
+        function uniqueId(prefix) {
+          var id = ++idCounter;
+          return toString(prefix) + id;
+        }
+        var add = createMathOperation(function(augend, addend) {
+          return augend + addend;
+        }, 0);
+        var ceil = createRound("ceil");
+        var divide = createMathOperation(function(dividend, divisor) {
+          return dividend / divisor;
+        }, 1);
+        var floor = createRound("floor");
+        function max(array2) {
+          return array2 && array2.length ? baseExtremum(array2, identity, baseGt) : undefined2;
+        }
+        function maxBy(array2, iteratee2) {
+          return array2 && array2.length ? baseExtremum(array2, getIteratee(iteratee2, 2), baseGt) : undefined2;
+        }
+        function mean(array2) {
+          return baseMean(array2, identity);
+        }
+        function meanBy(array2, iteratee2) {
+          return baseMean(array2, getIteratee(iteratee2, 2));
+        }
+        function min(array2) {
+          return array2 && array2.length ? baseExtremum(array2, identity, baseLt) : undefined2;
+        }
+        function minBy(array2, iteratee2) {
+          return array2 && array2.length ? baseExtremum(array2, getIteratee(iteratee2, 2), baseLt) : undefined2;
+        }
+        var multiply = createMathOperation(function(multiplier, multiplicand) {
+          return multiplier * multiplicand;
+        }, 1);
+        var round = createRound("round");
+        var subtract = createMathOperation(function(minuend, subtrahend) {
+          return minuend - subtrahend;
+        }, 0);
+        function sum(array2) {
+          return array2 && array2.length ? baseSum(array2, identity) : 0;
+        }
+        function sumBy(array2, iteratee2) {
+          return array2 && array2.length ? baseSum(array2, getIteratee(iteratee2, 2)) : 0;
+        }
+        lodash.after = after;
+        lodash.ary = ary;
+        lodash.assign = assign;
+        lodash.assignIn = assignIn;
+        lodash.assignInWith = assignInWith;
+        lodash.assignWith = assignWith;
+        lodash.at = at;
+        lodash.before = before;
+        lodash.bind = bind;
+        lodash.bindAll = bindAll;
+        lodash.bindKey = bindKey;
+        lodash.castArray = castArray;
+        lodash.chain = chain;
+        lodash.chunk = chunk;
+        lodash.compact = compact;
+        lodash.concat = concat;
+        lodash.cond = cond;
+        lodash.conforms = conforms;
+        lodash.constant = constant;
+        lodash.countBy = countBy;
+        lodash.create = create;
+        lodash.curry = curry;
+        lodash.curryRight = curryRight;
+        lodash.debounce = debounce;
+        lodash.defaults = defaults2;
+        lodash.defaultsDeep = defaultsDeep;
+        lodash.defer = defer;
+        lodash.delay = delay;
+        lodash.difference = difference;
+        lodash.differenceBy = differenceBy;
+        lodash.differenceWith = differenceWith;
+        lodash.drop = drop;
+        lodash.dropRight = dropRight;
+        lodash.dropRightWhile = dropRightWhile;
+        lodash.dropWhile = dropWhile;
+        lodash.fill = fill;
+        lodash.filter = filter;
+        lodash.flatMap = flatMap;
+        lodash.flatMapDeep = flatMapDeep;
+        lodash.flatMapDepth = flatMapDepth;
+        lodash.flatten = flatten;
+        lodash.flattenDeep = flattenDeep;
+        lodash.flattenDepth = flattenDepth;
+        lodash.flip = flip;
+        lodash.flow = flow;
+        lodash.flowRight = flowRight;
+        lodash.fromPairs = fromPairs;
+        lodash.functions = functions;
+        lodash.functionsIn = functionsIn;
+        lodash.groupBy = groupBy;
+        lodash.initial = initial;
+        lodash.intersection = intersection2;
+        lodash.intersectionBy = intersectionBy;
+        lodash.intersectionWith = intersectionWith;
+        lodash.invert = invert;
+        lodash.invertBy = invertBy;
+        lodash.invokeMap = invokeMap;
+        lodash.iteratee = iteratee;
+        lodash.keyBy = keyBy;
+        lodash.keys = keys;
+        lodash.keysIn = keysIn;
+        lodash.map = map2;
+        lodash.mapKeys = mapKeys;
+        lodash.mapValues = mapValues;
+        lodash.matches = matches2;
+        lodash.matchesProperty = matchesProperty;
+        lodash.memoize = memoize;
+        lodash.merge = merge2;
+        lodash.mergeWith = mergeWith;
+        lodash.method = method;
+        lodash.methodOf = methodOf;
+        lodash.mixin = mixin;
+        lodash.negate = negate;
+        lodash.nthArg = nthArg;
+        lodash.omit = omit2;
+        lodash.omitBy = omitBy;
+        lodash.once = once;
+        lodash.orderBy = orderBy;
+        lodash.over = over;
+        lodash.overArgs = overArgs;
+        lodash.overEvery = overEvery;
+        lodash.overSome = overSome;
+        lodash.partial = partial2;
+        lodash.partialRight = partialRight;
+        lodash.partition = partition;
+        lodash.pick = pick2;
+        lodash.pickBy = pickBy;
+        lodash.property = property;
+        lodash.propertyOf = propertyOf;
+        lodash.pull = pull;
+        lodash.pullAll = pullAll;
+        lodash.pullAllBy = pullAllBy;
+        lodash.pullAllWith = pullAllWith;
+        lodash.pullAt = pullAt;
+        lodash.range = range;
+        lodash.rangeRight = rangeRight;
+        lodash.rearg = rearg;
+        lodash.reject = reject;
+        lodash.remove = remove;
+        lodash.rest = rest;
+        lodash.reverse = reverse;
+        lodash.sampleSize = sampleSize;
+        lodash.set = set2;
+        lodash.setWith = setWith;
+        lodash.shuffle = shuffle;
+        lodash.slice = slice;
+        lodash.sortBy = sortBy;
+        lodash.sortedUniq = sortedUniq;
+        lodash.sortedUniqBy = sortedUniqBy;
+        lodash.split = split2;
+        lodash.spread = spread;
+        lodash.tail = tail;
+        lodash.take = take;
+        lodash.takeRight = takeRight;
+        lodash.takeRightWhile = takeRightWhile;
+        lodash.takeWhile = takeWhile;
+        lodash.tap = tap;
+        lodash.throttle = throttle;
+        lodash.thru = thru;
+        lodash.toArray = toArray;
+        lodash.toPairs = toPairs;
+        lodash.toPairsIn = toPairsIn;
+        lodash.toPath = toPath;
+        lodash.toPlainObject = toPlainObject;
+        lodash.transform = transform2;
+        lodash.unary = unary;
+        lodash.union = union3;
+        lodash.unionBy = unionBy;
+        lodash.unionWith = unionWith;
+        lodash.uniq = uniq;
+        lodash.uniqBy = uniqBy;
+        lodash.uniqWith = uniqWith;
+        lodash.unset = unset;
+        lodash.unzip = unzip;
+        lodash.unzipWith = unzipWith;
+        lodash.update = update;
+        lodash.updateWith = updateWith;
+        lodash.values = values;
+        lodash.valuesIn = valuesIn;
+        lodash.without = without;
+        lodash.words = words;
+        lodash.wrap = wrap;
+        lodash.xor = xor;
+        lodash.xorBy = xorBy;
+        lodash.xorWith = xorWith;
+        lodash.zip = zip;
+        lodash.zipObject = zipObject;
+        lodash.zipObjectDeep = zipObjectDeep;
+        lodash.zipWith = zipWith;
+        lodash.entries = toPairs;
+        lodash.entriesIn = toPairsIn;
+        lodash.extend = assignIn;
+        lodash.extendWith = assignInWith;
+        mixin(lodash, lodash);
+        lodash.add = add;
+        lodash.attempt = attempt;
+        lodash.camelCase = camelCase;
+        lodash.capitalize = capitalize;
+        lodash.ceil = ceil;
+        lodash.clamp = clamp;
+        lodash.clone = clone2;
+        lodash.cloneDeep = cloneDeep;
+        lodash.cloneDeepWith = cloneDeepWith;
+        lodash.cloneWith = cloneWith;
+        lodash.conformsTo = conformsTo;
+        lodash.deburr = deburr;
+        lodash.defaultTo = defaultTo;
+        lodash.divide = divide;
+        lodash.endsWith = endsWith;
+        lodash.eq = eq2;
+        lodash.escape = escape2;
+        lodash.escapeRegExp = escapeRegExp;
+        lodash.every = every;
+        lodash.find = find;
+        lodash.findIndex = findIndex;
+        lodash.findKey = findKey;
+        lodash.findLast = findLast;
+        lodash.findLastIndex = findLastIndex;
+        lodash.findLastKey = findLastKey;
+        lodash.floor = floor;
+        lodash.forEach = forEach;
+        lodash.forEachRight = forEachRight;
+        lodash.forIn = forIn;
+        lodash.forInRight = forInRight;
+        lodash.forOwn = forOwn;
+        lodash.forOwnRight = forOwnRight;
+        lodash.get = get;
+        lodash.gt = gt2;
+        lodash.gte = gte2;
+        lodash.has = has;
+        lodash.hasIn = hasIn;
+        lodash.head = head;
+        lodash.identity = identity;
+        lodash.includes = includes;
+        lodash.indexOf = indexOf;
+        lodash.inRange = inRange;
+        lodash.invoke = invoke;
+        lodash.isArguments = isArguments;
+        lodash.isArray = isArray;
+        lodash.isArrayBuffer = isArrayBuffer;
+        lodash.isArrayLike = isArrayLike;
+        lodash.isArrayLikeObject = isArrayLikeObject;
+        lodash.isBoolean = isBoolean;
+        lodash.isBuffer = isBuffer;
+        lodash.isDate = isDate;
+        lodash.isElement = isElement;
+        lodash.isEmpty = isEmpty;
+        lodash.isEqual = isEqual;
+        lodash.isEqualWith = isEqualWith;
+        lodash.isError = isError;
+        lodash.isFinite = isFinite2;
+        lodash.isFunction = isFunction;
+        lodash.isInteger = isInteger;
+        lodash.isLength = isLength;
+        lodash.isMap = isMap;
+        lodash.isMatch = isMatch;
+        lodash.isMatchWith = isMatchWith;
+        lodash.isNaN = isNaN2;
+        lodash.isNative = isNative;
+        lodash.isNil = isNil;
+        lodash.isNull = isNull2;
+        lodash.isNumber = isNumber;
+        lodash.isObject = isObject3;
+        lodash.isObjectLike = isObjectLike;
+        lodash.isPlainObject = isPlainObject2;
+        lodash.isRegExp = isRegExp;
+        lodash.isSafeInteger = isSafeInteger;
+        lodash.isSet = isSet;
+        lodash.isString = isString;
+        lodash.isSymbol = isSymbol;
+        lodash.isTypedArray = isTypedArray;
+        lodash.isUndefined = isUndefined;
+        lodash.isWeakMap = isWeakMap;
+        lodash.isWeakSet = isWeakSet;
+        lodash.join = join;
+        lodash.kebabCase = kebabCase;
+        lodash.last = last;
+        lodash.lastIndexOf = lastIndexOf;
+        lodash.lowerCase = lowerCase;
+        lodash.lowerFirst = lowerFirst;
+        lodash.lt = lt2;
+        lodash.lte = lte2;
+        lodash.max = max;
+        lodash.maxBy = maxBy;
+        lodash.mean = mean;
+        lodash.meanBy = meanBy;
+        lodash.min = min;
+        lodash.minBy = minBy;
+        lodash.stubArray = stubArray;
+        lodash.stubFalse = stubFalse;
+        lodash.stubObject = stubObject;
+        lodash.stubString = stubString;
+        lodash.stubTrue = stubTrue;
+        lodash.multiply = multiply;
+        lodash.nth = nth;
+        lodash.noConflict = noConflict;
+        lodash.noop = noop2;
+        lodash.now = now;
+        lodash.pad = pad;
+        lodash.padEnd = padEnd;
+        lodash.padStart = padStart;
+        lodash.parseInt = parseInt2;
+        lodash.random = random;
+        lodash.reduce = reduce;
+        lodash.reduceRight = reduceRight;
+        lodash.repeat = repeat;
+        lodash.replace = replace;
+        lodash.result = result;
+        lodash.round = round;
+        lodash.runInContext = runInContext2;
+        lodash.sample = sample;
+        lodash.size = size;
+        lodash.snakeCase = snakeCase2;
+        lodash.some = some;
+        lodash.sortedIndex = sortedIndex;
+        lodash.sortedIndexBy = sortedIndexBy;
+        lodash.sortedIndexOf = sortedIndexOf;
+        lodash.sortedLastIndex = sortedLastIndex;
+        lodash.sortedLastIndexBy = sortedLastIndexBy;
+        lodash.sortedLastIndexOf = sortedLastIndexOf;
+        lodash.startCase = startCase;
+        lodash.startsWith = startsWith;
+        lodash.subtract = subtract;
+        lodash.sum = sum;
+        lodash.sumBy = sumBy;
+        lodash.template = template;
+        lodash.times = times;
+        lodash.toFinite = toFinite;
+        lodash.toInteger = toInteger;
+        lodash.toLength = toLength;
+        lodash.toLower = toLower;
+        lodash.toNumber = toNumber;
+        lodash.toSafeInteger = toSafeInteger;
+        lodash.toString = toString;
+        lodash.toUpper = toUpper;
+        lodash.trim = trim;
+        lodash.trimEnd = trimEnd;
+        lodash.trimStart = trimStart;
+        lodash.truncate = truncate;
+        lodash.unescape = unescape2;
+        lodash.uniqueId = uniqueId;
+        lodash.upperCase = upperCase;
+        lodash.upperFirst = upperFirst;
+        lodash.each = forEach;
+        lodash.eachRight = forEachRight;
+        lodash.first = head;
+        mixin(lodash, (function() {
+          var source = {};
+          baseForOwn(lodash, function(func, methodName) {
+            if (!hasOwnProperty.call(lodash.prototype, methodName)) {
+              source[methodName] = func;
+            }
+          });
+          return source;
+        })(), { "chain": false });
+        lodash.VERSION = VERSION;
+        arrayEach(["bind", "bindKey", "curry", "curryRight", "partial", "partialRight"], function(methodName) {
+          lodash[methodName].placeholder = lodash;
+        });
+        arrayEach(["drop", "take"], function(methodName, index) {
+          LazyWrapper.prototype[methodName] = function(n) {
+            n = n === undefined2 ? 1 : nativeMax(toInteger(n), 0);
+            var result2 = this.__filtered__ && !index ? new LazyWrapper(this) : this.clone();
+            if (result2.__filtered__) {
+              result2.__takeCount__ = nativeMin(n, result2.__takeCount__);
+            } else {
+              result2.__views__.push({
+                "size": nativeMin(n, MAX_ARRAY_LENGTH),
+                "type": methodName + (result2.__dir__ < 0 ? "Right" : "")
+              });
+            }
+            return result2;
+          };
+          LazyWrapper.prototype[methodName + "Right"] = function(n) {
+            return this.reverse()[methodName](n).reverse();
+          };
+        });
+        arrayEach(["filter", "map", "takeWhile"], function(methodName, index) {
+          var type = index + 1, isFilter = type == LAZY_FILTER_FLAG || type == LAZY_WHILE_FLAG;
+          LazyWrapper.prototype[methodName] = function(iteratee2) {
+            var result2 = this.clone();
+            result2.__iteratees__.push({
+              "iteratee": getIteratee(iteratee2, 3),
+              "type": type
+            });
+            result2.__filtered__ = result2.__filtered__ || isFilter;
+            return result2;
+          };
+        });
+        arrayEach(["head", "last"], function(methodName, index) {
+          var takeName = "take" + (index ? "Right" : "");
+          LazyWrapper.prototype[methodName] = function() {
+            return this[takeName](1).value()[0];
+          };
+        });
+        arrayEach(["initial", "tail"], function(methodName, index) {
+          var dropName = "drop" + (index ? "" : "Right");
+          LazyWrapper.prototype[methodName] = function() {
+            return this.__filtered__ ? new LazyWrapper(this) : this[dropName](1);
+          };
+        });
+        LazyWrapper.prototype.compact = function() {
+          return this.filter(identity);
+        };
+        LazyWrapper.prototype.find = function(predicate) {
+          return this.filter(predicate).head();
+        };
+        LazyWrapper.prototype.findLast = function(predicate) {
+          return this.reverse().find(predicate);
+        };
+        LazyWrapper.prototype.invokeMap = baseRest(function(path, args) {
+          if (typeof path == "function") {
+            return new LazyWrapper(this);
+          }
+          return this.map(function(value) {
+            return baseInvoke(value, path, args);
+          });
+        });
+        LazyWrapper.prototype.reject = function(predicate) {
+          return this.filter(negate(getIteratee(predicate)));
+        };
+        LazyWrapper.prototype.slice = function(start, end) {
+          start = toInteger(start);
+          var result2 = this;
+          if (result2.__filtered__ && (start > 0 || end < 0)) {
+            return new LazyWrapper(result2);
+          }
+          if (start < 0) {
+            result2 = result2.takeRight(-start);
+          } else if (start) {
+            result2 = result2.drop(start);
+          }
+          if (end !== undefined2) {
+            end = toInteger(end);
+            result2 = end < 0 ? result2.dropRight(-end) : result2.take(end - start);
+          }
+          return result2;
+        };
+        LazyWrapper.prototype.takeRightWhile = function(predicate) {
+          return this.reverse().takeWhile(predicate).reverse();
+        };
+        LazyWrapper.prototype.toArray = function() {
+          return this.take(MAX_ARRAY_LENGTH);
+        };
+        baseForOwn(LazyWrapper.prototype, function(func, methodName) {
+          var checkIteratee = /^(?:filter|find|map|reject)|While$/.test(methodName), isTaker = /^(?:head|last)$/.test(methodName), lodashFunc = lodash[isTaker ? "take" + (methodName == "last" ? "Right" : "") : methodName], retUnwrapped = isTaker || /^find/.test(methodName);
+          if (!lodashFunc) {
+            return;
+          }
+          lodash.prototype[methodName] = function() {
+            var value = this.__wrapped__, args = isTaker ? [1] : arguments, isLazy = value instanceof LazyWrapper, iteratee2 = args[0], useLazy = isLazy || isArray(value);
+            var interceptor = function(value2) {
+              var result3 = lodashFunc.apply(lodash, arrayPush([value2], args));
+              return isTaker && chainAll ? result3[0] : result3;
+            };
+            if (useLazy && checkIteratee && typeof iteratee2 == "function" && iteratee2.length != 1) {
+              isLazy = useLazy = false;
+            }
+            var chainAll = this.__chain__, isHybrid = !!this.__actions__.length, isUnwrapped = retUnwrapped && !chainAll, onlyLazy = isLazy && !isHybrid;
+            if (!retUnwrapped && useLazy) {
+              value = onlyLazy ? value : new LazyWrapper(this);
+              var result2 = func.apply(value, args);
+              result2.__actions__.push({ "func": thru, "args": [interceptor], "thisArg": undefined2 });
+              return new LodashWrapper(result2, chainAll);
+            }
+            if (isUnwrapped && onlyLazy) {
+              return func.apply(this, args);
+            }
+            result2 = this.thru(interceptor);
+            return isUnwrapped ? isTaker ? result2.value()[0] : result2.value() : result2;
+          };
+        });
+        arrayEach(["pop", "push", "shift", "sort", "splice", "unshift"], function(methodName) {
+          var func = arrayProto[methodName], chainName = /^(?:push|sort|unshift)$/.test(methodName) ? "tap" : "thru", retUnwrapped = /^(?:pop|shift)$/.test(methodName);
+          lodash.prototype[methodName] = function() {
+            var args = arguments;
+            if (retUnwrapped && !this.__chain__) {
+              var value = this.value();
+              return func.apply(isArray(value) ? value : [], args);
+            }
+            return this[chainName](function(value2) {
+              return func.apply(isArray(value2) ? value2 : [], args);
+            });
+          };
+        });
+        baseForOwn(LazyWrapper.prototype, function(func, methodName) {
+          var lodashFunc = lodash[methodName];
+          if (lodashFunc) {
+            var key = lodashFunc.name + "";
+            if (!hasOwnProperty.call(realNames, key)) {
+              realNames[key] = [];
+            }
+            realNames[key].push({ "name": methodName, "func": lodashFunc });
+          }
+        });
+        realNames[createHybrid(undefined2, WRAP_BIND_KEY_FLAG).name] = [{
+          "name": "wrapper",
+          "func": undefined2
+        }];
+        LazyWrapper.prototype.clone = lazyClone;
+        LazyWrapper.prototype.reverse = lazyReverse;
+        LazyWrapper.prototype.value = lazyValue;
+        lodash.prototype.at = wrapperAt;
+        lodash.prototype.chain = wrapperChain;
+        lodash.prototype.commit = wrapperCommit;
+        lodash.prototype.next = wrapperNext;
+        lodash.prototype.plant = wrapperPlant;
+        lodash.prototype.reverse = wrapperReverse;
+        lodash.prototype.toJSON = lodash.prototype.valueOf = lodash.prototype.value = wrapperValue;
+        lodash.prototype.first = lodash.prototype.head;
+        if (symIterator) {
+          lodash.prototype[symIterator] = wrapperToIterator;
+        }
+        return lodash;
+      });
+      var _2 = runInContext();
+      if (typeof define == "function" && typeof define.amd == "object" && define.amd) {
+        root._ = _2;
+        define(function() {
+          return _2;
+        });
+      } else if (freeModule) {
+        (freeModule.exports = _2)._ = _2;
+        freeExports._ = _2;
+      } else {
+        root._ = _2;
+      }
+    }).call(exports);
+  }
+});
+
+// ../../node_modules/.pnpm/midtrans-client@1.4.3/node_modules/midtrans-client/lib/apiConfig.js
+var require_apiConfig = __commonJS({
+  "../../node_modules/.pnpm/midtrans-client@1.4.3/node_modules/midtrans-client/lib/apiConfig.js"(exports, module) {
+    "use strict";
+    var _2 = require_lodash();
+    var ApiConfig = class _ApiConfig {
+      /**
+       * Initiate with options
+       * @param  {Object} options - should have these props:
+       * isProduction, serverKey, clientKey
+       */
+      constructor(options = { isProduction: false, serverKey: "", clientKey: "" }) {
+        this.isProduction = false;
+        this.serverKey = "";
+        this.clientKey = "";
+        this.set(options);
+      }
+      /**
+       * Return config stored
+       * @return {Object} object contains isProduction, serverKey, clientKey
+       */
+      get() {
+        let currentConfig = {
+          isProduction: this.isProduction,
+          serverKey: this.serverKey,
+          clientKey: this.clientKey
+        };
+        return currentConfig;
+      }
+      /**
+       * Set config stored
+       * @param {Object} options - object contains isProduction, serverKey, clientKey]
+       */
+      set(options) {
+        let currentConfig = {
+          isProduction: this.isProduction,
+          serverKey: this.serverKey,
+          clientKey: this.clientKey
+        };
+        const parsedOptions = _2.pick(options, ["isProduction", "serverKey", "clientKey"]);
+        let mergedConfig = _2.merge({}, currentConfig, parsedOptions);
+        this.isProduction = mergedConfig.isProduction;
+        this.serverKey = mergedConfig.serverKey;
+        this.clientKey = mergedConfig.clientKey;
+      }
+      /**
+       * @return {String} core api base url
+       */
+      getCoreApiBaseUrl() {
+        return this.isProduction ? _ApiConfig.CORE_PRODUCTION_BASE_URL : _ApiConfig.CORE_SANDBOX_BASE_URL;
+      }
+      /**
+       * @return {String} snap api base url
+       */
+      getSnapApiBaseUrl() {
+        return this.isProduction ? _ApiConfig.SNAP_PRODUCTION_BASE_URL : _ApiConfig.SNAP_SANDBOX_BASE_URL;
+      }
+      /**
+       * @return {String} Iris api base url
+       */
+      getIrisApiBaseUrl() {
+        return this.isProduction ? _ApiConfig.IRIS_PRODUCTION_BASE_URL : _ApiConfig.IRIS_SANDBOX_BASE_URL;
+      }
+    };
+    ApiConfig.CORE_SANDBOX_BASE_URL = "https://api.sandbox.midtrans.com";
+    ApiConfig.CORE_PRODUCTION_BASE_URL = "https://api.midtrans.com";
+    ApiConfig.SNAP_SANDBOX_BASE_URL = "https://app.sandbox.midtrans.com/snap/v1";
+    ApiConfig.SNAP_PRODUCTION_BASE_URL = "https://app.midtrans.com/snap/v1";
+    ApiConfig.IRIS_SANDBOX_BASE_URL = "https://app.sandbox.midtrans.com/iris/api/v1";
+    ApiConfig.IRIS_PRODUCTION_BASE_URL = "https://app.midtrans.com/iris/api/v1";
+    module.exports = ApiConfig;
+  }
+});
+
+// ../../node_modules/.pnpm/delayed-stream@1.0.0/node_modules/delayed-stream/lib/delayed_stream.js
+var require_delayed_stream = __commonJS({
+  "../../node_modules/.pnpm/delayed-stream@1.0.0/node_modules/delayed-stream/lib/delayed_stream.js"(exports, module) {
+    var Stream = __require("stream").Stream;
+    var util2 = __require("util");
+    module.exports = DelayedStream;
+    function DelayedStream() {
+      this.source = null;
+      this.dataSize = 0;
+      this.maxDataSize = 1024 * 1024;
+      this.pauseStream = true;
+      this._maxDataSizeExceeded = false;
+      this._released = false;
+      this._bufferedEvents = [];
+    }
+    util2.inherits(DelayedStream, Stream);
+    DelayedStream.create = function(source, options) {
+      var delayedStream = new this();
+      options = options || {};
+      for (var option in options) {
+        delayedStream[option] = options[option];
+      }
+      delayedStream.source = source;
+      var realEmit = source.emit;
+      source.emit = function() {
+        delayedStream._handleEmit(arguments);
+        return realEmit.apply(source, arguments);
+      };
+      source.on("error", function() {
+      });
+      if (delayedStream.pauseStream) {
+        source.pause();
+      }
+      return delayedStream;
+    };
+    Object.defineProperty(DelayedStream.prototype, "readable", {
+      configurable: true,
+      enumerable: true,
+      get: function() {
+        return this.source.readable;
+      }
+    });
+    DelayedStream.prototype.setEncoding = function() {
+      return this.source.setEncoding.apply(this.source, arguments);
+    };
+    DelayedStream.prototype.resume = function() {
+      if (!this._released) {
+        this.release();
+      }
+      this.source.resume();
+    };
+    DelayedStream.prototype.pause = function() {
+      this.source.pause();
+    };
+    DelayedStream.prototype.release = function() {
+      this._released = true;
+      this._bufferedEvents.forEach(function(args) {
+        this.emit.apply(this, args);
+      }.bind(this));
+      this._bufferedEvents = [];
+    };
+    DelayedStream.prototype.pipe = function() {
+      var r = Stream.prototype.pipe.apply(this, arguments);
+      this.resume();
+      return r;
+    };
+    DelayedStream.prototype._handleEmit = function(args) {
+      if (this._released) {
+        this.emit.apply(this, args);
+        return;
+      }
+      if (args[0] === "data") {
+        this.dataSize += args[1].length;
+        this._checkIfMaxDataSizeExceeded();
+      }
+      this._bufferedEvents.push(args);
+    };
+    DelayedStream.prototype._checkIfMaxDataSizeExceeded = function() {
+      if (this._maxDataSizeExceeded) {
+        return;
+      }
+      if (this.dataSize <= this.maxDataSize) {
+        return;
+      }
+      this._maxDataSizeExceeded = true;
+      var message = "DelayedStream#maxDataSize of " + this.maxDataSize + " bytes exceeded.";
+      this.emit("error", new Error(message));
+    };
+  }
+});
+
+// ../../node_modules/.pnpm/combined-stream@1.0.8/node_modules/combined-stream/lib/combined_stream.js
+var require_combined_stream = __commonJS({
+  "../../node_modules/.pnpm/combined-stream@1.0.8/node_modules/combined-stream/lib/combined_stream.js"(exports, module) {
+    var util2 = __require("util");
+    var Stream = __require("stream").Stream;
+    var DelayedStream = require_delayed_stream();
+    module.exports = CombinedStream;
+    function CombinedStream() {
+      this.writable = false;
+      this.readable = true;
+      this.dataSize = 0;
+      this.maxDataSize = 2 * 1024 * 1024;
+      this.pauseStreams = true;
+      this._released = false;
+      this._streams = [];
+      this._currentStream = null;
+      this._insideLoop = false;
+      this._pendingNext = false;
+    }
+    util2.inherits(CombinedStream, Stream);
+    CombinedStream.create = function(options) {
+      var combinedStream = new this();
+      options = options || {};
+      for (var option in options) {
+        combinedStream[option] = options[option];
+      }
+      return combinedStream;
+    };
+    CombinedStream.isStreamLike = function(stream) {
+      return typeof stream !== "function" && typeof stream !== "string" && typeof stream !== "boolean" && typeof stream !== "number" && !Buffer.isBuffer(stream);
+    };
+    CombinedStream.prototype.append = function(stream) {
+      var isStreamLike = CombinedStream.isStreamLike(stream);
+      if (isStreamLike) {
+        if (!(stream instanceof DelayedStream)) {
+          var newStream = DelayedStream.create(stream, {
+            maxDataSize: Infinity,
+            pauseStream: this.pauseStreams
+          });
+          stream.on("data", this._checkDataSize.bind(this));
+          stream = newStream;
+        }
+        this._handleErrors(stream);
+        if (this.pauseStreams) {
+          stream.pause();
+        }
+      }
+      this._streams.push(stream);
+      return this;
+    };
+    CombinedStream.prototype.pipe = function(dest, options) {
+      Stream.prototype.pipe.call(this, dest, options);
+      this.resume();
+      return dest;
+    };
+    CombinedStream.prototype._getNext = function() {
+      this._currentStream = null;
+      if (this._insideLoop) {
+        this._pendingNext = true;
+        return;
+      }
+      this._insideLoop = true;
+      try {
+        do {
+          this._pendingNext = false;
+          this._realGetNext();
+        } while (this._pendingNext);
+      } finally {
+        this._insideLoop = false;
+      }
+    };
+    CombinedStream.prototype._realGetNext = function() {
+      var stream = this._streams.shift();
+      if (typeof stream == "undefined") {
+        this.end();
+        return;
+      }
+      if (typeof stream !== "function") {
+        this._pipeNext(stream);
+        return;
+      }
+      var getStream = stream;
+      getStream(function(stream2) {
+        var isStreamLike = CombinedStream.isStreamLike(stream2);
+        if (isStreamLike) {
+          stream2.on("data", this._checkDataSize.bind(this));
+          this._handleErrors(stream2);
+        }
+        this._pipeNext(stream2);
+      }.bind(this));
+    };
+    CombinedStream.prototype._pipeNext = function(stream) {
+      this._currentStream = stream;
+      var isStreamLike = CombinedStream.isStreamLike(stream);
+      if (isStreamLike) {
+        stream.on("end", this._getNext.bind(this));
+        stream.pipe(this, { end: false });
+        return;
+      }
+      var value = stream;
+      this.write(value);
+      this._getNext();
+    };
+    CombinedStream.prototype._handleErrors = function(stream) {
+      var self2 = this;
+      stream.on("error", function(err) {
+        self2._emitError(err);
+      });
+    };
+    CombinedStream.prototype.write = function(data) {
+      this.emit("data", data);
+    };
+    CombinedStream.prototype.pause = function() {
+      if (!this.pauseStreams) {
+        return;
+      }
+      if (this.pauseStreams && this._currentStream && typeof this._currentStream.pause == "function") this._currentStream.pause();
+      this.emit("pause");
+    };
+    CombinedStream.prototype.resume = function() {
+      if (!this._released) {
+        this._released = true;
+        this.writable = true;
+        this._getNext();
+      }
+      if (this.pauseStreams && this._currentStream && typeof this._currentStream.resume == "function") this._currentStream.resume();
+      this.emit("resume");
+    };
+    CombinedStream.prototype.end = function() {
+      this._reset();
+      this.emit("end");
+    };
+    CombinedStream.prototype.destroy = function() {
+      this._reset();
+      this.emit("close");
+    };
+    CombinedStream.prototype._reset = function() {
+      this.writable = false;
+      this._streams = [];
+      this._currentStream = null;
+    };
+    CombinedStream.prototype._checkDataSize = function() {
+      this._updateDataSize();
+      if (this.dataSize <= this.maxDataSize) {
+        return;
+      }
+      var message = "DelayedStream#maxDataSize of " + this.maxDataSize + " bytes exceeded.";
+      this._emitError(new Error(message));
+    };
+    CombinedStream.prototype._updateDataSize = function() {
+      this.dataSize = 0;
+      var self2 = this;
+      this._streams.forEach(function(stream) {
+        if (!stream.dataSize) {
+          return;
+        }
+        self2.dataSize += stream.dataSize;
+      });
+      if (this._currentStream && this._currentStream.dataSize) {
+        this.dataSize += this._currentStream.dataSize;
+      }
+    };
+    CombinedStream.prototype._emitError = function(err) {
+      this._reset();
+      this.emit("error", err);
+    };
+  }
+});
+
+// ../../node_modules/.pnpm/mime-db@1.52.0/node_modules/mime-db/db.json
+var require_db2 = __commonJS({
+  "../../node_modules/.pnpm/mime-db@1.52.0/node_modules/mime-db/db.json"(exports, module) {
+    module.exports = {
+      "application/1d-interleaved-parityfec": {
+        source: "iana"
+      },
+      "application/3gpdash-qoe-report+xml": {
+        source: "iana",
+        charset: "UTF-8",
+        compressible: true
+      },
+      "application/3gpp-ims+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/3gpphal+json": {
+        source: "iana",
+        compressible: true
+      },
+      "application/3gpphalforms+json": {
+        source: "iana",
+        compressible: true
+      },
+      "application/a2l": {
+        source: "iana"
+      },
+      "application/ace+cbor": {
+        source: "iana"
+      },
+      "application/activemessage": {
+        source: "iana"
+      },
+      "application/activity+json": {
+        source: "iana",
+        compressible: true
+      },
+      "application/alto-costmap+json": {
+        source: "iana",
+        compressible: true
+      },
+      "application/alto-costmapfilter+json": {
+        source: "iana",
+        compressible: true
+      },
+      "application/alto-directory+json": {
+        source: "iana",
+        compressible: true
+      },
+      "application/alto-endpointcost+json": {
+        source: "iana",
+        compressible: true
+      },
+      "application/alto-endpointcostparams+json": {
+        source: "iana",
+        compressible: true
+      },
+      "application/alto-endpointprop+json": {
+        source: "iana",
+        compressible: true
+      },
+      "application/alto-endpointpropparams+json": {
+        source: "iana",
+        compressible: true
+      },
+      "application/alto-error+json": {
+        source: "iana",
+        compressible: true
+      },
+      "application/alto-networkmap+json": {
+        source: "iana",
+        compressible: true
+      },
+      "application/alto-networkmapfilter+json": {
+        source: "iana",
+        compressible: true
+      },
+      "application/alto-updatestreamcontrol+json": {
+        source: "iana",
+        compressible: true
+      },
+      "application/alto-updatestreamparams+json": {
+        source: "iana",
+        compressible: true
+      },
+      "application/aml": {
+        source: "iana"
+      },
+      "application/andrew-inset": {
+        source: "iana",
+        extensions: ["ez"]
+      },
+      "application/applefile": {
+        source: "iana"
+      },
+      "application/applixware": {
+        source: "apache",
+        extensions: ["aw"]
+      },
+      "application/at+jwt": {
+        source: "iana"
+      },
+      "application/atf": {
+        source: "iana"
+      },
+      "application/atfx": {
+        source: "iana"
+      },
+      "application/atom+xml": {
+        source: "iana",
+        compressible: true,
+        extensions: ["atom"]
+      },
+      "application/atomcat+xml": {
+        source: "iana",
+        compressible: true,
+        extensions: ["atomcat"]
+      },
+      "application/atomdeleted+xml": {
+        source: "iana",
+        compressible: true,
+        extensions: ["atomdeleted"]
+      },
+      "application/atomicmail": {
+        source: "iana"
+      },
+      "application/atomsvc+xml": {
+        source: "iana",
+        compressible: true,
+        extensions: ["atomsvc"]
+      },
+      "application/atsc-dwd+xml": {
+        source: "iana",
+        compressible: true,
+        extensions: ["dwd"]
+      },
+      "application/atsc-dynamic-event-message": {
+        source: "iana"
+      },
+      "application/atsc-held+xml": {
+        source: "iana",
+        compressible: true,
+        extensions: ["held"]
+      },
+      "application/atsc-rdt+json": {
+        source: "iana",
+        compressible: true
+      },
+      "application/atsc-rsat+xml": {
+        source: "iana",
+        compressible: true,
+        extensions: ["rsat"]
+      },
+      "application/atxml": {
+        source: "iana"
+      },
+      "application/auth-policy+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/bacnet-xdd+zip": {
+        source: "iana",
+        compressible: false
+      },
+      "application/batch-smtp": {
+        source: "iana"
+      },
+      "application/bdoc": {
+        compressible: false,
+        extensions: ["bdoc"]
+      },
+      "application/beep+xml": {
+        source: "iana",
+        charset: "UTF-8",
+        compressible: true
+      },
+      "application/calendar+json": {
+        source: "iana",
+        compressible: true
+      },
+      "application/calendar+xml": {
+        source: "iana",
+        compressible: true,
+        extensions: ["xcs"]
+      },
+      "application/call-completion": {
+        source: "iana"
+      },
+      "application/cals-1840": {
+        source: "iana"
+      },
+      "application/captive+json": {
+        source: "iana",
+        compressible: true
+      },
+      "application/cbor": {
+        source: "iana"
+      },
+      "application/cbor-seq": {
+        source: "iana"
+      },
+      "application/cccex": {
+        source: "iana"
+      },
+      "application/ccmp+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/ccxml+xml": {
+        source: "iana",
+        compressible: true,
+        extensions: ["ccxml"]
+      },
+      "application/cdfx+xml": {
+        source: "iana",
+        compressible: true,
+        extensions: ["cdfx"]
+      },
+      "application/cdmi-capability": {
+        source: "iana",
+        extensions: ["cdmia"]
+      },
+      "application/cdmi-container": {
+        source: "iana",
+        extensions: ["cdmic"]
+      },
+      "application/cdmi-domain": {
+        source: "iana",
+        extensions: ["cdmid"]
+      },
+      "application/cdmi-object": {
+        source: "iana",
+        extensions: ["cdmio"]
+      },
+      "application/cdmi-queue": {
+        source: "iana",
+        extensions: ["cdmiq"]
+      },
+      "application/cdni": {
+        source: "iana"
+      },
+      "application/cea": {
+        source: "iana"
+      },
+      "application/cea-2018+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/cellml+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/cfw": {
+        source: "iana"
+      },
+      "application/city+json": {
+        source: "iana",
+        compressible: true
+      },
+      "application/clr": {
+        source: "iana"
+      },
+      "application/clue+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/clue_info+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/cms": {
+        source: "iana"
+      },
+      "application/cnrp+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/coap-group+json": {
+        source: "iana",
+        compressible: true
+      },
+      "application/coap-payload": {
+        source: "iana"
+      },
+      "application/commonground": {
+        source: "iana"
+      },
+      "application/conference-info+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/cose": {
+        source: "iana"
+      },
+      "application/cose-key": {
+        source: "iana"
+      },
+      "application/cose-key-set": {
+        source: "iana"
+      },
+      "application/cpl+xml": {
+        source: "iana",
+        compressible: true,
+        extensions: ["cpl"]
+      },
+      "application/csrattrs": {
+        source: "iana"
+      },
+      "application/csta+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/cstadata+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/csvm+json": {
+        source: "iana",
+        compressible: true
+      },
+      "application/cu-seeme": {
+        source: "apache",
+        extensions: ["cu"]
+      },
+      "application/cwt": {
+        source: "iana"
+      },
+      "application/cybercash": {
+        source: "iana"
+      },
+      "application/dart": {
+        compressible: true
+      },
+      "application/dash+xml": {
+        source: "iana",
+        compressible: true,
+        extensions: ["mpd"]
+      },
+      "application/dash-patch+xml": {
+        source: "iana",
+        compressible: true,
+        extensions: ["mpp"]
+      },
+      "application/dashdelta": {
+        source: "iana"
+      },
+      "application/davmount+xml": {
+        source: "iana",
+        compressible: true,
+        extensions: ["davmount"]
+      },
+      "application/dca-rft": {
+        source: "iana"
+      },
+      "application/dcd": {
+        source: "iana"
+      },
+      "application/dec-dx": {
+        source: "iana"
+      },
+      "application/dialog-info+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/dicom": {
+        source: "iana"
+      },
+      "application/dicom+json": {
+        source: "iana",
+        compressible: true
+      },
+      "application/dicom+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/dii": {
+        source: "iana"
+      },
+      "application/dit": {
+        source: "iana"
+      },
+      "application/dns": {
+        source: "iana"
+      },
+      "application/dns+json": {
+        source: "iana",
+        compressible: true
+      },
+      "application/dns-message": {
+        source: "iana"
+      },
+      "application/docbook+xml": {
+        source: "apache",
+        compressible: true,
+        extensions: ["dbk"]
+      },
+      "application/dots+cbor": {
+        source: "iana"
+      },
+      "application/dskpp+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/dssc+der": {
+        source: "iana",
+        extensions: ["dssc"]
+      },
+      "application/dssc+xml": {
+        source: "iana",
+        compressible: true,
+        extensions: ["xdssc"]
+      },
+      "application/dvcs": {
+        source: "iana"
+      },
+      "application/ecmascript": {
+        source: "iana",
+        compressible: true,
+        extensions: ["es", "ecma"]
+      },
+      "application/edi-consent": {
+        source: "iana"
+      },
+      "application/edi-x12": {
+        source: "iana",
+        compressible: false
+      },
+      "application/edifact": {
+        source: "iana",
+        compressible: false
+      },
+      "application/efi": {
+        source: "iana"
+      },
+      "application/elm+json": {
+        source: "iana",
+        charset: "UTF-8",
+        compressible: true
+      },
+      "application/elm+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/emergencycalldata.cap+xml": {
+        source: "iana",
+        charset: "UTF-8",
+        compressible: true
+      },
+      "application/emergencycalldata.comment+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/emergencycalldata.control+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/emergencycalldata.deviceinfo+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/emergencycalldata.ecall.msd": {
+        source: "iana"
+      },
+      "application/emergencycalldata.providerinfo+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/emergencycalldata.serviceinfo+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/emergencycalldata.subscriberinfo+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/emergencycalldata.veds+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/emma+xml": {
+        source: "iana",
+        compressible: true,
+        extensions: ["emma"]
+      },
+      "application/emotionml+xml": {
+        source: "iana",
+        compressible: true,
+        extensions: ["emotionml"]
+      },
+      "application/encaprtp": {
+        source: "iana"
+      },
+      "application/epp+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/epub+zip": {
+        source: "iana",
+        compressible: false,
+        extensions: ["epub"]
+      },
+      "application/eshop": {
+        source: "iana"
+      },
+      "application/exi": {
+        source: "iana",
+        extensions: ["exi"]
+      },
+      "application/expect-ct-report+json": {
+        source: "iana",
+        compressible: true
+      },
+      "application/express": {
+        source: "iana",
+        extensions: ["exp"]
+      },
+      "application/fastinfoset": {
+        source: "iana"
+      },
+      "application/fastsoap": {
+        source: "iana"
+      },
+      "application/fdt+xml": {
+        source: "iana",
+        compressible: true,
+        extensions: ["fdt"]
+      },
+      "application/fhir+json": {
+        source: "iana",
+        charset: "UTF-8",
+        compressible: true
+      },
+      "application/fhir+xml": {
+        source: "iana",
+        charset: "UTF-8",
+        compressible: true
+      },
+      "application/fido.trusted-apps+json": {
+        compressible: true
+      },
+      "application/fits": {
+        source: "iana"
+      },
+      "application/flexfec": {
+        source: "iana"
+      },
+      "application/font-sfnt": {
+        source: "iana"
+      },
+      "application/font-tdpfr": {
+        source: "iana",
+        extensions: ["pfr"]
+      },
+      "application/font-woff": {
+        source: "iana",
+        compressible: false
+      },
+      "application/framework-attributes+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/geo+json": {
+        source: "iana",
+        compressible: true,
+        extensions: ["geojson"]
+      },
+      "application/geo+json-seq": {
+        source: "iana"
+      },
+      "application/geopackage+sqlite3": {
+        source: "iana"
+      },
+      "application/geoxacml+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/gltf-buffer": {
+        source: "iana"
+      },
+      "application/gml+xml": {
+        source: "iana",
+        compressible: true,
+        extensions: ["gml"]
+      },
+      "application/gpx+xml": {
+        source: "apache",
+        compressible: true,
+        extensions: ["gpx"]
+      },
+      "application/gxf": {
+        source: "apache",
+        extensions: ["gxf"]
+      },
+      "application/gzip": {
+        source: "iana",
+        compressible: false,
+        extensions: ["gz"]
+      },
+      "application/h224": {
+        source: "iana"
+      },
+      "application/held+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/hjson": {
+        extensions: ["hjson"]
+      },
+      "application/http": {
+        source: "iana"
+      },
+      "application/hyperstudio": {
+        source: "iana",
+        extensions: ["stk"]
+      },
+      "application/ibe-key-request+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/ibe-pkg-reply+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/ibe-pp-data": {
+        source: "iana"
+      },
+      "application/iges": {
+        source: "iana"
+      },
+      "application/im-iscomposing+xml": {
+        source: "iana",
+        charset: "UTF-8",
+        compressible: true
+      },
+      "application/index": {
+        source: "iana"
+      },
+      "application/index.cmd": {
+        source: "iana"
+      },
+      "application/index.obj": {
+        source: "iana"
+      },
+      "application/index.response": {
+        source: "iana"
+      },
+      "application/index.vnd": {
+        source: "iana"
+      },
+      "application/inkml+xml": {
+        source: "iana",
+        compressible: true,
+        extensions: ["ink", "inkml"]
+      },
+      "application/iotp": {
+        source: "iana"
+      },
+      "application/ipfix": {
+        source: "iana",
+        extensions: ["ipfix"]
+      },
+      "application/ipp": {
+        source: "iana"
+      },
+      "application/isup": {
+        source: "iana"
+      },
+      "application/its+xml": {
+        source: "iana",
+        compressible: true,
+        extensions: ["its"]
+      },
+      "application/java-archive": {
+        source: "apache",
+        compressible: false,
+        extensions: ["jar", "war", "ear"]
+      },
+      "application/java-serialized-object": {
+        source: "apache",
+        compressible: false,
+        extensions: ["ser"]
+      },
+      "application/java-vm": {
+        source: "apache",
+        compressible: false,
+        extensions: ["class"]
+      },
+      "application/javascript": {
+        source: "iana",
+        charset: "UTF-8",
+        compressible: true,
+        extensions: ["js", "mjs"]
+      },
+      "application/jf2feed+json": {
+        source: "iana",
+        compressible: true
+      },
+      "application/jose": {
+        source: "iana"
+      },
+      "application/jose+json": {
+        source: "iana",
+        compressible: true
+      },
+      "application/jrd+json": {
+        source: "iana",
+        compressible: true
+      },
+      "application/jscalendar+json": {
+        source: "iana",
+        compressible: true
+      },
+      "application/json": {
+        source: "iana",
+        charset: "UTF-8",
+        compressible: true,
+        extensions: ["json", "map"]
+      },
+      "application/json-patch+json": {
+        source: "iana",
+        compressible: true
+      },
+      "application/json-seq": {
+        source: "iana"
+      },
+      "application/json5": {
+        extensions: ["json5"]
+      },
+      "application/jsonml+json": {
+        source: "apache",
+        compressible: true,
+        extensions: ["jsonml"]
+      },
+      "application/jwk+json": {
+        source: "iana",
+        compressible: true
+      },
+      "application/jwk-set+json": {
+        source: "iana",
+        compressible: true
+      },
+      "application/jwt": {
+        source: "iana"
+      },
+      "application/kpml-request+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/kpml-response+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/ld+json": {
+        source: "iana",
+        compressible: true,
+        extensions: ["jsonld"]
+      },
+      "application/lgr+xml": {
+        source: "iana",
+        compressible: true,
+        extensions: ["lgr"]
+      },
+      "application/link-format": {
+        source: "iana"
+      },
+      "application/load-control+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/lost+xml": {
+        source: "iana",
+        compressible: true,
+        extensions: ["lostxml"]
+      },
+      "application/lostsync+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/lpf+zip": {
+        source: "iana",
+        compressible: false
+      },
+      "application/lxf": {
+        source: "iana"
+      },
+      "application/mac-binhex40": {
+        source: "iana",
+        extensions: ["hqx"]
+      },
+      "application/mac-compactpro": {
+        source: "apache",
+        extensions: ["cpt"]
+      },
+      "application/macwriteii": {
+        source: "iana"
+      },
+      "application/mads+xml": {
+        source: "iana",
+        compressible: true,
+        extensions: ["mads"]
+      },
+      "application/manifest+json": {
+        source: "iana",
+        charset: "UTF-8",
+        compressible: true,
+        extensions: ["webmanifest"]
+      },
+      "application/marc": {
+        source: "iana",
+        extensions: ["mrc"]
+      },
+      "application/marcxml+xml": {
+        source: "iana",
+        compressible: true,
+        extensions: ["mrcx"]
+      },
+      "application/mathematica": {
+        source: "iana",
+        extensions: ["ma", "nb", "mb"]
+      },
+      "application/mathml+xml": {
+        source: "iana",
+        compressible: true,
+        extensions: ["mathml"]
+      },
+      "application/mathml-content+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/mathml-presentation+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/mbms-associated-procedure-description+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/mbms-deregister+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/mbms-envelope+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/mbms-msk+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/mbms-msk-response+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/mbms-protection-description+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/mbms-reception-report+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/mbms-register+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/mbms-register-response+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/mbms-schedule+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/mbms-user-service-description+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/mbox": {
+        source: "iana",
+        extensions: ["mbox"]
+      },
+      "application/media-policy-dataset+xml": {
+        source: "iana",
+        compressible: true,
+        extensions: ["mpf"]
+      },
+      "application/media_control+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/mediaservercontrol+xml": {
+        source: "iana",
+        compressible: true,
+        extensions: ["mscml"]
+      },
+      "application/merge-patch+json": {
+        source: "iana",
+        compressible: true
+      },
+      "application/metalink+xml": {
+        source: "apache",
+        compressible: true,
+        extensions: ["metalink"]
+      },
+      "application/metalink4+xml": {
+        source: "iana",
+        compressible: true,
+        extensions: ["meta4"]
+      },
+      "application/mets+xml": {
+        source: "iana",
+        compressible: true,
+        extensions: ["mets"]
+      },
+      "application/mf4": {
+        source: "iana"
+      },
+      "application/mikey": {
+        source: "iana"
+      },
+      "application/mipc": {
+        source: "iana"
+      },
+      "application/missing-blocks+cbor-seq": {
+        source: "iana"
+      },
+      "application/mmt-aei+xml": {
+        source: "iana",
+        compressible: true,
+        extensions: ["maei"]
+      },
+      "application/mmt-usd+xml": {
+        source: "iana",
+        compressible: true,
+        extensions: ["musd"]
+      },
+      "application/mods+xml": {
+        source: "iana",
+        compressible: true,
+        extensions: ["mods"]
+      },
+      "application/moss-keys": {
+        source: "iana"
+      },
+      "application/moss-signature": {
+        source: "iana"
+      },
+      "application/mosskey-data": {
+        source: "iana"
+      },
+      "application/mosskey-request": {
+        source: "iana"
+      },
+      "application/mp21": {
+        source: "iana",
+        extensions: ["m21", "mp21"]
+      },
+      "application/mp4": {
+        source: "iana",
+        extensions: ["mp4s", "m4p"]
+      },
+      "application/mpeg4-generic": {
+        source: "iana"
+      },
+      "application/mpeg4-iod": {
+        source: "iana"
+      },
+      "application/mpeg4-iod-xmt": {
+        source: "iana"
+      },
+      "application/mrb-consumer+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/mrb-publish+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/msc-ivr+xml": {
+        source: "iana",
+        charset: "UTF-8",
+        compressible: true
+      },
+      "application/msc-mixer+xml": {
+        source: "iana",
+        charset: "UTF-8",
+        compressible: true
+      },
+      "application/msword": {
+        source: "iana",
+        compressible: false,
+        extensions: ["doc", "dot"]
+      },
+      "application/mud+json": {
+        source: "iana",
+        compressible: true
+      },
+      "application/multipart-core": {
+        source: "iana"
+      },
+      "application/mxf": {
+        source: "iana",
+        extensions: ["mxf"]
+      },
+      "application/n-quads": {
+        source: "iana",
+        extensions: ["nq"]
+      },
+      "application/n-triples": {
+        source: "iana",
+        extensions: ["nt"]
+      },
+      "application/nasdata": {
+        source: "iana"
+      },
+      "application/news-checkgroups": {
+        source: "iana",
+        charset: "US-ASCII"
+      },
+      "application/news-groupinfo": {
+        source: "iana",
+        charset: "US-ASCII"
+      },
+      "application/news-transmission": {
+        source: "iana"
+      },
+      "application/nlsml+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/node": {
+        source: "iana",
+        extensions: ["cjs"]
+      },
+      "application/nss": {
+        source: "iana"
+      },
+      "application/oauth-authz-req+jwt": {
+        source: "iana"
+      },
+      "application/oblivious-dns-message": {
+        source: "iana"
+      },
+      "application/ocsp-request": {
+        source: "iana"
+      },
+      "application/ocsp-response": {
+        source: "iana"
+      },
+      "application/octet-stream": {
+        source: "iana",
+        compressible: false,
+        extensions: ["bin", "dms", "lrf", "mar", "so", "dist", "distz", "pkg", "bpk", "dump", "elc", "deploy", "exe", "dll", "deb", "dmg", "iso", "img", "msi", "msp", "msm", "buffer"]
+      },
+      "application/oda": {
+        source: "iana",
+        extensions: ["oda"]
+      },
+      "application/odm+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/odx": {
+        source: "iana"
+      },
+      "application/oebps-package+xml": {
+        source: "iana",
+        compressible: true,
+        extensions: ["opf"]
+      },
+      "application/ogg": {
+        source: "iana",
+        compressible: false,
+        extensions: ["ogx"]
+      },
+      "application/omdoc+xml": {
+        source: "apache",
+        compressible: true,
+        extensions: ["omdoc"]
+      },
+      "application/onenote": {
+        source: "apache",
+        extensions: ["onetoc", "onetoc2", "onetmp", "onepkg"]
+      },
+      "application/opc-nodeset+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/oscore": {
+        source: "iana"
+      },
+      "application/oxps": {
+        source: "iana",
+        extensions: ["oxps"]
+      },
+      "application/p21": {
+        source: "iana"
+      },
+      "application/p21+zip": {
+        source: "iana",
+        compressible: false
+      },
+      "application/p2p-overlay+xml": {
+        source: "iana",
+        compressible: true,
+        extensions: ["relo"]
+      },
+      "application/parityfec": {
+        source: "iana"
+      },
+      "application/passport": {
+        source: "iana"
+      },
+      "application/patch-ops-error+xml": {
+        source: "iana",
+        compressible: true,
+        extensions: ["xer"]
+      },
+      "application/pdf": {
+        source: "iana",
+        compressible: false,
+        extensions: ["pdf"]
+      },
+      "application/pdx": {
+        source: "iana"
+      },
+      "application/pem-certificate-chain": {
+        source: "iana"
+      },
+      "application/pgp-encrypted": {
+        source: "iana",
+        compressible: false,
+        extensions: ["pgp"]
+      },
+      "application/pgp-keys": {
+        source: "iana",
+        extensions: ["asc"]
+      },
+      "application/pgp-signature": {
+        source: "iana",
+        extensions: ["asc", "sig"]
+      },
+      "application/pics-rules": {
+        source: "apache",
+        extensions: ["prf"]
+      },
+      "application/pidf+xml": {
+        source: "iana",
+        charset: "UTF-8",
+        compressible: true
+      },
+      "application/pidf-diff+xml": {
+        source: "iana",
+        charset: "UTF-8",
+        compressible: true
+      },
+      "application/pkcs10": {
+        source: "iana",
+        extensions: ["p10"]
+      },
+      "application/pkcs12": {
+        source: "iana"
+      },
+      "application/pkcs7-mime": {
+        source: "iana",
+        extensions: ["p7m", "p7c"]
+      },
+      "application/pkcs7-signature": {
+        source: "iana",
+        extensions: ["p7s"]
+      },
+      "application/pkcs8": {
+        source: "iana",
+        extensions: ["p8"]
+      },
+      "application/pkcs8-encrypted": {
+        source: "iana"
+      },
+      "application/pkix-attr-cert": {
+        source: "iana",
+        extensions: ["ac"]
+      },
+      "application/pkix-cert": {
+        source: "iana",
+        extensions: ["cer"]
+      },
+      "application/pkix-crl": {
+        source: "iana",
+        extensions: ["crl"]
+      },
+      "application/pkix-pkipath": {
+        source: "iana",
+        extensions: ["pkipath"]
+      },
+      "application/pkixcmp": {
+        source: "iana",
+        extensions: ["pki"]
+      },
+      "application/pls+xml": {
+        source: "iana",
+        compressible: true,
+        extensions: ["pls"]
+      },
+      "application/poc-settings+xml": {
+        source: "iana",
+        charset: "UTF-8",
+        compressible: true
+      },
+      "application/postscript": {
+        source: "iana",
+        compressible: true,
+        extensions: ["ai", "eps", "ps"]
+      },
+      "application/ppsp-tracker+json": {
+        source: "iana",
+        compressible: true
+      },
+      "application/problem+json": {
+        source: "iana",
+        compressible: true
+      },
+      "application/problem+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/provenance+xml": {
+        source: "iana",
+        compressible: true,
+        extensions: ["provx"]
+      },
+      "application/prs.alvestrand.titrax-sheet": {
+        source: "iana"
+      },
+      "application/prs.cww": {
+        source: "iana",
+        extensions: ["cww"]
+      },
+      "application/prs.cyn": {
+        source: "iana",
+        charset: "7-BIT"
+      },
+      "application/prs.hpub+zip": {
+        source: "iana",
+        compressible: false
+      },
+      "application/prs.nprend": {
+        source: "iana"
+      },
+      "application/prs.plucker": {
+        source: "iana"
+      },
+      "application/prs.rdf-xml-crypt": {
+        source: "iana"
+      },
+      "application/prs.xsf+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/pskc+xml": {
+        source: "iana",
+        compressible: true,
+        extensions: ["pskcxml"]
+      },
+      "application/pvd+json": {
+        source: "iana",
+        compressible: true
+      },
+      "application/qsig": {
+        source: "iana"
+      },
+      "application/raml+yaml": {
+        compressible: true,
+        extensions: ["raml"]
+      },
+      "application/raptorfec": {
+        source: "iana"
+      },
+      "application/rdap+json": {
+        source: "iana",
+        compressible: true
+      },
+      "application/rdf+xml": {
+        source: "iana",
+        compressible: true,
+        extensions: ["rdf", "owl"]
+      },
+      "application/reginfo+xml": {
+        source: "iana",
+        compressible: true,
+        extensions: ["rif"]
+      },
+      "application/relax-ng-compact-syntax": {
+        source: "iana",
+        extensions: ["rnc"]
+      },
+      "application/remote-printing": {
+        source: "iana"
+      },
+      "application/reputon+json": {
+        source: "iana",
+        compressible: true
+      },
+      "application/resource-lists+xml": {
+        source: "iana",
+        compressible: true,
+        extensions: ["rl"]
+      },
+      "application/resource-lists-diff+xml": {
+        source: "iana",
+        compressible: true,
+        extensions: ["rld"]
+      },
+      "application/rfc+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/riscos": {
+        source: "iana"
+      },
+      "application/rlmi+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/rls-services+xml": {
+        source: "iana",
+        compressible: true,
+        extensions: ["rs"]
+      },
+      "application/route-apd+xml": {
+        source: "iana",
+        compressible: true,
+        extensions: ["rapd"]
+      },
+      "application/route-s-tsid+xml": {
+        source: "iana",
+        compressible: true,
+        extensions: ["sls"]
+      },
+      "application/route-usd+xml": {
+        source: "iana",
+        compressible: true,
+        extensions: ["rusd"]
+      },
+      "application/rpki-ghostbusters": {
+        source: "iana",
+        extensions: ["gbr"]
+      },
+      "application/rpki-manifest": {
+        source: "iana",
+        extensions: ["mft"]
+      },
+      "application/rpki-publication": {
+        source: "iana"
+      },
+      "application/rpki-roa": {
+        source: "iana",
+        extensions: ["roa"]
+      },
+      "application/rpki-updown": {
+        source: "iana"
+      },
+      "application/rsd+xml": {
+        source: "apache",
+        compressible: true,
+        extensions: ["rsd"]
+      },
+      "application/rss+xml": {
+        source: "apache",
+        compressible: true,
+        extensions: ["rss"]
+      },
+      "application/rtf": {
+        source: "iana",
+        compressible: true,
+        extensions: ["rtf"]
+      },
+      "application/rtploopback": {
+        source: "iana"
+      },
+      "application/rtx": {
+        source: "iana"
+      },
+      "application/samlassertion+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/samlmetadata+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/sarif+json": {
+        source: "iana",
+        compressible: true
+      },
+      "application/sarif-external-properties+json": {
+        source: "iana",
+        compressible: true
+      },
+      "application/sbe": {
+        source: "iana"
+      },
+      "application/sbml+xml": {
+        source: "iana",
+        compressible: true,
+        extensions: ["sbml"]
+      },
+      "application/scaip+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/scim+json": {
+        source: "iana",
+        compressible: true
+      },
+      "application/scvp-cv-request": {
+        source: "iana",
+        extensions: ["scq"]
+      },
+      "application/scvp-cv-response": {
+        source: "iana",
+        extensions: ["scs"]
+      },
+      "application/scvp-vp-request": {
+        source: "iana",
+        extensions: ["spq"]
+      },
+      "application/scvp-vp-response": {
+        source: "iana",
+        extensions: ["spp"]
+      },
+      "application/sdp": {
+        source: "iana",
+        extensions: ["sdp"]
+      },
+      "application/secevent+jwt": {
+        source: "iana"
+      },
+      "application/senml+cbor": {
+        source: "iana"
+      },
+      "application/senml+json": {
+        source: "iana",
+        compressible: true
+      },
+      "application/senml+xml": {
+        source: "iana",
+        compressible: true,
+        extensions: ["senmlx"]
+      },
+      "application/senml-etch+cbor": {
+        source: "iana"
+      },
+      "application/senml-etch+json": {
+        source: "iana",
+        compressible: true
+      },
+      "application/senml-exi": {
+        source: "iana"
+      },
+      "application/sensml+cbor": {
+        source: "iana"
+      },
+      "application/sensml+json": {
+        source: "iana",
+        compressible: true
+      },
+      "application/sensml+xml": {
+        source: "iana",
+        compressible: true,
+        extensions: ["sensmlx"]
+      },
+      "application/sensml-exi": {
+        source: "iana"
+      },
+      "application/sep+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/sep-exi": {
+        source: "iana"
+      },
+      "application/session-info": {
+        source: "iana"
+      },
+      "application/set-payment": {
+        source: "iana"
+      },
+      "application/set-payment-initiation": {
+        source: "iana",
+        extensions: ["setpay"]
+      },
+      "application/set-registration": {
+        source: "iana"
+      },
+      "application/set-registration-initiation": {
+        source: "iana",
+        extensions: ["setreg"]
+      },
+      "application/sgml": {
+        source: "iana"
+      },
+      "application/sgml-open-catalog": {
+        source: "iana"
+      },
+      "application/shf+xml": {
+        source: "iana",
+        compressible: true,
+        extensions: ["shf"]
+      },
+      "application/sieve": {
+        source: "iana",
+        extensions: ["siv", "sieve"]
+      },
+      "application/simple-filter+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/simple-message-summary": {
+        source: "iana"
+      },
+      "application/simplesymbolcontainer": {
+        source: "iana"
+      },
+      "application/sipc": {
+        source: "iana"
+      },
+      "application/slate": {
+        source: "iana"
+      },
+      "application/smil": {
+        source: "iana"
+      },
+      "application/smil+xml": {
+        source: "iana",
+        compressible: true,
+        extensions: ["smi", "smil"]
+      },
+      "application/smpte336m": {
+        source: "iana"
+      },
+      "application/soap+fastinfoset": {
+        source: "iana"
+      },
+      "application/soap+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/sparql-query": {
+        source: "iana",
+        extensions: ["rq"]
+      },
+      "application/sparql-results+xml": {
+        source: "iana",
+        compressible: true,
+        extensions: ["srx"]
+      },
+      "application/spdx+json": {
+        source: "iana",
+        compressible: true
+      },
+      "application/spirits-event+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/sql": {
+        source: "iana"
+      },
+      "application/srgs": {
+        source: "iana",
+        extensions: ["gram"]
+      },
+      "application/srgs+xml": {
+        source: "iana",
+        compressible: true,
+        extensions: ["grxml"]
+      },
+      "application/sru+xml": {
+        source: "iana",
+        compressible: true,
+        extensions: ["sru"]
+      },
+      "application/ssdl+xml": {
+        source: "apache",
+        compressible: true,
+        extensions: ["ssdl"]
+      },
+      "application/ssml+xml": {
+        source: "iana",
+        compressible: true,
+        extensions: ["ssml"]
+      },
+      "application/stix+json": {
+        source: "iana",
+        compressible: true
+      },
+      "application/swid+xml": {
+        source: "iana",
+        compressible: true,
+        extensions: ["swidtag"]
+      },
+      "application/tamp-apex-update": {
+        source: "iana"
+      },
+      "application/tamp-apex-update-confirm": {
+        source: "iana"
+      },
+      "application/tamp-community-update": {
+        source: "iana"
+      },
+      "application/tamp-community-update-confirm": {
+        source: "iana"
+      },
+      "application/tamp-error": {
+        source: "iana"
+      },
+      "application/tamp-sequence-adjust": {
+        source: "iana"
+      },
+      "application/tamp-sequence-adjust-confirm": {
+        source: "iana"
+      },
+      "application/tamp-status-query": {
+        source: "iana"
+      },
+      "application/tamp-status-response": {
+        source: "iana"
+      },
+      "application/tamp-update": {
+        source: "iana"
+      },
+      "application/tamp-update-confirm": {
+        source: "iana"
+      },
+      "application/tar": {
+        compressible: true
+      },
+      "application/taxii+json": {
+        source: "iana",
+        compressible: true
+      },
+      "application/td+json": {
+        source: "iana",
+        compressible: true
+      },
+      "application/tei+xml": {
+        source: "iana",
+        compressible: true,
+        extensions: ["tei", "teicorpus"]
+      },
+      "application/tetra_isi": {
+        source: "iana"
+      },
+      "application/thraud+xml": {
+        source: "iana",
+        compressible: true,
+        extensions: ["tfi"]
+      },
+      "application/timestamp-query": {
+        source: "iana"
+      },
+      "application/timestamp-reply": {
+        source: "iana"
+      },
+      "application/timestamped-data": {
+        source: "iana",
+        extensions: ["tsd"]
+      },
+      "application/tlsrpt+gzip": {
+        source: "iana"
+      },
+      "application/tlsrpt+json": {
+        source: "iana",
+        compressible: true
+      },
+      "application/tnauthlist": {
+        source: "iana"
+      },
+      "application/token-introspection+jwt": {
+        source: "iana"
+      },
+      "application/toml": {
+        compressible: true,
+        extensions: ["toml"]
+      },
+      "application/trickle-ice-sdpfrag": {
+        source: "iana"
+      },
+      "application/trig": {
+        source: "iana",
+        extensions: ["trig"]
+      },
+      "application/ttml+xml": {
+        source: "iana",
+        compressible: true,
+        extensions: ["ttml"]
+      },
+      "application/tve-trigger": {
+        source: "iana"
+      },
+      "application/tzif": {
+        source: "iana"
+      },
+      "application/tzif-leap": {
+        source: "iana"
+      },
+      "application/ubjson": {
+        compressible: false,
+        extensions: ["ubj"]
+      },
+      "application/ulpfec": {
+        source: "iana"
+      },
+      "application/urc-grpsheet+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/urc-ressheet+xml": {
+        source: "iana",
+        compressible: true,
+        extensions: ["rsheet"]
+      },
+      "application/urc-targetdesc+xml": {
+        source: "iana",
+        compressible: true,
+        extensions: ["td"]
+      },
+      "application/urc-uisocketdesc+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vcard+json": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vcard+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vemmi": {
+        source: "iana"
+      },
+      "application/vividence.scriptfile": {
+        source: "apache"
+      },
+      "application/vnd.1000minds.decision-model+xml": {
+        source: "iana",
+        compressible: true,
+        extensions: ["1km"]
+      },
+      "application/vnd.3gpp-prose+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.3gpp-prose-pc3ch+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.3gpp-v2x-local-service-information": {
+        source: "iana"
+      },
+      "application/vnd.3gpp.5gnas": {
+        source: "iana"
+      },
+      "application/vnd.3gpp.access-transfer-events+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.3gpp.bsf+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.3gpp.gmop+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.3gpp.gtpc": {
+        source: "iana"
+      },
+      "application/vnd.3gpp.interworking-data": {
+        source: "iana"
+      },
+      "application/vnd.3gpp.lpp": {
+        source: "iana"
+      },
+      "application/vnd.3gpp.mc-signalling-ear": {
+        source: "iana"
+      },
+      "application/vnd.3gpp.mcdata-affiliation-command+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.3gpp.mcdata-info+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.3gpp.mcdata-payload": {
+        source: "iana"
+      },
+      "application/vnd.3gpp.mcdata-service-config+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.3gpp.mcdata-signalling": {
+        source: "iana"
+      },
+      "application/vnd.3gpp.mcdata-ue-config+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.3gpp.mcdata-user-profile+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.3gpp.mcptt-affiliation-command+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.3gpp.mcptt-floor-request+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.3gpp.mcptt-info+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.3gpp.mcptt-location-info+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.3gpp.mcptt-mbms-usage-info+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.3gpp.mcptt-service-config+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.3gpp.mcptt-signed+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.3gpp.mcptt-ue-config+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.3gpp.mcptt-ue-init-config+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.3gpp.mcptt-user-profile+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.3gpp.mcvideo-affiliation-command+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.3gpp.mcvideo-affiliation-info+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.3gpp.mcvideo-info+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.3gpp.mcvideo-location-info+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.3gpp.mcvideo-mbms-usage-info+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.3gpp.mcvideo-service-config+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.3gpp.mcvideo-transmission-request+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.3gpp.mcvideo-ue-config+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.3gpp.mcvideo-user-profile+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.3gpp.mid-call+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.3gpp.ngap": {
+        source: "iana"
+      },
+      "application/vnd.3gpp.pfcp": {
+        source: "iana"
+      },
+      "application/vnd.3gpp.pic-bw-large": {
+        source: "iana",
+        extensions: ["plb"]
+      },
+      "application/vnd.3gpp.pic-bw-small": {
+        source: "iana",
+        extensions: ["psb"]
+      },
+      "application/vnd.3gpp.pic-bw-var": {
+        source: "iana",
+        extensions: ["pvb"]
+      },
+      "application/vnd.3gpp.s1ap": {
+        source: "iana"
+      },
+      "application/vnd.3gpp.sms": {
+        source: "iana"
+      },
+      "application/vnd.3gpp.sms+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.3gpp.srvcc-ext+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.3gpp.srvcc-info+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.3gpp.state-and-event-info+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.3gpp.ussd+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.3gpp2.bcmcsinfo+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.3gpp2.sms": {
+        source: "iana"
+      },
+      "application/vnd.3gpp2.tcap": {
+        source: "iana",
+        extensions: ["tcap"]
+      },
+      "application/vnd.3lightssoftware.imagescal": {
+        source: "iana"
+      },
+      "application/vnd.3m.post-it-notes": {
+        source: "iana",
+        extensions: ["pwn"]
+      },
+      "application/vnd.accpac.simply.aso": {
+        source: "iana",
+        extensions: ["aso"]
+      },
+      "application/vnd.accpac.simply.imp": {
+        source: "iana",
+        extensions: ["imp"]
+      },
+      "application/vnd.acucobol": {
+        source: "iana",
+        extensions: ["acu"]
+      },
+      "application/vnd.acucorp": {
+        source: "iana",
+        extensions: ["atc", "acutc"]
+      },
+      "application/vnd.adobe.air-application-installer-package+zip": {
+        source: "apache",
+        compressible: false,
+        extensions: ["air"]
+      },
+      "application/vnd.adobe.flash.movie": {
+        source: "iana"
+      },
+      "application/vnd.adobe.formscentral.fcdt": {
+        source: "iana",
+        extensions: ["fcdt"]
+      },
+      "application/vnd.adobe.fxp": {
+        source: "iana",
+        extensions: ["fxp", "fxpl"]
+      },
+      "application/vnd.adobe.partial-upload": {
+        source: "iana"
+      },
+      "application/vnd.adobe.xdp+xml": {
+        source: "iana",
+        compressible: true,
+        extensions: ["xdp"]
+      },
+      "application/vnd.adobe.xfdf": {
+        source: "iana",
+        extensions: ["xfdf"]
+      },
+      "application/vnd.aether.imp": {
+        source: "iana"
+      },
+      "application/vnd.afpc.afplinedata": {
+        source: "iana"
+      },
+      "application/vnd.afpc.afplinedata-pagedef": {
+        source: "iana"
+      },
+      "application/vnd.afpc.cmoca-cmresource": {
+        source: "iana"
+      },
+      "application/vnd.afpc.foca-charset": {
+        source: "iana"
+      },
+      "application/vnd.afpc.foca-codedfont": {
+        source: "iana"
+      },
+      "application/vnd.afpc.foca-codepage": {
+        source: "iana"
+      },
+      "application/vnd.afpc.modca": {
+        source: "iana"
+      },
+      "application/vnd.afpc.modca-cmtable": {
+        source: "iana"
+      },
+      "application/vnd.afpc.modca-formdef": {
+        source: "iana"
+      },
+      "application/vnd.afpc.modca-mediummap": {
+        source: "iana"
+      },
+      "application/vnd.afpc.modca-objectcontainer": {
+        source: "iana"
+      },
+      "application/vnd.afpc.modca-overlay": {
+        source: "iana"
+      },
+      "application/vnd.afpc.modca-pagesegment": {
+        source: "iana"
+      },
+      "application/vnd.age": {
+        source: "iana",
+        extensions: ["age"]
+      },
+      "application/vnd.ah-barcode": {
+        source: "iana"
+      },
+      "application/vnd.ahead.space": {
+        source: "iana",
+        extensions: ["ahead"]
+      },
+      "application/vnd.airzip.filesecure.azf": {
+        source: "iana",
+        extensions: ["azf"]
+      },
+      "application/vnd.airzip.filesecure.azs": {
+        source: "iana",
+        extensions: ["azs"]
+      },
+      "application/vnd.amadeus+json": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.amazon.ebook": {
+        source: "apache",
+        extensions: ["azw"]
+      },
+      "application/vnd.amazon.mobi8-ebook": {
+        source: "iana"
+      },
+      "application/vnd.americandynamics.acc": {
+        source: "iana",
+        extensions: ["acc"]
+      },
+      "application/vnd.amiga.ami": {
+        source: "iana",
+        extensions: ["ami"]
+      },
+      "application/vnd.amundsen.maze+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.android.ota": {
+        source: "iana"
+      },
+      "application/vnd.android.package-archive": {
+        source: "apache",
+        compressible: false,
+        extensions: ["apk"]
+      },
+      "application/vnd.anki": {
+        source: "iana"
+      },
+      "application/vnd.anser-web-certificate-issue-initiation": {
+        source: "iana",
+        extensions: ["cii"]
+      },
+      "application/vnd.anser-web-funds-transfer-initiation": {
+        source: "apache",
+        extensions: ["fti"]
+      },
+      "application/vnd.antix.game-component": {
+        source: "iana",
+        extensions: ["atx"]
+      },
+      "application/vnd.apache.arrow.file": {
+        source: "iana"
+      },
+      "application/vnd.apache.arrow.stream": {
+        source: "iana"
+      },
+      "application/vnd.apache.thrift.binary": {
+        source: "iana"
+      },
+      "application/vnd.apache.thrift.compact": {
+        source: "iana"
+      },
+      "application/vnd.apache.thrift.json": {
+        source: "iana"
+      },
+      "application/vnd.api+json": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.aplextor.warrp+json": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.apothekende.reservation+json": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.apple.installer+xml": {
+        source: "iana",
+        compressible: true,
+        extensions: ["mpkg"]
+      },
+      "application/vnd.apple.keynote": {
+        source: "iana",
+        extensions: ["key"]
+      },
+      "application/vnd.apple.mpegurl": {
+        source: "iana",
+        extensions: ["m3u8"]
+      },
+      "application/vnd.apple.numbers": {
+        source: "iana",
+        extensions: ["numbers"]
+      },
+      "application/vnd.apple.pages": {
+        source: "iana",
+        extensions: ["pages"]
+      },
+      "application/vnd.apple.pkpass": {
+        compressible: false,
+        extensions: ["pkpass"]
+      },
+      "application/vnd.arastra.swi": {
+        source: "iana"
+      },
+      "application/vnd.aristanetworks.swi": {
+        source: "iana",
+        extensions: ["swi"]
+      },
+      "application/vnd.artisan+json": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.artsquare": {
+        source: "iana"
+      },
+      "application/vnd.astraea-software.iota": {
+        source: "iana",
+        extensions: ["iota"]
+      },
+      "application/vnd.audiograph": {
+        source: "iana",
+        extensions: ["aep"]
+      },
+      "application/vnd.autopackage": {
+        source: "iana"
+      },
+      "application/vnd.avalon+json": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.avistar+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.balsamiq.bmml+xml": {
+        source: "iana",
+        compressible: true,
+        extensions: ["bmml"]
+      },
+      "application/vnd.balsamiq.bmpr": {
+        source: "iana"
+      },
+      "application/vnd.banana-accounting": {
+        source: "iana"
+      },
+      "application/vnd.bbf.usp.error": {
+        source: "iana"
+      },
+      "application/vnd.bbf.usp.msg": {
+        source: "iana"
+      },
+      "application/vnd.bbf.usp.msg+json": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.bekitzur-stech+json": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.bint.med-content": {
+        source: "iana"
+      },
+      "application/vnd.biopax.rdf+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.blink-idb-value-wrapper": {
+        source: "iana"
+      },
+      "application/vnd.blueice.multipass": {
+        source: "iana",
+        extensions: ["mpm"]
+      },
+      "application/vnd.bluetooth.ep.oob": {
+        source: "iana"
+      },
+      "application/vnd.bluetooth.le.oob": {
+        source: "iana"
+      },
+      "application/vnd.bmi": {
+        source: "iana",
+        extensions: ["bmi"]
+      },
+      "application/vnd.bpf": {
+        source: "iana"
+      },
+      "application/vnd.bpf3": {
+        source: "iana"
+      },
+      "application/vnd.businessobjects": {
+        source: "iana",
+        extensions: ["rep"]
+      },
+      "application/vnd.byu.uapi+json": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.cab-jscript": {
+        source: "iana"
+      },
+      "application/vnd.canon-cpdl": {
+        source: "iana"
+      },
+      "application/vnd.canon-lips": {
+        source: "iana"
+      },
+      "application/vnd.capasystems-pg+json": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.cendio.thinlinc.clientconf": {
+        source: "iana"
+      },
+      "application/vnd.century-systems.tcp_stream": {
+        source: "iana"
+      },
+      "application/vnd.chemdraw+xml": {
+        source: "iana",
+        compressible: true,
+        extensions: ["cdxml"]
+      },
+      "application/vnd.chess-pgn": {
+        source: "iana"
+      },
+      "application/vnd.chipnuts.karaoke-mmd": {
+        source: "iana",
+        extensions: ["mmd"]
+      },
+      "application/vnd.ciedi": {
+        source: "iana"
+      },
+      "application/vnd.cinderella": {
+        source: "iana",
+        extensions: ["cdy"]
+      },
+      "application/vnd.cirpack.isdn-ext": {
+        source: "iana"
+      },
+      "application/vnd.citationstyles.style+xml": {
+        source: "iana",
+        compressible: true,
+        extensions: ["csl"]
+      },
+      "application/vnd.claymore": {
+        source: "iana",
+        extensions: ["cla"]
+      },
+      "application/vnd.cloanto.rp9": {
+        source: "iana",
+        extensions: ["rp9"]
+      },
+      "application/vnd.clonk.c4group": {
+        source: "iana",
+        extensions: ["c4g", "c4d", "c4f", "c4p", "c4u"]
+      },
+      "application/vnd.cluetrust.cartomobile-config": {
+        source: "iana",
+        extensions: ["c11amc"]
+      },
+      "application/vnd.cluetrust.cartomobile-config-pkg": {
+        source: "iana",
+        extensions: ["c11amz"]
+      },
+      "application/vnd.coffeescript": {
+        source: "iana"
+      },
+      "application/vnd.collabio.xodocuments.document": {
+        source: "iana"
+      },
+      "application/vnd.collabio.xodocuments.document-template": {
+        source: "iana"
+      },
+      "application/vnd.collabio.xodocuments.presentation": {
+        source: "iana"
+      },
+      "application/vnd.collabio.xodocuments.presentation-template": {
+        source: "iana"
+      },
+      "application/vnd.collabio.xodocuments.spreadsheet": {
+        source: "iana"
+      },
+      "application/vnd.collabio.xodocuments.spreadsheet-template": {
+        source: "iana"
+      },
+      "application/vnd.collection+json": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.collection.doc+json": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.collection.next+json": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.comicbook+zip": {
+        source: "iana",
+        compressible: false
+      },
+      "application/vnd.comicbook-rar": {
+        source: "iana"
+      },
+      "application/vnd.commerce-battelle": {
+        source: "iana"
+      },
+      "application/vnd.commonspace": {
+        source: "iana",
+        extensions: ["csp"]
+      },
+      "application/vnd.contact.cmsg": {
+        source: "iana",
+        extensions: ["cdbcmsg"]
+      },
+      "application/vnd.coreos.ignition+json": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.cosmocaller": {
+        source: "iana",
+        extensions: ["cmc"]
+      },
+      "application/vnd.crick.clicker": {
+        source: "iana",
+        extensions: ["clkx"]
+      },
+      "application/vnd.crick.clicker.keyboard": {
+        source: "iana",
+        extensions: ["clkk"]
+      },
+      "application/vnd.crick.clicker.palette": {
+        source: "iana",
+        extensions: ["clkp"]
+      },
+      "application/vnd.crick.clicker.template": {
+        source: "iana",
+        extensions: ["clkt"]
+      },
+      "application/vnd.crick.clicker.wordbank": {
+        source: "iana",
+        extensions: ["clkw"]
+      },
+      "application/vnd.criticaltools.wbs+xml": {
+        source: "iana",
+        compressible: true,
+        extensions: ["wbs"]
+      },
+      "application/vnd.cryptii.pipe+json": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.crypto-shade-file": {
+        source: "iana"
+      },
+      "application/vnd.cryptomator.encrypted": {
+        source: "iana"
+      },
+      "application/vnd.cryptomator.vault": {
+        source: "iana"
+      },
+      "application/vnd.ctc-posml": {
+        source: "iana",
+        extensions: ["pml"]
+      },
+      "application/vnd.ctct.ws+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.cups-pdf": {
+        source: "iana"
+      },
+      "application/vnd.cups-postscript": {
+        source: "iana"
+      },
+      "application/vnd.cups-ppd": {
+        source: "iana",
+        extensions: ["ppd"]
+      },
+      "application/vnd.cups-raster": {
+        source: "iana"
+      },
+      "application/vnd.cups-raw": {
+        source: "iana"
+      },
+      "application/vnd.curl": {
+        source: "iana"
+      },
+      "application/vnd.curl.car": {
+        source: "apache",
+        extensions: ["car"]
+      },
+      "application/vnd.curl.pcurl": {
+        source: "apache",
+        extensions: ["pcurl"]
+      },
+      "application/vnd.cyan.dean.root+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.cybank": {
+        source: "iana"
+      },
+      "application/vnd.cyclonedx+json": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.cyclonedx+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.d2l.coursepackage1p0+zip": {
+        source: "iana",
+        compressible: false
+      },
+      "application/vnd.d3m-dataset": {
+        source: "iana"
+      },
+      "application/vnd.d3m-problem": {
+        source: "iana"
+      },
+      "application/vnd.dart": {
+        source: "iana",
+        compressible: true,
+        extensions: ["dart"]
+      },
+      "application/vnd.data-vision.rdz": {
+        source: "iana",
+        extensions: ["rdz"]
+      },
+      "application/vnd.datapackage+json": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.dataresource+json": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.dbf": {
+        source: "iana",
+        extensions: ["dbf"]
+      },
+      "application/vnd.debian.binary-package": {
+        source: "iana"
+      },
+      "application/vnd.dece.data": {
+        source: "iana",
+        extensions: ["uvf", "uvvf", "uvd", "uvvd"]
+      },
+      "application/vnd.dece.ttml+xml": {
+        source: "iana",
+        compressible: true,
+        extensions: ["uvt", "uvvt"]
+      },
+      "application/vnd.dece.unspecified": {
+        source: "iana",
+        extensions: ["uvx", "uvvx"]
+      },
+      "application/vnd.dece.zip": {
+        source: "iana",
+        extensions: ["uvz", "uvvz"]
+      },
+      "application/vnd.denovo.fcselayout-link": {
+        source: "iana",
+        extensions: ["fe_launch"]
+      },
+      "application/vnd.desmume.movie": {
+        source: "iana"
+      },
+      "application/vnd.dir-bi.plate-dl-nosuffix": {
+        source: "iana"
+      },
+      "application/vnd.dm.delegation+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.dna": {
+        source: "iana",
+        extensions: ["dna"]
+      },
+      "application/vnd.document+json": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.dolby.mlp": {
+        source: "apache",
+        extensions: ["mlp"]
+      },
+      "application/vnd.dolby.mobile.1": {
+        source: "iana"
+      },
+      "application/vnd.dolby.mobile.2": {
+        source: "iana"
+      },
+      "application/vnd.doremir.scorecloud-binary-document": {
+        source: "iana"
+      },
+      "application/vnd.dpgraph": {
+        source: "iana",
+        extensions: ["dpg"]
+      },
+      "application/vnd.dreamfactory": {
+        source: "iana",
+        extensions: ["dfac"]
+      },
+      "application/vnd.drive+json": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.ds-keypoint": {
+        source: "apache",
+        extensions: ["kpxx"]
+      },
+      "application/vnd.dtg.local": {
+        source: "iana"
+      },
+      "application/vnd.dtg.local.flash": {
+        source: "iana"
+      },
+      "application/vnd.dtg.local.html": {
+        source: "iana"
+      },
+      "application/vnd.dvb.ait": {
+        source: "iana",
+        extensions: ["ait"]
+      },
+      "application/vnd.dvb.dvbisl+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.dvb.dvbj": {
+        source: "iana"
+      },
+      "application/vnd.dvb.esgcontainer": {
+        source: "iana"
+      },
+      "application/vnd.dvb.ipdcdftnotifaccess": {
+        source: "iana"
+      },
+      "application/vnd.dvb.ipdcesgaccess": {
+        source: "iana"
+      },
+      "application/vnd.dvb.ipdcesgaccess2": {
+        source: "iana"
+      },
+      "application/vnd.dvb.ipdcesgpdd": {
+        source: "iana"
+      },
+      "application/vnd.dvb.ipdcroaming": {
+        source: "iana"
+      },
+      "application/vnd.dvb.iptv.alfec-base": {
+        source: "iana"
+      },
+      "application/vnd.dvb.iptv.alfec-enhancement": {
+        source: "iana"
+      },
+      "application/vnd.dvb.notif-aggregate-root+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.dvb.notif-container+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.dvb.notif-generic+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.dvb.notif-ia-msglist+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.dvb.notif-ia-registration-request+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.dvb.notif-ia-registration-response+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.dvb.notif-init+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.dvb.pfr": {
+        source: "iana"
+      },
+      "application/vnd.dvb.service": {
+        source: "iana",
+        extensions: ["svc"]
+      },
+      "application/vnd.dxr": {
+        source: "iana"
+      },
+      "application/vnd.dynageo": {
+        source: "iana",
+        extensions: ["geo"]
+      },
+      "application/vnd.dzr": {
+        source: "iana"
+      },
+      "application/vnd.easykaraoke.cdgdownload": {
+        source: "iana"
+      },
+      "application/vnd.ecdis-update": {
+        source: "iana"
+      },
+      "application/vnd.ecip.rlp": {
+        source: "iana"
+      },
+      "application/vnd.eclipse.ditto+json": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.ecowin.chart": {
+        source: "iana",
+        extensions: ["mag"]
+      },
+      "application/vnd.ecowin.filerequest": {
+        source: "iana"
+      },
+      "application/vnd.ecowin.fileupdate": {
+        source: "iana"
+      },
+      "application/vnd.ecowin.series": {
+        source: "iana"
+      },
+      "application/vnd.ecowin.seriesrequest": {
+        source: "iana"
+      },
+      "application/vnd.ecowin.seriesupdate": {
+        source: "iana"
+      },
+      "application/vnd.efi.img": {
+        source: "iana"
+      },
+      "application/vnd.efi.iso": {
+        source: "iana"
+      },
+      "application/vnd.emclient.accessrequest+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.enliven": {
+        source: "iana",
+        extensions: ["nml"]
+      },
+      "application/vnd.enphase.envoy": {
+        source: "iana"
+      },
+      "application/vnd.eprints.data+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.epson.esf": {
+        source: "iana",
+        extensions: ["esf"]
+      },
+      "application/vnd.epson.msf": {
+        source: "iana",
+        extensions: ["msf"]
+      },
+      "application/vnd.epson.quickanime": {
+        source: "iana",
+        extensions: ["qam"]
+      },
+      "application/vnd.epson.salt": {
+        source: "iana",
+        extensions: ["slt"]
+      },
+      "application/vnd.epson.ssf": {
+        source: "iana",
+        extensions: ["ssf"]
+      },
+      "application/vnd.ericsson.quickcall": {
+        source: "iana"
+      },
+      "application/vnd.espass-espass+zip": {
+        source: "iana",
+        compressible: false
+      },
+      "application/vnd.eszigno3+xml": {
+        source: "iana",
+        compressible: true,
+        extensions: ["es3", "et3"]
+      },
+      "application/vnd.etsi.aoc+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.etsi.asic-e+zip": {
+        source: "iana",
+        compressible: false
+      },
+      "application/vnd.etsi.asic-s+zip": {
+        source: "iana",
+        compressible: false
+      },
+      "application/vnd.etsi.cug+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.etsi.iptvcommand+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.etsi.iptvdiscovery+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.etsi.iptvprofile+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.etsi.iptvsad-bc+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.etsi.iptvsad-cod+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.etsi.iptvsad-npvr+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.etsi.iptvservice+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.etsi.iptvsync+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.etsi.iptvueprofile+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.etsi.mcid+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.etsi.mheg5": {
+        source: "iana"
+      },
+      "application/vnd.etsi.overload-control-policy-dataset+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.etsi.pstn+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.etsi.sci+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.etsi.simservs+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.etsi.timestamp-token": {
+        source: "iana"
+      },
+      "application/vnd.etsi.tsl+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.etsi.tsl.der": {
+        source: "iana"
+      },
+      "application/vnd.eu.kasparian.car+json": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.eudora.data": {
+        source: "iana"
+      },
+      "application/vnd.evolv.ecig.profile": {
+        source: "iana"
+      },
+      "application/vnd.evolv.ecig.settings": {
+        source: "iana"
+      },
+      "application/vnd.evolv.ecig.theme": {
+        source: "iana"
+      },
+      "application/vnd.exstream-empower+zip": {
+        source: "iana",
+        compressible: false
+      },
+      "application/vnd.exstream-package": {
+        source: "iana"
+      },
+      "application/vnd.ezpix-album": {
+        source: "iana",
+        extensions: ["ez2"]
+      },
+      "application/vnd.ezpix-package": {
+        source: "iana",
+        extensions: ["ez3"]
+      },
+      "application/vnd.f-secure.mobile": {
+        source: "iana"
+      },
+      "application/vnd.familysearch.gedcom+zip": {
+        source: "iana",
+        compressible: false
+      },
+      "application/vnd.fastcopy-disk-image": {
+        source: "iana"
+      },
+      "application/vnd.fdf": {
+        source: "iana",
+        extensions: ["fdf"]
+      },
+      "application/vnd.fdsn.mseed": {
+        source: "iana",
+        extensions: ["mseed"]
+      },
+      "application/vnd.fdsn.seed": {
+        source: "iana",
+        extensions: ["seed", "dataless"]
+      },
+      "application/vnd.ffsns": {
+        source: "iana"
+      },
+      "application/vnd.ficlab.flb+zip": {
+        source: "iana",
+        compressible: false
+      },
+      "application/vnd.filmit.zfc": {
+        source: "iana"
+      },
+      "application/vnd.fints": {
+        source: "iana"
+      },
+      "application/vnd.firemonkeys.cloudcell": {
+        source: "iana"
+      },
+      "application/vnd.flographit": {
+        source: "iana",
+        extensions: ["gph"]
+      },
+      "application/vnd.fluxtime.clip": {
+        source: "iana",
+        extensions: ["ftc"]
+      },
+      "application/vnd.font-fontforge-sfd": {
+        source: "iana"
+      },
+      "application/vnd.framemaker": {
+        source: "iana",
+        extensions: ["fm", "frame", "maker", "book"]
+      },
+      "application/vnd.frogans.fnc": {
+        source: "iana",
+        extensions: ["fnc"]
+      },
+      "application/vnd.frogans.ltf": {
+        source: "iana",
+        extensions: ["ltf"]
+      },
+      "application/vnd.fsc.weblaunch": {
+        source: "iana",
+        extensions: ["fsc"]
+      },
+      "application/vnd.fujifilm.fb.docuworks": {
+        source: "iana"
+      },
+      "application/vnd.fujifilm.fb.docuworks.binder": {
+        source: "iana"
+      },
+      "application/vnd.fujifilm.fb.docuworks.container": {
+        source: "iana"
+      },
+      "application/vnd.fujifilm.fb.jfi+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.fujitsu.oasys": {
+        source: "iana",
+        extensions: ["oas"]
+      },
+      "application/vnd.fujitsu.oasys2": {
+        source: "iana",
+        extensions: ["oa2"]
+      },
+      "application/vnd.fujitsu.oasys3": {
+        source: "iana",
+        extensions: ["oa3"]
+      },
+      "application/vnd.fujitsu.oasysgp": {
+        source: "iana",
+        extensions: ["fg5"]
+      },
+      "application/vnd.fujitsu.oasysprs": {
+        source: "iana",
+        extensions: ["bh2"]
+      },
+      "application/vnd.fujixerox.art-ex": {
+        source: "iana"
+      },
+      "application/vnd.fujixerox.art4": {
+        source: "iana"
+      },
+      "application/vnd.fujixerox.ddd": {
+        source: "iana",
+        extensions: ["ddd"]
+      },
+      "application/vnd.fujixerox.docuworks": {
+        source: "iana",
+        extensions: ["xdw"]
+      },
+      "application/vnd.fujixerox.docuworks.binder": {
+        source: "iana",
+        extensions: ["xbd"]
+      },
+      "application/vnd.fujixerox.docuworks.container": {
+        source: "iana"
+      },
+      "application/vnd.fujixerox.hbpl": {
+        source: "iana"
+      },
+      "application/vnd.fut-misnet": {
+        source: "iana"
+      },
+      "application/vnd.futoin+cbor": {
+        source: "iana"
+      },
+      "application/vnd.futoin+json": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.fuzzysheet": {
+        source: "iana",
+        extensions: ["fzs"]
+      },
+      "application/vnd.genomatix.tuxedo": {
+        source: "iana",
+        extensions: ["txd"]
+      },
+      "application/vnd.gentics.grd+json": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.geo+json": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.geocube+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.geogebra.file": {
+        source: "iana",
+        extensions: ["ggb"]
+      },
+      "application/vnd.geogebra.slides": {
+        source: "iana"
+      },
+      "application/vnd.geogebra.tool": {
+        source: "iana",
+        extensions: ["ggt"]
+      },
+      "application/vnd.geometry-explorer": {
+        source: "iana",
+        extensions: ["gex", "gre"]
+      },
+      "application/vnd.geonext": {
+        source: "iana",
+        extensions: ["gxt"]
+      },
+      "application/vnd.geoplan": {
+        source: "iana",
+        extensions: ["g2w"]
+      },
+      "application/vnd.geospace": {
+        source: "iana",
+        extensions: ["g3w"]
+      },
+      "application/vnd.gerber": {
+        source: "iana"
+      },
+      "application/vnd.globalplatform.card-content-mgt": {
+        source: "iana"
+      },
+      "application/vnd.globalplatform.card-content-mgt-response": {
+        source: "iana"
+      },
+      "application/vnd.gmx": {
+        source: "iana",
+        extensions: ["gmx"]
+      },
+      "application/vnd.google-apps.document": {
+        compressible: false,
+        extensions: ["gdoc"]
+      },
+      "application/vnd.google-apps.presentation": {
+        compressible: false,
+        extensions: ["gslides"]
+      },
+      "application/vnd.google-apps.spreadsheet": {
+        compressible: false,
+        extensions: ["gsheet"]
+      },
+      "application/vnd.google-earth.kml+xml": {
+        source: "iana",
+        compressible: true,
+        extensions: ["kml"]
+      },
+      "application/vnd.google-earth.kmz": {
+        source: "iana",
+        compressible: false,
+        extensions: ["kmz"]
+      },
+      "application/vnd.gov.sk.e-form+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.gov.sk.e-form+zip": {
+        source: "iana",
+        compressible: false
+      },
+      "application/vnd.gov.sk.xmldatacontainer+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.grafeq": {
+        source: "iana",
+        extensions: ["gqf", "gqs"]
+      },
+      "application/vnd.gridmp": {
+        source: "iana"
+      },
+      "application/vnd.groove-account": {
+        source: "iana",
+        extensions: ["gac"]
+      },
+      "application/vnd.groove-help": {
+        source: "iana",
+        extensions: ["ghf"]
+      },
+      "application/vnd.groove-identity-message": {
+        source: "iana",
+        extensions: ["gim"]
+      },
+      "application/vnd.groove-injector": {
+        source: "iana",
+        extensions: ["grv"]
+      },
+      "application/vnd.groove-tool-message": {
+        source: "iana",
+        extensions: ["gtm"]
+      },
+      "application/vnd.groove-tool-template": {
+        source: "iana",
+        extensions: ["tpl"]
+      },
+      "application/vnd.groove-vcard": {
+        source: "iana",
+        extensions: ["vcg"]
+      },
+      "application/vnd.hal+json": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.hal+xml": {
+        source: "iana",
+        compressible: true,
+        extensions: ["hal"]
+      },
+      "application/vnd.handheld-entertainment+xml": {
+        source: "iana",
+        compressible: true,
+        extensions: ["zmm"]
+      },
+      "application/vnd.hbci": {
+        source: "iana",
+        extensions: ["hbci"]
+      },
+      "application/vnd.hc+json": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.hcl-bireports": {
+        source: "iana"
+      },
+      "application/vnd.hdt": {
+        source: "iana"
+      },
+      "application/vnd.heroku+json": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.hhe.lesson-player": {
+        source: "iana",
+        extensions: ["les"]
+      },
+      "application/vnd.hl7cda+xml": {
+        source: "iana",
+        charset: "UTF-8",
+        compressible: true
+      },
+      "application/vnd.hl7v2+xml": {
+        source: "iana",
+        charset: "UTF-8",
+        compressible: true
+      },
+      "application/vnd.hp-hpgl": {
+        source: "iana",
+        extensions: ["hpgl"]
+      },
+      "application/vnd.hp-hpid": {
+        source: "iana",
+        extensions: ["hpid"]
+      },
+      "application/vnd.hp-hps": {
+        source: "iana",
+        extensions: ["hps"]
+      },
+      "application/vnd.hp-jlyt": {
+        source: "iana",
+        extensions: ["jlt"]
+      },
+      "application/vnd.hp-pcl": {
+        source: "iana",
+        extensions: ["pcl"]
+      },
+      "application/vnd.hp-pclxl": {
+        source: "iana",
+        extensions: ["pclxl"]
+      },
+      "application/vnd.httphone": {
+        source: "iana"
+      },
+      "application/vnd.hydrostatix.sof-data": {
+        source: "iana",
+        extensions: ["sfd-hdstx"]
+      },
+      "application/vnd.hyper+json": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.hyper-item+json": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.hyperdrive+json": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.hzn-3d-crossword": {
+        source: "iana"
+      },
+      "application/vnd.ibm.afplinedata": {
+        source: "iana"
+      },
+      "application/vnd.ibm.electronic-media": {
+        source: "iana"
+      },
+      "application/vnd.ibm.minipay": {
+        source: "iana",
+        extensions: ["mpy"]
+      },
+      "application/vnd.ibm.modcap": {
+        source: "iana",
+        extensions: ["afp", "listafp", "list3820"]
+      },
+      "application/vnd.ibm.rights-management": {
+        source: "iana",
+        extensions: ["irm"]
+      },
+      "application/vnd.ibm.secure-container": {
+        source: "iana",
+        extensions: ["sc"]
+      },
+      "application/vnd.iccprofile": {
+        source: "iana",
+        extensions: ["icc", "icm"]
+      },
+      "application/vnd.ieee.1905": {
+        source: "iana"
+      },
+      "application/vnd.igloader": {
+        source: "iana",
+        extensions: ["igl"]
+      },
+      "application/vnd.imagemeter.folder+zip": {
+        source: "iana",
+        compressible: false
+      },
+      "application/vnd.imagemeter.image+zip": {
+        source: "iana",
+        compressible: false
+      },
+      "application/vnd.immervision-ivp": {
+        source: "iana",
+        extensions: ["ivp"]
+      },
+      "application/vnd.immervision-ivu": {
+        source: "iana",
+        extensions: ["ivu"]
+      },
+      "application/vnd.ims.imsccv1p1": {
+        source: "iana"
+      },
+      "application/vnd.ims.imsccv1p2": {
+        source: "iana"
+      },
+      "application/vnd.ims.imsccv1p3": {
+        source: "iana"
+      },
+      "application/vnd.ims.lis.v2.result+json": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.ims.lti.v2.toolconsumerprofile+json": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.ims.lti.v2.toolproxy+json": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.ims.lti.v2.toolproxy.id+json": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.ims.lti.v2.toolsettings+json": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.ims.lti.v2.toolsettings.simple+json": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.informedcontrol.rms+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.informix-visionary": {
+        source: "iana"
+      },
+      "application/vnd.infotech.project": {
+        source: "iana"
+      },
+      "application/vnd.infotech.project+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.innopath.wamp.notification": {
+        source: "iana"
+      },
+      "application/vnd.insors.igm": {
+        source: "iana",
+        extensions: ["igm"]
+      },
+      "application/vnd.intercon.formnet": {
+        source: "iana",
+        extensions: ["xpw", "xpx"]
+      },
+      "application/vnd.intergeo": {
+        source: "iana",
+        extensions: ["i2g"]
+      },
+      "application/vnd.intertrust.digibox": {
+        source: "iana"
+      },
+      "application/vnd.intertrust.nncp": {
+        source: "iana"
+      },
+      "application/vnd.intu.qbo": {
+        source: "iana",
+        extensions: ["qbo"]
+      },
+      "application/vnd.intu.qfx": {
+        source: "iana",
+        extensions: ["qfx"]
+      },
+      "application/vnd.iptc.g2.catalogitem+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.iptc.g2.conceptitem+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.iptc.g2.knowledgeitem+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.iptc.g2.newsitem+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.iptc.g2.newsmessage+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.iptc.g2.packageitem+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.iptc.g2.planningitem+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.ipunplugged.rcprofile": {
+        source: "iana",
+        extensions: ["rcprofile"]
+      },
+      "application/vnd.irepository.package+xml": {
+        source: "iana",
+        compressible: true,
+        extensions: ["irp"]
+      },
+      "application/vnd.is-xpr": {
+        source: "iana",
+        extensions: ["xpr"]
+      },
+      "application/vnd.isac.fcs": {
+        source: "iana",
+        extensions: ["fcs"]
+      },
+      "application/vnd.iso11783-10+zip": {
+        source: "iana",
+        compressible: false
+      },
+      "application/vnd.jam": {
+        source: "iana",
+        extensions: ["jam"]
+      },
+      "application/vnd.japannet-directory-service": {
+        source: "iana"
+      },
+      "application/vnd.japannet-jpnstore-wakeup": {
+        source: "iana"
+      },
+      "application/vnd.japannet-payment-wakeup": {
+        source: "iana"
+      },
+      "application/vnd.japannet-registration": {
+        source: "iana"
+      },
+      "application/vnd.japannet-registration-wakeup": {
+        source: "iana"
+      },
+      "application/vnd.japannet-setstore-wakeup": {
+        source: "iana"
+      },
+      "application/vnd.japannet-verification": {
+        source: "iana"
+      },
+      "application/vnd.japannet-verification-wakeup": {
+        source: "iana"
+      },
+      "application/vnd.jcp.javame.midlet-rms": {
+        source: "iana",
+        extensions: ["rms"]
+      },
+      "application/vnd.jisp": {
+        source: "iana",
+        extensions: ["jisp"]
+      },
+      "application/vnd.joost.joda-archive": {
+        source: "iana",
+        extensions: ["joda"]
+      },
+      "application/vnd.jsk.isdn-ngn": {
+        source: "iana"
+      },
+      "application/vnd.kahootz": {
+        source: "iana",
+        extensions: ["ktz", "ktr"]
+      },
+      "application/vnd.kde.karbon": {
+        source: "iana",
+        extensions: ["karbon"]
+      },
+      "application/vnd.kde.kchart": {
+        source: "iana",
+        extensions: ["chrt"]
+      },
+      "application/vnd.kde.kformula": {
+        source: "iana",
+        extensions: ["kfo"]
+      },
+      "application/vnd.kde.kivio": {
+        source: "iana",
+        extensions: ["flw"]
+      },
+      "application/vnd.kde.kontour": {
+        source: "iana",
+        extensions: ["kon"]
+      },
+      "application/vnd.kde.kpresenter": {
+        source: "iana",
+        extensions: ["kpr", "kpt"]
+      },
+      "application/vnd.kde.kspread": {
+        source: "iana",
+        extensions: ["ksp"]
+      },
+      "application/vnd.kde.kword": {
+        source: "iana",
+        extensions: ["kwd", "kwt"]
+      },
+      "application/vnd.kenameaapp": {
+        source: "iana",
+        extensions: ["htke"]
+      },
+      "application/vnd.kidspiration": {
+        source: "iana",
+        extensions: ["kia"]
+      },
+      "application/vnd.kinar": {
+        source: "iana",
+        extensions: ["kne", "knp"]
+      },
+      "application/vnd.koan": {
+        source: "iana",
+        extensions: ["skp", "skd", "skt", "skm"]
+      },
+      "application/vnd.kodak-descriptor": {
+        source: "iana",
+        extensions: ["sse"]
+      },
+      "application/vnd.las": {
+        source: "iana"
+      },
+      "application/vnd.las.las+json": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.las.las+xml": {
+        source: "iana",
+        compressible: true,
+        extensions: ["lasxml"]
+      },
+      "application/vnd.laszip": {
+        source: "iana"
+      },
+      "application/vnd.leap+json": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.liberty-request+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.llamagraphics.life-balance.desktop": {
+        source: "iana",
+        extensions: ["lbd"]
+      },
+      "application/vnd.llamagraphics.life-balance.exchange+xml": {
+        source: "iana",
+        compressible: true,
+        extensions: ["lbe"]
+      },
+      "application/vnd.logipipe.circuit+zip": {
+        source: "iana",
+        compressible: false
+      },
+      "application/vnd.loom": {
+        source: "iana"
+      },
+      "application/vnd.lotus-1-2-3": {
+        source: "iana",
+        extensions: ["123"]
+      },
+      "application/vnd.lotus-approach": {
+        source: "iana",
+        extensions: ["apr"]
+      },
+      "application/vnd.lotus-freelance": {
+        source: "iana",
+        extensions: ["pre"]
+      },
+      "application/vnd.lotus-notes": {
+        source: "iana",
+        extensions: ["nsf"]
+      },
+      "application/vnd.lotus-organizer": {
+        source: "iana",
+        extensions: ["org"]
+      },
+      "application/vnd.lotus-screencam": {
+        source: "iana",
+        extensions: ["scm"]
+      },
+      "application/vnd.lotus-wordpro": {
+        source: "iana",
+        extensions: ["lwp"]
+      },
+      "application/vnd.macports.portpkg": {
+        source: "iana",
+        extensions: ["portpkg"]
+      },
+      "application/vnd.mapbox-vector-tile": {
+        source: "iana",
+        extensions: ["mvt"]
+      },
+      "application/vnd.marlin.drm.actiontoken+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.marlin.drm.conftoken+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.marlin.drm.license+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.marlin.drm.mdcf": {
+        source: "iana"
+      },
+      "application/vnd.mason+json": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.maxar.archive.3tz+zip": {
+        source: "iana",
+        compressible: false
+      },
+      "application/vnd.maxmind.maxmind-db": {
+        source: "iana"
+      },
+      "application/vnd.mcd": {
+        source: "iana",
+        extensions: ["mcd"]
+      },
+      "application/vnd.medcalcdata": {
+        source: "iana",
+        extensions: ["mc1"]
+      },
+      "application/vnd.mediastation.cdkey": {
+        source: "iana",
+        extensions: ["cdkey"]
+      },
+      "application/vnd.meridian-slingshot": {
+        source: "iana"
+      },
+      "application/vnd.mfer": {
+        source: "iana",
+        extensions: ["mwf"]
+      },
+      "application/vnd.mfmp": {
+        source: "iana",
+        extensions: ["mfm"]
+      },
+      "application/vnd.micro+json": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.micrografx.flo": {
+        source: "iana",
+        extensions: ["flo"]
+      },
+      "application/vnd.micrografx.igx": {
+        source: "iana",
+        extensions: ["igx"]
+      },
+      "application/vnd.microsoft.portable-executable": {
+        source: "iana"
+      },
+      "application/vnd.microsoft.windows.thumbnail-cache": {
+        source: "iana"
+      },
+      "application/vnd.miele+json": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.mif": {
+        source: "iana",
+        extensions: ["mif"]
+      },
+      "application/vnd.minisoft-hp3000-save": {
+        source: "iana"
+      },
+      "application/vnd.mitsubishi.misty-guard.trustweb": {
+        source: "iana"
+      },
+      "application/vnd.mobius.daf": {
+        source: "iana",
+        extensions: ["daf"]
+      },
+      "application/vnd.mobius.dis": {
+        source: "iana",
+        extensions: ["dis"]
+      },
+      "application/vnd.mobius.mbk": {
+        source: "iana",
+        extensions: ["mbk"]
+      },
+      "application/vnd.mobius.mqy": {
+        source: "iana",
+        extensions: ["mqy"]
+      },
+      "application/vnd.mobius.msl": {
+        source: "iana",
+        extensions: ["msl"]
+      },
+      "application/vnd.mobius.plc": {
+        source: "iana",
+        extensions: ["plc"]
+      },
+      "application/vnd.mobius.txf": {
+        source: "iana",
+        extensions: ["txf"]
+      },
+      "application/vnd.mophun.application": {
+        source: "iana",
+        extensions: ["mpn"]
+      },
+      "application/vnd.mophun.certificate": {
+        source: "iana",
+        extensions: ["mpc"]
+      },
+      "application/vnd.motorola.flexsuite": {
+        source: "iana"
+      },
+      "application/vnd.motorola.flexsuite.adsi": {
+        source: "iana"
+      },
+      "application/vnd.motorola.flexsuite.fis": {
+        source: "iana"
+      },
+      "application/vnd.motorola.flexsuite.gotap": {
+        source: "iana"
+      },
+      "application/vnd.motorola.flexsuite.kmr": {
+        source: "iana"
+      },
+      "application/vnd.motorola.flexsuite.ttc": {
+        source: "iana"
+      },
+      "application/vnd.motorola.flexsuite.wem": {
+        source: "iana"
+      },
+      "application/vnd.motorola.iprm": {
+        source: "iana"
+      },
+      "application/vnd.mozilla.xul+xml": {
+        source: "iana",
+        compressible: true,
+        extensions: ["xul"]
+      },
+      "application/vnd.ms-3mfdocument": {
+        source: "iana"
+      },
+      "application/vnd.ms-artgalry": {
+        source: "iana",
+        extensions: ["cil"]
+      },
+      "application/vnd.ms-asf": {
+        source: "iana"
+      },
+      "application/vnd.ms-cab-compressed": {
+        source: "iana",
+        extensions: ["cab"]
+      },
+      "application/vnd.ms-color.iccprofile": {
+        source: "apache"
+      },
+      "application/vnd.ms-excel": {
+        source: "iana",
+        compressible: false,
+        extensions: ["xls", "xlm", "xla", "xlc", "xlt", "xlw"]
+      },
+      "application/vnd.ms-excel.addin.macroenabled.12": {
+        source: "iana",
+        extensions: ["xlam"]
+      },
+      "application/vnd.ms-excel.sheet.binary.macroenabled.12": {
+        source: "iana",
+        extensions: ["xlsb"]
+      },
+      "application/vnd.ms-excel.sheet.macroenabled.12": {
+        source: "iana",
+        extensions: ["xlsm"]
+      },
+      "application/vnd.ms-excel.template.macroenabled.12": {
+        source: "iana",
+        extensions: ["xltm"]
+      },
+      "application/vnd.ms-fontobject": {
+        source: "iana",
+        compressible: true,
+        extensions: ["eot"]
+      },
+      "application/vnd.ms-htmlhelp": {
+        source: "iana",
+        extensions: ["chm"]
+      },
+      "application/vnd.ms-ims": {
+        source: "iana",
+        extensions: ["ims"]
+      },
+      "application/vnd.ms-lrm": {
+        source: "iana",
+        extensions: ["lrm"]
+      },
+      "application/vnd.ms-office.activex+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.ms-officetheme": {
+        source: "iana",
+        extensions: ["thmx"]
+      },
+      "application/vnd.ms-opentype": {
+        source: "apache",
+        compressible: true
+      },
+      "application/vnd.ms-outlook": {
+        compressible: false,
+        extensions: ["msg"]
+      },
+      "application/vnd.ms-package.obfuscated-opentype": {
+        source: "apache"
+      },
+      "application/vnd.ms-pki.seccat": {
+        source: "apache",
+        extensions: ["cat"]
+      },
+      "application/vnd.ms-pki.stl": {
+        source: "apache",
+        extensions: ["stl"]
+      },
+      "application/vnd.ms-playready.initiator+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.ms-powerpoint": {
+        source: "iana",
+        compressible: false,
+        extensions: ["ppt", "pps", "pot"]
+      },
+      "application/vnd.ms-powerpoint.addin.macroenabled.12": {
+        source: "iana",
+        extensions: ["ppam"]
+      },
+      "application/vnd.ms-powerpoint.presentation.macroenabled.12": {
+        source: "iana",
+        extensions: ["pptm"]
+      },
+      "application/vnd.ms-powerpoint.slide.macroenabled.12": {
+        source: "iana",
+        extensions: ["sldm"]
+      },
+      "application/vnd.ms-powerpoint.slideshow.macroenabled.12": {
+        source: "iana",
+        extensions: ["ppsm"]
+      },
+      "application/vnd.ms-powerpoint.template.macroenabled.12": {
+        source: "iana",
+        extensions: ["potm"]
+      },
+      "application/vnd.ms-printdevicecapabilities+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.ms-printing.printticket+xml": {
+        source: "apache",
+        compressible: true
+      },
+      "application/vnd.ms-printschematicket+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.ms-project": {
+        source: "iana",
+        extensions: ["mpp", "mpt"]
+      },
+      "application/vnd.ms-tnef": {
+        source: "iana"
+      },
+      "application/vnd.ms-windows.devicepairing": {
+        source: "iana"
+      },
+      "application/vnd.ms-windows.nwprinting.oob": {
+        source: "iana"
+      },
+      "application/vnd.ms-windows.printerpairing": {
+        source: "iana"
+      },
+      "application/vnd.ms-windows.wsd.oob": {
+        source: "iana"
+      },
+      "application/vnd.ms-wmdrm.lic-chlg-req": {
+        source: "iana"
+      },
+      "application/vnd.ms-wmdrm.lic-resp": {
+        source: "iana"
+      },
+      "application/vnd.ms-wmdrm.meter-chlg-req": {
+        source: "iana"
+      },
+      "application/vnd.ms-wmdrm.meter-resp": {
+        source: "iana"
+      },
+      "application/vnd.ms-word.document.macroenabled.12": {
+        source: "iana",
+        extensions: ["docm"]
+      },
+      "application/vnd.ms-word.template.macroenabled.12": {
+        source: "iana",
+        extensions: ["dotm"]
+      },
+      "application/vnd.ms-works": {
+        source: "iana",
+        extensions: ["wps", "wks", "wcm", "wdb"]
+      },
+      "application/vnd.ms-wpl": {
+        source: "iana",
+        extensions: ["wpl"]
+      },
+      "application/vnd.ms-xpsdocument": {
+        source: "iana",
+        compressible: false,
+        extensions: ["xps"]
+      },
+      "application/vnd.msa-disk-image": {
+        source: "iana"
+      },
+      "application/vnd.mseq": {
+        source: "iana",
+        extensions: ["mseq"]
+      },
+      "application/vnd.msign": {
+        source: "iana"
+      },
+      "application/vnd.multiad.creator": {
+        source: "iana"
+      },
+      "application/vnd.multiad.creator.cif": {
+        source: "iana"
+      },
+      "application/vnd.music-niff": {
+        source: "iana"
+      },
+      "application/vnd.musician": {
+        source: "iana",
+        extensions: ["mus"]
+      },
+      "application/vnd.muvee.style": {
+        source: "iana",
+        extensions: ["msty"]
+      },
+      "application/vnd.mynfc": {
+        source: "iana",
+        extensions: ["taglet"]
+      },
+      "application/vnd.nacamar.ybrid+json": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.ncd.control": {
+        source: "iana"
+      },
+      "application/vnd.ncd.reference": {
+        source: "iana"
+      },
+      "application/vnd.nearst.inv+json": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.nebumind.line": {
+        source: "iana"
+      },
+      "application/vnd.nervana": {
+        source: "iana"
+      },
+      "application/vnd.netfpx": {
+        source: "iana"
+      },
+      "application/vnd.neurolanguage.nlu": {
+        source: "iana",
+        extensions: ["nlu"]
+      },
+      "application/vnd.nimn": {
+        source: "iana"
+      },
+      "application/vnd.nintendo.nitro.rom": {
+        source: "iana"
+      },
+      "application/vnd.nintendo.snes.rom": {
+        source: "iana"
+      },
+      "application/vnd.nitf": {
+        source: "iana",
+        extensions: ["ntf", "nitf"]
+      },
+      "application/vnd.noblenet-directory": {
+        source: "iana",
+        extensions: ["nnd"]
+      },
+      "application/vnd.noblenet-sealer": {
+        source: "iana",
+        extensions: ["nns"]
+      },
+      "application/vnd.noblenet-web": {
+        source: "iana",
+        extensions: ["nnw"]
+      },
+      "application/vnd.nokia.catalogs": {
+        source: "iana"
+      },
+      "application/vnd.nokia.conml+wbxml": {
+        source: "iana"
+      },
+      "application/vnd.nokia.conml+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.nokia.iptv.config+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.nokia.isds-radio-presets": {
+        source: "iana"
+      },
+      "application/vnd.nokia.landmark+wbxml": {
+        source: "iana"
+      },
+      "application/vnd.nokia.landmark+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.nokia.landmarkcollection+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.nokia.n-gage.ac+xml": {
+        source: "iana",
+        compressible: true,
+        extensions: ["ac"]
+      },
+      "application/vnd.nokia.n-gage.data": {
+        source: "iana",
+        extensions: ["ngdat"]
+      },
+      "application/vnd.nokia.n-gage.symbian.install": {
+        source: "iana",
+        extensions: ["n-gage"]
+      },
+      "application/vnd.nokia.ncd": {
+        source: "iana"
+      },
+      "application/vnd.nokia.pcd+wbxml": {
+        source: "iana"
+      },
+      "application/vnd.nokia.pcd+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.nokia.radio-preset": {
+        source: "iana",
+        extensions: ["rpst"]
+      },
+      "application/vnd.nokia.radio-presets": {
+        source: "iana",
+        extensions: ["rpss"]
+      },
+      "application/vnd.novadigm.edm": {
+        source: "iana",
+        extensions: ["edm"]
+      },
+      "application/vnd.novadigm.edx": {
+        source: "iana",
+        extensions: ["edx"]
+      },
+      "application/vnd.novadigm.ext": {
+        source: "iana",
+        extensions: ["ext"]
+      },
+      "application/vnd.ntt-local.content-share": {
+        source: "iana"
+      },
+      "application/vnd.ntt-local.file-transfer": {
+        source: "iana"
+      },
+      "application/vnd.ntt-local.ogw_remote-access": {
+        source: "iana"
+      },
+      "application/vnd.ntt-local.sip-ta_remote": {
+        source: "iana"
+      },
+      "application/vnd.ntt-local.sip-ta_tcp_stream": {
+        source: "iana"
+      },
+      "application/vnd.oasis.opendocument.chart": {
+        source: "iana",
+        extensions: ["odc"]
+      },
+      "application/vnd.oasis.opendocument.chart-template": {
+        source: "iana",
+        extensions: ["otc"]
+      },
+      "application/vnd.oasis.opendocument.database": {
+        source: "iana",
+        extensions: ["odb"]
+      },
+      "application/vnd.oasis.opendocument.formula": {
+        source: "iana",
+        extensions: ["odf"]
+      },
+      "application/vnd.oasis.opendocument.formula-template": {
+        source: "iana",
+        extensions: ["odft"]
+      },
+      "application/vnd.oasis.opendocument.graphics": {
+        source: "iana",
+        compressible: false,
+        extensions: ["odg"]
+      },
+      "application/vnd.oasis.opendocument.graphics-template": {
+        source: "iana",
+        extensions: ["otg"]
+      },
+      "application/vnd.oasis.opendocument.image": {
+        source: "iana",
+        extensions: ["odi"]
+      },
+      "application/vnd.oasis.opendocument.image-template": {
+        source: "iana",
+        extensions: ["oti"]
+      },
+      "application/vnd.oasis.opendocument.presentation": {
+        source: "iana",
+        compressible: false,
+        extensions: ["odp"]
+      },
+      "application/vnd.oasis.opendocument.presentation-template": {
+        source: "iana",
+        extensions: ["otp"]
+      },
+      "application/vnd.oasis.opendocument.spreadsheet": {
+        source: "iana",
+        compressible: false,
+        extensions: ["ods"]
+      },
+      "application/vnd.oasis.opendocument.spreadsheet-template": {
+        source: "iana",
+        extensions: ["ots"]
+      },
+      "application/vnd.oasis.opendocument.text": {
+        source: "iana",
+        compressible: false,
+        extensions: ["odt"]
+      },
+      "application/vnd.oasis.opendocument.text-master": {
+        source: "iana",
+        extensions: ["odm"]
+      },
+      "application/vnd.oasis.opendocument.text-template": {
+        source: "iana",
+        extensions: ["ott"]
+      },
+      "application/vnd.oasis.opendocument.text-web": {
+        source: "iana",
+        extensions: ["oth"]
+      },
+      "application/vnd.obn": {
+        source: "iana"
+      },
+      "application/vnd.ocf+cbor": {
+        source: "iana"
+      },
+      "application/vnd.oci.image.manifest.v1+json": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.oftn.l10n+json": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.oipf.contentaccessdownload+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.oipf.contentaccessstreaming+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.oipf.cspg-hexbinary": {
+        source: "iana"
+      },
+      "application/vnd.oipf.dae.svg+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.oipf.dae.xhtml+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.oipf.mippvcontrolmessage+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.oipf.pae.gem": {
+        source: "iana"
+      },
+      "application/vnd.oipf.spdiscovery+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.oipf.spdlist+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.oipf.ueprofile+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.oipf.userprofile+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.olpc-sugar": {
+        source: "iana",
+        extensions: ["xo"]
+      },
+      "application/vnd.oma-scws-config": {
+        source: "iana"
+      },
+      "application/vnd.oma-scws-http-request": {
+        source: "iana"
+      },
+      "application/vnd.oma-scws-http-response": {
+        source: "iana"
+      },
+      "application/vnd.oma.bcast.associated-procedure-parameter+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.oma.bcast.drm-trigger+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.oma.bcast.imd+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.oma.bcast.ltkm": {
+        source: "iana"
+      },
+      "application/vnd.oma.bcast.notification+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.oma.bcast.provisioningtrigger": {
+        source: "iana"
+      },
+      "application/vnd.oma.bcast.sgboot": {
+        source: "iana"
+      },
+      "application/vnd.oma.bcast.sgdd+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.oma.bcast.sgdu": {
+        source: "iana"
+      },
+      "application/vnd.oma.bcast.simple-symbol-container": {
+        source: "iana"
+      },
+      "application/vnd.oma.bcast.smartcard-trigger+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.oma.bcast.sprov+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.oma.bcast.stkm": {
+        source: "iana"
+      },
+      "application/vnd.oma.cab-address-book+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.oma.cab-feature-handler+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.oma.cab-pcc+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.oma.cab-subs-invite+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.oma.cab-user-prefs+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.oma.dcd": {
+        source: "iana"
+      },
+      "application/vnd.oma.dcdc": {
+        source: "iana"
+      },
+      "application/vnd.oma.dd2+xml": {
+        source: "iana",
+        compressible: true,
+        extensions: ["dd2"]
+      },
+      "application/vnd.oma.drm.risd+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.oma.group-usage-list+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.oma.lwm2m+cbor": {
+        source: "iana"
+      },
+      "application/vnd.oma.lwm2m+json": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.oma.lwm2m+tlv": {
+        source: "iana"
+      },
+      "application/vnd.oma.pal+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.oma.poc.detailed-progress-report+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.oma.poc.final-report+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.oma.poc.groups+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.oma.poc.invocation-descriptor+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.oma.poc.optimized-progress-report+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.oma.push": {
+        source: "iana"
+      },
+      "application/vnd.oma.scidm.messages+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.oma.xcap-directory+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.omads-email+xml": {
+        source: "iana",
+        charset: "UTF-8",
+        compressible: true
+      },
+      "application/vnd.omads-file+xml": {
+        source: "iana",
+        charset: "UTF-8",
+        compressible: true
+      },
+      "application/vnd.omads-folder+xml": {
+        source: "iana",
+        charset: "UTF-8",
+        compressible: true
+      },
+      "application/vnd.omaloc-supl-init": {
+        source: "iana"
+      },
+      "application/vnd.onepager": {
+        source: "iana"
+      },
+      "application/vnd.onepagertamp": {
+        source: "iana"
+      },
+      "application/vnd.onepagertamx": {
+        source: "iana"
+      },
+      "application/vnd.onepagertat": {
+        source: "iana"
+      },
+      "application/vnd.onepagertatp": {
+        source: "iana"
+      },
+      "application/vnd.onepagertatx": {
+        source: "iana"
+      },
+      "application/vnd.openblox.game+xml": {
+        source: "iana",
+        compressible: true,
+        extensions: ["obgx"]
+      },
+      "application/vnd.openblox.game-binary": {
+        source: "iana"
+      },
+      "application/vnd.openeye.oeb": {
+        source: "iana"
+      },
+      "application/vnd.openofficeorg.extension": {
+        source: "apache",
+        extensions: ["oxt"]
+      },
+      "application/vnd.openstreetmap.data+xml": {
+        source: "iana",
+        compressible: true,
+        extensions: ["osm"]
+      },
+      "application/vnd.opentimestamps.ots": {
+        source: "iana"
+      },
+      "application/vnd.openxmlformats-officedocument.custom-properties+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.openxmlformats-officedocument.customxmlproperties+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.openxmlformats-officedocument.drawing+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.openxmlformats-officedocument.drawingml.chart+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.openxmlformats-officedocument.drawingml.chartshapes+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.openxmlformats-officedocument.drawingml.diagramcolors+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.openxmlformats-officedocument.drawingml.diagramdata+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.openxmlformats-officedocument.drawingml.diagramlayout+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.openxmlformats-officedocument.drawingml.diagramstyle+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.openxmlformats-officedocument.extended-properties+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.openxmlformats-officedocument.presentationml.commentauthors+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.openxmlformats-officedocument.presentationml.comments+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.openxmlformats-officedocument.presentationml.handoutmaster+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.openxmlformats-officedocument.presentationml.notesmaster+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.openxmlformats-officedocument.presentationml.notesslide+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.openxmlformats-officedocument.presentationml.presentation": {
+        source: "iana",
+        compressible: false,
+        extensions: ["pptx"]
+      },
+      "application/vnd.openxmlformats-officedocument.presentationml.presentation.main+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.openxmlformats-officedocument.presentationml.presprops+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.openxmlformats-officedocument.presentationml.slide": {
+        source: "iana",
+        extensions: ["sldx"]
+      },
+      "application/vnd.openxmlformats-officedocument.presentationml.slide+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.openxmlformats-officedocument.presentationml.slidelayout+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.openxmlformats-officedocument.presentationml.slidemaster+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.openxmlformats-officedocument.presentationml.slideshow": {
+        source: "iana",
+        extensions: ["ppsx"]
+      },
+      "application/vnd.openxmlformats-officedocument.presentationml.slideshow.main+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.openxmlformats-officedocument.presentationml.slideupdateinfo+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.openxmlformats-officedocument.presentationml.tablestyles+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.openxmlformats-officedocument.presentationml.tags+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.openxmlformats-officedocument.presentationml.template": {
+        source: "iana",
+        extensions: ["potx"]
+      },
+      "application/vnd.openxmlformats-officedocument.presentationml.template.main+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.openxmlformats-officedocument.presentationml.viewprops+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.calcchain+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.chartsheet+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.comments+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.connections+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.dialogsheet+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.externallink+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.pivotcachedefinition+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.pivotcacherecords+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.pivottable+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.querytable+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.revisionheaders+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.revisionlog+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sharedstrings+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": {
+        source: "iana",
+        compressible: false,
+        extensions: ["xlsx"]
+      },
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheetmetadata+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.table+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.tablesinglecells+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.template": {
+        source: "iana",
+        extensions: ["xltx"]
+      },
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.template.main+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.usernames+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.volatiledependencies+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.openxmlformats-officedocument.theme+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.openxmlformats-officedocument.themeoverride+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.openxmlformats-officedocument.vmldrawing": {
+        source: "iana"
+      },
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.comments+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document": {
+        source: "iana",
+        compressible: false,
+        extensions: ["docx"]
+      },
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document.glossary+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.endnotes+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.fonttable+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.footer+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.footnotes+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.numbering+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.settings+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.styles+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.template": {
+        source: "iana",
+        extensions: ["dotx"]
+      },
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.template.main+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.websettings+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.openxmlformats-package.core-properties+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.openxmlformats-package.digital-signature-xmlsignature+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.openxmlformats-package.relationships+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.oracle.resource+json": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.orange.indata": {
+        source: "iana"
+      },
+      "application/vnd.osa.netdeploy": {
+        source: "iana"
+      },
+      "application/vnd.osgeo.mapguide.package": {
+        source: "iana",
+        extensions: ["mgp"]
+      },
+      "application/vnd.osgi.bundle": {
+        source: "iana"
+      },
+      "application/vnd.osgi.dp": {
+        source: "iana",
+        extensions: ["dp"]
+      },
+      "application/vnd.osgi.subsystem": {
+        source: "iana",
+        extensions: ["esa"]
+      },
+      "application/vnd.otps.ct-kip+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.oxli.countgraph": {
+        source: "iana"
+      },
+      "application/vnd.pagerduty+json": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.palm": {
+        source: "iana",
+        extensions: ["pdb", "pqa", "oprc"]
+      },
+      "application/vnd.panoply": {
+        source: "iana"
+      },
+      "application/vnd.paos.xml": {
+        source: "iana"
+      },
+      "application/vnd.patentdive": {
+        source: "iana"
+      },
+      "application/vnd.patientecommsdoc": {
+        source: "iana"
+      },
+      "application/vnd.pawaafile": {
+        source: "iana",
+        extensions: ["paw"]
+      },
+      "application/vnd.pcos": {
+        source: "iana"
+      },
+      "application/vnd.pg.format": {
+        source: "iana",
+        extensions: ["str"]
+      },
+      "application/vnd.pg.osasli": {
+        source: "iana",
+        extensions: ["ei6"]
+      },
+      "application/vnd.piaccess.application-licence": {
+        source: "iana"
+      },
+      "application/vnd.picsel": {
+        source: "iana",
+        extensions: ["efif"]
+      },
+      "application/vnd.pmi.widget": {
+        source: "iana",
+        extensions: ["wg"]
+      },
+      "application/vnd.poc.group-advertisement+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.pocketlearn": {
+        source: "iana",
+        extensions: ["plf"]
+      },
+      "application/vnd.powerbuilder6": {
+        source: "iana",
+        extensions: ["pbd"]
+      },
+      "application/vnd.powerbuilder6-s": {
+        source: "iana"
+      },
+      "application/vnd.powerbuilder7": {
+        source: "iana"
+      },
+      "application/vnd.powerbuilder7-s": {
+        source: "iana"
+      },
+      "application/vnd.powerbuilder75": {
+        source: "iana"
+      },
+      "application/vnd.powerbuilder75-s": {
+        source: "iana"
+      },
+      "application/vnd.preminet": {
+        source: "iana"
+      },
+      "application/vnd.previewsystems.box": {
+        source: "iana",
+        extensions: ["box"]
+      },
+      "application/vnd.proteus.magazine": {
+        source: "iana",
+        extensions: ["mgz"]
+      },
+      "application/vnd.psfs": {
+        source: "iana"
+      },
+      "application/vnd.publishare-delta-tree": {
+        source: "iana",
+        extensions: ["qps"]
+      },
+      "application/vnd.pvi.ptid1": {
+        source: "iana",
+        extensions: ["ptid"]
+      },
+      "application/vnd.pwg-multiplexed": {
+        source: "iana"
+      },
+      "application/vnd.pwg-xhtml-print+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.qualcomm.brew-app-res": {
+        source: "iana"
+      },
+      "application/vnd.quarantainenet": {
+        source: "iana"
+      },
+      "application/vnd.quark.quarkxpress": {
+        source: "iana",
+        extensions: ["qxd", "qxt", "qwd", "qwt", "qxl", "qxb"]
+      },
+      "application/vnd.quobject-quoxdocument": {
+        source: "iana"
+      },
+      "application/vnd.radisys.moml+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.radisys.msml+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.radisys.msml-audit+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.radisys.msml-audit-conf+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.radisys.msml-audit-conn+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.radisys.msml-audit-dialog+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.radisys.msml-audit-stream+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.radisys.msml-conf+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.radisys.msml-dialog+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.radisys.msml-dialog-base+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.radisys.msml-dialog-fax-detect+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.radisys.msml-dialog-fax-sendrecv+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.radisys.msml-dialog-group+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.radisys.msml-dialog-speech+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.radisys.msml-dialog-transform+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.rainstor.data": {
+        source: "iana"
+      },
+      "application/vnd.rapid": {
+        source: "iana"
+      },
+      "application/vnd.rar": {
+        source: "iana",
+        extensions: ["rar"]
+      },
+      "application/vnd.realvnc.bed": {
+        source: "iana",
+        extensions: ["bed"]
+      },
+      "application/vnd.recordare.musicxml": {
+        source: "iana",
+        extensions: ["mxl"]
+      },
+      "application/vnd.recordare.musicxml+xml": {
+        source: "iana",
+        compressible: true,
+        extensions: ["musicxml"]
+      },
+      "application/vnd.renlearn.rlprint": {
+        source: "iana"
+      },
+      "application/vnd.resilient.logic": {
+        source: "iana"
+      },
+      "application/vnd.restful+json": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.rig.cryptonote": {
+        source: "iana",
+        extensions: ["cryptonote"]
+      },
+      "application/vnd.rim.cod": {
+        source: "apache",
+        extensions: ["cod"]
+      },
+      "application/vnd.rn-realmedia": {
+        source: "apache",
+        extensions: ["rm"]
+      },
+      "application/vnd.rn-realmedia-vbr": {
+        source: "apache",
+        extensions: ["rmvb"]
+      },
+      "application/vnd.route66.link66+xml": {
+        source: "iana",
+        compressible: true,
+        extensions: ["link66"]
+      },
+      "application/vnd.rs-274x": {
+        source: "iana"
+      },
+      "application/vnd.ruckus.download": {
+        source: "iana"
+      },
+      "application/vnd.s3sms": {
+        source: "iana"
+      },
+      "application/vnd.sailingtracker.track": {
+        source: "iana",
+        extensions: ["st"]
+      },
+      "application/vnd.sar": {
+        source: "iana"
+      },
+      "application/vnd.sbm.cid": {
+        source: "iana"
+      },
+      "application/vnd.sbm.mid2": {
+        source: "iana"
+      },
+      "application/vnd.scribus": {
+        source: "iana"
+      },
+      "application/vnd.sealed.3df": {
+        source: "iana"
+      },
+      "application/vnd.sealed.csf": {
+        source: "iana"
+      },
+      "application/vnd.sealed.doc": {
+        source: "iana"
+      },
+      "application/vnd.sealed.eml": {
+        source: "iana"
+      },
+      "application/vnd.sealed.mht": {
+        source: "iana"
+      },
+      "application/vnd.sealed.net": {
+        source: "iana"
+      },
+      "application/vnd.sealed.ppt": {
+        source: "iana"
+      },
+      "application/vnd.sealed.tiff": {
+        source: "iana"
+      },
+      "application/vnd.sealed.xls": {
+        source: "iana"
+      },
+      "application/vnd.sealedmedia.softseal.html": {
+        source: "iana"
+      },
+      "application/vnd.sealedmedia.softseal.pdf": {
+        source: "iana"
+      },
+      "application/vnd.seemail": {
+        source: "iana",
+        extensions: ["see"]
+      },
+      "application/vnd.seis+json": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.sema": {
+        source: "iana",
+        extensions: ["sema"]
+      },
+      "application/vnd.semd": {
+        source: "iana",
+        extensions: ["semd"]
+      },
+      "application/vnd.semf": {
+        source: "iana",
+        extensions: ["semf"]
+      },
+      "application/vnd.shade-save-file": {
+        source: "iana"
+      },
+      "application/vnd.shana.informed.formdata": {
+        source: "iana",
+        extensions: ["ifm"]
+      },
+      "application/vnd.shana.informed.formtemplate": {
+        source: "iana",
+        extensions: ["itp"]
+      },
+      "application/vnd.shana.informed.interchange": {
+        source: "iana",
+        extensions: ["iif"]
+      },
+      "application/vnd.shana.informed.package": {
+        source: "iana",
+        extensions: ["ipk"]
+      },
+      "application/vnd.shootproof+json": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.shopkick+json": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.shp": {
+        source: "iana"
+      },
+      "application/vnd.shx": {
+        source: "iana"
+      },
+      "application/vnd.sigrok.session": {
+        source: "iana"
+      },
+      "application/vnd.simtech-mindmapper": {
+        source: "iana",
+        extensions: ["twd", "twds"]
+      },
+      "application/vnd.siren+json": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.smaf": {
+        source: "iana",
+        extensions: ["mmf"]
+      },
+      "application/vnd.smart.notebook": {
+        source: "iana"
+      },
+      "application/vnd.smart.teacher": {
+        source: "iana",
+        extensions: ["teacher"]
+      },
+      "application/vnd.snesdev-page-table": {
+        source: "iana"
+      },
+      "application/vnd.software602.filler.form+xml": {
+        source: "iana",
+        compressible: true,
+        extensions: ["fo"]
+      },
+      "application/vnd.software602.filler.form-xml-zip": {
+        source: "iana"
+      },
+      "application/vnd.solent.sdkm+xml": {
+        source: "iana",
+        compressible: true,
+        extensions: ["sdkm", "sdkd"]
+      },
+      "application/vnd.spotfire.dxp": {
+        source: "iana",
+        extensions: ["dxp"]
+      },
+      "application/vnd.spotfire.sfs": {
+        source: "iana",
+        extensions: ["sfs"]
+      },
+      "application/vnd.sqlite3": {
+        source: "iana"
+      },
+      "application/vnd.sss-cod": {
+        source: "iana"
+      },
+      "application/vnd.sss-dtf": {
+        source: "iana"
+      },
+      "application/vnd.sss-ntf": {
+        source: "iana"
+      },
+      "application/vnd.stardivision.calc": {
+        source: "apache",
+        extensions: ["sdc"]
+      },
+      "application/vnd.stardivision.draw": {
+        source: "apache",
+        extensions: ["sda"]
+      },
+      "application/vnd.stardivision.impress": {
+        source: "apache",
+        extensions: ["sdd"]
+      },
+      "application/vnd.stardivision.math": {
+        source: "apache",
+        extensions: ["smf"]
+      },
+      "application/vnd.stardivision.writer": {
+        source: "apache",
+        extensions: ["sdw", "vor"]
+      },
+      "application/vnd.stardivision.writer-global": {
+        source: "apache",
+        extensions: ["sgl"]
+      },
+      "application/vnd.stepmania.package": {
+        source: "iana",
+        extensions: ["smzip"]
+      },
+      "application/vnd.stepmania.stepchart": {
+        source: "iana",
+        extensions: ["sm"]
+      },
+      "application/vnd.street-stream": {
+        source: "iana"
+      },
+      "application/vnd.sun.wadl+xml": {
+        source: "iana",
+        compressible: true,
+        extensions: ["wadl"]
+      },
+      "application/vnd.sun.xml.calc": {
+        source: "apache",
+        extensions: ["sxc"]
+      },
+      "application/vnd.sun.xml.calc.template": {
+        source: "apache",
+        extensions: ["stc"]
+      },
+      "application/vnd.sun.xml.draw": {
+        source: "apache",
+        extensions: ["sxd"]
+      },
+      "application/vnd.sun.xml.draw.template": {
+        source: "apache",
+        extensions: ["std"]
+      },
+      "application/vnd.sun.xml.impress": {
+        source: "apache",
+        extensions: ["sxi"]
+      },
+      "application/vnd.sun.xml.impress.template": {
+        source: "apache",
+        extensions: ["sti"]
+      },
+      "application/vnd.sun.xml.math": {
+        source: "apache",
+        extensions: ["sxm"]
+      },
+      "application/vnd.sun.xml.writer": {
+        source: "apache",
+        extensions: ["sxw"]
+      },
+      "application/vnd.sun.xml.writer.global": {
+        source: "apache",
+        extensions: ["sxg"]
+      },
+      "application/vnd.sun.xml.writer.template": {
+        source: "apache",
+        extensions: ["stw"]
+      },
+      "application/vnd.sus-calendar": {
+        source: "iana",
+        extensions: ["sus", "susp"]
+      },
+      "application/vnd.svd": {
+        source: "iana",
+        extensions: ["svd"]
+      },
+      "application/vnd.swiftview-ics": {
+        source: "iana"
+      },
+      "application/vnd.sycle+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.syft+json": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.symbian.install": {
+        source: "apache",
+        extensions: ["sis", "sisx"]
+      },
+      "application/vnd.syncml+xml": {
+        source: "iana",
+        charset: "UTF-8",
+        compressible: true,
+        extensions: ["xsm"]
+      },
+      "application/vnd.syncml.dm+wbxml": {
+        source: "iana",
+        charset: "UTF-8",
+        extensions: ["bdm"]
+      },
+      "application/vnd.syncml.dm+xml": {
+        source: "iana",
+        charset: "UTF-8",
+        compressible: true,
+        extensions: ["xdm"]
+      },
+      "application/vnd.syncml.dm.notification": {
+        source: "iana"
+      },
+      "application/vnd.syncml.dmddf+wbxml": {
+        source: "iana"
+      },
+      "application/vnd.syncml.dmddf+xml": {
+        source: "iana",
+        charset: "UTF-8",
+        compressible: true,
+        extensions: ["ddf"]
+      },
+      "application/vnd.syncml.dmtnds+wbxml": {
+        source: "iana"
+      },
+      "application/vnd.syncml.dmtnds+xml": {
+        source: "iana",
+        charset: "UTF-8",
+        compressible: true
+      },
+      "application/vnd.syncml.ds.notification": {
+        source: "iana"
+      },
+      "application/vnd.tableschema+json": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.tao.intent-module-archive": {
+        source: "iana",
+        extensions: ["tao"]
+      },
+      "application/vnd.tcpdump.pcap": {
+        source: "iana",
+        extensions: ["pcap", "cap", "dmp"]
+      },
+      "application/vnd.think-cell.ppttc+json": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.tmd.mediaflex.api+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.tml": {
+        source: "iana"
+      },
+      "application/vnd.tmobile-livetv": {
+        source: "iana",
+        extensions: ["tmo"]
+      },
+      "application/vnd.tri.onesource": {
+        source: "iana"
+      },
+      "application/vnd.trid.tpt": {
+        source: "iana",
+        extensions: ["tpt"]
+      },
+      "application/vnd.triscape.mxs": {
+        source: "iana",
+        extensions: ["mxs"]
+      },
+      "application/vnd.trueapp": {
+        source: "iana",
+        extensions: ["tra"]
+      },
+      "application/vnd.truedoc": {
+        source: "iana"
+      },
+      "application/vnd.ubisoft.webplayer": {
+        source: "iana"
+      },
+      "application/vnd.ufdl": {
+        source: "iana",
+        extensions: ["ufd", "ufdl"]
+      },
+      "application/vnd.uiq.theme": {
+        source: "iana",
+        extensions: ["utz"]
+      },
+      "application/vnd.umajin": {
+        source: "iana",
+        extensions: ["umj"]
+      },
+      "application/vnd.unity": {
+        source: "iana",
+        extensions: ["unityweb"]
+      },
+      "application/vnd.uoml+xml": {
+        source: "iana",
+        compressible: true,
+        extensions: ["uoml"]
+      },
+      "application/vnd.uplanet.alert": {
+        source: "iana"
+      },
+      "application/vnd.uplanet.alert-wbxml": {
+        source: "iana"
+      },
+      "application/vnd.uplanet.bearer-choice": {
+        source: "iana"
+      },
+      "application/vnd.uplanet.bearer-choice-wbxml": {
+        source: "iana"
+      },
+      "application/vnd.uplanet.cacheop": {
+        source: "iana"
+      },
+      "application/vnd.uplanet.cacheop-wbxml": {
+        source: "iana"
+      },
+      "application/vnd.uplanet.channel": {
+        source: "iana"
+      },
+      "application/vnd.uplanet.channel-wbxml": {
+        source: "iana"
+      },
+      "application/vnd.uplanet.list": {
+        source: "iana"
+      },
+      "application/vnd.uplanet.list-wbxml": {
+        source: "iana"
+      },
+      "application/vnd.uplanet.listcmd": {
+        source: "iana"
+      },
+      "application/vnd.uplanet.listcmd-wbxml": {
+        source: "iana"
+      },
+      "application/vnd.uplanet.signal": {
+        source: "iana"
+      },
+      "application/vnd.uri-map": {
+        source: "iana"
+      },
+      "application/vnd.valve.source.material": {
+        source: "iana"
+      },
+      "application/vnd.vcx": {
+        source: "iana",
+        extensions: ["vcx"]
+      },
+      "application/vnd.vd-study": {
+        source: "iana"
+      },
+      "application/vnd.vectorworks": {
+        source: "iana"
+      },
+      "application/vnd.vel+json": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.verimatrix.vcas": {
+        source: "iana"
+      },
+      "application/vnd.veritone.aion+json": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.veryant.thin": {
+        source: "iana"
+      },
+      "application/vnd.ves.encrypted": {
+        source: "iana"
+      },
+      "application/vnd.vidsoft.vidconference": {
+        source: "iana"
+      },
+      "application/vnd.visio": {
+        source: "iana",
+        extensions: ["vsd", "vst", "vss", "vsw"]
+      },
+      "application/vnd.visionary": {
+        source: "iana",
+        extensions: ["vis"]
+      },
+      "application/vnd.vividence.scriptfile": {
+        source: "iana"
+      },
+      "application/vnd.vsf": {
+        source: "iana",
+        extensions: ["vsf"]
+      },
+      "application/vnd.wap.sic": {
+        source: "iana"
+      },
+      "application/vnd.wap.slc": {
+        source: "iana"
+      },
+      "application/vnd.wap.wbxml": {
+        source: "iana",
+        charset: "UTF-8",
+        extensions: ["wbxml"]
+      },
+      "application/vnd.wap.wmlc": {
+        source: "iana",
+        extensions: ["wmlc"]
+      },
+      "application/vnd.wap.wmlscriptc": {
+        source: "iana",
+        extensions: ["wmlsc"]
+      },
+      "application/vnd.webturbo": {
+        source: "iana",
+        extensions: ["wtb"]
+      },
+      "application/vnd.wfa.dpp": {
+        source: "iana"
+      },
+      "application/vnd.wfa.p2p": {
+        source: "iana"
+      },
+      "application/vnd.wfa.wsc": {
+        source: "iana"
+      },
+      "application/vnd.windows.devicepairing": {
+        source: "iana"
+      },
+      "application/vnd.wmc": {
+        source: "iana"
+      },
+      "application/vnd.wmf.bootstrap": {
+        source: "iana"
+      },
+      "application/vnd.wolfram.mathematica": {
+        source: "iana"
+      },
+      "application/vnd.wolfram.mathematica.package": {
+        source: "iana"
+      },
+      "application/vnd.wolfram.player": {
+        source: "iana",
+        extensions: ["nbp"]
+      },
+      "application/vnd.wordperfect": {
+        source: "iana",
+        extensions: ["wpd"]
+      },
+      "application/vnd.wqd": {
+        source: "iana",
+        extensions: ["wqd"]
+      },
+      "application/vnd.wrq-hp3000-labelled": {
+        source: "iana"
+      },
+      "application/vnd.wt.stf": {
+        source: "iana",
+        extensions: ["stf"]
+      },
+      "application/vnd.wv.csp+wbxml": {
+        source: "iana"
+      },
+      "application/vnd.wv.csp+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.wv.ssp+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.xacml+json": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.xara": {
+        source: "iana",
+        extensions: ["xar"]
+      },
+      "application/vnd.xfdl": {
+        source: "iana",
+        extensions: ["xfdl"]
+      },
+      "application/vnd.xfdl.webform": {
+        source: "iana"
+      },
+      "application/vnd.xmi+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vnd.xmpie.cpkg": {
+        source: "iana"
+      },
+      "application/vnd.xmpie.dpkg": {
+        source: "iana"
+      },
+      "application/vnd.xmpie.plan": {
+        source: "iana"
+      },
+      "application/vnd.xmpie.ppkg": {
+        source: "iana"
+      },
+      "application/vnd.xmpie.xlim": {
+        source: "iana"
+      },
+      "application/vnd.yamaha.hv-dic": {
+        source: "iana",
+        extensions: ["hvd"]
+      },
+      "application/vnd.yamaha.hv-script": {
+        source: "iana",
+        extensions: ["hvs"]
+      },
+      "application/vnd.yamaha.hv-voice": {
+        source: "iana",
+        extensions: ["hvp"]
+      },
+      "application/vnd.yamaha.openscoreformat": {
+        source: "iana",
+        extensions: ["osf"]
+      },
+      "application/vnd.yamaha.openscoreformat.osfpvg+xml": {
+        source: "iana",
+        compressible: true,
+        extensions: ["osfpvg"]
+      },
+      "application/vnd.yamaha.remote-setup": {
+        source: "iana"
+      },
+      "application/vnd.yamaha.smaf-audio": {
+        source: "iana",
+        extensions: ["saf"]
+      },
+      "application/vnd.yamaha.smaf-phrase": {
+        source: "iana",
+        extensions: ["spf"]
+      },
+      "application/vnd.yamaha.through-ngn": {
+        source: "iana"
+      },
+      "application/vnd.yamaha.tunnel-udpencap": {
+        source: "iana"
+      },
+      "application/vnd.yaoweme": {
+        source: "iana"
+      },
+      "application/vnd.yellowriver-custom-menu": {
+        source: "iana",
+        extensions: ["cmp"]
+      },
+      "application/vnd.youtube.yt": {
+        source: "iana"
+      },
+      "application/vnd.zul": {
+        source: "iana",
+        extensions: ["zir", "zirz"]
+      },
+      "application/vnd.zzazz.deck+xml": {
+        source: "iana",
+        compressible: true,
+        extensions: ["zaz"]
+      },
+      "application/voicexml+xml": {
+        source: "iana",
+        compressible: true,
+        extensions: ["vxml"]
+      },
+      "application/voucher-cms+json": {
+        source: "iana",
+        compressible: true
+      },
+      "application/vq-rtcpxr": {
+        source: "iana"
+      },
+      "application/wasm": {
+        source: "iana",
+        compressible: true,
+        extensions: ["wasm"]
+      },
+      "application/watcherinfo+xml": {
+        source: "iana",
+        compressible: true,
+        extensions: ["wif"]
+      },
+      "application/webpush-options+json": {
+        source: "iana",
+        compressible: true
+      },
+      "application/whoispp-query": {
+        source: "iana"
+      },
+      "application/whoispp-response": {
+        source: "iana"
+      },
+      "application/widget": {
+        source: "iana",
+        extensions: ["wgt"]
+      },
+      "application/winhlp": {
+        source: "apache",
+        extensions: ["hlp"]
+      },
+      "application/wita": {
+        source: "iana"
+      },
+      "application/wordperfect5.1": {
+        source: "iana"
+      },
+      "application/wsdl+xml": {
+        source: "iana",
+        compressible: true,
+        extensions: ["wsdl"]
+      },
+      "application/wspolicy+xml": {
+        source: "iana",
+        compressible: true,
+        extensions: ["wspolicy"]
+      },
+      "application/x-7z-compressed": {
+        source: "apache",
+        compressible: false,
+        extensions: ["7z"]
+      },
+      "application/x-abiword": {
+        source: "apache",
+        extensions: ["abw"]
+      },
+      "application/x-ace-compressed": {
+        source: "apache",
+        extensions: ["ace"]
+      },
+      "application/x-amf": {
+        source: "apache"
+      },
+      "application/x-apple-diskimage": {
+        source: "apache",
+        extensions: ["dmg"]
+      },
+      "application/x-arj": {
+        compressible: false,
+        extensions: ["arj"]
+      },
+      "application/x-authorware-bin": {
+        source: "apache",
+        extensions: ["aab", "x32", "u32", "vox"]
+      },
+      "application/x-authorware-map": {
+        source: "apache",
+        extensions: ["aam"]
+      },
+      "application/x-authorware-seg": {
+        source: "apache",
+        extensions: ["aas"]
+      },
+      "application/x-bcpio": {
+        source: "apache",
+        extensions: ["bcpio"]
+      },
+      "application/x-bdoc": {
+        compressible: false,
+        extensions: ["bdoc"]
+      },
+      "application/x-bittorrent": {
+        source: "apache",
+        extensions: ["torrent"]
+      },
+      "application/x-blorb": {
+        source: "apache",
+        extensions: ["blb", "blorb"]
+      },
+      "application/x-bzip": {
+        source: "apache",
+        compressible: false,
+        extensions: ["bz"]
+      },
+      "application/x-bzip2": {
+        source: "apache",
+        compressible: false,
+        extensions: ["bz2", "boz"]
+      },
+      "application/x-cbr": {
+        source: "apache",
+        extensions: ["cbr", "cba", "cbt", "cbz", "cb7"]
+      },
+      "application/x-cdlink": {
+        source: "apache",
+        extensions: ["vcd"]
+      },
+      "application/x-cfs-compressed": {
+        source: "apache",
+        extensions: ["cfs"]
+      },
+      "application/x-chat": {
+        source: "apache",
+        extensions: ["chat"]
+      },
+      "application/x-chess-pgn": {
+        source: "apache",
+        extensions: ["pgn"]
+      },
+      "application/x-chrome-extension": {
+        extensions: ["crx"]
+      },
+      "application/x-cocoa": {
+        source: "nginx",
+        extensions: ["cco"]
+      },
+      "application/x-compress": {
+        source: "apache"
+      },
+      "application/x-conference": {
+        source: "apache",
+        extensions: ["nsc"]
+      },
+      "application/x-cpio": {
+        source: "apache",
+        extensions: ["cpio"]
+      },
+      "application/x-csh": {
+        source: "apache",
+        extensions: ["csh"]
+      },
+      "application/x-deb": {
+        compressible: false
+      },
+      "application/x-debian-package": {
+        source: "apache",
+        extensions: ["deb", "udeb"]
+      },
+      "application/x-dgc-compressed": {
+        source: "apache",
+        extensions: ["dgc"]
+      },
+      "application/x-director": {
+        source: "apache",
+        extensions: ["dir", "dcr", "dxr", "cst", "cct", "cxt", "w3d", "fgd", "swa"]
+      },
+      "application/x-doom": {
+        source: "apache",
+        extensions: ["wad"]
+      },
+      "application/x-dtbncx+xml": {
+        source: "apache",
+        compressible: true,
+        extensions: ["ncx"]
+      },
+      "application/x-dtbook+xml": {
+        source: "apache",
+        compressible: true,
+        extensions: ["dtb"]
+      },
+      "application/x-dtbresource+xml": {
+        source: "apache",
+        compressible: true,
+        extensions: ["res"]
+      },
+      "application/x-dvi": {
+        source: "apache",
+        compressible: false,
+        extensions: ["dvi"]
+      },
+      "application/x-envoy": {
+        source: "apache",
+        extensions: ["evy"]
+      },
+      "application/x-eva": {
+        source: "apache",
+        extensions: ["eva"]
+      },
+      "application/x-font-bdf": {
+        source: "apache",
+        extensions: ["bdf"]
+      },
+      "application/x-font-dos": {
+        source: "apache"
+      },
+      "application/x-font-framemaker": {
+        source: "apache"
+      },
+      "application/x-font-ghostscript": {
+        source: "apache",
+        extensions: ["gsf"]
+      },
+      "application/x-font-libgrx": {
+        source: "apache"
+      },
+      "application/x-font-linux-psf": {
+        source: "apache",
+        extensions: ["psf"]
+      },
+      "application/x-font-pcf": {
+        source: "apache",
+        extensions: ["pcf"]
+      },
+      "application/x-font-snf": {
+        source: "apache",
+        extensions: ["snf"]
+      },
+      "application/x-font-speedo": {
+        source: "apache"
+      },
+      "application/x-font-sunos-news": {
+        source: "apache"
+      },
+      "application/x-font-type1": {
+        source: "apache",
+        extensions: ["pfa", "pfb", "pfm", "afm"]
+      },
+      "application/x-font-vfont": {
+        source: "apache"
+      },
+      "application/x-freearc": {
+        source: "apache",
+        extensions: ["arc"]
+      },
+      "application/x-futuresplash": {
+        source: "apache",
+        extensions: ["spl"]
+      },
+      "application/x-gca-compressed": {
+        source: "apache",
+        extensions: ["gca"]
+      },
+      "application/x-glulx": {
+        source: "apache",
+        extensions: ["ulx"]
+      },
+      "application/x-gnumeric": {
+        source: "apache",
+        extensions: ["gnumeric"]
+      },
+      "application/x-gramps-xml": {
+        source: "apache",
+        extensions: ["gramps"]
+      },
+      "application/x-gtar": {
+        source: "apache",
+        extensions: ["gtar"]
+      },
+      "application/x-gzip": {
+        source: "apache"
+      },
+      "application/x-hdf": {
+        source: "apache",
+        extensions: ["hdf"]
+      },
+      "application/x-httpd-php": {
+        compressible: true,
+        extensions: ["php"]
+      },
+      "application/x-install-instructions": {
+        source: "apache",
+        extensions: ["install"]
+      },
+      "application/x-iso9660-image": {
+        source: "apache",
+        extensions: ["iso"]
+      },
+      "application/x-iwork-keynote-sffkey": {
+        extensions: ["key"]
+      },
+      "application/x-iwork-numbers-sffnumbers": {
+        extensions: ["numbers"]
+      },
+      "application/x-iwork-pages-sffpages": {
+        extensions: ["pages"]
+      },
+      "application/x-java-archive-diff": {
+        source: "nginx",
+        extensions: ["jardiff"]
+      },
+      "application/x-java-jnlp-file": {
+        source: "apache",
+        compressible: false,
+        extensions: ["jnlp"]
+      },
+      "application/x-javascript": {
+        compressible: true
+      },
+      "application/x-keepass2": {
+        extensions: ["kdbx"]
+      },
+      "application/x-latex": {
+        source: "apache",
+        compressible: false,
+        extensions: ["latex"]
+      },
+      "application/x-lua-bytecode": {
+        extensions: ["luac"]
+      },
+      "application/x-lzh-compressed": {
+        source: "apache",
+        extensions: ["lzh", "lha"]
+      },
+      "application/x-makeself": {
+        source: "nginx",
+        extensions: ["run"]
+      },
+      "application/x-mie": {
+        source: "apache",
+        extensions: ["mie"]
+      },
+      "application/x-mobipocket-ebook": {
+        source: "apache",
+        extensions: ["prc", "mobi"]
+      },
+      "application/x-mpegurl": {
+        compressible: false
+      },
+      "application/x-ms-application": {
+        source: "apache",
+        extensions: ["application"]
+      },
+      "application/x-ms-shortcut": {
+        source: "apache",
+        extensions: ["lnk"]
+      },
+      "application/x-ms-wmd": {
+        source: "apache",
+        extensions: ["wmd"]
+      },
+      "application/x-ms-wmz": {
+        source: "apache",
+        extensions: ["wmz"]
+      },
+      "application/x-ms-xbap": {
+        source: "apache",
+        extensions: ["xbap"]
+      },
+      "application/x-msaccess": {
+        source: "apache",
+        extensions: ["mdb"]
+      },
+      "application/x-msbinder": {
+        source: "apache",
+        extensions: ["obd"]
+      },
+      "application/x-mscardfile": {
+        source: "apache",
+        extensions: ["crd"]
+      },
+      "application/x-msclip": {
+        source: "apache",
+        extensions: ["clp"]
+      },
+      "application/x-msdos-program": {
+        extensions: ["exe"]
+      },
+      "application/x-msdownload": {
+        source: "apache",
+        extensions: ["exe", "dll", "com", "bat", "msi"]
+      },
+      "application/x-msmediaview": {
+        source: "apache",
+        extensions: ["mvb", "m13", "m14"]
+      },
+      "application/x-msmetafile": {
+        source: "apache",
+        extensions: ["wmf", "wmz", "emf", "emz"]
+      },
+      "application/x-msmoney": {
+        source: "apache",
+        extensions: ["mny"]
+      },
+      "application/x-mspublisher": {
+        source: "apache",
+        extensions: ["pub"]
+      },
+      "application/x-msschedule": {
+        source: "apache",
+        extensions: ["scd"]
+      },
+      "application/x-msterminal": {
+        source: "apache",
+        extensions: ["trm"]
+      },
+      "application/x-mswrite": {
+        source: "apache",
+        extensions: ["wri"]
+      },
+      "application/x-netcdf": {
+        source: "apache",
+        extensions: ["nc", "cdf"]
+      },
+      "application/x-ns-proxy-autoconfig": {
+        compressible: true,
+        extensions: ["pac"]
+      },
+      "application/x-nzb": {
+        source: "apache",
+        extensions: ["nzb"]
+      },
+      "application/x-perl": {
+        source: "nginx",
+        extensions: ["pl", "pm"]
+      },
+      "application/x-pilot": {
+        source: "nginx",
+        extensions: ["prc", "pdb"]
+      },
+      "application/x-pkcs12": {
+        source: "apache",
+        compressible: false,
+        extensions: ["p12", "pfx"]
+      },
+      "application/x-pkcs7-certificates": {
+        source: "apache",
+        extensions: ["p7b", "spc"]
+      },
+      "application/x-pkcs7-certreqresp": {
+        source: "apache",
+        extensions: ["p7r"]
+      },
+      "application/x-pki-message": {
+        source: "iana"
+      },
+      "application/x-rar-compressed": {
+        source: "apache",
+        compressible: false,
+        extensions: ["rar"]
+      },
+      "application/x-redhat-package-manager": {
+        source: "nginx",
+        extensions: ["rpm"]
+      },
+      "application/x-research-info-systems": {
+        source: "apache",
+        extensions: ["ris"]
+      },
+      "application/x-sea": {
+        source: "nginx",
+        extensions: ["sea"]
+      },
+      "application/x-sh": {
+        source: "apache",
+        compressible: true,
+        extensions: ["sh"]
+      },
+      "application/x-shar": {
+        source: "apache",
+        extensions: ["shar"]
+      },
+      "application/x-shockwave-flash": {
+        source: "apache",
+        compressible: false,
+        extensions: ["swf"]
+      },
+      "application/x-silverlight-app": {
+        source: "apache",
+        extensions: ["xap"]
+      },
+      "application/x-sql": {
+        source: "apache",
+        extensions: ["sql"]
+      },
+      "application/x-stuffit": {
+        source: "apache",
+        compressible: false,
+        extensions: ["sit"]
+      },
+      "application/x-stuffitx": {
+        source: "apache",
+        extensions: ["sitx"]
+      },
+      "application/x-subrip": {
+        source: "apache",
+        extensions: ["srt"]
+      },
+      "application/x-sv4cpio": {
+        source: "apache",
+        extensions: ["sv4cpio"]
+      },
+      "application/x-sv4crc": {
+        source: "apache",
+        extensions: ["sv4crc"]
+      },
+      "application/x-t3vm-image": {
+        source: "apache",
+        extensions: ["t3"]
+      },
+      "application/x-tads": {
+        source: "apache",
+        extensions: ["gam"]
+      },
+      "application/x-tar": {
+        source: "apache",
+        compressible: true,
+        extensions: ["tar"]
+      },
+      "application/x-tcl": {
+        source: "apache",
+        extensions: ["tcl", "tk"]
+      },
+      "application/x-tex": {
+        source: "apache",
+        extensions: ["tex"]
+      },
+      "application/x-tex-tfm": {
+        source: "apache",
+        extensions: ["tfm"]
+      },
+      "application/x-texinfo": {
+        source: "apache",
+        extensions: ["texinfo", "texi"]
+      },
+      "application/x-tgif": {
+        source: "apache",
+        extensions: ["obj"]
+      },
+      "application/x-ustar": {
+        source: "apache",
+        extensions: ["ustar"]
+      },
+      "application/x-virtualbox-hdd": {
+        compressible: true,
+        extensions: ["hdd"]
+      },
+      "application/x-virtualbox-ova": {
+        compressible: true,
+        extensions: ["ova"]
+      },
+      "application/x-virtualbox-ovf": {
+        compressible: true,
+        extensions: ["ovf"]
+      },
+      "application/x-virtualbox-vbox": {
+        compressible: true,
+        extensions: ["vbox"]
+      },
+      "application/x-virtualbox-vbox-extpack": {
+        compressible: false,
+        extensions: ["vbox-extpack"]
+      },
+      "application/x-virtualbox-vdi": {
+        compressible: true,
+        extensions: ["vdi"]
+      },
+      "application/x-virtualbox-vhd": {
+        compressible: true,
+        extensions: ["vhd"]
+      },
+      "application/x-virtualbox-vmdk": {
+        compressible: true,
+        extensions: ["vmdk"]
+      },
+      "application/x-wais-source": {
+        source: "apache",
+        extensions: ["src"]
+      },
+      "application/x-web-app-manifest+json": {
+        compressible: true,
+        extensions: ["webapp"]
+      },
+      "application/x-www-form-urlencoded": {
+        source: "iana",
+        compressible: true
+      },
+      "application/x-x509-ca-cert": {
+        source: "iana",
+        extensions: ["der", "crt", "pem"]
+      },
+      "application/x-x509-ca-ra-cert": {
+        source: "iana"
+      },
+      "application/x-x509-next-ca-cert": {
+        source: "iana"
+      },
+      "application/x-xfig": {
+        source: "apache",
+        extensions: ["fig"]
+      },
+      "application/x-xliff+xml": {
+        source: "apache",
+        compressible: true,
+        extensions: ["xlf"]
+      },
+      "application/x-xpinstall": {
+        source: "apache",
+        compressible: false,
+        extensions: ["xpi"]
+      },
+      "application/x-xz": {
+        source: "apache",
+        extensions: ["xz"]
+      },
+      "application/x-zmachine": {
+        source: "apache",
+        extensions: ["z1", "z2", "z3", "z4", "z5", "z6", "z7", "z8"]
+      },
+      "application/x400-bp": {
+        source: "iana"
+      },
+      "application/xacml+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/xaml+xml": {
+        source: "apache",
+        compressible: true,
+        extensions: ["xaml"]
+      },
+      "application/xcap-att+xml": {
+        source: "iana",
+        compressible: true,
+        extensions: ["xav"]
+      },
+      "application/xcap-caps+xml": {
+        source: "iana",
+        compressible: true,
+        extensions: ["xca"]
+      },
+      "application/xcap-diff+xml": {
+        source: "iana",
+        compressible: true,
+        extensions: ["xdf"]
+      },
+      "application/xcap-el+xml": {
+        source: "iana",
+        compressible: true,
+        extensions: ["xel"]
+      },
+      "application/xcap-error+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/xcap-ns+xml": {
+        source: "iana",
+        compressible: true,
+        extensions: ["xns"]
+      },
+      "application/xcon-conference-info+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/xcon-conference-info-diff+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/xenc+xml": {
+        source: "iana",
+        compressible: true,
+        extensions: ["xenc"]
+      },
+      "application/xhtml+xml": {
+        source: "iana",
+        compressible: true,
+        extensions: ["xhtml", "xht"]
+      },
+      "application/xhtml-voice+xml": {
+        source: "apache",
+        compressible: true
+      },
+      "application/xliff+xml": {
+        source: "iana",
+        compressible: true,
+        extensions: ["xlf"]
+      },
+      "application/xml": {
+        source: "iana",
+        compressible: true,
+        extensions: ["xml", "xsl", "xsd", "rng"]
+      },
+      "application/xml-dtd": {
+        source: "iana",
+        compressible: true,
+        extensions: ["dtd"]
+      },
+      "application/xml-external-parsed-entity": {
+        source: "iana"
+      },
+      "application/xml-patch+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/xmpp+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/xop+xml": {
+        source: "iana",
+        compressible: true,
+        extensions: ["xop"]
+      },
+      "application/xproc+xml": {
+        source: "apache",
+        compressible: true,
+        extensions: ["xpl"]
+      },
+      "application/xslt+xml": {
+        source: "iana",
+        compressible: true,
+        extensions: ["xsl", "xslt"]
+      },
+      "application/xspf+xml": {
+        source: "apache",
+        compressible: true,
+        extensions: ["xspf"]
+      },
+      "application/xv+xml": {
+        source: "iana",
+        compressible: true,
+        extensions: ["mxml", "xhvml", "xvml", "xvm"]
+      },
+      "application/yang": {
+        source: "iana",
+        extensions: ["yang"]
+      },
+      "application/yang-data+json": {
+        source: "iana",
+        compressible: true
+      },
+      "application/yang-data+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/yang-patch+json": {
+        source: "iana",
+        compressible: true
+      },
+      "application/yang-patch+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "application/yin+xml": {
+        source: "iana",
+        compressible: true,
+        extensions: ["yin"]
+      },
+      "application/zip": {
+        source: "iana",
+        compressible: false,
+        extensions: ["zip"]
+      },
+      "application/zlib": {
+        source: "iana"
+      },
+      "application/zstd": {
+        source: "iana"
+      },
+      "audio/1d-interleaved-parityfec": {
+        source: "iana"
+      },
+      "audio/32kadpcm": {
+        source: "iana"
+      },
+      "audio/3gpp": {
+        source: "iana",
+        compressible: false,
+        extensions: ["3gpp"]
+      },
+      "audio/3gpp2": {
+        source: "iana"
+      },
+      "audio/aac": {
+        source: "iana"
+      },
+      "audio/ac3": {
+        source: "iana"
+      },
+      "audio/adpcm": {
+        source: "apache",
+        extensions: ["adp"]
+      },
+      "audio/amr": {
+        source: "iana",
+        extensions: ["amr"]
+      },
+      "audio/amr-wb": {
+        source: "iana"
+      },
+      "audio/amr-wb+": {
+        source: "iana"
+      },
+      "audio/aptx": {
+        source: "iana"
+      },
+      "audio/asc": {
+        source: "iana"
+      },
+      "audio/atrac-advanced-lossless": {
+        source: "iana"
+      },
+      "audio/atrac-x": {
+        source: "iana"
+      },
+      "audio/atrac3": {
+        source: "iana"
+      },
+      "audio/basic": {
+        source: "iana",
+        compressible: false,
+        extensions: ["au", "snd"]
+      },
+      "audio/bv16": {
+        source: "iana"
+      },
+      "audio/bv32": {
+        source: "iana"
+      },
+      "audio/clearmode": {
+        source: "iana"
+      },
+      "audio/cn": {
+        source: "iana"
+      },
+      "audio/dat12": {
+        source: "iana"
+      },
+      "audio/dls": {
+        source: "iana"
+      },
+      "audio/dsr-es201108": {
+        source: "iana"
+      },
+      "audio/dsr-es202050": {
+        source: "iana"
+      },
+      "audio/dsr-es202211": {
+        source: "iana"
+      },
+      "audio/dsr-es202212": {
+        source: "iana"
+      },
+      "audio/dv": {
+        source: "iana"
+      },
+      "audio/dvi4": {
+        source: "iana"
+      },
+      "audio/eac3": {
+        source: "iana"
+      },
+      "audio/encaprtp": {
+        source: "iana"
+      },
+      "audio/evrc": {
+        source: "iana"
+      },
+      "audio/evrc-qcp": {
+        source: "iana"
+      },
+      "audio/evrc0": {
+        source: "iana"
+      },
+      "audio/evrc1": {
+        source: "iana"
+      },
+      "audio/evrcb": {
+        source: "iana"
+      },
+      "audio/evrcb0": {
+        source: "iana"
+      },
+      "audio/evrcb1": {
+        source: "iana"
+      },
+      "audio/evrcnw": {
+        source: "iana"
+      },
+      "audio/evrcnw0": {
+        source: "iana"
+      },
+      "audio/evrcnw1": {
+        source: "iana"
+      },
+      "audio/evrcwb": {
+        source: "iana"
+      },
+      "audio/evrcwb0": {
+        source: "iana"
+      },
+      "audio/evrcwb1": {
+        source: "iana"
+      },
+      "audio/evs": {
+        source: "iana"
+      },
+      "audio/flexfec": {
+        source: "iana"
+      },
+      "audio/fwdred": {
+        source: "iana"
+      },
+      "audio/g711-0": {
+        source: "iana"
+      },
+      "audio/g719": {
+        source: "iana"
+      },
+      "audio/g722": {
+        source: "iana"
+      },
+      "audio/g7221": {
+        source: "iana"
+      },
+      "audio/g723": {
+        source: "iana"
+      },
+      "audio/g726-16": {
+        source: "iana"
+      },
+      "audio/g726-24": {
+        source: "iana"
+      },
+      "audio/g726-32": {
+        source: "iana"
+      },
+      "audio/g726-40": {
+        source: "iana"
+      },
+      "audio/g728": {
+        source: "iana"
+      },
+      "audio/g729": {
+        source: "iana"
+      },
+      "audio/g7291": {
+        source: "iana"
+      },
+      "audio/g729d": {
+        source: "iana"
+      },
+      "audio/g729e": {
+        source: "iana"
+      },
+      "audio/gsm": {
+        source: "iana"
+      },
+      "audio/gsm-efr": {
+        source: "iana"
+      },
+      "audio/gsm-hr-08": {
+        source: "iana"
+      },
+      "audio/ilbc": {
+        source: "iana"
+      },
+      "audio/ip-mr_v2.5": {
+        source: "iana"
+      },
+      "audio/isac": {
+        source: "apache"
+      },
+      "audio/l16": {
+        source: "iana"
+      },
+      "audio/l20": {
+        source: "iana"
+      },
+      "audio/l24": {
+        source: "iana",
+        compressible: false
+      },
+      "audio/l8": {
+        source: "iana"
+      },
+      "audio/lpc": {
+        source: "iana"
+      },
+      "audio/melp": {
+        source: "iana"
+      },
+      "audio/melp1200": {
+        source: "iana"
+      },
+      "audio/melp2400": {
+        source: "iana"
+      },
+      "audio/melp600": {
+        source: "iana"
+      },
+      "audio/mhas": {
+        source: "iana"
+      },
+      "audio/midi": {
+        source: "apache",
+        extensions: ["mid", "midi", "kar", "rmi"]
+      },
+      "audio/mobile-xmf": {
+        source: "iana",
+        extensions: ["mxmf"]
+      },
+      "audio/mp3": {
+        compressible: false,
+        extensions: ["mp3"]
+      },
+      "audio/mp4": {
+        source: "iana",
+        compressible: false,
+        extensions: ["m4a", "mp4a"]
+      },
+      "audio/mp4a-latm": {
+        source: "iana"
+      },
+      "audio/mpa": {
+        source: "iana"
+      },
+      "audio/mpa-robust": {
+        source: "iana"
+      },
+      "audio/mpeg": {
+        source: "iana",
+        compressible: false,
+        extensions: ["mpga", "mp2", "mp2a", "mp3", "m2a", "m3a"]
+      },
+      "audio/mpeg4-generic": {
+        source: "iana"
+      },
+      "audio/musepack": {
+        source: "apache"
+      },
+      "audio/ogg": {
+        source: "iana",
+        compressible: false,
+        extensions: ["oga", "ogg", "spx", "opus"]
+      },
+      "audio/opus": {
+        source: "iana"
+      },
+      "audio/parityfec": {
+        source: "iana"
+      },
+      "audio/pcma": {
+        source: "iana"
+      },
+      "audio/pcma-wb": {
+        source: "iana"
+      },
+      "audio/pcmu": {
+        source: "iana"
+      },
+      "audio/pcmu-wb": {
+        source: "iana"
+      },
+      "audio/prs.sid": {
+        source: "iana"
+      },
+      "audio/qcelp": {
+        source: "iana"
+      },
+      "audio/raptorfec": {
+        source: "iana"
+      },
+      "audio/red": {
+        source: "iana"
+      },
+      "audio/rtp-enc-aescm128": {
+        source: "iana"
+      },
+      "audio/rtp-midi": {
+        source: "iana"
+      },
+      "audio/rtploopback": {
+        source: "iana"
+      },
+      "audio/rtx": {
+        source: "iana"
+      },
+      "audio/s3m": {
+        source: "apache",
+        extensions: ["s3m"]
+      },
+      "audio/scip": {
+        source: "iana"
+      },
+      "audio/silk": {
+        source: "apache",
+        extensions: ["sil"]
+      },
+      "audio/smv": {
+        source: "iana"
+      },
+      "audio/smv-qcp": {
+        source: "iana"
+      },
+      "audio/smv0": {
+        source: "iana"
+      },
+      "audio/sofa": {
+        source: "iana"
+      },
+      "audio/sp-midi": {
+        source: "iana"
+      },
+      "audio/speex": {
+        source: "iana"
+      },
+      "audio/t140c": {
+        source: "iana"
+      },
+      "audio/t38": {
+        source: "iana"
+      },
+      "audio/telephone-event": {
+        source: "iana"
+      },
+      "audio/tetra_acelp": {
+        source: "iana"
+      },
+      "audio/tetra_acelp_bb": {
+        source: "iana"
+      },
+      "audio/tone": {
+        source: "iana"
+      },
+      "audio/tsvcis": {
+        source: "iana"
+      },
+      "audio/uemclip": {
+        source: "iana"
+      },
+      "audio/ulpfec": {
+        source: "iana"
+      },
+      "audio/usac": {
+        source: "iana"
+      },
+      "audio/vdvi": {
+        source: "iana"
+      },
+      "audio/vmr-wb": {
+        source: "iana"
+      },
+      "audio/vnd.3gpp.iufp": {
+        source: "iana"
+      },
+      "audio/vnd.4sb": {
+        source: "iana"
+      },
+      "audio/vnd.audiokoz": {
+        source: "iana"
+      },
+      "audio/vnd.celp": {
+        source: "iana"
+      },
+      "audio/vnd.cisco.nse": {
+        source: "iana"
+      },
+      "audio/vnd.cmles.radio-events": {
+        source: "iana"
+      },
+      "audio/vnd.cns.anp1": {
+        source: "iana"
+      },
+      "audio/vnd.cns.inf1": {
+        source: "iana"
+      },
+      "audio/vnd.dece.audio": {
+        source: "iana",
+        extensions: ["uva", "uvva"]
+      },
+      "audio/vnd.digital-winds": {
+        source: "iana",
+        extensions: ["eol"]
+      },
+      "audio/vnd.dlna.adts": {
+        source: "iana"
+      },
+      "audio/vnd.dolby.heaac.1": {
+        source: "iana"
+      },
+      "audio/vnd.dolby.heaac.2": {
+        source: "iana"
+      },
+      "audio/vnd.dolby.mlp": {
+        source: "iana"
+      },
+      "audio/vnd.dolby.mps": {
+        source: "iana"
+      },
+      "audio/vnd.dolby.pl2": {
+        source: "iana"
+      },
+      "audio/vnd.dolby.pl2x": {
+        source: "iana"
+      },
+      "audio/vnd.dolby.pl2z": {
+        source: "iana"
+      },
+      "audio/vnd.dolby.pulse.1": {
+        source: "iana"
+      },
+      "audio/vnd.dra": {
+        source: "iana",
+        extensions: ["dra"]
+      },
+      "audio/vnd.dts": {
+        source: "iana",
+        extensions: ["dts"]
+      },
+      "audio/vnd.dts.hd": {
+        source: "iana",
+        extensions: ["dtshd"]
+      },
+      "audio/vnd.dts.uhd": {
+        source: "iana"
+      },
+      "audio/vnd.dvb.file": {
+        source: "iana"
+      },
+      "audio/vnd.everad.plj": {
+        source: "iana"
+      },
+      "audio/vnd.hns.audio": {
+        source: "iana"
+      },
+      "audio/vnd.lucent.voice": {
+        source: "iana",
+        extensions: ["lvp"]
+      },
+      "audio/vnd.ms-playready.media.pya": {
+        source: "iana",
+        extensions: ["pya"]
+      },
+      "audio/vnd.nokia.mobile-xmf": {
+        source: "iana"
+      },
+      "audio/vnd.nortel.vbk": {
+        source: "iana"
+      },
+      "audio/vnd.nuera.ecelp4800": {
+        source: "iana",
+        extensions: ["ecelp4800"]
+      },
+      "audio/vnd.nuera.ecelp7470": {
+        source: "iana",
+        extensions: ["ecelp7470"]
+      },
+      "audio/vnd.nuera.ecelp9600": {
+        source: "iana",
+        extensions: ["ecelp9600"]
+      },
+      "audio/vnd.octel.sbc": {
+        source: "iana"
+      },
+      "audio/vnd.presonus.multitrack": {
+        source: "iana"
+      },
+      "audio/vnd.qcelp": {
+        source: "iana"
+      },
+      "audio/vnd.rhetorex.32kadpcm": {
+        source: "iana"
+      },
+      "audio/vnd.rip": {
+        source: "iana",
+        extensions: ["rip"]
+      },
+      "audio/vnd.rn-realaudio": {
+        compressible: false
+      },
+      "audio/vnd.sealedmedia.softseal.mpeg": {
+        source: "iana"
+      },
+      "audio/vnd.vmx.cvsd": {
+        source: "iana"
+      },
+      "audio/vnd.wave": {
+        compressible: false
+      },
+      "audio/vorbis": {
+        source: "iana",
+        compressible: false
+      },
+      "audio/vorbis-config": {
+        source: "iana"
+      },
+      "audio/wav": {
+        compressible: false,
+        extensions: ["wav"]
+      },
+      "audio/wave": {
+        compressible: false,
+        extensions: ["wav"]
+      },
+      "audio/webm": {
+        source: "apache",
+        compressible: false,
+        extensions: ["weba"]
+      },
+      "audio/x-aac": {
+        source: "apache",
+        compressible: false,
+        extensions: ["aac"]
+      },
+      "audio/x-aiff": {
+        source: "apache",
+        extensions: ["aif", "aiff", "aifc"]
+      },
+      "audio/x-caf": {
+        source: "apache",
+        compressible: false,
+        extensions: ["caf"]
+      },
+      "audio/x-flac": {
+        source: "apache",
+        extensions: ["flac"]
+      },
+      "audio/x-m4a": {
+        source: "nginx",
+        extensions: ["m4a"]
+      },
+      "audio/x-matroska": {
+        source: "apache",
+        extensions: ["mka"]
+      },
+      "audio/x-mpegurl": {
+        source: "apache",
+        extensions: ["m3u"]
+      },
+      "audio/x-ms-wax": {
+        source: "apache",
+        extensions: ["wax"]
+      },
+      "audio/x-ms-wma": {
+        source: "apache",
+        extensions: ["wma"]
+      },
+      "audio/x-pn-realaudio": {
+        source: "apache",
+        extensions: ["ram", "ra"]
+      },
+      "audio/x-pn-realaudio-plugin": {
+        source: "apache",
+        extensions: ["rmp"]
+      },
+      "audio/x-realaudio": {
+        source: "nginx",
+        extensions: ["ra"]
+      },
+      "audio/x-tta": {
+        source: "apache"
+      },
+      "audio/x-wav": {
+        source: "apache",
+        extensions: ["wav"]
+      },
+      "audio/xm": {
+        source: "apache",
+        extensions: ["xm"]
+      },
+      "chemical/x-cdx": {
+        source: "apache",
+        extensions: ["cdx"]
+      },
+      "chemical/x-cif": {
+        source: "apache",
+        extensions: ["cif"]
+      },
+      "chemical/x-cmdf": {
+        source: "apache",
+        extensions: ["cmdf"]
+      },
+      "chemical/x-cml": {
+        source: "apache",
+        extensions: ["cml"]
+      },
+      "chemical/x-csml": {
+        source: "apache",
+        extensions: ["csml"]
+      },
+      "chemical/x-pdb": {
+        source: "apache"
+      },
+      "chemical/x-xyz": {
+        source: "apache",
+        extensions: ["xyz"]
+      },
+      "font/collection": {
+        source: "iana",
+        extensions: ["ttc"]
+      },
+      "font/otf": {
+        source: "iana",
+        compressible: true,
+        extensions: ["otf"]
+      },
+      "font/sfnt": {
+        source: "iana"
+      },
+      "font/ttf": {
+        source: "iana",
+        compressible: true,
+        extensions: ["ttf"]
+      },
+      "font/woff": {
+        source: "iana",
+        extensions: ["woff"]
+      },
+      "font/woff2": {
+        source: "iana",
+        extensions: ["woff2"]
+      },
+      "image/aces": {
+        source: "iana",
+        extensions: ["exr"]
+      },
+      "image/apng": {
+        compressible: false,
+        extensions: ["apng"]
+      },
+      "image/avci": {
+        source: "iana",
+        extensions: ["avci"]
+      },
+      "image/avcs": {
+        source: "iana",
+        extensions: ["avcs"]
+      },
+      "image/avif": {
+        source: "iana",
+        compressible: false,
+        extensions: ["avif"]
+      },
+      "image/bmp": {
+        source: "iana",
+        compressible: true,
+        extensions: ["bmp"]
+      },
+      "image/cgm": {
+        source: "iana",
+        extensions: ["cgm"]
+      },
+      "image/dicom-rle": {
+        source: "iana",
+        extensions: ["drle"]
+      },
+      "image/emf": {
+        source: "iana",
+        extensions: ["emf"]
+      },
+      "image/fits": {
+        source: "iana",
+        extensions: ["fits"]
+      },
+      "image/g3fax": {
+        source: "iana",
+        extensions: ["g3"]
+      },
+      "image/gif": {
+        source: "iana",
+        compressible: false,
+        extensions: ["gif"]
+      },
+      "image/heic": {
+        source: "iana",
+        extensions: ["heic"]
+      },
+      "image/heic-sequence": {
+        source: "iana",
+        extensions: ["heics"]
+      },
+      "image/heif": {
+        source: "iana",
+        extensions: ["heif"]
+      },
+      "image/heif-sequence": {
+        source: "iana",
+        extensions: ["heifs"]
+      },
+      "image/hej2k": {
+        source: "iana",
+        extensions: ["hej2"]
+      },
+      "image/hsj2": {
+        source: "iana",
+        extensions: ["hsj2"]
+      },
+      "image/ief": {
+        source: "iana",
+        extensions: ["ief"]
+      },
+      "image/jls": {
+        source: "iana",
+        extensions: ["jls"]
+      },
+      "image/jp2": {
+        source: "iana",
+        compressible: false,
+        extensions: ["jp2", "jpg2"]
+      },
+      "image/jpeg": {
+        source: "iana",
+        compressible: false,
+        extensions: ["jpeg", "jpg", "jpe"]
+      },
+      "image/jph": {
+        source: "iana",
+        extensions: ["jph"]
+      },
+      "image/jphc": {
+        source: "iana",
+        extensions: ["jhc"]
+      },
+      "image/jpm": {
+        source: "iana",
+        compressible: false,
+        extensions: ["jpm"]
+      },
+      "image/jpx": {
+        source: "iana",
+        compressible: false,
+        extensions: ["jpx", "jpf"]
+      },
+      "image/jxr": {
+        source: "iana",
+        extensions: ["jxr"]
+      },
+      "image/jxra": {
+        source: "iana",
+        extensions: ["jxra"]
+      },
+      "image/jxrs": {
+        source: "iana",
+        extensions: ["jxrs"]
+      },
+      "image/jxs": {
+        source: "iana",
+        extensions: ["jxs"]
+      },
+      "image/jxsc": {
+        source: "iana",
+        extensions: ["jxsc"]
+      },
+      "image/jxsi": {
+        source: "iana",
+        extensions: ["jxsi"]
+      },
+      "image/jxss": {
+        source: "iana",
+        extensions: ["jxss"]
+      },
+      "image/ktx": {
+        source: "iana",
+        extensions: ["ktx"]
+      },
+      "image/ktx2": {
+        source: "iana",
+        extensions: ["ktx2"]
+      },
+      "image/naplps": {
+        source: "iana"
+      },
+      "image/pjpeg": {
+        compressible: false
+      },
+      "image/png": {
+        source: "iana",
+        compressible: false,
+        extensions: ["png"]
+      },
+      "image/prs.btif": {
+        source: "iana",
+        extensions: ["btif"]
+      },
+      "image/prs.pti": {
+        source: "iana",
+        extensions: ["pti"]
+      },
+      "image/pwg-raster": {
+        source: "iana"
+      },
+      "image/sgi": {
+        source: "apache",
+        extensions: ["sgi"]
+      },
+      "image/svg+xml": {
+        source: "iana",
+        compressible: true,
+        extensions: ["svg", "svgz"]
+      },
+      "image/t38": {
+        source: "iana",
+        extensions: ["t38"]
+      },
+      "image/tiff": {
+        source: "iana",
+        compressible: false,
+        extensions: ["tif", "tiff"]
+      },
+      "image/tiff-fx": {
+        source: "iana",
+        extensions: ["tfx"]
+      },
+      "image/vnd.adobe.photoshop": {
+        source: "iana",
+        compressible: true,
+        extensions: ["psd"]
+      },
+      "image/vnd.airzip.accelerator.azv": {
+        source: "iana",
+        extensions: ["azv"]
+      },
+      "image/vnd.cns.inf2": {
+        source: "iana"
+      },
+      "image/vnd.dece.graphic": {
+        source: "iana",
+        extensions: ["uvi", "uvvi", "uvg", "uvvg"]
+      },
+      "image/vnd.djvu": {
+        source: "iana",
+        extensions: ["djvu", "djv"]
+      },
+      "image/vnd.dvb.subtitle": {
+        source: "iana",
+        extensions: ["sub"]
+      },
+      "image/vnd.dwg": {
+        source: "iana",
+        extensions: ["dwg"]
+      },
+      "image/vnd.dxf": {
+        source: "iana",
+        extensions: ["dxf"]
+      },
+      "image/vnd.fastbidsheet": {
+        source: "iana",
+        extensions: ["fbs"]
+      },
+      "image/vnd.fpx": {
+        source: "iana",
+        extensions: ["fpx"]
+      },
+      "image/vnd.fst": {
+        source: "iana",
+        extensions: ["fst"]
+      },
+      "image/vnd.fujixerox.edmics-mmr": {
+        source: "iana",
+        extensions: ["mmr"]
+      },
+      "image/vnd.fujixerox.edmics-rlc": {
+        source: "iana",
+        extensions: ["rlc"]
+      },
+      "image/vnd.globalgraphics.pgb": {
+        source: "iana"
+      },
+      "image/vnd.microsoft.icon": {
+        source: "iana",
+        compressible: true,
+        extensions: ["ico"]
+      },
+      "image/vnd.mix": {
+        source: "iana"
+      },
+      "image/vnd.mozilla.apng": {
+        source: "iana"
+      },
+      "image/vnd.ms-dds": {
+        compressible: true,
+        extensions: ["dds"]
+      },
+      "image/vnd.ms-modi": {
+        source: "iana",
+        extensions: ["mdi"]
+      },
+      "image/vnd.ms-photo": {
+        source: "apache",
+        extensions: ["wdp"]
+      },
+      "image/vnd.net-fpx": {
+        source: "iana",
+        extensions: ["npx"]
+      },
+      "image/vnd.pco.b16": {
+        source: "iana",
+        extensions: ["b16"]
+      },
+      "image/vnd.radiance": {
+        source: "iana"
+      },
+      "image/vnd.sealed.png": {
+        source: "iana"
+      },
+      "image/vnd.sealedmedia.softseal.gif": {
+        source: "iana"
+      },
+      "image/vnd.sealedmedia.softseal.jpg": {
+        source: "iana"
+      },
+      "image/vnd.svf": {
+        source: "iana"
+      },
+      "image/vnd.tencent.tap": {
+        source: "iana",
+        extensions: ["tap"]
+      },
+      "image/vnd.valve.source.texture": {
+        source: "iana",
+        extensions: ["vtf"]
+      },
+      "image/vnd.wap.wbmp": {
+        source: "iana",
+        extensions: ["wbmp"]
+      },
+      "image/vnd.xiff": {
+        source: "iana",
+        extensions: ["xif"]
+      },
+      "image/vnd.zbrush.pcx": {
+        source: "iana",
+        extensions: ["pcx"]
+      },
+      "image/webp": {
+        source: "apache",
+        extensions: ["webp"]
+      },
+      "image/wmf": {
+        source: "iana",
+        extensions: ["wmf"]
+      },
+      "image/x-3ds": {
+        source: "apache",
+        extensions: ["3ds"]
+      },
+      "image/x-cmu-raster": {
+        source: "apache",
+        extensions: ["ras"]
+      },
+      "image/x-cmx": {
+        source: "apache",
+        extensions: ["cmx"]
+      },
+      "image/x-freehand": {
+        source: "apache",
+        extensions: ["fh", "fhc", "fh4", "fh5", "fh7"]
+      },
+      "image/x-icon": {
+        source: "apache",
+        compressible: true,
+        extensions: ["ico"]
+      },
+      "image/x-jng": {
+        source: "nginx",
+        extensions: ["jng"]
+      },
+      "image/x-mrsid-image": {
+        source: "apache",
+        extensions: ["sid"]
+      },
+      "image/x-ms-bmp": {
+        source: "nginx",
+        compressible: true,
+        extensions: ["bmp"]
+      },
+      "image/x-pcx": {
+        source: "apache",
+        extensions: ["pcx"]
+      },
+      "image/x-pict": {
+        source: "apache",
+        extensions: ["pic", "pct"]
+      },
+      "image/x-portable-anymap": {
+        source: "apache",
+        extensions: ["pnm"]
+      },
+      "image/x-portable-bitmap": {
+        source: "apache",
+        extensions: ["pbm"]
+      },
+      "image/x-portable-graymap": {
+        source: "apache",
+        extensions: ["pgm"]
+      },
+      "image/x-portable-pixmap": {
+        source: "apache",
+        extensions: ["ppm"]
+      },
+      "image/x-rgb": {
+        source: "apache",
+        extensions: ["rgb"]
+      },
+      "image/x-tga": {
+        source: "apache",
+        extensions: ["tga"]
+      },
+      "image/x-xbitmap": {
+        source: "apache",
+        extensions: ["xbm"]
+      },
+      "image/x-xcf": {
+        compressible: false
+      },
+      "image/x-xpixmap": {
+        source: "apache",
+        extensions: ["xpm"]
+      },
+      "image/x-xwindowdump": {
+        source: "apache",
+        extensions: ["xwd"]
+      },
+      "message/cpim": {
+        source: "iana"
+      },
+      "message/delivery-status": {
+        source: "iana"
+      },
+      "message/disposition-notification": {
+        source: "iana",
+        extensions: [
+          "disposition-notification"
+        ]
+      },
+      "message/external-body": {
+        source: "iana"
+      },
+      "message/feedback-report": {
+        source: "iana"
+      },
+      "message/global": {
+        source: "iana",
+        extensions: ["u8msg"]
+      },
+      "message/global-delivery-status": {
+        source: "iana",
+        extensions: ["u8dsn"]
+      },
+      "message/global-disposition-notification": {
+        source: "iana",
+        extensions: ["u8mdn"]
+      },
+      "message/global-headers": {
+        source: "iana",
+        extensions: ["u8hdr"]
+      },
+      "message/http": {
+        source: "iana",
+        compressible: false
+      },
+      "message/imdn+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "message/news": {
+        source: "iana"
+      },
+      "message/partial": {
+        source: "iana",
+        compressible: false
+      },
+      "message/rfc822": {
+        source: "iana",
+        compressible: true,
+        extensions: ["eml", "mime"]
+      },
+      "message/s-http": {
+        source: "iana"
+      },
+      "message/sip": {
+        source: "iana"
+      },
+      "message/sipfrag": {
+        source: "iana"
+      },
+      "message/tracking-status": {
+        source: "iana"
+      },
+      "message/vnd.si.simp": {
+        source: "iana"
+      },
+      "message/vnd.wfa.wsc": {
+        source: "iana",
+        extensions: ["wsc"]
+      },
+      "model/3mf": {
+        source: "iana",
+        extensions: ["3mf"]
+      },
+      "model/e57": {
+        source: "iana"
+      },
+      "model/gltf+json": {
+        source: "iana",
+        compressible: true,
+        extensions: ["gltf"]
+      },
+      "model/gltf-binary": {
+        source: "iana",
+        compressible: true,
+        extensions: ["glb"]
+      },
+      "model/iges": {
+        source: "iana",
+        compressible: false,
+        extensions: ["igs", "iges"]
+      },
+      "model/mesh": {
+        source: "iana",
+        compressible: false,
+        extensions: ["msh", "mesh", "silo"]
+      },
+      "model/mtl": {
+        source: "iana",
+        extensions: ["mtl"]
+      },
+      "model/obj": {
+        source: "iana",
+        extensions: ["obj"]
+      },
+      "model/step": {
+        source: "iana"
+      },
+      "model/step+xml": {
+        source: "iana",
+        compressible: true,
+        extensions: ["stpx"]
+      },
+      "model/step+zip": {
+        source: "iana",
+        compressible: false,
+        extensions: ["stpz"]
+      },
+      "model/step-xml+zip": {
+        source: "iana",
+        compressible: false,
+        extensions: ["stpxz"]
+      },
+      "model/stl": {
+        source: "iana",
+        extensions: ["stl"]
+      },
+      "model/vnd.collada+xml": {
+        source: "iana",
+        compressible: true,
+        extensions: ["dae"]
+      },
+      "model/vnd.dwf": {
+        source: "iana",
+        extensions: ["dwf"]
+      },
+      "model/vnd.flatland.3dml": {
+        source: "iana"
+      },
+      "model/vnd.gdl": {
+        source: "iana",
+        extensions: ["gdl"]
+      },
+      "model/vnd.gs-gdl": {
+        source: "apache"
+      },
+      "model/vnd.gs.gdl": {
+        source: "iana"
+      },
+      "model/vnd.gtw": {
+        source: "iana",
+        extensions: ["gtw"]
+      },
+      "model/vnd.moml+xml": {
+        source: "iana",
+        compressible: true
+      },
+      "model/vnd.mts": {
+        source: "iana",
+        extensions: ["mts"]
+      },
+      "model/vnd.opengex": {
+        source: "iana",
+        extensions: ["ogex"]
+      },
+      "model/vnd.parasolid.transmit.binary": {
+        source: "iana",
+        extensions: ["x_b"]
+      },
+      "model/vnd.parasolid.transmit.text": {
+        source: "iana",
+        extensions: ["x_t"]
+      },
+      "model/vnd.pytha.pyox": {
+        source: "iana"
+      },
+      "model/vnd.rosette.annotated-data-model": {
+        source: "iana"
+      },
+      "model/vnd.sap.vds": {
+        source: "iana",
+        extensions: ["vds"]
+      },
+      "model/vnd.usdz+zip": {
+        source: "iana",
+        compressible: false,
+        extensions: ["usdz"]
+      },
+      "model/vnd.valve.source.compiled-map": {
+        source: "iana",
+        extensions: ["bsp"]
+      },
+      "model/vnd.vtu": {
+        source: "iana",
+        extensions: ["vtu"]
+      },
+      "model/vrml": {
+        source: "iana",
+        compressible: false,
+        extensions: ["wrl", "vrml"]
+      },
+      "model/x3d+binary": {
+        source: "apache",
+        compressible: false,
+        extensions: ["x3db", "x3dbz"]
+      },
+      "model/x3d+fastinfoset": {
+        source: "iana",
+        extensions: ["x3db"]
+      },
+      "model/x3d+vrml": {
+        source: "apache",
+        compressible: false,
+        extensions: ["x3dv", "x3dvz"]
+      },
+      "model/x3d+xml": {
+        source: "iana",
+        compressible: true,
+        extensions: ["x3d", "x3dz"]
+      },
+      "model/x3d-vrml": {
+        source: "iana",
+        extensions: ["x3dv"]
+      },
+      "multipart/alternative": {
+        source: "iana",
+        compressible: false
+      },
+      "multipart/appledouble": {
+        source: "iana"
+      },
+      "multipart/byteranges": {
+        source: "iana"
+      },
+      "multipart/digest": {
+        source: "iana"
+      },
+      "multipart/encrypted": {
+        source: "iana",
+        compressible: false
+      },
+      "multipart/form-data": {
+        source: "iana",
+        compressible: false
+      },
+      "multipart/header-set": {
+        source: "iana"
+      },
+      "multipart/mixed": {
+        source: "iana"
+      },
+      "multipart/multilingual": {
+        source: "iana"
+      },
+      "multipart/parallel": {
+        source: "iana"
+      },
+      "multipart/related": {
+        source: "iana",
+        compressible: false
+      },
+      "multipart/report": {
+        source: "iana"
+      },
+      "multipart/signed": {
+        source: "iana",
+        compressible: false
+      },
+      "multipart/vnd.bint.med-plus": {
+        source: "iana"
+      },
+      "multipart/voice-message": {
+        source: "iana"
+      },
+      "multipart/x-mixed-replace": {
+        source: "iana"
+      },
+      "text/1d-interleaved-parityfec": {
+        source: "iana"
+      },
+      "text/cache-manifest": {
+        source: "iana",
+        compressible: true,
+        extensions: ["appcache", "manifest"]
+      },
+      "text/calendar": {
+        source: "iana",
+        extensions: ["ics", "ifb"]
+      },
+      "text/calender": {
+        compressible: true
+      },
+      "text/cmd": {
+        compressible: true
+      },
+      "text/coffeescript": {
+        extensions: ["coffee", "litcoffee"]
+      },
+      "text/cql": {
+        source: "iana"
+      },
+      "text/cql-expression": {
+        source: "iana"
+      },
+      "text/cql-identifier": {
+        source: "iana"
+      },
+      "text/css": {
+        source: "iana",
+        charset: "UTF-8",
+        compressible: true,
+        extensions: ["css"]
+      },
+      "text/csv": {
+        source: "iana",
+        compressible: true,
+        extensions: ["csv"]
+      },
+      "text/csv-schema": {
+        source: "iana"
+      },
+      "text/directory": {
+        source: "iana"
+      },
+      "text/dns": {
+        source: "iana"
+      },
+      "text/ecmascript": {
+        source: "iana"
+      },
+      "text/encaprtp": {
+        source: "iana"
+      },
+      "text/enriched": {
+        source: "iana"
+      },
+      "text/fhirpath": {
+        source: "iana"
+      },
+      "text/flexfec": {
+        source: "iana"
+      },
+      "text/fwdred": {
+        source: "iana"
+      },
+      "text/gff3": {
+        source: "iana"
+      },
+      "text/grammar-ref-list": {
+        source: "iana"
+      },
+      "text/html": {
+        source: "iana",
+        compressible: true,
+        extensions: ["html", "htm", "shtml"]
+      },
+      "text/jade": {
+        extensions: ["jade"]
+      },
+      "text/javascript": {
+        source: "iana",
+        compressible: true
+      },
+      "text/jcr-cnd": {
+        source: "iana"
+      },
+      "text/jsx": {
+        compressible: true,
+        extensions: ["jsx"]
+      },
+      "text/less": {
+        compressible: true,
+        extensions: ["less"]
+      },
+      "text/markdown": {
+        source: "iana",
+        compressible: true,
+        extensions: ["markdown", "md"]
+      },
+      "text/mathml": {
+        source: "nginx",
+        extensions: ["mml"]
+      },
+      "text/mdx": {
+        compressible: true,
+        extensions: ["mdx"]
+      },
+      "text/mizar": {
+        source: "iana"
+      },
+      "text/n3": {
+        source: "iana",
+        charset: "UTF-8",
+        compressible: true,
+        extensions: ["n3"]
+      },
+      "text/parameters": {
+        source: "iana",
+        charset: "UTF-8"
+      },
+      "text/parityfec": {
+        source: "iana"
+      },
+      "text/plain": {
+        source: "iana",
+        compressible: true,
+        extensions: ["txt", "text", "conf", "def", "list", "log", "in", "ini"]
+      },
+      "text/provenance-notation": {
+        source: "iana",
+        charset: "UTF-8"
+      },
+      "text/prs.fallenstein.rst": {
+        source: "iana"
+      },
+      "text/prs.lines.tag": {
+        source: "iana",
+        extensions: ["dsc"]
+      },
+      "text/prs.prop.logic": {
+        source: "iana"
+      },
+      "text/raptorfec": {
+        source: "iana"
+      },
+      "text/red": {
+        source: "iana"
+      },
+      "text/rfc822-headers": {
+        source: "iana"
+      },
+      "text/richtext": {
+        source: "iana",
+        compressible: true,
+        extensions: ["rtx"]
+      },
+      "text/rtf": {
+        source: "iana",
+        compressible: true,
+        extensions: ["rtf"]
+      },
+      "text/rtp-enc-aescm128": {
+        source: "iana"
+      },
+      "text/rtploopback": {
+        source: "iana"
+      },
+      "text/rtx": {
+        source: "iana"
+      },
+      "text/sgml": {
+        source: "iana",
+        extensions: ["sgml", "sgm"]
+      },
+      "text/shaclc": {
+        source: "iana"
+      },
+      "text/shex": {
+        source: "iana",
+        extensions: ["shex"]
+      },
+      "text/slim": {
+        extensions: ["slim", "slm"]
+      },
+      "text/spdx": {
+        source: "iana",
+        extensions: ["spdx"]
+      },
+      "text/strings": {
+        source: "iana"
+      },
+      "text/stylus": {
+        extensions: ["stylus", "styl"]
+      },
+      "text/t140": {
+        source: "iana"
+      },
+      "text/tab-separated-values": {
+        source: "iana",
+        compressible: true,
+        extensions: ["tsv"]
+      },
+      "text/troff": {
+        source: "iana",
+        extensions: ["t", "tr", "roff", "man", "me", "ms"]
+      },
+      "text/turtle": {
+        source: "iana",
+        charset: "UTF-8",
+        extensions: ["ttl"]
+      },
+      "text/ulpfec": {
+        source: "iana"
+      },
+      "text/uri-list": {
+        source: "iana",
+        compressible: true,
+        extensions: ["uri", "uris", "urls"]
+      },
+      "text/vcard": {
+        source: "iana",
+        compressible: true,
+        extensions: ["vcard"]
+      },
+      "text/vnd.a": {
+        source: "iana"
+      },
+      "text/vnd.abc": {
+        source: "iana"
+      },
+      "text/vnd.ascii-art": {
+        source: "iana"
+      },
+      "text/vnd.curl": {
+        source: "iana",
+        extensions: ["curl"]
+      },
+      "text/vnd.curl.dcurl": {
+        source: "apache",
+        extensions: ["dcurl"]
+      },
+      "text/vnd.curl.mcurl": {
+        source: "apache",
+        extensions: ["mcurl"]
+      },
+      "text/vnd.curl.scurl": {
+        source: "apache",
+        extensions: ["scurl"]
+      },
+      "text/vnd.debian.copyright": {
+        source: "iana",
+        charset: "UTF-8"
+      },
+      "text/vnd.dmclientscript": {
+        source: "iana"
+      },
+      "text/vnd.dvb.subtitle": {
+        source: "iana",
+        extensions: ["sub"]
+      },
+      "text/vnd.esmertec.theme-descriptor": {
+        source: "iana",
+        charset: "UTF-8"
+      },
+      "text/vnd.familysearch.gedcom": {
+        source: "iana",
+        extensions: ["ged"]
+      },
+      "text/vnd.ficlab.flt": {
+        source: "iana"
+      },
+      "text/vnd.fly": {
+        source: "iana",
+        extensions: ["fly"]
+      },
+      "text/vnd.fmi.flexstor": {
+        source: "iana",
+        extensions: ["flx"]
+      },
+      "text/vnd.gml": {
+        source: "iana"
+      },
+      "text/vnd.graphviz": {
+        source: "iana",
+        extensions: ["gv"]
+      },
+      "text/vnd.hans": {
+        source: "iana"
+      },
+      "text/vnd.hgl": {
+        source: "iana"
+      },
+      "text/vnd.in3d.3dml": {
+        source: "iana",
+        extensions: ["3dml"]
+      },
+      "text/vnd.in3d.spot": {
+        source: "iana",
+        extensions: ["spot"]
+      },
+      "text/vnd.iptc.newsml": {
+        source: "iana"
+      },
+      "text/vnd.iptc.nitf": {
+        source: "iana"
+      },
+      "text/vnd.latex-z": {
+        source: "iana"
+      },
+      "text/vnd.motorola.reflex": {
+        source: "iana"
+      },
+      "text/vnd.ms-mediapackage": {
+        source: "iana"
+      },
+      "text/vnd.net2phone.commcenter.command": {
+        source: "iana"
+      },
+      "text/vnd.radisys.msml-basic-layout": {
+        source: "iana"
+      },
+      "text/vnd.senx.warpscript": {
+        source: "iana"
+      },
+      "text/vnd.si.uricatalogue": {
+        source: "iana"
+      },
+      "text/vnd.sosi": {
+        source: "iana"
+      },
+      "text/vnd.sun.j2me.app-descriptor": {
+        source: "iana",
+        charset: "UTF-8",
+        extensions: ["jad"]
+      },
+      "text/vnd.trolltech.linguist": {
+        source: "iana",
+        charset: "UTF-8"
+      },
+      "text/vnd.wap.si": {
+        source: "iana"
+      },
+      "text/vnd.wap.sl": {
+        source: "iana"
+      },
+      "text/vnd.wap.wml": {
+        source: "iana",
+        extensions: ["wml"]
+      },
+      "text/vnd.wap.wmlscript": {
+        source: "iana",
+        extensions: ["wmls"]
+      },
+      "text/vtt": {
+        source: "iana",
+        charset: "UTF-8",
+        compressible: true,
+        extensions: ["vtt"]
+      },
+      "text/x-asm": {
+        source: "apache",
+        extensions: ["s", "asm"]
+      },
+      "text/x-c": {
+        source: "apache",
+        extensions: ["c", "cc", "cxx", "cpp", "h", "hh", "dic"]
+      },
+      "text/x-component": {
+        source: "nginx",
+        extensions: ["htc"]
+      },
+      "text/x-fortran": {
+        source: "apache",
+        extensions: ["f", "for", "f77", "f90"]
+      },
+      "text/x-gwt-rpc": {
+        compressible: true
+      },
+      "text/x-handlebars-template": {
+        extensions: ["hbs"]
+      },
+      "text/x-java-source": {
+        source: "apache",
+        extensions: ["java"]
+      },
+      "text/x-jquery-tmpl": {
+        compressible: true
+      },
+      "text/x-lua": {
+        extensions: ["lua"]
+      },
+      "text/x-markdown": {
+        compressible: true,
+        extensions: ["mkd"]
+      },
+      "text/x-nfo": {
+        source: "apache",
+        extensions: ["nfo"]
+      },
+      "text/x-opml": {
+        source: "apache",
+        extensions: ["opml"]
+      },
+      "text/x-org": {
+        compressible: true,
+        extensions: ["org"]
+      },
+      "text/x-pascal": {
+        source: "apache",
+        extensions: ["p", "pas"]
+      },
+      "text/x-processing": {
+        compressible: true,
+        extensions: ["pde"]
+      },
+      "text/x-sass": {
+        extensions: ["sass"]
+      },
+      "text/x-scss": {
+        extensions: ["scss"]
+      },
+      "text/x-setext": {
+        source: "apache",
+        extensions: ["etx"]
+      },
+      "text/x-sfv": {
+        source: "apache",
+        extensions: ["sfv"]
+      },
+      "text/x-suse-ymp": {
+        compressible: true,
+        extensions: ["ymp"]
+      },
+      "text/x-uuencode": {
+        source: "apache",
+        extensions: ["uu"]
+      },
+      "text/x-vcalendar": {
+        source: "apache",
+        extensions: ["vcs"]
+      },
+      "text/x-vcard": {
+        source: "apache",
+        extensions: ["vcf"]
+      },
+      "text/xml": {
+        source: "iana",
+        compressible: true,
+        extensions: ["xml"]
+      },
+      "text/xml-external-parsed-entity": {
+        source: "iana"
+      },
+      "text/yaml": {
+        compressible: true,
+        extensions: ["yaml", "yml"]
+      },
+      "video/1d-interleaved-parityfec": {
+        source: "iana"
+      },
+      "video/3gpp": {
+        source: "iana",
+        extensions: ["3gp", "3gpp"]
+      },
+      "video/3gpp-tt": {
+        source: "iana"
+      },
+      "video/3gpp2": {
+        source: "iana",
+        extensions: ["3g2"]
+      },
+      "video/av1": {
+        source: "iana"
+      },
+      "video/bmpeg": {
+        source: "iana"
+      },
+      "video/bt656": {
+        source: "iana"
+      },
+      "video/celb": {
+        source: "iana"
+      },
+      "video/dv": {
+        source: "iana"
+      },
+      "video/encaprtp": {
+        source: "iana"
+      },
+      "video/ffv1": {
+        source: "iana"
+      },
+      "video/flexfec": {
+        source: "iana"
+      },
+      "video/h261": {
+        source: "iana",
+        extensions: ["h261"]
+      },
+      "video/h263": {
+        source: "iana",
+        extensions: ["h263"]
+      },
+      "video/h263-1998": {
+        source: "iana"
+      },
+      "video/h263-2000": {
+        source: "iana"
+      },
+      "video/h264": {
+        source: "iana",
+        extensions: ["h264"]
+      },
+      "video/h264-rcdo": {
+        source: "iana"
+      },
+      "video/h264-svc": {
+        source: "iana"
+      },
+      "video/h265": {
+        source: "iana"
+      },
+      "video/iso.segment": {
+        source: "iana",
+        extensions: ["m4s"]
+      },
+      "video/jpeg": {
+        source: "iana",
+        extensions: ["jpgv"]
+      },
+      "video/jpeg2000": {
+        source: "iana"
+      },
+      "video/jpm": {
+        source: "apache",
+        extensions: ["jpm", "jpgm"]
+      },
+      "video/jxsv": {
+        source: "iana"
+      },
+      "video/mj2": {
+        source: "iana",
+        extensions: ["mj2", "mjp2"]
+      },
+      "video/mp1s": {
+        source: "iana"
+      },
+      "video/mp2p": {
+        source: "iana"
+      },
+      "video/mp2t": {
+        source: "iana",
+        extensions: ["ts"]
+      },
+      "video/mp4": {
+        source: "iana",
+        compressible: false,
+        extensions: ["mp4", "mp4v", "mpg4"]
+      },
+      "video/mp4v-es": {
+        source: "iana"
+      },
+      "video/mpeg": {
+        source: "iana",
+        compressible: false,
+        extensions: ["mpeg", "mpg", "mpe", "m1v", "m2v"]
+      },
+      "video/mpeg4-generic": {
+        source: "iana"
+      },
+      "video/mpv": {
+        source: "iana"
+      },
+      "video/nv": {
+        source: "iana"
+      },
+      "video/ogg": {
+        source: "iana",
+        compressible: false,
+        extensions: ["ogv"]
+      },
+      "video/parityfec": {
+        source: "iana"
+      },
+      "video/pointer": {
+        source: "iana"
+      },
+      "video/quicktime": {
+        source: "iana",
+        compressible: false,
+        extensions: ["qt", "mov"]
+      },
+      "video/raptorfec": {
+        source: "iana"
+      },
+      "video/raw": {
+        source: "iana"
+      },
+      "video/rtp-enc-aescm128": {
+        source: "iana"
+      },
+      "video/rtploopback": {
+        source: "iana"
+      },
+      "video/rtx": {
+        source: "iana"
+      },
+      "video/scip": {
+        source: "iana"
+      },
+      "video/smpte291": {
+        source: "iana"
+      },
+      "video/smpte292m": {
+        source: "iana"
+      },
+      "video/ulpfec": {
+        source: "iana"
+      },
+      "video/vc1": {
+        source: "iana"
+      },
+      "video/vc2": {
+        source: "iana"
+      },
+      "video/vnd.cctv": {
+        source: "iana"
+      },
+      "video/vnd.dece.hd": {
+        source: "iana",
+        extensions: ["uvh", "uvvh"]
+      },
+      "video/vnd.dece.mobile": {
+        source: "iana",
+        extensions: ["uvm", "uvvm"]
+      },
+      "video/vnd.dece.mp4": {
+        source: "iana"
+      },
+      "video/vnd.dece.pd": {
+        source: "iana",
+        extensions: ["uvp", "uvvp"]
+      },
+      "video/vnd.dece.sd": {
+        source: "iana",
+        extensions: ["uvs", "uvvs"]
+      },
+      "video/vnd.dece.video": {
+        source: "iana",
+        extensions: ["uvv", "uvvv"]
+      },
+      "video/vnd.directv.mpeg": {
+        source: "iana"
+      },
+      "video/vnd.directv.mpeg-tts": {
+        source: "iana"
+      },
+      "video/vnd.dlna.mpeg-tts": {
+        source: "iana"
+      },
+      "video/vnd.dvb.file": {
+        source: "iana",
+        extensions: ["dvb"]
+      },
+      "video/vnd.fvt": {
+        source: "iana",
+        extensions: ["fvt"]
+      },
+      "video/vnd.hns.video": {
+        source: "iana"
+      },
+      "video/vnd.iptvforum.1dparityfec-1010": {
+        source: "iana"
+      },
+      "video/vnd.iptvforum.1dparityfec-2005": {
+        source: "iana"
+      },
+      "video/vnd.iptvforum.2dparityfec-1010": {
+        source: "iana"
+      },
+      "video/vnd.iptvforum.2dparityfec-2005": {
+        source: "iana"
+      },
+      "video/vnd.iptvforum.ttsavc": {
+        source: "iana"
+      },
+      "video/vnd.iptvforum.ttsmpeg2": {
+        source: "iana"
+      },
+      "video/vnd.motorola.video": {
+        source: "iana"
+      },
+      "video/vnd.motorola.videop": {
+        source: "iana"
+      },
+      "video/vnd.mpegurl": {
+        source: "iana",
+        extensions: ["mxu", "m4u"]
+      },
+      "video/vnd.ms-playready.media.pyv": {
+        source: "iana",
+        extensions: ["pyv"]
+      },
+      "video/vnd.nokia.interleaved-multimedia": {
+        source: "iana"
+      },
+      "video/vnd.nokia.mp4vr": {
+        source: "iana"
+      },
+      "video/vnd.nokia.videovoip": {
+        source: "iana"
+      },
+      "video/vnd.objectvideo": {
+        source: "iana"
+      },
+      "video/vnd.radgamettools.bink": {
+        source: "iana"
+      },
+      "video/vnd.radgamettools.smacker": {
+        source: "iana"
+      },
+      "video/vnd.sealed.mpeg1": {
+        source: "iana"
+      },
+      "video/vnd.sealed.mpeg4": {
+        source: "iana"
+      },
+      "video/vnd.sealed.swf": {
+        source: "iana"
+      },
+      "video/vnd.sealedmedia.softseal.mov": {
+        source: "iana"
+      },
+      "video/vnd.uvvu.mp4": {
+        source: "iana",
+        extensions: ["uvu", "uvvu"]
+      },
+      "video/vnd.vivo": {
+        source: "iana",
+        extensions: ["viv"]
+      },
+      "video/vnd.youtube.yt": {
+        source: "iana"
+      },
+      "video/vp8": {
+        source: "iana"
+      },
+      "video/vp9": {
+        source: "iana"
+      },
+      "video/webm": {
+        source: "apache",
+        compressible: false,
+        extensions: ["webm"]
+      },
+      "video/x-f4v": {
+        source: "apache",
+        extensions: ["f4v"]
+      },
+      "video/x-fli": {
+        source: "apache",
+        extensions: ["fli"]
+      },
+      "video/x-flv": {
+        source: "apache",
+        compressible: false,
+        extensions: ["flv"]
+      },
+      "video/x-m4v": {
+        source: "apache",
+        extensions: ["m4v"]
+      },
+      "video/x-matroska": {
+        source: "apache",
+        compressible: false,
+        extensions: ["mkv", "mk3d", "mks"]
+      },
+      "video/x-mng": {
+        source: "apache",
+        extensions: ["mng"]
+      },
+      "video/x-ms-asf": {
+        source: "apache",
+        extensions: ["asf", "asx"]
+      },
+      "video/x-ms-vob": {
+        source: "apache",
+        extensions: ["vob"]
+      },
+      "video/x-ms-wm": {
+        source: "apache",
+        extensions: ["wm"]
+      },
+      "video/x-ms-wmv": {
+        source: "apache",
+        compressible: false,
+        extensions: ["wmv"]
+      },
+      "video/x-ms-wmx": {
+        source: "apache",
+        extensions: ["wmx"]
+      },
+      "video/x-ms-wvx": {
+        source: "apache",
+        extensions: ["wvx"]
+      },
+      "video/x-msvideo": {
+        source: "apache",
+        extensions: ["avi"]
+      },
+      "video/x-sgi-movie": {
+        source: "apache",
+        extensions: ["movie"]
+      },
+      "video/x-smv": {
+        source: "apache",
+        extensions: ["smv"]
+      },
+      "x-conference/x-cooltalk": {
+        source: "apache",
+        extensions: ["ice"]
+      },
+      "x-shader/x-fragment": {
+        compressible: true
+      },
+      "x-shader/x-vertex": {
+        compressible: true
+      }
+    };
+  }
+});
+
+// ../../node_modules/.pnpm/mime-db@1.52.0/node_modules/mime-db/index.js
+var require_mime_db2 = __commonJS({
+  "../../node_modules/.pnpm/mime-db@1.52.0/node_modules/mime-db/index.js"(exports, module) {
+    module.exports = require_db2();
+  }
+});
+
+// ../../node_modules/.pnpm/mime-types@2.1.35/node_modules/mime-types/index.js
+var require_mime_types2 = __commonJS({
+  "../../node_modules/.pnpm/mime-types@2.1.35/node_modules/mime-types/index.js"(exports) {
+    "use strict";
+    var db2 = require_mime_db2();
+    var extname = __require("path").extname;
+    var EXTRACT_TYPE_REGEXP = /^\s*([^;\s]*)(?:;|\s|$)/;
+    var TEXT_TYPE_REGEXP = /^text\//i;
+    exports.charset = charset;
+    exports.charsets = { lookup: charset };
+    exports.contentType = contentType;
+    exports.extension = extension;
+    exports.extensions = /* @__PURE__ */ Object.create(null);
+    exports.lookup = lookup;
+    exports.types = /* @__PURE__ */ Object.create(null);
+    populateMaps(exports.extensions, exports.types);
+    function charset(type) {
+      if (!type || typeof type !== "string") {
+        return false;
+      }
+      var match2 = EXTRACT_TYPE_REGEXP.exec(type);
+      var mime = match2 && db2[match2[1].toLowerCase()];
+      if (mime && mime.charset) {
+        return mime.charset;
+      }
+      if (match2 && TEXT_TYPE_REGEXP.test(match2[1])) {
+        return "UTF-8";
+      }
+      return false;
+    }
+    function contentType(str) {
+      if (!str || typeof str !== "string") {
+        return false;
+      }
+      var mime = str.indexOf("/") === -1 ? exports.lookup(str) : str;
+      if (!mime) {
+        return false;
+      }
+      if (mime.indexOf("charset") === -1) {
+        var charset2 = exports.charset(mime);
+        if (charset2) mime += "; charset=" + charset2.toLowerCase();
+      }
+      return mime;
+    }
+    function extension(type) {
+      if (!type || typeof type !== "string") {
+        return false;
+      }
+      var match2 = EXTRACT_TYPE_REGEXP.exec(type);
+      var exts = match2 && exports.extensions[match2[1].toLowerCase()];
+      if (!exts || !exts.length) {
+        return false;
+      }
+      return exts[0];
+    }
+    function lookup(path) {
+      if (!path || typeof path !== "string") {
+        return false;
+      }
+      var extension2 = extname("x." + path).toLowerCase().substr(1);
+      if (!extension2) {
+        return false;
+      }
+      return exports.types[extension2] || false;
+    }
+    function populateMaps(extensions, types3) {
+      var preference = ["nginx", "apache", void 0, "iana"];
+      Object.keys(db2).forEach(function forEachMimeType(type) {
+        var mime = db2[type];
+        var exts = mime.extensions;
+        if (!exts || !exts.length) {
+          return;
+        }
+        extensions[type] = exts;
+        for (var i = 0; i < exts.length; i++) {
+          var extension2 = exts[i];
+          if (types3[extension2]) {
+            var from = preference.indexOf(db2[types3[extension2]].source);
+            var to = preference.indexOf(mime.source);
+            if (types3[extension2] !== "application/octet-stream" && (from > to || from === to && types3[extension2].substr(0, 12) === "application/")) {
+              continue;
+            }
+          }
+          types3[extension2] = type;
+        }
+      });
+    }
+  }
+});
+
+// ../../node_modules/.pnpm/asynckit@0.4.0/node_modules/asynckit/lib/defer.js
+var require_defer = __commonJS({
+  "../../node_modules/.pnpm/asynckit@0.4.0/node_modules/asynckit/lib/defer.js"(exports, module) {
+    module.exports = defer;
+    function defer(fn) {
+      var nextTick = typeof setImmediate == "function" ? setImmediate : typeof process == "object" && typeof process.nextTick == "function" ? process.nextTick : null;
+      if (nextTick) {
+        nextTick(fn);
+      } else {
+        setTimeout(fn, 0);
+      }
+    }
+  }
+});
+
+// ../../node_modules/.pnpm/asynckit@0.4.0/node_modules/asynckit/lib/async.js
+var require_async = __commonJS({
+  "../../node_modules/.pnpm/asynckit@0.4.0/node_modules/asynckit/lib/async.js"(exports, module) {
+    var defer = require_defer();
+    module.exports = async;
+    function async(callback) {
+      var isAsync2 = false;
+      defer(function() {
+        isAsync2 = true;
+      });
+      return function async_callback(err, result) {
+        if (isAsync2) {
+          callback(err, result);
+        } else {
+          defer(function nextTick_callback() {
+            callback(err, result);
+          });
+        }
+      };
+    }
+  }
+});
+
+// ../../node_modules/.pnpm/asynckit@0.4.0/node_modules/asynckit/lib/abort.js
+var require_abort = __commonJS({
+  "../../node_modules/.pnpm/asynckit@0.4.0/node_modules/asynckit/lib/abort.js"(exports, module) {
+    module.exports = abort;
+    function abort(state) {
+      Object.keys(state.jobs).forEach(clean.bind(state));
+      state.jobs = {};
+    }
+    function clean(key) {
+      if (typeof this.jobs[key] == "function") {
+        this.jobs[key]();
+      }
+    }
+  }
+});
+
+// ../../node_modules/.pnpm/asynckit@0.4.0/node_modules/asynckit/lib/iterate.js
+var require_iterate = __commonJS({
+  "../../node_modules/.pnpm/asynckit@0.4.0/node_modules/asynckit/lib/iterate.js"(exports, module) {
+    var async = require_async();
+    var abort = require_abort();
+    module.exports = iterate;
+    function iterate(list, iterator, state, callback) {
+      var key = state["keyedList"] ? state["keyedList"][state.index] : state.index;
+      state.jobs[key] = runJob(iterator, key, list[key], function(error40, output) {
+        if (!(key in state.jobs)) {
+          return;
+        }
+        delete state.jobs[key];
+        if (error40) {
+          abort(state);
+        } else {
+          state.results[key] = output;
+        }
+        callback(error40, state.results);
+      });
+    }
+    function runJob(iterator, key, item, callback) {
+      var aborter;
+      if (iterator.length == 2) {
+        aborter = iterator(item, async(callback));
+      } else {
+        aborter = iterator(item, key, async(callback));
+      }
+      return aborter;
+    }
+  }
+});
+
+// ../../node_modules/.pnpm/asynckit@0.4.0/node_modules/asynckit/lib/state.js
+var require_state = __commonJS({
+  "../../node_modules/.pnpm/asynckit@0.4.0/node_modules/asynckit/lib/state.js"(exports, module) {
+    module.exports = state;
+    function state(list, sortMethod) {
+      var isNamedList = !Array.isArray(list), initState = {
+        index: 0,
+        keyedList: isNamedList || sortMethod ? Object.keys(list) : null,
+        jobs: {},
+        results: isNamedList ? {} : [],
+        size: isNamedList ? Object.keys(list).length : list.length
+      };
+      if (sortMethod) {
+        initState.keyedList.sort(isNamedList ? sortMethod : function(a, b) {
+          return sortMethod(list[a], list[b]);
+        });
+      }
+      return initState;
+    }
+  }
+});
+
+// ../../node_modules/.pnpm/asynckit@0.4.0/node_modules/asynckit/lib/terminator.js
+var require_terminator = __commonJS({
+  "../../node_modules/.pnpm/asynckit@0.4.0/node_modules/asynckit/lib/terminator.js"(exports, module) {
+    var abort = require_abort();
+    var async = require_async();
+    module.exports = terminator;
+    function terminator(callback) {
+      if (!Object.keys(this.jobs).length) {
+        return;
+      }
+      this.index = this.size;
+      abort(this);
+      async(callback)(null, this.results);
+    }
+  }
+});
+
+// ../../node_modules/.pnpm/asynckit@0.4.0/node_modules/asynckit/parallel.js
+var require_parallel = __commonJS({
+  "../../node_modules/.pnpm/asynckit@0.4.0/node_modules/asynckit/parallel.js"(exports, module) {
+    var iterate = require_iterate();
+    var initState = require_state();
+    var terminator = require_terminator();
+    module.exports = parallel;
+    function parallel(list, iterator, callback) {
+      var state = initState(list);
+      while (state.index < (state["keyedList"] || list).length) {
+        iterate(list, iterator, state, function(error40, result) {
+          if (error40) {
+            callback(error40, result);
+            return;
+          }
+          if (Object.keys(state.jobs).length === 0) {
+            callback(null, state.results);
+            return;
+          }
+        });
+        state.index++;
+      }
+      return terminator.bind(state, callback);
+    }
+  }
+});
+
+// ../../node_modules/.pnpm/asynckit@0.4.0/node_modules/asynckit/serialOrdered.js
+var require_serialOrdered = __commonJS({
+  "../../node_modules/.pnpm/asynckit@0.4.0/node_modules/asynckit/serialOrdered.js"(exports, module) {
+    var iterate = require_iterate();
+    var initState = require_state();
+    var terminator = require_terminator();
+    module.exports = serialOrdered;
+    module.exports.ascending = ascending;
+    module.exports.descending = descending;
+    function serialOrdered(list, iterator, sortMethod, callback) {
+      var state = initState(list, sortMethod);
+      iterate(list, iterator, state, function iteratorHandler(error40, result) {
+        if (error40) {
+          callback(error40, result);
+          return;
+        }
+        state.index++;
+        if (state.index < (state["keyedList"] || list).length) {
+          iterate(list, iterator, state, iteratorHandler);
+          return;
+        }
+        callback(null, state.results);
+      });
+      return terminator.bind(state, callback);
+    }
+    function ascending(a, b) {
+      return a < b ? -1 : a > b ? 1 : 0;
+    }
+    function descending(a, b) {
+      return -1 * ascending(a, b);
+    }
+  }
+});
+
+// ../../node_modules/.pnpm/asynckit@0.4.0/node_modules/asynckit/serial.js
+var require_serial = __commonJS({
+  "../../node_modules/.pnpm/asynckit@0.4.0/node_modules/asynckit/serial.js"(exports, module) {
+    var serialOrdered = require_serialOrdered();
+    module.exports = serial2;
+    function serial2(list, iterator, callback) {
+      return serialOrdered(list, iterator, null, callback);
+    }
+  }
+});
+
+// ../../node_modules/.pnpm/asynckit@0.4.0/node_modules/asynckit/index.js
+var require_asynckit = __commonJS({
+  "../../node_modules/.pnpm/asynckit@0.4.0/node_modules/asynckit/index.js"(exports, module) {
+    module.exports = {
+      parallel: require_parallel(),
+      serial: require_serial(),
+      serialOrdered: require_serialOrdered()
+    };
+  }
+});
+
+// ../../node_modules/.pnpm/has-tostringtag@1.0.2/node_modules/has-tostringtag/shams.js
+var require_shams2 = __commonJS({
+  "../../node_modules/.pnpm/has-tostringtag@1.0.2/node_modules/has-tostringtag/shams.js"(exports, module) {
+    "use strict";
+    var hasSymbols = require_shams();
+    module.exports = function hasToStringTagShams() {
+      return hasSymbols() && !!Symbol.toStringTag;
+    };
+  }
+});
+
+// ../../node_modules/.pnpm/hasown@2.0.4/node_modules/hasown/index.js
+var require_hasown2 = __commonJS({
+  "../../node_modules/.pnpm/hasown@2.0.4/node_modules/hasown/index.js"(exports, module) {
+    "use strict";
+    var call = Function.prototype.call;
+    var $hasOwn = Object.prototype.hasOwnProperty;
+    var bind = require_function_bind();
+    module.exports = bind.call(call, $hasOwn);
+  }
+});
+
+// ../../node_modules/.pnpm/es-set-tostringtag@2.1.0/node_modules/es-set-tostringtag/index.js
+var require_es_set_tostringtag = __commonJS({
+  "../../node_modules/.pnpm/es-set-tostringtag@2.1.0/node_modules/es-set-tostringtag/index.js"(exports, module) {
+    "use strict";
+    var GetIntrinsic = require_get_intrinsic();
+    var $defineProperty = GetIntrinsic("%Object.defineProperty%", true);
+    var hasToStringTag = require_shams2()();
+    var hasOwn = require_hasown2();
+    var $TypeError = require_type();
+    var toStringTag = hasToStringTag ? Symbol.toStringTag : null;
+    module.exports = function setToStringTag(object2, value) {
+      var overrideIfSet = arguments.length > 2 && !!arguments[2] && arguments[2].force;
+      var nonConfigurable = arguments.length > 2 && !!arguments[2] && arguments[2].nonConfigurable;
+      if (typeof overrideIfSet !== "undefined" && typeof overrideIfSet !== "boolean" || typeof nonConfigurable !== "undefined" && typeof nonConfigurable !== "boolean") {
+        throw new $TypeError("if provided, the `overrideIfSet` and `nonConfigurable` options must be booleans");
+      }
+      if (toStringTag && (overrideIfSet || !hasOwn(object2, toStringTag))) {
+        if ($defineProperty) {
+          $defineProperty(object2, toStringTag, {
+            configurable: !nonConfigurable,
+            enumerable: false,
+            value,
+            writable: false
+          });
+        } else {
+          object2[toStringTag] = value;
+        }
+      }
+    };
+  }
+});
+
+// ../../node_modules/.pnpm/form-data@4.0.6/node_modules/form-data/lib/populate.js
+var require_populate = __commonJS({
+  "../../node_modules/.pnpm/form-data@4.0.6/node_modules/form-data/lib/populate.js"(exports, module) {
+    "use strict";
+    module.exports = function(dst, src) {
+      Object.keys(src).forEach(function(prop) {
+        dst[prop] = dst[prop] || src[prop];
+      });
+      return dst;
+    };
+  }
+});
+
+// ../../node_modules/.pnpm/form-data@4.0.6/node_modules/form-data/lib/form_data.js
+var require_form_data = __commonJS({
+  "../../node_modules/.pnpm/form-data@4.0.6/node_modules/form-data/lib/form_data.js"(exports, module) {
+    "use strict";
+    var CombinedStream = require_combined_stream();
+    var util2 = __require("util");
+    var path = __require("path");
+    var http = __require("http");
+    var https = __require("https");
+    var parseUrl = __require("url").parse;
+    var fs = __require("fs");
+    var Stream = __require("stream").Stream;
+    var crypto2 = __require("crypto");
+    var mime = require_mime_types2();
+    var asynckit = require_asynckit();
+    var setToStringTag = require_es_set_tostringtag();
+    var hasOwn = require_hasown2();
+    var populate = require_populate();
+    function escapeHeaderParam(str) {
+      return String(str).replace(/\r/g, "%0D").replace(/\n/g, "%0A").replace(/"/g, "%22");
+    }
+    function FormData2(options) {
+      if (!(this instanceof FormData2)) {
+        return new FormData2(options);
+      }
+      this._overheadLength = 0;
+      this._valueLength = 0;
+      this._valuesToMeasure = [];
+      CombinedStream.call(this);
+      options = options || {};
+      for (var option in options) {
+        this[option] = options[option];
+      }
+    }
+    util2.inherits(FormData2, CombinedStream);
+    FormData2.LINE_BREAK = "\r\n";
+    FormData2.DEFAULT_CONTENT_TYPE = "application/octet-stream";
+    FormData2.prototype.append = function(field, value, options) {
+      options = options || {};
+      if (typeof options === "string") {
+        options = { filename: options };
+      }
+      var append = CombinedStream.prototype.append.bind(this);
+      if (typeof value === "number" || value == null) {
+        value = String(value);
+      }
+      if (Array.isArray(value)) {
+        this._error(new Error("Arrays are not supported."));
+        return;
+      }
+      var header = this._multiPartHeader(field, value, options);
+      var footer = this._multiPartFooter();
+      append(header);
+      append(value);
+      append(footer);
+      this._trackLength(header, value, options);
+    };
+    FormData2.prototype._trackLength = function(header, value, options) {
+      var valueLength = 0;
+      if (options.knownLength != null) {
+        valueLength += Number(options.knownLength);
+      } else if (Buffer.isBuffer(value)) {
+        valueLength = value.length;
+      } else if (typeof value === "string") {
+        valueLength = Buffer.byteLength(value);
+      }
+      this._valueLength += valueLength;
+      this._overheadLength += Buffer.byteLength(header) + FormData2.LINE_BREAK.length;
+      if (!value || !value.path && !(value.readable && hasOwn(value, "httpVersion")) && !(value instanceof Stream)) {
+        return;
+      }
+      if (!options.knownLength) {
+        this._valuesToMeasure.push(value);
+      }
+    };
+    FormData2.prototype._lengthRetriever = function(value, callback) {
+      if (hasOwn(value, "fd")) {
+        if (value.end != void 0 && value.end != Infinity && value.start != void 0) {
+          callback(null, value.end + 1 - (value.start ? value.start : 0));
+        } else {
+          fs.stat(value.path, function(err, stat) {
+            if (err) {
+              callback(err);
+              return;
+            }
+            var fileSize = stat.size - (value.start ? value.start : 0);
+            callback(null, fileSize);
+          });
+        }
+      } else if (hasOwn(value, "httpVersion")) {
+        callback(null, Number(value.headers["content-length"]));
+      } else if (hasOwn(value, "httpModule")) {
+        value.on("response", function(response) {
+          value.pause();
+          callback(null, Number(response.headers["content-length"]));
+        });
+        value.resume();
+      } else {
+        callback("Unknown stream");
+      }
+    };
+    FormData2.prototype._multiPartHeader = function(field, value, options) {
+      if (typeof options.header === "string") {
+        return options.header;
+      }
+      var contentDisposition = this._getContentDisposition(value, options);
+      var contentType = this._getContentType(value, options);
+      var contents = "";
+      var headers = {
+        // add custom disposition as third element or keep it two elements if not
+        "Content-Disposition": ["form-data", 'name="' + escapeHeaderParam(field) + '"'].concat(contentDisposition || []),
+        // if no content type. allow it to be empty array
+        "Content-Type": [].concat(contentType || [])
+      };
+      if (typeof options.header === "object") {
+        populate(headers, options.header);
+      }
+      var header;
+      for (var prop in headers) {
+        if (hasOwn(headers, prop)) {
+          header = headers[prop];
+          if (header == null) {
+            continue;
+          }
+          if (!Array.isArray(header)) {
+            header = [header];
+          }
+          if (header.length) {
+            contents += prop + ": " + header.join("; ") + FormData2.LINE_BREAK;
+          }
+        }
+      }
+      return "--" + this.getBoundary() + FormData2.LINE_BREAK + contents + FormData2.LINE_BREAK;
+    };
+    FormData2.prototype._getContentDisposition = function(value, options) {
+      var filename;
+      if (typeof options.filepath === "string") {
+        filename = path.normalize(options.filepath).replace(/\\/g, "/");
+      } else if (options.filename || value && (value.name || value.path)) {
+        filename = path.basename(options.filename || value && (value.name || value.path));
+      } else if (value && value.readable && hasOwn(value, "httpVersion")) {
+        filename = path.basename(value.client._httpMessage.path || "");
+      }
+      if (filename) {
+        return 'filename="' + escapeHeaderParam(filename) + '"';
+      }
+    };
+    FormData2.prototype._getContentType = function(value, options) {
+      var contentType = options.contentType;
+      if (!contentType && value && value.name) {
+        contentType = mime.lookup(value.name);
+      }
+      if (!contentType && value && value.path) {
+        contentType = mime.lookup(value.path);
+      }
+      if (!contentType && value && value.readable && hasOwn(value, "httpVersion")) {
+        contentType = value.headers["content-type"];
+      }
+      if (!contentType && (options.filepath || options.filename)) {
+        contentType = mime.lookup(options.filepath || options.filename);
+      }
+      if (!contentType && value && typeof value === "object") {
+        contentType = FormData2.DEFAULT_CONTENT_TYPE;
+      }
+      return contentType;
+    };
+    FormData2.prototype._multiPartFooter = function() {
+      return function(next) {
+        var footer = FormData2.LINE_BREAK;
+        var lastPart = this._streams.length === 0;
+        if (lastPart) {
+          footer += this._lastBoundary();
+        }
+        next(footer);
+      }.bind(this);
+    };
+    FormData2.prototype._lastBoundary = function() {
+      return "--" + this.getBoundary() + "--" + FormData2.LINE_BREAK;
+    };
+    FormData2.prototype.getHeaders = function(userHeaders) {
+      var header;
+      var formHeaders = {
+        "content-type": "multipart/form-data; boundary=" + this.getBoundary()
+      };
+      for (header in userHeaders) {
+        if (hasOwn(userHeaders, header)) {
+          formHeaders[header.toLowerCase()] = userHeaders[header];
+        }
+      }
+      return formHeaders;
+    };
+    FormData2.prototype.setBoundary = function(boundary) {
+      if (typeof boundary !== "string") {
+        throw new TypeError("FormData boundary must be a string");
+      }
+      this._boundary = boundary;
+    };
+    FormData2.prototype.getBoundary = function() {
+      if (!this._boundary) {
+        this._generateBoundary();
+      }
+      return this._boundary;
+    };
+    FormData2.prototype.getBuffer = function() {
+      var dataBuffer = new Buffer.alloc(0);
+      var boundary = this.getBoundary();
+      for (var i = 0, len = this._streams.length; i < len; i++) {
+        if (typeof this._streams[i] !== "function") {
+          if (Buffer.isBuffer(this._streams[i])) {
+            dataBuffer = Buffer.concat([dataBuffer, this._streams[i]]);
+          } else {
+            dataBuffer = Buffer.concat([dataBuffer, Buffer.from(this._streams[i])]);
+          }
+          if (typeof this._streams[i] !== "string" || this._streams[i].substring(2, boundary.length + 2) !== boundary) {
+            dataBuffer = Buffer.concat([dataBuffer, Buffer.from(FormData2.LINE_BREAK)]);
+          }
+        }
+      }
+      return Buffer.concat([dataBuffer, Buffer.from(this._lastBoundary())]);
+    };
+    FormData2.prototype._generateBoundary = function() {
+      this._boundary = "--------------------------" + crypto2.randomBytes(12).toString("hex");
+    };
+    FormData2.prototype.getLengthSync = function() {
+      var knownLength = this._overheadLength + this._valueLength;
+      if (this._streams.length) {
+        knownLength += this._lastBoundary().length;
+      }
+      if (!this.hasKnownLength()) {
+        this._error(new Error("Cannot calculate proper length in synchronous way."));
+      }
+      return knownLength;
+    };
+    FormData2.prototype.hasKnownLength = function() {
+      var hasKnownLength = true;
+      if (this._valuesToMeasure.length) {
+        hasKnownLength = false;
+      }
+      return hasKnownLength;
+    };
+    FormData2.prototype.getLength = function(cb) {
+      var knownLength = this._overheadLength + this._valueLength;
+      if (this._streams.length) {
+        knownLength += this._lastBoundary().length;
+      }
+      if (!this._valuesToMeasure.length) {
+        process.nextTick(cb.bind(this, null, knownLength));
+        return;
+      }
+      asynckit.parallel(this._valuesToMeasure, this._lengthRetriever, function(err, values) {
+        if (err) {
+          cb(err);
+          return;
+        }
+        values.forEach(function(length) {
+          knownLength += length;
+        });
+        cb(null, knownLength);
+      });
+    };
+    FormData2.prototype.submit = function(params, cb) {
+      var request;
+      var options;
+      var defaults2 = { method: "post" };
+      if (typeof params === "string") {
+        params = parseUrl(params);
+        options = populate({
+          port: params.port,
+          path: params.pathname,
+          host: params.hostname,
+          protocol: params.protocol
+        }, defaults2);
+      } else {
+        options = populate(params, defaults2);
+        if (!options.port) {
+          options.port = options.protocol === "https:" ? 443 : 80;
+        }
+      }
+      options.headers = this.getHeaders(params.headers);
+      if (options.protocol === "https:") {
+        request = https.request(options);
+      } else {
+        request = http.request(options);
+      }
+      this.getLength(function(err, length) {
+        if (err && err !== "Unknown stream") {
+          this._error(err);
+          return;
+        }
+        if (length) {
+          request.setHeader("Content-Length", length);
+        }
+        this.pipe(request);
+        if (cb) {
+          var onResponse;
+          var callback = function(error40, responce) {
+            request.removeListener("error", callback);
+            request.removeListener("response", onResponse);
+            return cb.call(this, error40, responce);
+          };
+          onResponse = callback.bind(this, null);
+          request.on("error", callback);
+          request.on("response", onResponse);
+        }
+      }.bind(this));
+      return request;
+    };
+    FormData2.prototype._error = function(err) {
+      if (!this.error) {
+        this.error = err;
+        this.pause();
+        this.emit("error", err);
+      }
+    };
+    FormData2.prototype.toString = function() {
+      return "[object FormData]";
+    };
+    setToStringTag(FormData2.prototype, "FormData");
+    module.exports = FormData2;
+  }
+});
+
+// ../../node_modules/.pnpm/agent-base@6.0.2/node_modules/agent-base/dist/src/promisify.js
+var require_promisify = __commonJS({
+  "../../node_modules/.pnpm/agent-base@6.0.2/node_modules/agent-base/dist/src/promisify.js"(exports) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    function promisify(fn) {
+      return function(req, opts) {
+        return new Promise((resolve, reject) => {
+          fn.call(this, req, opts, (err, rtn) => {
+            if (err) {
+              reject(err);
+            } else {
+              resolve(rtn);
+            }
+          });
+        });
+      };
+    }
+    exports.default = promisify;
+  }
+});
+
+// ../../node_modules/.pnpm/agent-base@6.0.2/node_modules/agent-base/dist/src/index.js
+var require_src2 = __commonJS({
+  "../../node_modules/.pnpm/agent-base@6.0.2/node_modules/agent-base/dist/src/index.js"(exports, module) {
+    "use strict";
+    var __importDefault = exports && exports.__importDefault || function(mod) {
+      return mod && mod.__esModule ? mod : { "default": mod };
+    };
+    var events_1 = __require("events");
+    var debug_1 = __importDefault(require_src());
+    var promisify_1 = __importDefault(require_promisify());
+    var debug = debug_1.default("agent-base");
+    function isAgent(v) {
+      return Boolean(v) && typeof v.addRequest === "function";
+    }
+    function isSecureEndpoint() {
+      const { stack } = new Error();
+      if (typeof stack !== "string")
+        return false;
+      return stack.split("\n").some((l) => l.indexOf("(https.js:") !== -1 || l.indexOf("node:https:") !== -1);
+    }
+    function createAgent(callback, opts) {
+      return new createAgent.Agent(callback, opts);
+    }
+    (function(createAgent2) {
+      class Agent extends events_1.EventEmitter {
+        constructor(callback, _opts) {
+          super();
+          let opts = _opts;
+          if (typeof callback === "function") {
+            this.callback = callback;
+          } else if (callback) {
+            opts = callback;
+          }
+          this.timeout = null;
+          if (opts && typeof opts.timeout === "number") {
+            this.timeout = opts.timeout;
+          }
+          this.maxFreeSockets = 1;
+          this.maxSockets = 1;
+          this.maxTotalSockets = Infinity;
+          this.sockets = {};
+          this.freeSockets = {};
+          this.requests = {};
+          this.options = {};
+        }
+        get defaultPort() {
+          if (typeof this.explicitDefaultPort === "number") {
+            return this.explicitDefaultPort;
+          }
+          return isSecureEndpoint() ? 443 : 80;
+        }
+        set defaultPort(v) {
+          this.explicitDefaultPort = v;
+        }
+        get protocol() {
+          if (typeof this.explicitProtocol === "string") {
+            return this.explicitProtocol;
+          }
+          return isSecureEndpoint() ? "https:" : "http:";
+        }
+        set protocol(v) {
+          this.explicitProtocol = v;
+        }
+        callback(req, opts, fn) {
+          throw new Error('"agent-base" has no default implementation, you must subclass and override `callback()`');
+        }
+        /**
+         * Called by node-core's "_http_client.js" module when creating
+         * a new HTTP request with this Agent instance.
+         *
+         * @api public
+         */
+        addRequest(req, _opts) {
+          const opts = Object.assign({}, _opts);
+          if (typeof opts.secureEndpoint !== "boolean") {
+            opts.secureEndpoint = isSecureEndpoint();
+          }
+          if (opts.host == null) {
+            opts.host = "localhost";
+          }
+          if (opts.port == null) {
+            opts.port = opts.secureEndpoint ? 443 : 80;
+          }
+          if (opts.protocol == null) {
+            opts.protocol = opts.secureEndpoint ? "https:" : "http:";
+          }
+          if (opts.host && opts.path) {
+            delete opts.path;
+          }
+          delete opts.agent;
+          delete opts.hostname;
+          delete opts._defaultAgent;
+          delete opts.defaultPort;
+          delete opts.createConnection;
+          req._last = true;
+          req.shouldKeepAlive = false;
+          let timedOut = false;
+          let timeoutId = null;
+          const timeoutMs = opts.timeout || this.timeout;
+          const onerror = (err) => {
+            if (req._hadError)
+              return;
+            req.emit("error", err);
+            req._hadError = true;
+          };
+          const ontimeout = () => {
+            timeoutId = null;
+            timedOut = true;
+            const err = new Error(`A "socket" was not created for HTTP request before ${timeoutMs}ms`);
+            err.code = "ETIMEOUT";
+            onerror(err);
+          };
+          const callbackError = (err) => {
+            if (timedOut)
+              return;
+            if (timeoutId !== null) {
+              clearTimeout(timeoutId);
+              timeoutId = null;
+            }
+            onerror(err);
+          };
+          const onsocket = (socket) => {
+            if (timedOut)
+              return;
+            if (timeoutId != null) {
+              clearTimeout(timeoutId);
+              timeoutId = null;
+            }
+            if (isAgent(socket)) {
+              debug("Callback returned another Agent instance %o", socket.constructor.name);
+              socket.addRequest(req, opts);
+              return;
+            }
+            if (socket) {
+              socket.once("free", () => {
+                this.freeSocket(socket, opts);
+              });
+              req.onSocket(socket);
+              return;
+            }
+            const err = new Error(`no Duplex stream was returned to agent-base for \`${req.method} ${req.path}\``);
+            onerror(err);
+          };
+          if (typeof this.callback !== "function") {
+            onerror(new Error("`callback` is not defined"));
+            return;
+          }
+          if (!this.promisifiedCallback) {
+            if (this.callback.length >= 3) {
+              debug("Converting legacy callback function to promise");
+              this.promisifiedCallback = promisify_1.default(this.callback);
+            } else {
+              this.promisifiedCallback = this.callback;
+            }
+          }
+          if (typeof timeoutMs === "number" && timeoutMs > 0) {
+            timeoutId = setTimeout(ontimeout, timeoutMs);
+          }
+          if ("port" in opts && typeof opts.port !== "number") {
+            opts.port = Number(opts.port);
+          }
+          try {
+            debug("Resolving socket for %o request: %o", opts.protocol, `${req.method} ${req.path}`);
+            Promise.resolve(this.promisifiedCallback(req, opts)).then(onsocket, callbackError);
+          } catch (err) {
+            Promise.reject(err).catch(callbackError);
+          }
+        }
+        freeSocket(socket, opts) {
+          debug("Freeing socket %o %o", socket.constructor.name, opts);
+          socket.destroy();
+        }
+        destroy() {
+          debug("Destroying agent %o", this.constructor.name);
+        }
+      }
+      createAgent2.Agent = Agent;
+      createAgent2.prototype = createAgent2.Agent.prototype;
+    })(createAgent || (createAgent = {}));
+    module.exports = createAgent;
+  }
+});
+
+// ../../node_modules/.pnpm/https-proxy-agent@5.0.1/node_modules/https-proxy-agent/dist/parse-proxy-response.js
+var require_parse_proxy_response = __commonJS({
+  "../../node_modules/.pnpm/https-proxy-agent@5.0.1/node_modules/https-proxy-agent/dist/parse-proxy-response.js"(exports) {
+    "use strict";
+    var __importDefault = exports && exports.__importDefault || function(mod) {
+      return mod && mod.__esModule ? mod : { "default": mod };
+    };
+    Object.defineProperty(exports, "__esModule", { value: true });
+    var debug_1 = __importDefault(require_src());
+    var debug = debug_1.default("https-proxy-agent:parse-proxy-response");
+    function parseProxyResponse(socket) {
+      return new Promise((resolve, reject) => {
+        let buffersLength = 0;
+        const buffers = [];
+        function read() {
+          const b = socket.read();
+          if (b)
+            ondata(b);
+          else
+            socket.once("readable", read);
+        }
+        function cleanup() {
+          socket.removeListener("end", onend);
+          socket.removeListener("error", onerror);
+          socket.removeListener("close", onclose);
+          socket.removeListener("readable", read);
+        }
+        function onclose(err) {
+          debug("onclose had error %o", err);
+        }
+        function onend() {
+          debug("onend");
+        }
+        function onerror(err) {
+          cleanup();
+          debug("onerror %o", err);
+          reject(err);
+        }
+        function ondata(b) {
+          buffers.push(b);
+          buffersLength += b.length;
+          const buffered = Buffer.concat(buffers, buffersLength);
+          const endOfHeaders = buffered.indexOf("\r\n\r\n");
+          if (endOfHeaders === -1) {
+            debug("have not received end of HTTP headers yet...");
+            read();
+            return;
+          }
+          const firstLine = buffered.toString("ascii", 0, buffered.indexOf("\r\n"));
+          const statusCode = +firstLine.split(" ")[1];
+          debug("got proxy server response: %o", firstLine);
+          resolve({
+            statusCode,
+            buffered
+          });
+        }
+        socket.on("error", onerror);
+        socket.on("close", onclose);
+        socket.on("end", onend);
+        read();
+      });
+    }
+    exports.default = parseProxyResponse;
+  }
+});
+
+// ../../node_modules/.pnpm/https-proxy-agent@5.0.1/node_modules/https-proxy-agent/dist/agent.js
+var require_agent = __commonJS({
+  "../../node_modules/.pnpm/https-proxy-agent@5.0.1/node_modules/https-proxy-agent/dist/agent.js"(exports) {
+    "use strict";
+    var __awaiter = exports && exports.__awaiter || function(thisArg, _arguments, P2, generator) {
+      function adopt(value) {
+        return value instanceof P2 ? value : new P2(function(resolve) {
+          resolve(value);
+        });
+      }
+      return new (P2 || (P2 = Promise))(function(resolve, reject) {
+        function fulfilled(value) {
+          try {
+            step(generator.next(value));
+          } catch (e) {
+            reject(e);
+          }
+        }
+        function rejected(value) {
+          try {
+            step(generator["throw"](value));
+          } catch (e) {
+            reject(e);
+          }
+        }
+        function step(result) {
+          result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected);
+        }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+      });
+    };
+    var __importDefault = exports && exports.__importDefault || function(mod) {
+      return mod && mod.__esModule ? mod : { "default": mod };
+    };
+    Object.defineProperty(exports, "__esModule", { value: true });
+    var net_1 = __importDefault(__require("net"));
+    var tls_1 = __importDefault(__require("tls"));
+    var url_1 = __importDefault(__require("url"));
+    var assert_1 = __importDefault(__require("assert"));
+    var debug_1 = __importDefault(require_src());
+    var agent_base_1 = require_src2();
+    var parse_proxy_response_1 = __importDefault(require_parse_proxy_response());
+    var debug = debug_1.default("https-proxy-agent:agent");
+    var HttpsProxyAgent = class extends agent_base_1.Agent {
+      constructor(_opts) {
+        let opts;
+        if (typeof _opts === "string") {
+          opts = url_1.default.parse(_opts);
+        } else {
+          opts = _opts;
+        }
+        if (!opts) {
+          throw new Error("an HTTP(S) proxy server `host` and `port` must be specified!");
+        }
+        debug("creating new HttpsProxyAgent instance: %o", opts);
+        super(opts);
+        const proxy = Object.assign({}, opts);
+        this.secureProxy = opts.secureProxy || isHTTPS(proxy.protocol);
+        proxy.host = proxy.hostname || proxy.host;
+        if (typeof proxy.port === "string") {
+          proxy.port = parseInt(proxy.port, 10);
+        }
+        if (!proxy.port && proxy.host) {
+          proxy.port = this.secureProxy ? 443 : 80;
+        }
+        if (this.secureProxy && !("ALPNProtocols" in proxy)) {
+          proxy.ALPNProtocols = ["http 1.1"];
+        }
+        if (proxy.host && proxy.path) {
+          delete proxy.path;
+          delete proxy.pathname;
+        }
+        this.proxy = proxy;
+      }
+      /**
+       * Called when the node-core HTTP client library is creating a
+       * new HTTP request.
+       *
+       * @api protected
+       */
+      callback(req, opts) {
+        return __awaiter(this, void 0, void 0, function* () {
+          const { proxy, secureProxy } = this;
+          let socket;
+          if (secureProxy) {
+            debug("Creating `tls.Socket`: %o", proxy);
+            socket = tls_1.default.connect(proxy);
+          } else {
+            debug("Creating `net.Socket`: %o", proxy);
+            socket = net_1.default.connect(proxy);
+          }
+          const headers = Object.assign({}, proxy.headers);
+          const hostname2 = `${opts.host}:${opts.port}`;
+          let payload = `CONNECT ${hostname2} HTTP/1.1\r
+`;
+          if (proxy.auth) {
+            headers["Proxy-Authorization"] = `Basic ${Buffer.from(proxy.auth).toString("base64")}`;
+          }
+          let { host, port: port2, secureEndpoint } = opts;
+          if (!isDefaultPort(port2, secureEndpoint)) {
+            host += `:${port2}`;
+          }
+          headers.Host = host;
+          headers.Connection = "close";
+          for (const name of Object.keys(headers)) {
+            payload += `${name}: ${headers[name]}\r
+`;
+          }
+          const proxyResponsePromise = parse_proxy_response_1.default(socket);
+          socket.write(`${payload}\r
+`);
+          const { statusCode, buffered } = yield proxyResponsePromise;
+          if (statusCode === 200) {
+            req.once("socket", resume);
+            if (opts.secureEndpoint) {
+              debug("Upgrading socket connection to TLS");
+              const servername = opts.servername || opts.host;
+              return tls_1.default.connect(Object.assign(Object.assign({}, omit2(opts, "host", "hostname", "path", "port")), {
+                socket,
+                servername
+              }));
+            }
+            return socket;
+          }
+          socket.destroy();
+          const fakeSocket = new net_1.default.Socket({ writable: false });
+          fakeSocket.readable = true;
+          req.once("socket", (s2) => {
+            debug("replaying proxy buffer for failed request");
+            assert_1.default(s2.listenerCount("data") > 0);
+            s2.push(buffered);
+            s2.push(null);
+          });
+          return fakeSocket;
+        });
+      }
+    };
+    exports.default = HttpsProxyAgent;
+    function resume(socket) {
+      socket.resume();
+    }
+    function isDefaultPort(port2, secure) {
+      return Boolean(!secure && port2 === 80 || secure && port2 === 443);
+    }
+    function isHTTPS(protocol) {
+      return typeof protocol === "string" ? /^https:?$/i.test(protocol) : false;
+    }
+    function omit2(obj, ...keys) {
+      const ret = {};
+      let key;
+      for (key in obj) {
+        if (!keys.includes(key)) {
+          ret[key] = obj[key];
+        }
+      }
+      return ret;
+    }
+  }
+});
+
+// ../../node_modules/.pnpm/https-proxy-agent@5.0.1/node_modules/https-proxy-agent/dist/index.js
+var require_dist5 = __commonJS({
+  "../../node_modules/.pnpm/https-proxy-agent@5.0.1/node_modules/https-proxy-agent/dist/index.js"(exports, module) {
+    "use strict";
+    var __importDefault = exports && exports.__importDefault || function(mod) {
+      return mod && mod.__esModule ? mod : { "default": mod };
+    };
+    var agent_1 = __importDefault(require_agent());
+    function createHttpsProxyAgent(opts) {
+      return new agent_1.default(opts);
+    }
+    (function(createHttpsProxyAgent2) {
+      createHttpsProxyAgent2.HttpsProxyAgent = agent_1.default;
+      createHttpsProxyAgent2.prototype = agent_1.default.prototype;
+    })(createHttpsProxyAgent || (createHttpsProxyAgent = {}));
+    module.exports = createHttpsProxyAgent;
+  }
+});
+
+// ../../node_modules/.pnpm/follow-redirects@1.16.0/node_modules/follow-redirects/debug.js
+var require_debug = __commonJS({
+  "../../node_modules/.pnpm/follow-redirects@1.16.0/node_modules/follow-redirects/debug.js"(exports, module) {
+    var debug;
+    module.exports = function() {
+      if (!debug) {
+        try {
+          debug = require_src()("follow-redirects");
+        } catch (error40) {
+        }
+        if (typeof debug !== "function") {
+          debug = function() {
+          };
+        }
+      }
+      debug.apply(null, arguments);
+    };
+  }
+});
+
+// ../../node_modules/.pnpm/follow-redirects@1.16.0/node_modules/follow-redirects/index.js
+var require_follow_redirects = __commonJS({
+  "../../node_modules/.pnpm/follow-redirects@1.16.0/node_modules/follow-redirects/index.js"(exports, module) {
+    var url2 = __require("url");
+    var URL2 = url2.URL;
+    var http = __require("http");
+    var https = __require("https");
+    var Writable = __require("stream").Writable;
+    var assert2 = __require("assert");
+    var debug = require_debug();
+    (function detectUnsupportedEnvironment() {
+      var looksLikeNode = typeof process !== "undefined";
+      var looksLikeBrowser = typeof window !== "undefined" && typeof document !== "undefined";
+      var looksLikeV8 = isFunction(Error.captureStackTrace);
+      if (!looksLikeNode && (looksLikeBrowser || !looksLikeV8)) {
+        console.warn("The follow-redirects package should be excluded from browser builds.");
+      }
+    })();
+    var useNativeURL = false;
+    try {
+      assert2(new URL2(""));
+    } catch (error40) {
+      useNativeURL = error40.code === "ERR_INVALID_URL";
+    }
+    var sensitiveHeaders = [
+      "Authorization",
+      "Proxy-Authorization",
+      "Cookie"
+    ];
+    var preservedUrlFields = [
+      "auth",
+      "host",
+      "hostname",
+      "href",
+      "path",
+      "pathname",
+      "port",
+      "protocol",
+      "query",
+      "search",
+      "hash"
+    ];
+    var events = ["abort", "aborted", "connect", "error", "socket", "timeout"];
+    var eventHandlers = /* @__PURE__ */ Object.create(null);
+    events.forEach(function(event) {
+      eventHandlers[event] = function(arg1, arg2, arg3) {
+        this._redirectable.emit(event, arg1, arg2, arg3);
+      };
+    });
+    var InvalidUrlError = createErrorType(
+      "ERR_INVALID_URL",
+      "Invalid URL",
+      TypeError
+    );
+    var RedirectionError = createErrorType(
+      "ERR_FR_REDIRECTION_FAILURE",
+      "Redirected request failed"
+    );
+    var TooManyRedirectsError = createErrorType(
+      "ERR_FR_TOO_MANY_REDIRECTS",
+      "Maximum number of redirects exceeded",
+      RedirectionError
+    );
+    var MaxBodyLengthExceededError = createErrorType(
+      "ERR_FR_MAX_BODY_LENGTH_EXCEEDED",
+      "Request body larger than maxBodyLength limit"
+    );
+    var WriteAfterEndError = createErrorType(
+      "ERR_STREAM_WRITE_AFTER_END",
+      "write after end"
+    );
+    var destroy = Writable.prototype.destroy || noop2;
+    function RedirectableRequest(options, responseCallback) {
+      Writable.call(this);
+      this._sanitizeOptions(options);
+      this._options = options;
+      this._ended = false;
+      this._ending = false;
+      this._redirectCount = 0;
+      this._redirects = [];
+      this._requestBodyLength = 0;
+      this._requestBodyBuffers = [];
+      if (responseCallback) {
+        this.on("response", responseCallback);
+      }
+      var self2 = this;
+      this._onNativeResponse = function(response) {
+        try {
+          self2._processResponse(response);
+        } catch (cause) {
+          self2.emit("error", cause instanceof RedirectionError ? cause : new RedirectionError({ cause }));
+        }
+      };
+      this._headerFilter = new RegExp("^(?:" + sensitiveHeaders.concat(options.sensitiveHeaders).map(escapeRegex2).join("|") + ")$", "i");
+      this._performRequest();
+    }
+    RedirectableRequest.prototype = Object.create(Writable.prototype);
+    RedirectableRequest.prototype.abort = function() {
+      destroyRequest(this._currentRequest);
+      this._currentRequest.abort();
+      this.emit("abort");
+    };
+    RedirectableRequest.prototype.destroy = function(error40) {
+      destroyRequest(this._currentRequest, error40);
+      destroy.call(this, error40);
+      return this;
+    };
+    RedirectableRequest.prototype.write = function(data, encoding, callback) {
+      if (this._ending) {
+        throw new WriteAfterEndError();
+      }
+      if (!isString(data) && !isBuffer(data)) {
+        throw new TypeError("data should be a string, Buffer or Uint8Array");
+      }
+      if (isFunction(encoding)) {
+        callback = encoding;
+        encoding = null;
+      }
+      if (data.length === 0) {
+        if (callback) {
+          callback();
+        }
+        return;
+      }
+      if (this._requestBodyLength + data.length <= this._options.maxBodyLength) {
+        this._requestBodyLength += data.length;
+        this._requestBodyBuffers.push({ data, encoding });
+        this._currentRequest.write(data, encoding, callback);
+      } else {
+        this.emit("error", new MaxBodyLengthExceededError());
+        this.abort();
+      }
+    };
+    RedirectableRequest.prototype.end = function(data, encoding, callback) {
+      if (isFunction(data)) {
+        callback = data;
+        data = encoding = null;
+      } else if (isFunction(encoding)) {
+        callback = encoding;
+        encoding = null;
+      }
+      if (!data) {
+        this._ended = this._ending = true;
+        this._currentRequest.end(null, null, callback);
+      } else {
+        var self2 = this;
+        var currentRequest = this._currentRequest;
+        this.write(data, encoding, function() {
+          self2._ended = true;
+          currentRequest.end(null, null, callback);
+        });
+        this._ending = true;
+      }
+    };
+    RedirectableRequest.prototype.setHeader = function(name, value) {
+      this._options.headers[name] = value;
+      this._currentRequest.setHeader(name, value);
+    };
+    RedirectableRequest.prototype.removeHeader = function(name) {
+      delete this._options.headers[name];
+      this._currentRequest.removeHeader(name);
+    };
+    RedirectableRequest.prototype.setTimeout = function(msecs, callback) {
+      var self2 = this;
+      function destroyOnTimeout(socket) {
+        socket.setTimeout(msecs);
+        socket.removeListener("timeout", socket.destroy);
+        socket.addListener("timeout", socket.destroy);
+      }
+      function startTimer(socket) {
+        if (self2._timeout) {
+          clearTimeout(self2._timeout);
+        }
+        self2._timeout = setTimeout(function() {
+          self2.emit("timeout");
+          clearTimer();
+        }, msecs);
+        destroyOnTimeout(socket);
+      }
+      function clearTimer() {
+        if (self2._timeout) {
+          clearTimeout(self2._timeout);
+          self2._timeout = null;
+        }
+        self2.removeListener("abort", clearTimer);
+        self2.removeListener("error", clearTimer);
+        self2.removeListener("response", clearTimer);
+        self2.removeListener("close", clearTimer);
+        if (callback) {
+          self2.removeListener("timeout", callback);
+        }
+        if (!self2.socket) {
+          self2._currentRequest.removeListener("socket", startTimer);
+        }
+      }
+      if (callback) {
+        this.on("timeout", callback);
+      }
+      if (this.socket) {
+        startTimer(this.socket);
+      } else {
+        this._currentRequest.once("socket", startTimer);
+      }
+      this.on("socket", destroyOnTimeout);
+      this.on("abort", clearTimer);
+      this.on("error", clearTimer);
+      this.on("response", clearTimer);
+      this.on("close", clearTimer);
+      return this;
+    };
+    [
+      "flushHeaders",
+      "getHeader",
+      "setNoDelay",
+      "setSocketKeepAlive"
+    ].forEach(function(method) {
+      RedirectableRequest.prototype[method] = function(a, b) {
+        return this._currentRequest[method](a, b);
+      };
+    });
+    ["aborted", "connection", "socket"].forEach(function(property) {
+      Object.defineProperty(RedirectableRequest.prototype, property, {
+        get: function() {
+          return this._currentRequest[property];
+        }
+      });
+    });
+    RedirectableRequest.prototype._sanitizeOptions = function(options) {
+      if (!options.headers) {
+        options.headers = {};
+      }
+      if (!isArray(options.sensitiveHeaders)) {
+        options.sensitiveHeaders = [];
+      }
+      if (options.host) {
+        if (!options.hostname) {
+          options.hostname = options.host;
+        }
+        delete options.host;
+      }
+      if (!options.pathname && options.path) {
+        var searchPos = options.path.indexOf("?");
+        if (searchPos < 0) {
+          options.pathname = options.path;
+        } else {
+          options.pathname = options.path.substring(0, searchPos);
+          options.search = options.path.substring(searchPos);
+        }
+      }
+    };
+    RedirectableRequest.prototype._performRequest = function() {
+      var protocol = this._options.protocol;
+      var nativeProtocol = this._options.nativeProtocols[protocol];
+      if (!nativeProtocol) {
+        throw new TypeError("Unsupported protocol " + protocol);
+      }
+      if (this._options.agents) {
+        var scheme = protocol.slice(0, -1);
+        this._options.agent = this._options.agents[scheme];
+      }
+      var request = this._currentRequest = nativeProtocol.request(this._options, this._onNativeResponse);
+      request._redirectable = this;
+      for (var event of events) {
+        request.on(event, eventHandlers[event]);
+      }
+      this._currentUrl = /^\//.test(this._options.path) ? url2.format(this._options) : (
+        // When making a request to a proxy, […]
+        // a client MUST send the target URI in absolute-form […].
+        this._options.path
+      );
+      if (this._isRedirect) {
+        var i = 0;
+        var self2 = this;
+        var buffers = this._requestBodyBuffers;
+        (function writeNext(error40) {
+          if (request === self2._currentRequest) {
+            if (error40) {
+              self2.emit("error", error40);
+            } else if (i < buffers.length) {
+              var buffer = buffers[i++];
+              if (!request.finished) {
+                request.write(buffer.data, buffer.encoding, writeNext);
+              }
+            } else if (self2._ended) {
+              request.end();
+            }
+          }
+        })();
+      }
+    };
+    RedirectableRequest.prototype._processResponse = function(response) {
+      var statusCode = response.statusCode;
+      if (this._options.trackRedirects) {
+        this._redirects.push({
+          url: this._currentUrl,
+          headers: response.headers,
+          statusCode
+        });
+      }
+      var location = response.headers.location;
+      if (!location || this._options.followRedirects === false || statusCode < 300 || statusCode >= 400) {
+        response.responseUrl = this._currentUrl;
+        response.redirects = this._redirects;
+        this.emit("response", response);
+        this._requestBodyBuffers = [];
+        return;
+      }
+      destroyRequest(this._currentRequest);
+      response.destroy();
+      if (++this._redirectCount > this._options.maxRedirects) {
+        throw new TooManyRedirectsError();
+      }
+      var requestHeaders;
+      var beforeRedirect = this._options.beforeRedirect;
+      if (beforeRedirect) {
+        requestHeaders = Object.assign({
+          // The Host header was set by nativeProtocol.request
+          Host: response.req.getHeader("host")
+        }, this._options.headers);
+      }
+      var method = this._options.method;
+      if ((statusCode === 301 || statusCode === 302) && this._options.method === "POST" || // RFC7231§6.4.4: The 303 (See Other) status code indicates that
+      // the server is redirecting the user agent to a different resource […]
+      // A user agent can perform a retrieval request targeting that URI
+      // (a GET or HEAD request if using HTTP) […]
+      statusCode === 303 && !/^(?:GET|HEAD)$/.test(this._options.method)) {
+        this._options.method = "GET";
+        this._requestBodyBuffers = [];
+        removeMatchingHeaders(/^content-/i, this._options.headers);
+      }
+      var currentHostHeader = removeMatchingHeaders(/^host$/i, this._options.headers);
+      var currentUrlParts = parseUrl(this._currentUrl);
+      var currentHost = currentHostHeader || currentUrlParts.host;
+      var currentUrl = /^\w+:/.test(location) ? this._currentUrl : url2.format(Object.assign(currentUrlParts, { host: currentHost }));
+      var redirectUrl = resolveUrl(location, currentUrl);
+      debug("redirecting to", redirectUrl.href);
+      this._isRedirect = true;
+      spreadUrlObject(redirectUrl, this._options);
+      if (redirectUrl.protocol !== currentUrlParts.protocol && redirectUrl.protocol !== "https:" || redirectUrl.host !== currentHost && !isSubdomain(redirectUrl.host, currentHost)) {
+        removeMatchingHeaders(this._headerFilter, this._options.headers);
+      }
+      if (isFunction(beforeRedirect)) {
+        var responseDetails = {
+          headers: response.headers,
+          statusCode
+        };
+        var requestDetails = {
+          url: currentUrl,
+          method,
+          headers: requestHeaders
+        };
+        beforeRedirect(this._options, responseDetails, requestDetails);
+        this._sanitizeOptions(this._options);
+      }
+      this._performRequest();
+    };
+    function wrap(protocols) {
+      var exports2 = {
+        maxRedirects: 21,
+        maxBodyLength: 10 * 1024 * 1024
+      };
+      var nativeProtocols = {};
+      Object.keys(protocols).forEach(function(scheme) {
+        var protocol = scheme + ":";
+        var nativeProtocol = nativeProtocols[protocol] = protocols[scheme];
+        var wrappedProtocol = exports2[scheme] = Object.create(nativeProtocol);
+        function request(input, options, callback) {
+          if (isURL(input)) {
+            input = spreadUrlObject(input);
+          } else if (isString(input)) {
+            input = spreadUrlObject(parseUrl(input));
+          } else {
+            callback = options;
+            options = validateUrl(input);
+            input = { protocol };
+          }
+          if (isFunction(options)) {
+            callback = options;
+            options = null;
+          }
+          options = Object.assign({
+            maxRedirects: exports2.maxRedirects,
+            maxBodyLength: exports2.maxBodyLength
+          }, input, options);
+          options.nativeProtocols = nativeProtocols;
+          if (!isString(options.host) && !isString(options.hostname)) {
+            options.hostname = "::1";
+          }
+          assert2.equal(options.protocol, protocol, "protocol mismatch");
+          debug("options", options);
+          return new RedirectableRequest(options, callback);
+        }
+        function get(input, options, callback) {
+          var wrappedRequest = wrappedProtocol.request(input, options, callback);
+          wrappedRequest.end();
+          return wrappedRequest;
+        }
+        Object.defineProperties(wrappedProtocol, {
+          request: { value: request, configurable: true, enumerable: true, writable: true },
+          get: { value: get, configurable: true, enumerable: true, writable: true }
+        });
+      });
+      return exports2;
+    }
+    function noop2() {
+    }
+    function parseUrl(input) {
+      var parsed;
+      if (useNativeURL) {
+        parsed = new URL2(input);
+      } else {
+        parsed = validateUrl(url2.parse(input));
+        if (!isString(parsed.protocol)) {
+          throw new InvalidUrlError({ input });
+        }
+      }
+      return parsed;
+    }
+    function resolveUrl(relative, base) {
+      return useNativeURL ? new URL2(relative, base) : parseUrl(url2.resolve(base, relative));
+    }
+    function validateUrl(input) {
+      if (/^\[/.test(input.hostname) && !/^\[[:0-9a-f]+\]$/i.test(input.hostname)) {
+        throw new InvalidUrlError({ input: input.href || input });
+      }
+      if (/^\[/.test(input.host) && !/^\[[:0-9a-f]+\](:\d+)?$/i.test(input.host)) {
+        throw new InvalidUrlError({ input: input.href || input });
+      }
+      return input;
+    }
+    function spreadUrlObject(urlObject, target) {
+      var spread = target || {};
+      for (var key of preservedUrlFields) {
+        spread[key] = urlObject[key];
+      }
+      if (spread.hostname.startsWith("[")) {
+        spread.hostname = spread.hostname.slice(1, -1);
+      }
+      if (spread.port !== "") {
+        spread.port = Number(spread.port);
+      }
+      spread.path = spread.search ? spread.pathname + spread.search : spread.pathname;
+      return spread;
+    }
+    function removeMatchingHeaders(regex, headers) {
+      var lastValue;
+      for (var header in headers) {
+        if (regex.test(header)) {
+          lastValue = headers[header];
+          delete headers[header];
+        }
+      }
+      return lastValue === null || typeof lastValue === "undefined" ? void 0 : String(lastValue).trim();
+    }
+    function createErrorType(code, message, baseClass) {
+      function CustomError(properties) {
+        if (isFunction(Error.captureStackTrace)) {
+          Error.captureStackTrace(this, this.constructor);
+        }
+        Object.assign(this, properties || {});
+        this.code = code;
+        this.message = this.cause ? message + ": " + this.cause.message : message;
+      }
+      CustomError.prototype = new (baseClass || Error)();
+      Object.defineProperties(CustomError.prototype, {
+        constructor: {
+          value: CustomError,
+          enumerable: false
+        },
+        name: {
+          value: "Error [" + code + "]",
+          enumerable: false
+        }
+      });
+      return CustomError;
+    }
+    function destroyRequest(request, error40) {
+      for (var event of events) {
+        request.removeListener(event, eventHandlers[event]);
+      }
+      request.on("error", noop2);
+      request.destroy(error40);
+    }
+    function isSubdomain(subdomain, domain2) {
+      assert2(isString(subdomain) && isString(domain2));
+      var dot = subdomain.length - domain2.length - 1;
+      return dot > 0 && subdomain[dot] === "." && subdomain.endsWith(domain2);
+    }
+    function isArray(value) {
+      return value instanceof Array;
+    }
+    function isString(value) {
+      return typeof value === "string" || value instanceof String;
+    }
+    function isFunction(value) {
+      return typeof value === "function";
+    }
+    function isBuffer(value) {
+      return typeof value === "object" && "length" in value;
+    }
+    function isURL(value) {
+      return URL2 && value instanceof URL2;
+    }
+    function escapeRegex2(regex) {
+      return regex.replace(/[\]\\/()*+?.$]/g, "\\$&");
+    }
+    module.exports = wrap({ http, https });
+    module.exports.wrap = wrap;
+  }
+});
+
+// ../../node_modules/.pnpm/axios@1.20.0/node_modules/axios/dist/node/axios.cjs
+var require_axios = __commonJS({
+  "../../node_modules/.pnpm/axios@1.20.0/node_modules/axios/dist/node/axios.cjs"(exports, module) {
+    "use strict";
+    var FormData$1 = require_form_data();
+    var crypto2 = __require("crypto");
+    var url2 = __require("url");
+    var HttpsProxyAgent = require_dist5();
+    var http = __require("http");
+    var https = __require("https");
+    var http2 = __require("http2");
+    var util2 = __require("util");
+    var path = __require("path");
+    var followRedirects = require_follow_redirects();
+    var zlib = __require("zlib");
+    var stream = __require("stream");
+    var events = __require("events");
+    function bind(fn, thisArg) {
+      return function wrap() {
+        return fn.apply(thisArg, arguments);
+      };
+    }
+    var {
+      toString
+    } = Object.prototype;
+    var {
+      getPrototypeOf
+    } = Object;
+    var {
+      iterator,
+      toStringTag
+    } = Symbol;
+    var hasOwnProperty = (({
+      hasOwnProperty: hasOwnProperty2
+    }) => (obj, prop) => hasOwnProperty2.call(obj, prop))(Object.prototype);
+    var isUnsafeObjectKey = (prop) => typeof prop === "string" && (prop === "__proto__" || prop === "constructor" || prop === "prototype");
+    var isPrototypeBoundary = (obj, prototype2, source) => obj === Object.prototype || !source && prototype2 === null;
+    var isSafeAndFullyMutable = (obj) => {
+      if (!Object.isExtensible(obj)) {
+        return false;
+      }
+      const props = Object.getOwnPropertyNames(obj);
+      if (Object.getOwnPropertySymbols) {
+        props.push(...Object.getOwnPropertySymbols(obj));
+      }
+      return props.every((prop) => {
+        if (isUnsafeObjectKey(prop)) {
+          return false;
+        }
+        const descriptor = Object.getOwnPropertyDescriptor(obj, prop);
+        return !!descriptor && descriptor.configurable && descriptor.writable === true;
+      });
+    };
+    var hasOwnInPrototypeChain = (thing, prop) => {
+      let obj = thing;
+      const seen = [];
+      while (obj != null) {
+        if (seen.indexOf(obj) !== -1) {
+          return false;
+        }
+        seen.push(obj);
+        const prototype2 = getPrototypeOf(obj);
+        if (isPrototypeBoundary(obj, prototype2, obj === thing)) {
+          return false;
+        }
+        if (hasOwnProperty(obj, prop)) {
+          return true;
+        }
+        obj = prototype2;
+      }
+      return false;
+    };
+    var getSafeProp = (obj, prop) => obj != null && hasOwnInPrototypeChain(obj, prop) ? obj[prop] : void 0;
+    var toSafeFlatObject = (thing) => {
+      if (thing == null || typeof thing !== "object" && typeof thing !== "function") {
+        return thing;
+      }
+      const sourcePrototype = getPrototypeOf(thing);
+      if (sourcePrototype === null && isSafeAndFullyMutable(thing)) {
+        return thing;
+      }
+      const result = /* @__PURE__ */ Object.create(null);
+      const merged = /* @__PURE__ */ Object.create(null);
+      const seen = [];
+      let current = thing;
+      while (current != null) {
+        if (seen.indexOf(current) !== -1) {
+          break;
+        }
+        seen.push(current);
+        const prototype2 = current === thing ? sourcePrototype : getPrototypeOf(current);
+        if (isPrototypeBoundary(current, prototype2, current === thing)) {
+          break;
+        }
+        const props = Object.getOwnPropertyNames(current);
+        if (Object.getOwnPropertySymbols) {
+          props.push(...Object.getOwnPropertySymbols(current));
+        }
+        for (const prop of props) {
+          if (isUnsafeObjectKey(prop)) {
+            continue;
+          }
+          if (!hasOwnProperty(merged, prop)) {
+            result[prop] = thing[prop];
+            merged[prop] = true;
+          }
+        }
+        current = prototype2;
+      }
+      return result;
+    };
+    var kindOf = /* @__PURE__ */ ((cache2) => (thing) => {
+      const str = toString.call(thing);
+      return cache2[str] || (cache2[str] = str.slice(8, -1).toLowerCase());
+    })(/* @__PURE__ */ Object.create(null));
+    var kindOfTest = (type) => {
+      type = type.toLowerCase();
+      return (thing) => kindOf(thing) === type;
+    };
+    var typeOfTest = (type) => (thing) => typeof thing === type;
+    var {
+      isArray
+    } = Array;
+    var isUndefined = typeOfTest("undefined");
+    function isBuffer(val) {
+      return val !== null && !isUndefined(val) && val.constructor !== null && !isUndefined(val.constructor) && isFunction$1(val.constructor.isBuffer) && val.constructor.isBuffer(val);
+    }
+    var isArrayBuffer = kindOfTest("ArrayBuffer");
+    function isArrayBufferView(val) {
+      let result;
+      if (typeof ArrayBuffer !== "undefined" && ArrayBuffer.isView) {
+        result = ArrayBuffer.isView(val);
+      } else {
+        result = val && val.buffer && isArrayBuffer(val.buffer);
+      }
+      return result;
+    }
+    var isString = typeOfTest("string");
+    var isFunction$1 = typeOfTest("function");
+    var isNumber = typeOfTest("number");
+    var isObject3 = (thing) => thing !== null && typeof thing === "object";
+    var isBoolean = (thing) => thing === true || thing === false;
+    var isPlainObject2 = (val) => {
+      if (!isObject3(val)) {
+        return false;
+      }
+      const prototype2 = getPrototypeOf(val);
+      return (prototype2 === null || prototype2 === Object.prototype || getPrototypeOf(prototype2) === null) && // Treat safe own/inherited Symbol.toStringTag or Symbol.iterator members as
+      // evidence the value is tagged/iterable, while ignoring members reachable
+      // only through shared or terminal prototype boundaries.
+      !hasOwnInPrototypeChain(val, toStringTag) && !hasOwnInPrototypeChain(val, iterator);
+    };
+    var isEmptyObject = (val) => {
+      if (!isObject3(val) || isBuffer(val)) {
+        return false;
+      }
+      try {
+        return Object.keys(val).length === 0 && Object.getPrototypeOf(val) === Object.prototype;
+      } catch (e) {
+        return false;
+      }
+    };
+    var isDate = kindOfTest("Date");
+    var isFile = kindOfTest("File");
+    var isReactNativeBlob = (value) => {
+      return !!(value && typeof value.uri !== "undefined");
+    };
+    var isReactNative = (formData) => formData && typeof formData.getParts !== "undefined";
+    var isBlob = kindOfTest("Blob");
+    var isFileList = kindOfTest("FileList");
+    var isSet = kindOfTest("Set");
+    var isStream = (val) => isObject3(val) && isFunction$1(val.pipe);
+    function getGlobal() {
+      if (typeof globalThis !== "undefined") return globalThis;
+      if (typeof self !== "undefined") return self;
+      if (typeof window !== "undefined") return window;
+      if (typeof global !== "undefined") return global;
+      return {};
+    }
+    var G = getGlobal();
+    var FormDataCtor = typeof G.FormData !== "undefined" ? G.FormData : void 0;
+    var isFormData = (thing) => {
+      if (!thing) return false;
+      if (FormDataCtor && thing instanceof FormDataCtor) return true;
+      const proto = getPrototypeOf(thing);
+      if (!proto || proto === Object.prototype) return false;
+      if (!isFunction$1(thing.append)) return false;
+      const kind = kindOf(thing);
+      return kind === "formdata" || // detect form-data instance
+      kind === "object" && isFunction$1(thing.toString) && thing.toString() === "[object FormData]";
+    };
+    var isURLSearchParams = kindOfTest("URLSearchParams");
+    var [isReadableStream, isRequest, isResponse, isHeaders] = ["ReadableStream", "Request", "Response", "Headers"].map(kindOfTest);
+    var trim = (str) => {
+      return str.trim ? str.trim() : str.replace(/^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g, "");
+    };
+    function forEach(obj, fn, {
+      allOwnKeys = false
+    } = {}) {
+      if (obj === null || typeof obj === "undefined") {
+        return;
+      }
+      let i;
+      let l;
+      if (typeof obj !== "object") {
+        obj = [obj];
+      }
+      if (isArray(obj)) {
+        for (i = 0, l = obj.length; i < l; i++) {
+          fn.call(null, obj[i], i, obj);
+        }
+      } else {
+        if (isBuffer(obj)) {
+          return;
+        }
+        const keys = allOwnKeys ? Object.getOwnPropertyNames(obj) : Object.keys(obj);
+        const len = keys.length;
+        let key;
+        for (i = 0; i < len; i++) {
+          key = keys[i];
+          fn.call(null, obj[key], key, obj);
+        }
+      }
+    }
+    function findKey(obj, key) {
+      if (isBuffer(obj)) {
+        return null;
+      }
+      key = key.toLowerCase();
+      const keys = Object.keys(obj);
+      let i = keys.length;
+      let _key;
+      while (i-- > 0) {
+        _key = keys[i];
+        if (key === _key.toLowerCase()) {
+          return _key;
+        }
+      }
+      return null;
+    }
+    var _global = (() => {
+      if (typeof globalThis !== "undefined") return globalThis;
+      return typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : global;
+    })();
+    var isContextDefined = (context) => !isUndefined(context) && context !== _global;
+    function merge2(...objs) {
+      const {
+        caseless,
+        skipUndefined
+      } = isContextDefined(this) && this || {};
+      const result = {};
+      const assignValue = (val, key) => {
+        if (key === "__proto__" || key === "constructor" || key === "prototype") {
+          return;
+        }
+        const targetKey = caseless && typeof key === "string" && findKey(result, key) || key;
+        const existing = hasOwnProperty(result, targetKey) ? result[targetKey] : void 0;
+        if (isPlainObject2(existing) && isPlainObject2(val)) {
+          result[targetKey] = merge2(existing, val);
+        } else if (isPlainObject2(val)) {
+          result[targetKey] = merge2({}, val);
+        } else if (isArray(val)) {
+          result[targetKey] = val.slice();
+        } else if (!skipUndefined || !isUndefined(val)) {
+          result[targetKey] = val;
+        }
+      };
+      for (let i = 0, l = objs.length; i < l; i++) {
+        const source = objs[i];
+        if (!source || isBuffer(source)) {
+          continue;
+        }
+        forEach(source, assignValue);
+        if (typeof source !== "object" || isArray(source)) {
+          continue;
+        }
+        const symbols = Object.getOwnPropertySymbols(source);
+        for (let j = 0; j < symbols.length; j++) {
+          const symbol2 = symbols[j];
+          if (propertyIsEnumerable.call(source, symbol2)) {
+            assignValue(source[symbol2], symbol2);
+          }
+        }
+      }
+      return result;
+    }
+    var extend2 = (a, b, thisArg, {
+      allOwnKeys
+    } = {}) => {
+      forEach(b, (val, key) => {
+        if (thisArg && isFunction$1(val)) {
+          Object.defineProperty(a, key, {
+            // Null-proto descriptor so a polluted Object.prototype.get cannot
+            // hijack defineProperty's accessor-vs-data resolution.
+            __proto__: null,
+            value: bind(val, thisArg),
+            writable: true,
+            enumerable: true,
+            configurable: true
+          });
+        } else {
+          Object.defineProperty(a, key, {
+            __proto__: null,
+            value: val,
+            writable: true,
+            enumerable: true,
+            configurable: true
+          });
+        }
+      }, {
+        allOwnKeys
+      });
+      return a;
+    };
+    var stripBOM = (content) => {
+      if (content.charCodeAt(0) === 65279) {
+        content = content.slice(1);
+      }
+      return content;
+    };
+    var inherits = (constructor, superConstructor, props, descriptors) => {
+      constructor.prototype = Object.create(superConstructor.prototype, descriptors);
+      Object.defineProperty(constructor.prototype, "constructor", {
+        __proto__: null,
+        value: constructor,
+        writable: true,
+        enumerable: false,
+        configurable: true
+      });
+      Object.defineProperty(constructor, "super", {
+        __proto__: null,
+        value: superConstructor.prototype
+      });
+      props && Object.assign(constructor.prototype, props);
+    };
+    var toFlatObject = (sourceObj, destObj, filter, propFilter) => {
+      let props;
+      let i;
+      let prop;
+      const merged = {};
+      destObj = destObj || {};
+      if (sourceObj == null) return destObj;
+      do {
+        props = Object.getOwnPropertyNames(sourceObj);
+        i = props.length;
+        while (i-- > 0) {
+          prop = props[i];
+          if ((!propFilter || propFilter(prop, sourceObj, destObj)) && !merged[prop]) {
+            destObj[prop] = sourceObj[prop];
+            merged[prop] = true;
+          }
+        }
+        sourceObj = filter !== false && getPrototypeOf(sourceObj);
+      } while (sourceObj && (!filter || filter(sourceObj, destObj)) && sourceObj !== Object.prototype);
+      return destObj;
+    };
+    var endsWith = (str, searchString, position) => {
+      str = String(str);
+      if (position === void 0 || position > str.length) {
+        position = str.length;
+      }
+      position -= searchString.length;
+      const lastIndex = str.indexOf(searchString, position);
+      return lastIndex !== -1 && lastIndex === position;
+    };
+    var toArray = (thing) => {
+      if (!thing) return null;
+      if (isArray(thing)) return thing;
+      let i = thing.length;
+      if (!isNumber(i)) return null;
+      const arr = new Array(i);
+      while (i-- > 0) {
+        arr[i] = thing[i];
+      }
+      return arr;
+    };
+    var isTypedArray = /* @__PURE__ */ ((TypedArray) => {
+      return (thing) => {
+        return TypedArray && thing instanceof TypedArray;
+      };
+    })(typeof Uint8Array !== "undefined" && getPrototypeOf(Uint8Array));
+    var forEachEntry = (obj, fn) => {
+      const generator = obj && obj[iterator];
+      const _iterator = generator.call(obj);
+      let result;
+      while ((result = _iterator.next()) && !result.done) {
+        const pair = result.value;
+        fn.call(obj, pair[0], pair[1]);
+      }
+    };
+    var matchAll = (regExp, str) => {
+      let matches2;
+      const arr = [];
+      while ((matches2 = regExp.exec(str)) !== null) {
+        arr.push(matches2);
+      }
+      return arr;
+    };
+    var isHTMLForm = kindOfTest("HTMLFormElement");
+    var toCamelCase2 = (str) => {
+      return str.toLowerCase().replace(/[-_\s]([a-z\d])(\w*)/g, function replacer(m, p1, p2) {
+        return p1.toUpperCase() + p2;
+      });
+    };
+    var {
+      propertyIsEnumerable
+    } = Object.prototype;
+    var isRegExp = kindOfTest("RegExp");
+    var reduceDescriptors = (obj, reducer) => {
+      const descriptors = Object.getOwnPropertyDescriptors(obj);
+      const reducedDescriptors = {};
+      forEach(descriptors, (descriptor, name) => {
+        let ret;
+        if ((ret = reducer(descriptor, name, obj)) !== false) {
+          reducedDescriptors[name] = ret || descriptor;
+        }
+      });
+      Object.defineProperties(obj, reducedDescriptors);
+    };
+    var freezeMethods = (obj) => {
+      reduceDescriptors(obj, (descriptor, name) => {
+        if (isFunction$1(obj) && ["arguments", "caller", "callee"].includes(name)) {
+          return false;
+        }
+        const value = obj[name];
+        if (!isFunction$1(value)) return;
+        descriptor.enumerable = false;
+        if ("writable" in descriptor) {
+          descriptor.writable = false;
+          return;
+        }
+        if (!descriptor.set) {
+          descriptor.set = () => {
+            throw Error("Can not rewrite read-only method '" + name + "'");
+          };
+        }
+      });
+    };
+    var toObjectSet = (arrayOrString, delimiter) => {
+      const obj = {};
+      const define2 = (arr) => {
+        arr.forEach((value) => {
+          obj[value] = true;
+        });
+      };
+      isArray(arrayOrString) ? define2(arrayOrString) : define2(String(arrayOrString).split(delimiter));
+      return obj;
+    };
+    var noop2 = () => {
+    };
+    var toFiniteNumber = (value, defaultValue) => {
+      return value != null && Number.isFinite(value = +value) ? value : defaultValue;
+    };
+    function isSpecCompliantForm(thing) {
+      return !!(thing && isFunction$1(thing.append) && thing[toStringTag] === "FormData" && thing[iterator]);
+    }
+    var toJSONObject = (obj) => {
+      const visited = /* @__PURE__ */ new WeakSet();
+      const visit = (source) => {
+        if (isObject3(source)) {
+          if (visited.has(source)) {
+            return;
+          }
+          if (isBuffer(source)) {
+            return source;
+          }
+          if (!("toJSON" in source)) {
+            visited.add(source);
+            let target;
+            if (isSet(source)) {
+              target = [];
+              for (const value of source) {
+                const reducedValue = visit(value);
+                !isUndefined(reducedValue) && target.push(reducedValue);
+              }
+            } else {
+              target = isArray(source) ? [] : {};
+              forEach(source, (value, key) => {
+                const reducedValue = visit(value);
+                !isUndefined(reducedValue) && (target[key] = reducedValue);
+              });
+            }
+            visited.delete(source);
+            return target;
+          }
+        }
+        return source;
+      };
+      return visit(obj);
+    };
+    var isAsyncFn = kindOfTest("AsyncFunction");
+    var isThenable = (thing) => thing && (isObject3(thing) || isFunction$1(thing)) && isFunction$1(thing.then) && isFunction$1(thing.catch);
+    var _setImmediate = ((setImmediateSupported, postMessageSupported) => {
+      if (setImmediateSupported) {
+        return setImmediate;
+      }
+      return postMessageSupported ? ((token, callbacks) => {
+        _global.addEventListener("message", ({
+          source,
+          data
+        }) => {
+          if (source === _global && data === token) {
+            callbacks.length && callbacks.shift()();
+          }
+        }, false);
+        return (cb) => {
+          callbacks.push(cb);
+          _global.postMessage(token, "*");
+        };
+      })(`axios@${Math.random()}`, []) : (cb) => setTimeout(cb);
+    })(typeof setImmediate === "function", isFunction$1(_global.postMessage));
+    var asap = typeof queueMicrotask !== "undefined" ? queueMicrotask.bind(_global) : typeof process !== "undefined" && process.nextTick || _setImmediate;
+    var isIterable = (thing) => thing != null && isFunction$1(thing[iterator]);
+    var isSafeIterable = (thing) => thing != null && hasOwnInPrototypeChain(thing, iterator) && isIterable(thing);
+    var utils$1 = {
+      isArray,
+      isArrayBuffer,
+      isBuffer,
+      isFormData,
+      isArrayBufferView,
+      isString,
+      isNumber,
+      isBoolean,
+      isObject: isObject3,
+      isPlainObject: isPlainObject2,
+      isEmptyObject,
+      isReadableStream,
+      isRequest,
+      isResponse,
+      isHeaders,
+      isUndefined,
+      isDate,
+      isFile,
+      isReactNativeBlob,
+      isReactNative,
+      isBlob,
+      isRegExp,
+      isFunction: isFunction$1,
+      isStream,
+      isURLSearchParams,
+      isTypedArray,
+      isFileList,
+      forEach,
+      merge: merge2,
+      extend: extend2,
+      trim,
+      stripBOM,
+      inherits,
+      toFlatObject,
+      kindOf,
+      kindOfTest,
+      endsWith,
+      toArray,
+      forEachEntry,
+      matchAll,
+      isHTMLForm,
+      hasOwnProperty,
+      hasOwnProp: hasOwnProperty,
+      // an alias to avoid ESLint no-prototype-builtins detection
+      hasOwnInPrototypeChain,
+      getSafeProp,
+      toSafeFlatObject,
+      reduceDescriptors,
+      freezeMethods,
+      toObjectSet,
+      toCamelCase: toCamelCase2,
+      noop: noop2,
+      toFiniteNumber,
+      findKey,
+      global: _global,
+      isContextDefined,
+      isSpecCompliantForm,
+      toJSONObject,
+      isAsyncFn,
+      isThenable,
+      setImmediate: _setImmediate,
+      asap,
+      isIterable,
+      isSafeIterable
+    };
+    var ignoreDuplicateOf = utils$1.toObjectSet(["age", "authorization", "content-length", "content-type", "etag", "expires", "from", "host", "if-modified-since", "if-unmodified-since", "last-modified", "location", "max-forwards", "proxy-authorization", "referer", "retry-after", "user-agent"]);
+    var parseHeaders = (rawHeaders) => {
+      const parsed = {};
+      let key;
+      let val;
+      let i;
+      rawHeaders && rawHeaders.split("\n").forEach(function parser(line2) {
+        i = line2.indexOf(":");
+        key = line2.substring(0, i).trim().toLowerCase();
+        val = line2.substring(i + 1).trim();
+        const hasKey = utils$1.hasOwnProp(parsed, key);
+        if (!key || hasKey && utils$1.hasOwnProp(ignoreDuplicateOf, key)) {
+          return;
+        }
+        if (key === "set-cookie") {
+          if (hasKey) {
+            parsed[key].push(val);
+          } else {
+            parsed[key] = [val];
+          }
+        } else {
+          parsed[key] = hasKey ? parsed[key] + ", " + val : val;
+        }
+      });
+      return parsed;
+    };
+    function trimSPorHTAB(str) {
+      let start = 0;
+      let end = str.length;
+      while (start < end) {
+        const code = str.charCodeAt(start);
+        if (code !== 9 && code !== 32) {
+          break;
+        }
+        start += 1;
+      }
+      while (end > start) {
+        const code = str.charCodeAt(end - 1);
+        if (code !== 9 && code !== 32) {
+          break;
+        }
+        end -= 1;
+      }
+      return start === 0 && end === str.length ? str : str.slice(start, end);
+    }
+    var INVALID_UNICODE_HEADER_VALUE_CHARS = new RegExp("[\\u0000-\\u0008\\u000a-\\u001f\\u007f]+", "g");
+    var INVALID_BYTE_STRING_HEADER_VALUE_CHARS = new RegExp("[^\\u0009\\u0020-\\u007e\\u0080-\\u00ff]+", "g");
+    function sanitizeValue(value, invalidChars) {
+      if (utils$1.isArray(value)) {
+        return value.map((item) => sanitizeValue(item, invalidChars));
+      }
+      return trimSPorHTAB(String(value).replace(invalidChars, ""));
+    }
+    var sanitizeHeaderValue = (value) => sanitizeValue(value, INVALID_UNICODE_HEADER_VALUE_CHARS);
+    var sanitizeByteStringHeaderValue = (value) => sanitizeValue(value, INVALID_BYTE_STRING_HEADER_VALUE_CHARS);
+    function toByteStringHeaderObject(headers) {
+      const byteStringHeaders = /* @__PURE__ */ Object.create(null);
+      utils$1.forEach(headers.toJSON(), (value, header) => {
+        byteStringHeaders[header] = sanitizeByteStringHeaderValue(value);
+      });
+      return byteStringHeaders;
+    }
+    var $internals$1 = /* @__PURE__ */ Symbol("internals");
+    function normalizeHeader(header) {
+      return header && String(header).trim().toLowerCase();
+    }
+    function normalizeValue(value) {
+      if (value === false || value == null) {
+        return value;
+      }
+      return utils$1.isArray(value) ? value.map(normalizeValue) : sanitizeHeaderValue(String(value));
+    }
+    function parseTokens(str) {
+      const tokens = /* @__PURE__ */ Object.create(null);
+      const tokensRE = /([^\s,;=]+)\s*(?:=\s*([^,;]+))?/g;
+      let match2;
+      while (match2 = tokensRE.exec(str)) {
+        tokens[match2[1]] = match2[2];
+      }
+      return tokens;
+    }
+    var parameterNameRE = /^[!#$%&'*+\-.^_`|~0-9A-Za-z]+$/;
+    function trimOWS(value) {
+      let start = 0;
+      let end = value.length;
+      while (start < end) {
+        const code = value.charCodeAt(start);
+        if (code !== 9 && code !== 32) {
+          break;
+        }
+        start += 1;
+      }
+      while (end > start) {
+        const code = value.charCodeAt(end - 1);
+        if (code !== 9 && code !== 32) {
+          break;
+        }
+        end -= 1;
+      }
+      return start === 0 && end === value.length ? value : value.slice(start, end);
+    }
+    function decodeQuotedString(value) {
+      const last = value.length - 1;
+      if (last < 1 || value.charCodeAt(0) !== 34 || value.charCodeAt(last) !== 34) {
+        return value;
+      }
+      let decoded = "";
+      for (let i = 1; i < last; i++) {
+        const code = value.charCodeAt(i);
+        if (code === 34) {
+          return value;
+        }
+        if (code === 92) {
+          i += 1;
+          if (i >= last) {
+            return value;
+          }
+        }
+        decoded += value[i];
+      }
+      return decoded;
+    }
+    function parseParameters(value) {
+      const parameters = /* @__PURE__ */ Object.create(null);
+      const str = String(value);
+      let start = 0;
+      let quoted = false;
+      let escaped = false;
+      function parseParameter(end) {
+        const part = trimOWS(str.slice(start, end));
+        const equals = part.indexOf("=");
+        if (equals < 1) {
+          return;
+        }
+        const name = trimOWS(part.slice(0, equals));
+        if (!parameterNameRE.test(name)) {
+          return;
+        }
+        const normalizedName = name.toLowerCase();
+        if (normalizedName === "__proto__" || normalizedName === "constructor" || normalizedName === "prototype") {
+          return;
+        }
+        const parameterValue = trimOWS(part.slice(equals + 1));
+        parameters[normalizedName] = decodeQuotedString(parameterValue);
+      }
+      for (let i = 0; i < str.length; i++) {
+        const code = str.charCodeAt(i);
+        if (quoted) {
+          if (escaped) {
+            escaped = false;
+          } else if (code === 92) {
+            escaped = true;
+          } else if (code === 34) {
+            quoted = false;
+          }
+        } else if (code === 34) {
+          quoted = true;
+        } else if (code === 44 || code === 59) {
+          parseParameter(i);
+          start = i + 1;
+        }
+      }
+      parseParameter(str.length);
+      return parameters;
+    }
+    var isValidHeaderName = (str) => /^[-_a-zA-Z0-9^`|~,!#$%&'*+.]+$/.test(str.trim());
+    function matchHeaderValue(context, value, header, filter, isHeaderNameFilter) {
+      if (utils$1.isFunction(filter)) {
+        return filter.call(this, value, header);
+      }
+      if (isHeaderNameFilter) {
+        value = header;
+      }
+      if (!utils$1.isString(value)) return;
+      if (utils$1.isString(filter)) {
+        return value.indexOf(filter) !== -1;
+      }
+      if (utils$1.isRegExp(filter)) {
+        return filter.test(value);
+      }
+    }
+    function formatHeader(header) {
+      return header.trim().toLowerCase().replace(/([a-z\d])(\w*)/g, (w, char2, str) => {
+        return char2.toUpperCase() + str;
+      });
+    }
+    function buildAccessors(obj, header) {
+      const accessorName = utils$1.toCamelCase(" " + header);
+      ["get", "set", "has"].forEach((methodName) => {
+        Object.defineProperty(obj, methodName + accessorName, {
+          // Null-proto descriptor so a polluted Object.prototype.get cannot turn
+          // this data descriptor into an accessor descriptor on the way in.
+          __proto__: null,
+          value: function(arg1, arg2, arg3) {
+            return this[methodName].call(this, header, arg1, arg2, arg3);
+          },
+          configurable: true
+        });
+      });
+    }
+    var AxiosHeaders = class {
+      constructor(headers) {
+        headers && this.set(headers);
+      }
+      set(header, valueOrRewrite, rewrite) {
+        const self2 = this;
+        function setHeader(_value, _header, _rewrite) {
+          const lHeader = normalizeHeader(_header);
+          if (!lHeader) {
+            return;
+          }
+          const key = utils$1.findKey(self2, lHeader);
+          if (!key || self2[key] === void 0 || _rewrite === true || _rewrite === void 0 && self2[key] !== false) {
+            self2[key || _header] = normalizeValue(_value);
+          }
+        }
+        const setHeaders = (headers, _rewrite) => utils$1.forEach(headers, (_value, _header) => setHeader(_value, _header, _rewrite));
+        if (utils$1.isPlainObject(header) || header instanceof this.constructor) {
+          setHeaders(header, valueOrRewrite);
+        } else if (utils$1.isString(header) && (header = header.trim()) && !isValidHeaderName(header)) {
+          setHeaders(parseHeaders(header), valueOrRewrite);
+        } else if (utils$1.isObject(header) && utils$1.isSafeIterable(header)) {
+          let obj = /* @__PURE__ */ Object.create(null), dest, key;
+          for (const entry of header) {
+            if (!utils$1.isArray(entry)) {
+              throw new TypeError("Object iterator must return a key-value pair");
+            }
+            key = entry[0];
+            if (utils$1.hasOwnProp(obj, key)) {
+              dest = obj[key];
+              obj[key] = utils$1.isArray(dest) ? [...dest, entry[1]] : [dest, entry[1]];
+            } else {
+              obj[key] = entry[1];
+            }
+          }
+          setHeaders(obj, valueOrRewrite);
+        } else {
+          header != null && setHeader(valueOrRewrite, header, rewrite);
+        }
+        return this;
+      }
+      get(header, parser) {
+        header = normalizeHeader(header);
+        if (header) {
+          const key = utils$1.findKey(this, header);
+          if (key) {
+            const value = this[key];
+            if (!parser) {
+              return value;
+            }
+            if (parser === true) {
+              return parseTokens(value);
+            }
+            if (utils$1.isFunction(parser)) {
+              return parser.call(this, value, key);
+            }
+            if (utils$1.isRegExp(parser)) {
+              return parser.exec(value);
+            }
+            throw new TypeError("parser must be boolean|regexp|function");
+          }
+        }
+      }
+      has(header, matcher) {
+        header = normalizeHeader(header);
+        if (header) {
+          const key = utils$1.findKey(this, header);
+          return !!(key && this[key] !== void 0 && (!matcher || matchHeaderValue(this, this[key], key, matcher)));
+        }
+        return false;
+      }
+      delete(header, matcher) {
+        const self2 = this;
+        let deleted = false;
+        function deleteHeader(_header) {
+          _header = normalizeHeader(_header);
+          if (_header) {
+            const key = utils$1.findKey(self2, _header);
+            if (key && (!matcher || matchHeaderValue(self2, self2[key], key, matcher))) {
+              delete self2[key];
+              deleted = true;
+            }
+          }
+        }
+        if (utils$1.isArray(header)) {
+          header.forEach(deleteHeader);
+        } else {
+          deleteHeader(header);
+        }
+        return deleted;
+      }
+      clear(matcher) {
+        const keys = Object.keys(this);
+        let i = keys.length;
+        let deleted = false;
+        while (i--) {
+          const key = keys[i];
+          if (!matcher || matchHeaderValue(this, this[key], key, matcher, true)) {
+            delete this[key];
+            deleted = true;
+          }
+        }
+        return deleted;
+      }
+      normalize(format) {
+        const self2 = this;
+        const headers = {};
+        utils$1.forEach(this, (value, header) => {
+          const key = utils$1.findKey(headers, header);
+          if (key) {
+            self2[key] = normalizeValue(value);
+            delete self2[header];
+            return;
+          }
+          const normalized = format ? formatHeader(header) : String(header).trim();
+          if (normalized !== header) {
+            delete self2[header];
+          }
+          self2[normalized] = normalizeValue(value);
+          headers[normalized] = true;
+        });
+        return this;
+      }
+      concat(...targets) {
+        return this.constructor.concat(this, ...targets);
+      }
+      toJSON(asStrings) {
+        const obj = /* @__PURE__ */ Object.create(null);
+        utils$1.forEach(this, (value, header) => {
+          value != null && value !== false && (obj[header] = asStrings && utils$1.isArray(value) ? value.join(", ") : value);
+        });
+        return obj;
+      }
+      [Symbol.iterator]() {
+        return Object.entries(this.toJSON())[Symbol.iterator]();
+      }
+      toString() {
+        return Object.entries(this.toJSON()).map(([header, value]) => header + ": " + value).join("\n");
+      }
+      getSetCookie() {
+        const value = this.get("set-cookie");
+        return utils$1.isArray(value) ? value : value == null || value === false ? [] : [value];
+      }
+      get [Symbol.toStringTag]() {
+        return "AxiosHeaders";
+      }
+      static from(thing) {
+        return thing instanceof this ? thing : new this(thing);
+      }
+      static parseParameters(value) {
+        return parseParameters(value);
+      }
+      static concat(first, ...targets) {
+        const computed = new this(first);
+        targets.forEach((target) => computed.set(target));
+        return computed;
+      }
+      static accessor(header) {
+        const internals = this[$internals$1] = this[$internals$1] = {
+          accessors: {}
+        };
+        const accessors = internals.accessors;
+        const prototype2 = this.prototype;
+        function defineAccessor(_header) {
+          const lHeader = normalizeHeader(_header);
+          if (!accessors[lHeader]) {
+            buildAccessors(prototype2, _header);
+            accessors[lHeader] = true;
+          }
+        }
+        utils$1.isArray(header) ? header.forEach(defineAccessor) : defineAccessor(header);
+        return this;
+      }
+    };
+    AxiosHeaders.accessor(["Content-Type", "Content-Length", "Accept", "Accept-Encoding", "User-Agent", "Authorization"]);
+    utils$1.reduceDescriptors(AxiosHeaders.prototype, ({
+      value
+    }, key) => {
+      let mapped = key[0].toUpperCase() + key.slice(1);
+      return {
+        get: () => value,
+        set(headerValue) {
+          this[mapped] = headerValue;
+        }
+      };
+    });
+    utils$1.freezeMethods(AxiosHeaders);
+    var REDACTED = "[REDACTED ****]";
+    function hasOwnOrPrototypeToJSON(source) {
+      if (utils$1.hasOwnProp(source, "toJSON")) {
+        return true;
+      }
+      let prototype2 = Object.getPrototypeOf(source);
+      while (prototype2 && prototype2 !== Object.prototype) {
+        if (utils$1.hasOwnProp(prototype2, "toJSON")) {
+          return true;
+        }
+        prototype2 = Object.getPrototypeOf(prototype2);
+      }
+      return false;
+    }
+    function redactConfig(config2, redactKeys) {
+      const lowerKeys = new Set(redactKeys.map((k) => String(k).toLowerCase()));
+      const seen = [];
+      const visit = (source) => {
+        if (source === null || typeof source !== "object") return source;
+        if (utils$1.isBuffer(source)) return source;
+        if (seen.indexOf(source) !== -1) return void 0;
+        if (source instanceof AxiosHeaders) {
+          source = source.toJSON();
+        }
+        seen.push(source);
+        let result;
+        if (utils$1.isArray(source)) {
+          result = [];
+          source.forEach((v, i) => {
+            const reducedValue = visit(v);
+            if (!utils$1.isUndefined(reducedValue)) {
+              result[i] = reducedValue;
+            }
+          });
+        } else {
+          if (!utils$1.isPlainObject(source) && hasOwnOrPrototypeToJSON(source)) {
+            seen.pop();
+            return source;
+          }
+          result = /* @__PURE__ */ Object.create(null);
+          for (const [key, value] of Object.entries(source)) {
+            const reducedValue = lowerKeys.has(key.toLowerCase()) ? REDACTED : visit(value);
+            if (!utils$1.isUndefined(reducedValue)) {
+              result[key] = reducedValue;
+            }
+          }
+        }
+        seen.pop();
+        return result;
+      };
+      return visit(config2);
+    }
+    function stringifySafely$1(value) {
+      try {
+        return String(value);
+      } catch (err) {
+        return "";
+      }
+    }
+    function aggregateErrorMessage(error40) {
+      const message = error40.errors.map((entry) => {
+        try {
+          return entry && entry.message ? stringifySafely$1(entry.message) : stringifySafely$1(entry);
+        } catch (err) {
+          return "";
+        }
+      }).filter(Boolean).join("; ");
+      return message || error40.name || "AggregateError";
+    }
+    var AxiosError = class _AxiosError extends Error {
+      static from(error40, code, config2, request, response, customProps) {
+        let message = error40.message;
+        if (!message && utils$1.isArray(error40.errors) && error40.errors.length) {
+          message = aggregateErrorMessage(error40);
+        }
+        const axiosError = new _AxiosError(message, code || error40.code, config2, request, response);
+        Object.defineProperty(axiosError, "cause", {
+          __proto__: null,
+          value: error40,
+          writable: true,
+          enumerable: false,
+          configurable: true
+        });
+        axiosError.name = error40.name;
+        if (error40.status != null && axiosError.status == null) {
+          axiosError.status = error40.status;
+        }
+        customProps && Object.assign(axiosError, customProps);
+        return axiosError;
+      }
+      /**
+       * Create an Error with the specified message, config, error code, request and response.
+       *
+       * @param {string} message The error message.
+       * @param {string} [code] The error code (for example, 'ECONNABORTED').
+       * @param {Object} [config] The config.
+       * @param {Object} [request] The request.
+       * @param {Object} [response] The response.
+       *
+       * @returns {Error} The created error.
+       */
+      constructor(message, code, config2, request, response) {
+        super(message);
+        Object.defineProperty(this, "message", {
+          // Null-proto descriptor so a polluted Object.prototype.get cannot turn
+          // this data descriptor into an accessor descriptor on the way in.
+          __proto__: null,
+          value: message,
+          enumerable: true,
+          writable: true,
+          configurable: true
+        });
+        this.name = "AxiosError";
+        this.isAxiosError = true;
+        code && (this.code = code);
+        config2 && (this.config = config2);
+        request && (this.request = request);
+        if (response) {
+          this.response = response;
+          this.status = response.status;
+        }
+      }
+      toJSON() {
+        const config2 = this.config;
+        const redactKeys = config2 && utils$1.hasOwnProp(config2, "redact") ? config2.redact : void 0;
+        const serializedConfig = utils$1.isArray(redactKeys) && redactKeys.length > 0 ? redactConfig(config2, redactKeys) : utils$1.toJSONObject(config2);
+        return {
+          // Standard
+          message: this.message,
+          name: this.name,
+          // Microsoft
+          description: this.description,
+          number: this.number,
+          // Mozilla
+          fileName: this.fileName,
+          lineNumber: this.lineNumber,
+          columnNumber: this.columnNumber,
+          stack: this.stack,
+          // Axios
+          config: serializedConfig,
+          code: this.code,
+          status: this.status
+        };
+      }
+    };
+    AxiosError.ERR_BAD_OPTION_VALUE = "ERR_BAD_OPTION_VALUE";
+    AxiosError.ERR_BAD_OPTION = "ERR_BAD_OPTION";
+    AxiosError.ECONNABORTED = "ECONNABORTED";
+    AxiosError.ETIMEDOUT = "ETIMEDOUT";
+    AxiosError.ECONNREFUSED = "ECONNREFUSED";
+    AxiosError.ERR_NETWORK = "ERR_NETWORK";
+    AxiosError.ERR_FR_TOO_MANY_REDIRECTS = "ERR_FR_TOO_MANY_REDIRECTS";
+    AxiosError.ERR_DEPRECATED = "ERR_DEPRECATED";
+    AxiosError.ERR_BAD_RESPONSE = "ERR_BAD_RESPONSE";
+    AxiosError.ERR_BAD_REQUEST = "ERR_BAD_REQUEST";
+    AxiosError.ERR_CANCELED = "ERR_CANCELED";
+    AxiosError.ERR_NOT_SUPPORT = "ERR_NOT_SUPPORT";
+    AxiosError.ERR_INVALID_URL = "ERR_INVALID_URL";
+    AxiosError.ERR_FORM_DATA_DEPTH_EXCEEDED = "ERR_FORM_DATA_DEPTH_EXCEEDED";
+    var PlatformBuffer = {
+      isBufferAvailable() {
+        return typeof Buffer !== "undefined";
+      },
+      from(value) {
+        return Buffer.from(value);
+      }
+    };
+    var DEFAULT_FORM_DATA_MAX_DEPTH = 100;
+    function isVisitable(thing) {
+      return utils$1.isPlainObject(thing) || utils$1.isArray(thing);
+    }
+    function removeBrackets(key) {
+      return utils$1.endsWith(key, "[]") ? key.slice(0, -2) : key;
+    }
+    function renderKey(path2, key, dots) {
+      if (!path2) return key;
+      return path2.concat(key).map(function each(token, i) {
+        token = removeBrackets(token);
+        return !dots && i ? "[" + token + "]" : token;
+      }).join(dots ? "." : "");
+    }
+    function isFlatArray(arr) {
+      return utils$1.isArray(arr) && !arr.some(isVisitable);
+    }
+    var predicates = utils$1.toFlatObject(utils$1, {}, null, function filter(prop) {
+      return /^is[A-Z]/.test(prop);
+    });
+    function toFormData(obj, formData, options) {
+      if (!utils$1.isObject(obj)) {
+        throw new TypeError("target must be an object");
+      }
+      formData = formData || new (FormData$1 || FormData)();
+      const option = (name, fallback) => {
+        const value = utils$1.getSafeProp(options, name);
+        return utils$1.isUndefined(value) ? fallback : value;
+      };
+      const metaTokens = option("metaTokens", true);
+      const visitor = option("visitor") || defaultVisitor;
+      const dots = option("dots", false);
+      const indexes = option("indexes", false);
+      const _Blob = option("Blob") || typeof Blob !== "undefined" && Blob;
+      const maxDepth = option("maxDepth", DEFAULT_FORM_DATA_MAX_DEPTH);
+      const useBlob = _Blob && utils$1.isSpecCompliantForm(formData);
+      const stack = [];
+      if (!utils$1.isFunction(visitor)) {
+        throw new TypeError("visitor must be a function");
+      }
+      function convertValue(value) {
+        if (value === null) return "";
+        if (utils$1.isDate(value)) {
+          return value.toISOString();
+        }
+        if (utils$1.isBoolean(value)) {
+          return value.toString();
+        }
+        if (!useBlob && utils$1.isBlob(value)) {
+          throw new AxiosError("Blob is not supported. Use a Buffer instead.");
+        }
+        if (utils$1.isArrayBuffer(value) || utils$1.isTypedArray(value)) {
+          if (useBlob && typeof _Blob === "function") {
+            return new _Blob([value]);
+          }
+          if (PlatformBuffer && PlatformBuffer.isBufferAvailable()) {
+            return PlatformBuffer.from(value);
+          }
+          throw new AxiosError("Blob is not supported. Use a Buffer instead.", AxiosError.ERR_NOT_SUPPORT);
+        }
+        return value;
+      }
+      function throwIfMaxDepthExceeded(depth) {
+        if (depth > maxDepth) {
+          throw new AxiosError("Object is too deeply nested (" + depth + " levels). Max depth: " + maxDepth, AxiosError.ERR_FORM_DATA_DEPTH_EXCEEDED);
+        }
+      }
+      function stringifyWithDepthLimit(value, depth) {
+        if (maxDepth === Infinity) {
+          return JSON.stringify(value);
+        }
+        const ancestors = [];
+        return JSON.stringify(value, function limitDepth(_key, currentValue) {
+          if (!utils$1.isObject(currentValue)) {
+            return currentValue;
+          }
+          while (ancestors.length && ancestors[ancestors.length - 1] !== this) {
+            ancestors.pop();
+          }
+          ancestors.push(currentValue);
+          throwIfMaxDepthExceeded(depth + ancestors.length - 1);
+          return currentValue;
+        });
+      }
+      function defaultVisitor(value, key, path2) {
+        let arr = value;
+        if (utils$1.isReactNative(formData) && utils$1.isReactNativeBlob(value)) {
+          formData.append(renderKey(path2, key, dots), convertValue(value));
+          return false;
+        }
+        if (value && !path2 && typeof value === "object") {
+          if (utils$1.endsWith(key, "{}")) {
+            key = metaTokens ? key : key.slice(0, -2);
+            value = stringifyWithDepthLimit(value, 1);
+          } else if (utils$1.isArray(value) && isFlatArray(value) || (utils$1.isFileList(value) || utils$1.endsWith(key, "[]")) && (arr = utils$1.toArray(value))) {
+            key = removeBrackets(key);
+            arr.forEach(function each(el, index) {
+              !(utils$1.isUndefined(el) || el === null) && formData.append(
+                // eslint-disable-next-line no-nested-ternary
+                indexes === true ? renderKey([key], index, dots) : indexes === null ? key : key + "[]",
+                convertValue(el)
+              );
+            });
+            return false;
+          }
+        }
+        if (isVisitable(value)) {
+          return true;
+        }
+        formData.append(renderKey(path2, key, dots), convertValue(value));
+        return false;
+      }
+      const exposedHelpers = Object.assign(predicates, {
+        defaultVisitor,
+        convertValue,
+        isVisitable
+      });
+      function build(value, path2, depth = 0) {
+        if (utils$1.isUndefined(value)) return;
+        throwIfMaxDepthExceeded(depth);
+        if (stack.indexOf(value) !== -1) {
+          throw new Error("Circular reference detected in " + path2.join("."));
+        }
+        stack.push(value);
+        utils$1.forEach(value, function each(el, key) {
+          const result = !(utils$1.isUndefined(el) || el === null) && visitor.call(formData, el, utils$1.isString(key) ? key.trim() : key, path2, exposedHelpers);
+          if (result === true) {
+            build(el, path2 ? path2.concat(key) : [key], depth + 1);
+          }
+        });
+        stack.pop();
+      }
+      if (!utils$1.isObject(obj)) {
+        throw new TypeError("data must be an object");
+      }
+      build(obj);
+      return formData;
+    }
+    function encode$1(str) {
+      const charMap = {
+        "!": "%21",
+        "'": "%27",
+        "(": "%28",
+        ")": "%29",
+        "~": "%7E",
+        "%20": "+"
+      };
+      return encodeURIComponent(str).replace(/[!'()~]|%20/g, function replacer(match2) {
+        return charMap[match2];
+      });
+    }
+    function AxiosURLSearchParams(params, options) {
+      this._pairs = [];
+      params && toFormData(params, this, options);
+    }
+    var prototype = AxiosURLSearchParams.prototype;
+    prototype.append = function append(name, value) {
+      this._pairs.push([name, value]);
+    };
+    prototype.toString = function toString2(encoder) {
+      const _encode = encoder ? (value) => encoder.call(this, value, encode$1) : encode$1;
+      return this._pairs.map(function each(pair) {
+        return _encode(pair[0]) + "=" + _encode(pair[1]);
+      }, "").join("&");
+    };
+    function encode(val) {
+      return encodeURIComponent(val).replace(/%3A/gi, ":").replace(/%24/g, "$").replace(/%2C/gi, ",").replace(/%20/g, "+");
+    }
+    function buildURL(url3, params, options) {
+      if (!params) {
+        return url3;
+      }
+      url3 = url3 || "";
+      const _options = utils$1.isFunction(options) ? {
+        serialize: options
+      } : options;
+      const _encode = utils$1.getSafeProp(_options, "encode") || encode;
+      const serializeFn = utils$1.getSafeProp(_options, "serialize");
+      let serializedParams;
+      if (serializeFn) {
+        serializedParams = serializeFn(params, _options);
+      } else {
+        serializedParams = utils$1.isURLSearchParams(params) ? params.toString() : new AxiosURLSearchParams(params, _options).toString(_encode);
+      }
+      if (serializedParams) {
+        const hashmarkIndex = url3.indexOf("#");
+        if (hashmarkIndex !== -1) {
+          url3 = url3.slice(0, hashmarkIndex);
+        }
+        url3 += (url3.indexOf("?") === -1 ? "?" : "&") + serializedParams;
+      }
+      return url3;
+    }
+    var $internals = /* @__PURE__ */ Symbol("internals");
+    function countHandlers(handlers) {
+      return handlers ? handlers.length : 0;
+    }
+    function trimHandlers(handlers) {
+      if (!handlers) {
+        return;
+      }
+      while (handlers.length && handlers[handlers.length - 1] === null) {
+        handlers.pop();
+      }
+    }
+    function syncHandlerEntries(manager, internals) {
+      const handlers = manager.handlers;
+      const length = countHandlers(handlers);
+      if (handlers !== internals.handlersRef) {
+        internals.handlersRef = handlers;
+        internals.handlerEntries.clear();
+      } else if (length !== internals.handlersLength) {
+        if (!length) {
+          internals.handlerEntries.clear();
+        } else {
+          internals.handlerEntries.forEach(function removeStaleEntry(entry, id) {
+            if (handlers[entry.index] !== entry.handler) {
+              internals.handlerEntries.delete(id);
+            }
+          });
+        }
+      }
+      internals.handlersLength = length;
+    }
+    var InterceptorManager = class {
+      constructor() {
+        this.handlers = [];
+        this[$internals] = {
+          handlersRef: this.handlers,
+          handlersLength: this.handlers.length,
+          handlerEntries: /* @__PURE__ */ new Map(),
+          iterationDepth: 0,
+          nextId: 0
+        };
+      }
+      /**
+       * Add a new interceptor to the stack
+       *
+       * @param {Function} fulfilled The function to handle `then` for a `Promise`
+       * @param {Function} rejected The function to handle `reject` for a `Promise`
+       * @param {Object} options The options for the interceptor, synchronous and runWhen
+       *
+       * @return {Number} An ID used to remove interceptor later
+       */
+      use(fulfilled, rejected, options) {
+        const handler = {
+          fulfilled,
+          rejected,
+          synchronous: options ? options.synchronous : false,
+          runWhen: options ? options.runWhen : null
+        };
+        const internals = this[$internals];
+        if (this.handlers == null) {
+          this.handlers = [];
+        }
+        syncHandlerEntries(this, internals);
+        const id = internals.nextId++;
+        this.handlers.push(handler);
+        internals.handlerEntries.set(id, {
+          handler,
+          index: this.handlers.length - 1
+        });
+        internals.handlersLength = this.handlers.length;
+        return id;
+      }
+      /**
+       * Remove an interceptor from the stack
+       *
+       * @param {Number} id The ID that was returned by `use`
+       *
+       * @returns {void}
+       */
+      eject(id) {
+        const internals = this[$internals];
+        syncHandlerEntries(this, internals);
+        const entry = internals.handlerEntries.get(id);
+        if (entry) {
+          internals.handlerEntries.delete(id);
+          if (this.handlers[entry.index] !== entry.handler) {
+            return;
+          }
+          this.handlers[entry.index] = null;
+          if (!internals.iterationDepth) {
+            trimHandlers(this.handlers);
+            internals.handlersLength = this.handlers.length;
+          }
+        }
+      }
+      /**
+       * Clear all interceptors from the stack
+       *
+       * @returns {void}
+       */
+      clear() {
+        if (this.handlers) {
+          this.handlers = [];
+          syncHandlerEntries(this, this[$internals]);
+        }
+      }
+      /**
+       * Iterate over all the registered interceptors
+       *
+       * This method is particularly useful for skipping over any
+       * interceptors that may have become `null` calling `eject`.
+       *
+       * @param {Function} fn The function to call for each interceptor
+       *
+       * @returns {void}
+       */
+      forEach(fn) {
+        const internals = this[$internals];
+        syncHandlerEntries(this, internals);
+        internals.iterationDepth++;
+        try {
+          utils$1.forEach(this.handlers, function forEachHandler(h) {
+            if (h !== null) {
+              fn(h);
+            }
+          });
+        } finally {
+          if (!--internals.iterationDepth) {
+            syncHandlerEntries(this, internals);
+            trimHandlers(this.handlers);
+            internals.handlersLength = countHandlers(this.handlers);
+          }
+        }
+      }
+    };
+    var transitionalDefaults = {
+      silentJSONParsing: true,
+      forcedJSONParsing: true,
+      clarifyTimeoutError: false,
+      legacyInterceptorReqResOrdering: true,
+      advertiseZstdAcceptEncoding: false,
+      validateStatusUndefinedResolves: true
+    };
+    var URLSearchParams2 = url2.URLSearchParams;
+    var ALPHA = "abcdefghijklmnopqrstuvwxyz";
+    var DIGIT = "0123456789";
+    var ALPHABET = {
+      DIGIT,
+      ALPHA,
+      ALPHA_DIGIT: ALPHA + ALPHA.toUpperCase() + DIGIT
+    };
+    var generateString = (size = 16, alphabet = ALPHABET.ALPHA_DIGIT) => {
+      let str = "";
+      const {
+        length
+      } = alphabet;
+      const randomValues = new Uint32Array(size);
+      crypto2.randomFillSync(randomValues);
+      for (let i = 0; i < size; i++) {
+        str += alphabet[randomValues[i] % length];
+      }
+      return str;
+    };
+    var platform$1 = {
+      isNode: true,
+      classes: {
+        URLSearchParams: URLSearchParams2,
+        FormData: FormData$1,
+        Blob: typeof Blob !== "undefined" && Blob || null
+      },
+      ALPHABET,
+      generateString,
+      protocols: ["http", "https", "file", "data"]
+    };
+    var hasBrowserEnv = typeof window !== "undefined" && typeof document !== "undefined";
+    var _navigator = typeof navigator === "object" && navigator || void 0;
+    var hasStandardBrowserEnv = hasBrowserEnv && (!_navigator || ["ReactNative", "NativeScript", "NS"].indexOf(_navigator.product) < 0);
+    var hasStandardBrowserWebWorkerEnv = (() => {
+      return typeof WorkerGlobalScope !== "undefined" && // eslint-disable-next-line no-undef
+      self instanceof WorkerGlobalScope && typeof self.importScripts === "function";
+    })();
+    var origin = hasBrowserEnv && window.location.href || "http://localhost";
+    var utils = /* @__PURE__ */ Object.freeze({
+      __proto__: null,
+      hasBrowserEnv,
+      hasStandardBrowserEnv,
+      hasStandardBrowserWebWorkerEnv,
+      navigator: _navigator,
+      origin
+    });
+    var platform = {
+      ...utils,
+      ...platform$1
+    };
+    function toURLEncodedForm(data, options) {
+      return toFormData(data, new platform.classes.URLSearchParams(), {
+        visitor: function(value, key, path2, helpers) {
+          if (platform.isNode && utils$1.isBuffer(value)) {
+            this.append(key, value.toString("base64"));
+            return false;
+          }
+          return helpers.defaultVisitor.apply(this, arguments);
+        },
+        ...options
+      });
+    }
+    var MAX_DEPTH = DEFAULT_FORM_DATA_MAX_DEPTH;
+    function throwIfDepthExceeded(index) {
+      if (index > MAX_DEPTH) {
+        throw new AxiosError("FormData field is too deeply nested (" + index + " levels). Max depth: " + MAX_DEPTH, AxiosError.ERR_FORM_DATA_DEPTH_EXCEEDED);
+      }
+    }
+    function parsePropPath(name) {
+      const path2 = [];
+      const pattern = /[^.[\]]+|\[([^.[\]]*)]/g;
+      let match2;
+      while ((match2 = pattern.exec(name)) !== null) {
+        throwIfDepthExceeded(path2.length);
+        path2.push(match2[0] === "[]" ? "" : match2[1] || match2[0]);
+      }
+      return path2;
+    }
+    function arrayToObject(arr) {
+      const obj = {};
+      const keys = Object.keys(arr);
+      let i;
+      const len = keys.length;
+      let key;
+      for (i = 0; i < len; i++) {
+        key = keys[i];
+        obj[key] = arr[key];
+      }
+      return obj;
+    }
+    function formDataToJSON(formData) {
+      function buildPath(path2, value, target, index) {
+        throwIfDepthExceeded(index);
+        let name = path2[index++];
+        if (name === "__proto__") return true;
+        const isNumericKey = Number.isFinite(+name);
+        const isLast = index >= path2.length;
+        name = !name && utils$1.isArray(target) ? target.length : name;
+        if (isLast) {
+          if (utils$1.hasOwnProp(target, name)) {
+            target[name] = utils$1.isArray(target[name]) ? target[name].concat(value) : [target[name], value];
+          } else {
+            target[name] = value;
+          }
+          return !isNumericKey;
+        }
+        if (!utils$1.hasOwnProp(target, name) || !utils$1.isObject(target[name])) {
+          target[name] = [];
+        }
+        const result = buildPath(path2, value, target[name], index);
+        if (result && utils$1.isArray(target[name])) {
+          target[name] = arrayToObject(target[name]);
+        }
+        return !isNumericKey;
+      }
+      if (utils$1.isFormData(formData) && utils$1.isFunction(formData.entries)) {
+        const obj = {};
+        utils$1.forEachEntry(formData, (name, value) => {
+          buildPath(parsePropPath(name), value, obj, 0);
+        });
+        return obj;
+      }
+      return null;
+    }
+    var methodList = Object.freeze(["get", "delete", "head", "options", "post", "put", "patch", "purge", "link", "unlink", "query"]);
+    var own = (obj, key) => obj != null && utils$1.hasOwnProp(obj, key) ? obj[key] : void 0;
+    function stringifySafely(rawValue, parser, encoder) {
+      if (utils$1.isString(rawValue)) {
+        try {
+          (parser || JSON.parse)(rawValue);
+          return utils$1.trim(rawValue);
+        } catch (e) {
+          if (e.name !== "SyntaxError") {
+            throw e;
+          }
+        }
+      }
+      return (encoder || JSON.stringify)(rawValue);
+    }
+    var defaults2 = {
+      transitional: transitionalDefaults,
+      adapter: ["xhr", "http", "fetch"],
+      transformRequest: [function transformRequest(data, headers) {
+        const contentType = headers.getContentType() || "";
+        const hasJSONContentType = contentType.indexOf("application/json") > -1;
+        const isObjectPayload = utils$1.isObject(data);
+        if (isObjectPayload && utils$1.isHTMLForm(data)) {
+          data = new FormData(data);
+        }
+        const isFormData2 = utils$1.isFormData(data);
+        if (isFormData2) {
+          return hasJSONContentType ? JSON.stringify(formDataToJSON(data)) : data;
+        }
+        if (utils$1.isArrayBuffer(data) || utils$1.isBuffer(data) || utils$1.isStream(data) || utils$1.isFile(data) || utils$1.isBlob(data) || utils$1.isReadableStream(data)) {
+          return data;
+        }
+        if (utils$1.isArrayBufferView(data)) {
+          return data.buffer;
+        }
+        if (utils$1.isURLSearchParams(data)) {
+          headers.setContentType("application/x-www-form-urlencoded;charset=utf-8", false);
+          return data.toString();
+        }
+        let isFileList2;
+        if (isObjectPayload) {
+          const formSerializer = own(this, "formSerializer");
+          if (contentType.indexOf("application/x-www-form-urlencoded") > -1) {
+            return toURLEncodedForm(data, formSerializer).toString();
+          }
+          if ((isFileList2 = utils$1.isFileList(data)) || contentType.indexOf("multipart/form-data") > -1) {
+            const env = own(this, "env");
+            const _FormData = env && env.FormData;
+            return toFormData(isFileList2 ? {
+              "files[]": data
+            } : data, _FormData && new _FormData(), formSerializer);
+          }
+        }
+        if (isObjectPayload || hasJSONContentType) {
+          headers.setContentType("application/json", false);
+          return stringifySafely(data);
+        }
+        return data;
+      }],
+      transformResponse: [function transformResponse(data) {
+        const transitional = own(this, "transitional") || defaults2.transitional;
+        const forcedJSONParsing = transitional && transitional.forcedJSONParsing;
+        const responseType = own(this, "responseType");
+        const JSONRequested = responseType === "json";
+        if (utils$1.isResponse(data) || utils$1.isReadableStream(data)) {
+          return data;
+        }
+        if (data && utils$1.isString(data) && (forcedJSONParsing && !responseType || JSONRequested)) {
+          const silentJSONParsing = transitional && transitional.silentJSONParsing;
+          const strictJSONParsing = !silentJSONParsing && JSONRequested;
+          try {
+            return JSON.parse(data, own(this, "parseReviver"));
+          } catch (e) {
+            if (strictJSONParsing) {
+              if (e.name === "SyntaxError") {
+                throw AxiosError.from(e, AxiosError.ERR_BAD_RESPONSE, this, null, own(this, "response"));
+              }
+              throw e;
+            }
+          }
+        }
+        return data;
+      }],
+      /**
+       * A timeout in milliseconds to abort a request. If set to 0 (default) a
+       * timeout is not created.
+       */
+      timeout: 0,
+      xsrfCookieName: "XSRF-TOKEN",
+      xsrfHeaderName: "X-XSRF-TOKEN",
+      maxContentLength: -1,
+      maxBodyLength: -1,
+      env: {
+        FormData: platform.classes.FormData,
+        Blob: platform.classes.Blob
+      },
+      validateStatus: function validateStatus(status) {
+        return status >= 200 && status < 300;
+      },
+      headers: {
+        common: {
+          Accept: "application/json, text/plain, */*",
+          "Content-Type": void 0
+        }
+      }
+    };
+    utils$1.forEach(methodList, (method) => {
+      defaults2.headers[method] = {};
+    });
+    function transformData(fns, response) {
+      const config2 = this || defaults2;
+      const context = response || config2;
+      const headers = AxiosHeaders.from(context.headers);
+      let data = context.data;
+      utils$1.forEach(fns, function transform2(fn) {
+        data = fn.call(config2, data, headers.normalize(), response ? response.status : void 0);
+      });
+      headers.normalize();
+      return data;
+    }
+    function isCancel(value) {
+      return !!(value && value.__CANCEL__);
+    }
+    var CanceledError = class extends AxiosError {
+      /**
+       * A `CanceledError` is an object that is thrown when an operation is canceled.
+       *
+       * @param {string=} message The message.
+       * @param {Object=} config The config.
+       * @param {Object=} request The request.
+       *
+       * @returns {CanceledError} The created error.
+       */
+      constructor(message, config2, request) {
+        super(message == null ? "canceled" : message, AxiosError.ERR_CANCELED, config2, request);
+        this.name = "CanceledError";
+        this.__CANCEL__ = true;
+      }
+    };
+    function settle(resolve, reject, response) {
+      const validateStatus = response.config.validateStatus;
+      if (!response.status || !validateStatus || validateStatus(response.status)) {
+        resolve(response);
+      } else {
+        reject(new AxiosError("Request failed with status code " + response.status, response.status >= 400 && response.status < 500 ? AxiosError.ERR_BAD_REQUEST : AxiosError.ERR_BAD_RESPONSE, response.config, response.request, response));
+      }
+    }
+    function isAbsoluteURL(url3) {
+      if (typeof url3 !== "string") {
+        return false;
+      }
+      return /^([a-z][a-z\d+\-.]*:)?\/\//i.test(url3);
+    }
+    function combineURLs(baseURL, relativeURL) {
+      if (!relativeURL) {
+        return baseURL;
+      }
+      let end = baseURL.length;
+      while (end > 0 && baseURL.charCodeAt(end - 1) === 47) {
+        end--;
+      }
+      return baseURL.slice(0, end) + "/" + relativeURL.replace(/^\/+/, "");
+    }
+    var urlParserControlCharacters = /[\t\n\r]/g;
+    function normalizeURLForProtocolCheck(url3) {
+      if (typeof url3 !== "string") {
+        return url3;
+      }
+      let start = 0;
+      while (start < url3.length && url3.charCodeAt(start) <= 32) {
+        start++;
+      }
+      return url3.slice(start).replace(urlParserControlCharacters, "");
+    }
+    var malformedHttpProtocol = /^https?:(?!\/\/)/i;
+    function redactFragment(fragment) {
+      if (!fragment) {
+        return fragment;
+      }
+      return fragment.replace(/(^|&)([^=&]*=)?[^&]+/g, (match2, separator, parameterName = "") => {
+        return `${separator}${parameterName}${REDACTED}`;
+      });
+    }
+    function redactSensitiveURLParts(url3) {
+      const redactedURL = url3.replace(/^(https?:\/{0,2})[^/?#]*@/i, `$1${REDACTED}@`);
+      const fragmentIndex = redactedURL.indexOf("#");
+      const urlWithoutFragment = fragmentIndex === -1 ? redactedURL : redactedURL.slice(0, fragmentIndex);
+      const redactedURLWithoutFragment = urlWithoutFragment.replace(/([?&][^=&#]*=)[^&#]*/g, `$1${REDACTED}`);
+      if (fragmentIndex === -1) {
+        return redactedURLWithoutFragment;
+      }
+      return `${redactedURLWithoutFragment}#${redactFragment(redactedURL.slice(fragmentIndex + 1))}`;
+    }
+    function assertValidHttpProtocolURL(url3, config2) {
+      if (typeof url3 === "string") {
+        const normalizedURL = normalizeURLForProtocolCheck(url3);
+        if (malformedHttpProtocol.test(normalizedURL)) {
+          throw new AxiosError(`Invalid URL ${JSON.stringify(redactSensitiveURLParts(normalizedURL))}: missing "//" after protocol`, AxiosError.ERR_INVALID_URL, config2);
+        }
+      }
+    }
+    function buildFullPath(baseURL, requestedURL, allowAbsoluteUrls, config2) {
+      assertValidHttpProtocolURL(requestedURL, config2);
+      let isRelativeUrl = !isAbsoluteURL(requestedURL);
+      if (baseURL && (isRelativeUrl || allowAbsoluteUrls === false)) {
+        assertValidHttpProtocolURL(baseURL, config2);
+        return combineURLs(baseURL, requestedURL);
+      }
+      return requestedURL;
+    }
+    var DEFAULT_PORTS$1 = {
+      ftp: 21,
+      gopher: 70,
+      http: 80,
+      https: 443,
+      ws: 80,
+      wss: 443
+    };
+    function parseUrl(urlString) {
+      try {
+        return new URL(urlString);
+      } catch {
+        return null;
+      }
+    }
+    function getProxyForUrl(url3) {
+      var parsedUrl = (typeof url3 === "string" ? parseUrl(url3) : url3) || {};
+      var proto = parsedUrl.protocol;
+      var hostname2 = parsedUrl.host;
+      var port2 = parsedUrl.port;
+      if (typeof hostname2 !== "string" || !hostname2 || typeof proto !== "string") {
+        return "";
+      }
+      proto = proto.split(":", 1)[0];
+      hostname2 = hostname2.replace(/:\d*$/, "");
+      port2 = parseInt(port2) || DEFAULT_PORTS$1[proto] || 0;
+      if (!shouldProxy(hostname2, port2)) {
+        return "";
+      }
+      var proxy = getEnv(proto + "_proxy") || getEnv("all_proxy");
+      if (proxy && proxy.indexOf("://") === -1) {
+        proxy = proto + "://" + proxy;
+      }
+      return proxy;
+    }
+    function shouldProxy(hostname2, port2) {
+      var NO_PROXY = getEnv("no_proxy").toLowerCase();
+      if (!NO_PROXY) {
+        return true;
+      }
+      if (NO_PROXY === "*") {
+        return false;
+      }
+      return NO_PROXY.split(/[,\s]/).every(function(proxy) {
+        if (!proxy) {
+          return true;
+        }
+        var parsedProxy = proxy.match(/^(.+):(\d+)$/);
+        var parsedProxyHostname = parsedProxy ? parsedProxy[1] : proxy;
+        var parsedProxyPort = parsedProxy ? parseInt(parsedProxy[2]) : 0;
+        if (parsedProxyPort && parsedProxyPort !== port2) {
+          return true;
+        }
+        if (!/^[.*]/.test(parsedProxyHostname)) {
+          return hostname2 !== parsedProxyHostname;
+        }
+        if (parsedProxyHostname.charAt(0) === "*") {
+          parsedProxyHostname = parsedProxyHostname.slice(1);
+        }
+        return !hostname2.endsWith(parsedProxyHostname);
+      });
+    }
+    function getEnv(key) {
+      return process.env[key.toLowerCase()] || process.env[key.toUpperCase()] || "";
+    }
+    var VERSION = "1.20.0";
+    function parseProtocol(url3) {
+      const match2 = /^([-+\w]{1,25}):(?:\/\/)?/.exec(url3);
+      return match2 && match2[1] || "";
+    }
+    var DATA_URL_PATTERN = /^([^,;/]+\/[^,;/]+)?((?:;[^,;=]+=[^,;]+)*)(;base64)?,([\s\S]*)$/;
+    function fromDataURI(uri, asBlob, options) {
+      const _Blob = options && options.Blob || platform.classes.Blob;
+      const protocol = parseProtocol(uri);
+      if (asBlob === void 0 && _Blob) {
+        asBlob = true;
+      }
+      if (protocol === "data") {
+        uri = protocol.length ? uri.slice(protocol.length + 1) : uri;
+        const match2 = DATA_URL_PATTERN.exec(uri);
+        if (!match2) {
+          throw new AxiosError("Invalid URL", AxiosError.ERR_INVALID_URL);
+        }
+        const type = match2[1];
+        const params = match2[2];
+        const encoding = match2[3] ? "base64" : "utf8";
+        const body = match2[4];
+        let mime = "";
+        if (type) {
+          mime = params ? type + params : type;
+        } else if (params) {
+          mime = "text/plain" + params;
+        }
+        const buffer = encoding === "base64" ? Buffer.from(body, "base64") : Buffer.from(decodeURIComponent(body), encoding);
+        if (asBlob) {
+          if (!_Blob) {
+            throw new AxiosError("Blob is not supported", AxiosError.ERR_NOT_SUPPORT);
+          }
+          return new _Blob([buffer], {
+            type: mime
+          });
+        }
+        return buffer;
+      }
+      throw new AxiosError("Unsupported protocol " + protocol, AxiosError.ERR_NOT_SUPPORT);
+    }
+    var FORM_DATA_CONTENT_HEADERS = ["content-type", "content-length"];
+    function setFormDataHeaders(headers, formHeaders, policy) {
+      if (policy !== "content-only") {
+        headers.set(formHeaders);
+        return;
+      }
+      Object.entries(formHeaders || {}).forEach(([key, val]) => {
+        if (FORM_DATA_CONTENT_HEADERS.includes(key.toLowerCase())) {
+          headers.set(key, val);
+        }
+      });
+    }
+    var kInternals = /* @__PURE__ */ Symbol("internals");
+    var AxiosTransformStream = class extends stream.Transform {
+      constructor(options) {
+        options = utils$1.toFlatObject(options, {
+          maxRate: 0,
+          chunkSize: 64 * 1024,
+          minChunkSize: 100,
+          timeWindow: 500,
+          ticksRate: 2,
+          samplesCount: 15
+        }, null, (prop, source) => {
+          return !utils$1.isUndefined(source[prop]);
+        });
+        super({
+          readableHighWaterMark: options.chunkSize
+        });
+        const internals = this[kInternals] = {
+          timeWindow: options.timeWindow,
+          chunkSize: options.chunkSize,
+          maxRate: options.maxRate,
+          minChunkSize: options.minChunkSize,
+          bytesSeen: 0,
+          isCaptured: false,
+          notifiedBytesLoaded: 0,
+          ts: Date.now(),
+          bytes: 0,
+          onReadCallback: null
+        };
+        this.on("newListener", (event) => {
+          if (event === "progress") {
+            if (!internals.isCaptured) {
+              internals.isCaptured = true;
+            }
+          }
+        });
+      }
+      _read(size) {
+        const internals = this[kInternals];
+        if (internals.onReadCallback) {
+          internals.onReadCallback();
+        }
+        return super._read(size);
+      }
+      _transform(chunk, encoding, callback) {
+        const internals = this[kInternals];
+        const maxRate = internals.maxRate;
+        const readableHighWaterMark = this.readableHighWaterMark;
+        const timeWindow = internals.timeWindow;
+        const divider = 1e3 / timeWindow;
+        const bytesThreshold = maxRate / divider;
+        const minChunkSize = internals.minChunkSize !== false ? Math.max(internals.minChunkSize, bytesThreshold * 0.01) : 0;
+        const pushChunk = (_chunk, _callback) => {
+          const bytes = Buffer.byteLength(_chunk);
+          internals.bytesSeen += bytes;
+          internals.bytes += bytes;
+          internals.isCaptured && this.emit("progress", internals.bytesSeen);
+          if (this.push(_chunk)) {
+            process.nextTick(_callback);
+          } else {
+            internals.onReadCallback = () => {
+              internals.onReadCallback = null;
+              process.nextTick(_callback);
+            };
+          }
+        };
+        const transformChunk = (_chunk, _callback) => {
+          const chunkSize = Buffer.byteLength(_chunk);
+          let chunkRemainder = null;
+          let maxChunkSize = readableHighWaterMark;
+          let bytesLeft;
+          let passed = 0;
+          if (maxRate) {
+            const now = Date.now();
+            if (!internals.ts || (passed = now - internals.ts) >= timeWindow) {
+              internals.ts = now;
+              bytesLeft = bytesThreshold - internals.bytes;
+              internals.bytes = bytesLeft < 0 ? -bytesLeft : 0;
+              passed = 0;
+            }
+            bytesLeft = bytesThreshold - internals.bytes;
+          }
+          if (maxRate) {
+            if (bytesLeft <= 0) {
+              return setTimeout(() => {
+                _callback(null, _chunk);
+              }, timeWindow - passed);
+            }
+            if (bytesLeft < maxChunkSize) {
+              maxChunkSize = bytesLeft;
+            }
+          }
+          if (maxChunkSize && chunkSize > maxChunkSize && chunkSize - maxChunkSize > minChunkSize) {
+            chunkRemainder = _chunk.subarray(maxChunkSize);
+            _chunk = _chunk.subarray(0, maxChunkSize);
+          }
+          pushChunk(_chunk, chunkRemainder ? () => {
+            process.nextTick(_callback, null, chunkRemainder);
+          } : _callback);
+        };
+        transformChunk(chunk, function transformNextChunk(err, _chunk) {
+          if (err) {
+            return callback(err);
+          }
+          if (_chunk) {
+            transformChunk(_chunk, transformNextChunk);
+          } else {
+            callback(null);
+          }
+        });
+      }
+    };
+    var {
+      asyncIterator
+    } = Symbol;
+    var readBlob = async function* (blob) {
+      if (blob.stream) {
+        yield* blob.stream();
+      } else if (blob.arrayBuffer) {
+        yield await blob.arrayBuffer();
+      } else if (blob[asyncIterator]) {
+        yield* blob[asyncIterator]();
+      } else {
+        yield blob;
+      }
+    };
+    var BOUNDARY_ALPHABET = platform.ALPHABET.ALPHA_DIGIT + "-_";
+    var textEncoder = typeof TextEncoder === "function" ? new TextEncoder() : new util2.TextEncoder();
+    var CRLF = "\r\n";
+    var CRLF_BYTES = textEncoder.encode(CRLF);
+    var CRLF_BYTES_COUNT = 2;
+    var FormDataPart = class {
+      constructor(name, value) {
+        const {
+          escapeName
+        } = this.constructor;
+        const isStringValue = utils$1.isString(value);
+        let headers = `Content-Disposition: form-data; name="${escapeName(name)}"${!isStringValue && value.name ? `; filename="${escapeName(value.name)}"` : ""}${CRLF}`;
+        if (isStringValue) {
+          value = textEncoder.encode(String(value).replace(/\r?\n|\r\n?/g, CRLF));
+        } else {
+          const safeType = String(value.type || "application/octet-stream").replace(/[\r\n]/g, "");
+          headers += `Content-Type: ${safeType}${CRLF}`;
+        }
+        this.headers = textEncoder.encode(headers + CRLF);
+        this.contentLength = isStringValue ? value.byteLength : value.size;
+        this.size = this.headers.byteLength + this.contentLength + CRLF_BYTES_COUNT;
+        this.name = name;
+        this.value = value;
+      }
+      async *encode() {
+        yield this.headers;
+        const {
+          value
+        } = this;
+        if (utils$1.isTypedArray(value)) {
+          yield value;
+        } else {
+          yield* readBlob(value);
+        }
+        yield CRLF_BYTES;
+      }
+      static escapeName(name) {
+        return String(name).replace(/[\r\n"]/g, (match2) => ({
+          "\r": "%0D",
+          "\n": "%0A",
+          '"': "%22"
+        })[match2]);
+      }
+    };
+    var formDataToStream = (form, headersHandler, options) => {
+      const {
+        tag = "form-data-boundary",
+        size = 25,
+        boundary = tag + "-" + platform.generateString(size, BOUNDARY_ALPHABET)
+      } = options || {};
+      if (!utils$1.isFormData(form)) {
+        throw new TypeError("FormData instance required");
+      }
+      if (boundary.length < 1 || boundary.length > 70) {
+        throw new Error("boundary must be 1-70 characters long");
+      }
+      const boundaryBytes = textEncoder.encode("--" + boundary + CRLF);
+      const footerBytes = textEncoder.encode("--" + boundary + "--" + CRLF);
+      let contentLength = footerBytes.byteLength;
+      const parts = Array.from(form.entries()).map(([name, value]) => {
+        const part = new FormDataPart(name, value);
+        contentLength += part.size;
+        return part;
+      });
+      contentLength += boundaryBytes.byteLength * parts.length;
+      contentLength = utils$1.toFiniteNumber(contentLength);
+      const computedHeaders = {
+        "Content-Type": `multipart/form-data; boundary=${boundary}`
+      };
+      if (Number.isFinite(contentLength)) {
+        computedHeaders["Content-Length"] = contentLength;
+      }
+      headersHandler && headersHandler(computedHeaders);
+      return stream.Readable.from((async function* () {
+        for (const part of parts) {
+          yield boundaryBytes;
+          yield* part.encode();
+        }
+        yield footerBytes;
+      })());
+    };
+    var ZlibHeaderTransformStream = class extends stream.Transform {
+      __transform(chunk, encoding, callback) {
+        this.push(chunk);
+        callback();
+      }
+      _transform(chunk, encoding, callback) {
+        if (chunk.length !== 0) {
+          this._transform = this.__transform;
+          if (chunk[0] !== 120) {
+            const header = Buffer.alloc(2);
+            header[0] = 120;
+            header[1] = 156;
+            this.push(header, encoding);
+          }
+        }
+        this.__transform(chunk, encoding, callback);
+      }
+    };
+    var Http2Sessions = class {
+      constructor() {
+        this.sessions = /* @__PURE__ */ Object.create(null);
+      }
+      getSession(authority, options) {
+        options = Object.assign(/* @__PURE__ */ Object.create(null), {
+          sessionTimeout: 1e3
+        }, options);
+        let authoritySessions = this.sessions[authority];
+        if (authoritySessions) {
+          let len = authoritySessions.length;
+          for (let i = 0; i < len; i++) {
+            const [sessionHandle, sessionOptions] = authoritySessions[i];
+            if (!sessionHandle.destroyed && !sessionHandle.closed && util2.isDeepStrictEqual(sessionOptions, options)) {
+              return sessionHandle;
+            }
+          }
+        }
+        const session = http2.connect(authority, options);
+        let removed;
+        let timer;
+        const removeSession = () => {
+          if (removed) {
+            return;
+          }
+          removed = true;
+          if (timer) {
+            clearTimeout(timer);
+            timer = null;
+          }
+          let entries = authoritySessions, len = entries.length, i = len;
+          while (i--) {
+            if (entries[i][0] === session) {
+              if (len === 1) {
+                delete this.sessions[authority];
+              } else {
+                entries.splice(i, 1);
+              }
+              if (!session.closed) {
+                session.close();
+              }
+              return;
+            }
+          }
+        };
+        const originalRequestFn = session.request;
+        const {
+          sessionTimeout
+        } = options;
+        if (sessionTimeout != null) {
+          let streamsCount = 0;
+          session.request = function() {
+            const stream2 = originalRequestFn.apply(this, arguments);
+            streamsCount++;
+            if (timer) {
+              clearTimeout(timer);
+              timer = null;
+            }
+            stream2.once("close", () => {
+              if (!--streamsCount) {
+                timer = setTimeout(() => {
+                  timer = null;
+                  removeSession();
+                }, sessionTimeout);
+              }
+            });
+            return stream2;
+          };
+        }
+        session.once("close", removeSession);
+        session.once("error", removeSession);
+        let entry = [session, options];
+        authoritySessions ? authoritySessions.push(entry) : authoritySessions = this.sessions[authority] = [entry];
+        return session;
+      }
+    };
+    var callbackify = (fn, reducer) => {
+      return utils$1.isAsyncFn(fn) ? function(...args) {
+        const cb = args.pop();
+        fn.apply(this, args).then((value) => {
+          try {
+            reducer ? cb(null, ...reducer(value)) : cb(null, value);
+          } catch (err) {
+            cb(err);
+          }
+        }, cb);
+      } : fn;
+    };
+    var LOOPBACK_HOSTNAMES = /* @__PURE__ */ new Set(["localhost", "0.0.0.0"]);
+    var trimTrailingDots = (value) => {
+      let end = value.length;
+      while (end && value.charCodeAt(end - 1) === 46) {
+        end--;
+      }
+      return end === value.length ? value : value.slice(0, end);
+    };
+    var isIPv4Loopback = (host) => {
+      const parts = host.split(".");
+      if (parts.length !== 4) return false;
+      if (parts[0] !== "127") return false;
+      return parts.every((p) => /^\d+$/.test(p) && Number(p) >= 0 && Number(p) <= 255);
+    };
+    var parseIPv4Octet = (text2) => {
+      if (/^0[xX][0-9a-fA-F]+$/.test(text2)) {
+        const n = parseInt(text2.slice(2), 16);
+        return Number.isFinite(n) ? n : null;
+      }
+      if (text2.length > 1 && /^0[0-7]+$/.test(text2)) {
+        const n = parseInt(text2, 8);
+        return Number.isFinite(n) ? n : null;
+      }
+      if (text2.length > 1 && /^0[0-9]+$/.test(text2)) {
+        return null;
+      }
+      if (/^[0-9]+$/.test(text2)) {
+        const n = parseInt(text2, 10);
+        return Number.isFinite(n) ? n : null;
+      }
+      return null;
+    };
+    var normalizeIPAddress = (host) => {
+      if (typeof host !== "string" || !host || host.indexOf(":") !== -1) {
+        return host;
+      }
+      let h = host;
+      if (h.charAt(0) === "[" && h.charAt(h.length - 1) === "]") {
+        h = h.slice(1, -1);
+      }
+      h = trimTrailingDots(h);
+      if (!/^[0-9.xXa-fA-F]+$/.test(h)) return host;
+      const parts = h.split(".");
+      if (parts.some((p) => p === "")) return host;
+      if (parts.length === 4) {
+        const octets = parts.map(parseIPv4Octet);
+        if (octets.some((n) => n === null || n < 0 || n > 255)) return host;
+        return octets.join(".");
+      }
+      if (parts.length > 4) {
+        return host;
+      }
+      if (parts.length === 1) return host;
+      const literalOctets = parts.slice(0, -1);
+      const tail = parts[parts.length - 1];
+      const tailSlots = 4 - literalOctets.length;
+      const tailValue = parseIPv4Octet(tail);
+      if (tailValue === null) return host;
+      const maxTail = (1 << 8 * tailSlots) - 1;
+      if (tailValue < 0 || tailValue > maxTail) return host;
+      const tailOctets = new Array(tailSlots).fill(0);
+      for (let i = tailSlots - 1, v = tailValue; i >= 0; i--, v >>= 8) {
+        tailOctets[i] = v & 255;
+      }
+      const literal2 = literalOctets.map(parseIPv4Octet);
+      if (literal2.some((n) => n === null || n < 0 || n > 255)) return host;
+      return [...literal2, ...tailOctets].join(".");
+    };
+    var isIPv6ZeroGroup = (group) => /^0{1,4}$/.test(group);
+    var isIPv6Unspecified = (host) => {
+      if (host === "::") return true;
+      const compressionIndex = host.indexOf("::");
+      if (compressionIndex !== -1) {
+        if (compressionIndex !== host.lastIndexOf("::")) return false;
+        const left = host.slice(0, compressionIndex);
+        const right = host.slice(compressionIndex + 2);
+        const leftGroups = left ? left.split(":") : [];
+        const rightGroups = right ? right.split(":") : [];
+        const explicitGroups = leftGroups.length + rightGroups.length;
+        return explicitGroups < 8 && leftGroups.every(isIPv6ZeroGroup) && rightGroups.every(isIPv6ZeroGroup);
+      }
+      const groups = host.split(":");
+      return groups.length === 8 && groups.every(isIPv6ZeroGroup);
+    };
+    var isIPv6Loopback = (host) => {
+      if (host === "::1") return true;
+      const v4MappedDotted = host.match(/^::ffff:(\d+\.\d+\.\d+\.\d+)$/i);
+      if (v4MappedDotted) return isIPv4Loopback(v4MappedDotted[1]);
+      const v4MappedHex = host.match(/^::ffff:([0-9a-f]{1,4}):([0-9a-f]{1,4})$/i);
+      if (v4MappedHex) {
+        const high = parseInt(v4MappedHex[1], 16);
+        return high >= 32512 && high <= 32767;
+      }
+      const groups = host.split(":");
+      if (groups.length === 8) {
+        for (let i = 0; i < 7; i++) {
+          if (!/^0+$/.test(groups[i])) return false;
+        }
+        return /^0*1$/.test(groups[7]);
+      }
+      return false;
+    };
+    var isLoopback = (host) => {
+      if (!host) return false;
+      if (LOOPBACK_HOSTNAMES.has(host)) return true;
+      if (isIPv4Loopback(host)) return true;
+      if (isIPv6Unspecified(host)) return true;
+      return isIPv6Loopback(host);
+    };
+    var DEFAULT_PORTS = {
+      http: 80,
+      https: 443,
+      ws: 80,
+      wss: 443,
+      ftp: 21
+    };
+    var parseNoProxyEntry = (entry) => {
+      let entryHost = entry;
+      let entryPort = 0;
+      if (entryHost.charAt(0) === "[") {
+        const bracketIndex = entryHost.indexOf("]");
+        if (bracketIndex !== -1) {
+          const host = entryHost.slice(1, bracketIndex);
+          const rest = entryHost.slice(bracketIndex + 1);
+          if (rest.charAt(0) === ":" && /^\d+$/.test(rest.slice(1))) {
+            entryPort = Number.parseInt(rest.slice(1), 10);
+          }
+          return [host, entryPort];
+        }
+      }
+      const firstColon = entryHost.indexOf(":");
+      const lastColon = entryHost.lastIndexOf(":");
+      if (firstColon !== -1 && firstColon === lastColon && /^\d+$/.test(entryHost.slice(lastColon + 1))) {
+        entryPort = Number.parseInt(entryHost.slice(lastColon + 1), 10);
+        entryHost = entryHost.slice(0, lastColon);
+      }
+      return [entryHost, entryPort];
+    };
+    var IPV4_MAPPED_DOTTED_RE = /^(?:::|(?:0{1,4}:){1,4}:|(?:0{1,4}:){5})ffff:(\d+\.\d+\.\d+\.\d+)$/i;
+    var IPV4_MAPPED_HEX_RE = /^(?:::|(?:0{1,4}:){1,4}:|(?:0{1,4}:){5})ffff:([0-9a-f]{1,4}):([0-9a-f]{1,4})$/i;
+    var unmapIPv4MappedIPv6 = (host) => {
+      if (typeof host !== "string" || host.indexOf(":") === -1) return host;
+      const dotted = host.match(IPV4_MAPPED_DOTTED_RE);
+      if (dotted) return dotted[1];
+      const hex = host.match(IPV4_MAPPED_HEX_RE);
+      if (hex) {
+        const high = parseInt(hex[1], 16);
+        const low = parseInt(hex[2], 16);
+        return `${high >> 8}.${high & 255}.${low >> 8}.${low & 255}`;
+      }
+      return host;
+    };
+    var IPV4_OCTET_RE = /^(?:0|[1-9]\d{0,2})$/;
+    var ipv4ToBytes = (host) => {
+      const parts = host.split(".");
+      return parts.length === 4 && parts.every((part) => IPV4_OCTET_RE.test(part) && Number(part) <= 255) ? parts.map(Number) : null;
+    };
+    var IPV6_GROUP_RE = /^[0-9a-f]{1,4}$/i;
+    var ipv6ToBytes = (host) => {
+      const halves = host.split("::");
+      if (halves.length > 2) {
+        return null;
+      }
+      const groups = halves[0] ? halves[0].split(":") : [];
+      if (halves.length === 2) {
+        const rear = halves[1] ? halves[1].split(":") : [];
+        const missing = 8 - groups.length - rear.length;
+        if (missing < 1) {
+          return null;
+        }
+        groups.push(...new Array(missing).fill("0"), ...rear);
+      }
+      if (groups.length !== 8 || groups.some((group) => !IPV6_GROUP_RE.test(group))) {
+        return null;
+      }
+      return groups.flatMap((group) => {
+        const value = Number.parseInt(group, 16);
+        return [value >> 8 & 255, value & 255];
+      });
+    };
+    var ipToBytes = (host) => {
+      if (typeof host !== "string" || !host) {
+        return null;
+      }
+      return host.indexOf(":") !== -1 ? ipv6ToBytes(host) : ipv4ToBytes(host);
+    };
+    var normalizeNoProxyHost = (hostname2) => {
+      if (!hostname2) {
+        return hostname2;
+      }
+      if (hostname2.charAt(0) === "[" && hostname2.charAt(hostname2.length - 1) === "]") {
+        hostname2 = hostname2.slice(1, -1);
+      }
+      const trimmed = trimTrailingDots(hostname2);
+      const ipv43 = normalizeIPAddress(trimmed);
+      if (ipv43 !== trimmed) {
+        return ipv43;
+      }
+      return unmapIPv4MappedIPv6(trimmed);
+    };
+    var normalizeCidrBase = (input) => {
+      let base = input;
+      const startsBracket = base.charAt(0) === "[";
+      const endsBracket = base.charAt(base.length - 1) === "]";
+      const hasBracket = base.includes("[") || base.includes("]");
+      if (startsBracket || endsBracket) {
+        if (!startsBracket || !endsBracket) {
+          return null;
+        }
+        base = base.slice(1, -1);
+        if (base.indexOf(":") === -1 || base.includes("[") || base.includes("]")) {
+          return null;
+        }
+      } else if (hasBracket) {
+        return null;
+      }
+      if (!base || base.charAt(base.length - 1) === ".") {
+        return null;
+      }
+      const wasIPv6 = base.indexOf(":") !== -1;
+      if (wasIPv6) {
+        try {
+          base = new URL(`http://[${base}]/`).hostname.slice(1, -1);
+        } catch (_err) {
+          return null;
+        }
+      } else {
+        base = normalizeIPAddress(base);
+        if (!ipv4ToBytes(base)) {
+          return null;
+        }
+      }
+      return {
+        normalized: unmapIPv4MappedIPv6(base),
+        wasIPv6
+      };
+    };
+    var CIDR_ENTRY_RE = /^(.+)\/(0|[1-9]\d{0,2})$/;
+    var parseCidrEntry = (entry) => {
+      if (entry.indexOf("/") === -1) {
+        return void 0;
+      }
+      const match2 = CIDR_ENTRY_RE.exec(entry);
+      if (!match2) {
+        return null;
+      }
+      let prefix = Number(match2[2]);
+      const parsedBase = normalizeCidrBase(match2[1]);
+      if (!parsedBase) {
+        return null;
+      }
+      const {
+        normalized,
+        wasIPv6
+      } = parsedBase;
+      if (wasIPv6 && normalized.indexOf(":") === -1) {
+        if (prefix < 96) {
+          return null;
+        }
+        prefix -= 96;
+      }
+      const bytes = ipToBytes(normalized);
+      if (!bytes || prefix > bytes.length * 8) {
+        return null;
+      }
+      return {
+        bytes,
+        prefix
+      };
+    };
+    var isInSubnet = (addressBytes, networkBytes, prefix) => {
+      const fullBytes = prefix >> 3;
+      for (let i = 0; i < fullBytes; i++) {
+        if (addressBytes[i] !== networkBytes[i]) {
+          return false;
+        }
+      }
+      const remainingBits = prefix & 7;
+      if (remainingBits) {
+        const mask = 255 << 8 - remainingBits & 255;
+        if ((addressBytes[fullBytes] & mask) !== (networkBytes[fullBytes] & mask)) {
+          return false;
+        }
+      }
+      return true;
+    };
+    function shouldBypassProxy(location) {
+      let parsed;
+      try {
+        parsed = new URL(location);
+      } catch (_err) {
+        return false;
+      }
+      const noProxy = (process.env.no_proxy || process.env.NO_PROXY || "").toLowerCase();
+      if (!noProxy) {
+        return false;
+      }
+      if (noProxy === "*") {
+        return true;
+      }
+      const port2 = Number.parseInt(parsed.port, 10) || DEFAULT_PORTS[parsed.protocol.split(":", 1)[0]] || 0;
+      const hostname2 = normalizeNoProxyHost(parsed.hostname.toLowerCase());
+      const hostnameBytes = ipToBytes(hostname2);
+      return noProxy.split(/[\s,]+/).some((entry) => {
+        if (!entry) {
+          return false;
+        }
+        if (entry === "*") {
+          return true;
+        }
+        const cidr2 = parseCidrEntry(entry);
+        if (cidr2 !== void 0) {
+          return cidr2 !== null && !!hostnameBytes && hostnameBytes.length === cidr2.bytes.length && isInSubnet(hostnameBytes, cidr2.bytes, cidr2.prefix);
+        }
+        let [entryHost, entryPort] = parseNoProxyEntry(entry);
+        entryHost = normalizeNoProxyHost(entryHost);
+        if (!entryHost) {
+          return false;
+        }
+        if (entryPort && entryPort !== port2) {
+          return false;
+        }
+        if (entryHost.charAt(0) === "*") {
+          entryHost = entryHost.slice(1);
+        }
+        if (entryHost.charAt(0) === ".") {
+          return hostname2.endsWith(entryHost);
+        }
+        return hostname2 === entryHost || isLoopback(hostname2) && isLoopback(entryHost);
+      });
+    }
+    function speedometer(samplesCount, min) {
+      samplesCount = samplesCount || 10;
+      const bytes = new Array(samplesCount);
+      const timestamps = new Array(samplesCount);
+      let head = 0;
+      let tail = 0;
+      let firstSampleTS;
+      min = min !== void 0 ? min : 1e3;
+      return function push(chunkLength) {
+        const now = Date.now();
+        const startedAt = timestamps[tail];
+        if (!firstSampleTS) {
+          firstSampleTS = now;
+        }
+        bytes[head] = chunkLength;
+        timestamps[head] = now;
+        let i = tail;
+        let bytesCount = 0;
+        while (i !== head) {
+          bytesCount += bytes[i++];
+          i = i % samplesCount;
+        }
+        head = (head + 1) % samplesCount;
+        if (head === tail) {
+          tail = (tail + 1) % samplesCount;
+        }
+        if (now - firstSampleTS < min) {
+          return;
+        }
+        const passed = startedAt && now - startedAt;
+        return passed ? Math.round(bytesCount * 1e3 / passed) : void 0;
+      };
+    }
+    function throttle(fn, freq) {
+      let timestamp2 = 0;
+      let threshold = 1e3 / freq;
+      let lastArgs;
+      let timer;
+      const invoke = (args, now = Date.now()) => {
+        timestamp2 = now;
+        lastArgs = null;
+        if (timer) {
+          clearTimeout(timer);
+          timer = null;
+        }
+        fn(...args);
+      };
+      const throttled = (...args) => {
+        const now = Date.now();
+        const passed = now - timestamp2;
+        if (passed >= threshold) {
+          invoke(args, now);
+        } else {
+          lastArgs = args;
+          if (!timer) {
+            timer = setTimeout(() => {
+              timer = null;
+              invoke(lastArgs);
+            }, threshold - passed);
+          }
+        }
+      };
+      const flush = () => lastArgs && invoke(lastArgs);
+      const flushWith = (...args) => invoke(args);
+      return [throttled, flush, flushWith];
+    }
+    var progressEventReducer = (listener, isDownloadStream, freq = 3) => {
+      let bytesNotified = 0;
+      const _speedometer = speedometer(50, 250);
+      return throttle((e) => {
+        if (!e || !utils$1.isNumber(e.loaded)) {
+          return;
+        }
+        const rawLoaded = e.loaded;
+        const total = e.lengthComputable ? e.total : void 0;
+        const loaded = Math.max(0, total != null ? Math.min(rawLoaded, total) : rawLoaded);
+        const progressBytes = Math.max(0, loaded - bytesNotified);
+        const rate = _speedometer(progressBytes);
+        bytesNotified = Math.max(bytesNotified, loaded);
+        const data = {
+          loaded,
+          total,
+          progress: total ? loaded / total : void 0,
+          bytes: progressBytes,
+          rate: rate ? rate : void 0,
+          estimated: rate && total ? (total - loaded) / rate : void 0,
+          event: e,
+          lengthComputable: total != null,
+          [isDownloadStream ? "download" : "upload"]: true
+        };
+        listener(data);
+      }, freq);
+    };
+    var progressEventDecorator = (total, throttled) => {
+      const lengthComputable = total != null;
+      return [(loaded) => throttled[0]({
+        lengthComputable,
+        total,
+        loaded
+      }), throttled[1]];
+    };
+    var asyncDecorator = (fn, scheduler = utils$1.asap) => (...args) => scheduler(() => fn(...args));
+    var isHexDigit = (charCode) => charCode >= 48 && charCode <= 57 || charCode >= 65 && charCode <= 70 || charCode >= 97 && charCode <= 102;
+    var isPercentEncodedByte = (str, i, len) => i + 2 < len && isHexDigit(str.charCodeAt(i + 1)) && isHexDigit(str.charCodeAt(i + 2));
+    var hexValue = (charCode) => charCode <= 57 ? charCode - 48 : (charCode & 223) - 55;
+    var isBase64Char = (charCode) => charCode >= 65 && charCode <= 90 || // A-Z
+    charCode >= 97 && charCode <= 122 || // a-z
+    charCode >= 48 && charCode <= 57 || // 0-9
+    charCode === 43 || // +
+    charCode === 47 || // /
+    charCode === 45 || // - (base64url)
+    charCode === 95;
+    var isBase64Whitespace = (charCode) => charCode === 9 || charCode === 10 || charCode === 12 || charCode === 13 || charCode === 32;
+    var base64Bytes = (significant) => {
+      const groups = Math.floor(significant / 4);
+      const remainder = significant % 4;
+      return groups * 3 + (remainder === 2 ? 1 : remainder === 3 ? 2 : 0);
+    };
+    var estimateBase64BufferAllocation = (body) => {
+      const len = body.length;
+      let padding = 0;
+      if (len > 0 && body.charCodeAt(len - 1) === 61) {
+        padding++;
+        if (len > 1 && body.charCodeAt(len - 2) === 61) {
+          padding++;
+        }
+      }
+      return Math.floor((len - padding) * 3 / 4);
+    };
+    var estimatePercentDecodedBase64Bytes = (body) => {
+      const len = body.length;
+      let significant = 0;
+      let padding = 0;
+      let invalid = false;
+      for (let i = 0; i < len; i++) {
+        let code = body.charCodeAt(i);
+        if (code === 37 && isPercentEncodedByte(body, i, len)) {
+          code = hexValue(body.charCodeAt(i + 1)) * 16 + hexValue(body.charCodeAt(i + 2));
+          i += 2;
+        }
+        if (isBase64Whitespace(code)) {
+          continue;
+        }
+        if (code === 61) {
+          padding++;
+          continue;
+        }
+        if (!isBase64Char(code) || padding > 0) {
+          invalid = true;
+          continue;
+        }
+        significant++;
+      }
+      if (invalid || padding > 2 || padding > 0 && (significant + padding) % 4 !== 0 || significant % 4 === 1) {
+        return estimateBase64BufferAllocation(body);
+      }
+      return base64Bytes(significant);
+    };
+    var estimateDataURLBytes = (url3, estimateBase64) => {
+      if (!url3 || typeof url3 !== "string") return 0;
+      if (!url3.startsWith("data:")) return 0;
+      const comma = url3.indexOf(",");
+      if (comma < 0) return 0;
+      const meta = url3.slice(5, comma);
+      const body = url3.slice(comma + 1);
+      const isBase64 = /;base64/i.test(meta);
+      if (isBase64) {
+        return estimateBase64(body);
+      }
+      let bytes = 0;
+      for (let i = 0, len = body.length; i < len; i++) {
+        const c = body.charCodeAt(i);
+        if (c === 37 && isPercentEncodedByte(body, i, len)) {
+          bytes += 1;
+          i += 2;
+        } else if (c < 128) {
+          bytes += 1;
+        } else if (c < 2048) {
+          bytes += 2;
+        } else if (c >= 55296 && c <= 56319 && i + 1 < len) {
+          const next = body.charCodeAt(i + 1);
+          if (next >= 56320 && next <= 57343) {
+            bytes += 4;
+            i++;
+          } else {
+            bytes += 3;
+          }
+        } else {
+          bytes += 3;
+        }
+      }
+      return bytes;
+    };
+    function estimateDataURLDecodedBytes(url3) {
+      const fragmentIndex = typeof url3 === "string" ? url3.indexOf("#") : -1;
+      return estimateDataURLBytes(fragmentIndex === -1 ? url3 : url3.slice(0, fragmentIndex), estimatePercentDecodedBase64Bytes);
+    }
+    function estimateDataURLBufferAllocation(url3) {
+      return estimateDataURLBytes(url3, estimateBase64BufferAllocation);
+    }
+    var zlibOptions = {
+      flush: zlib.constants.Z_SYNC_FLUSH,
+      finishFlush: zlib.constants.Z_SYNC_FLUSH
+    };
+    var brotliOptions = {
+      flush: zlib.constants.BROTLI_OPERATION_FLUSH,
+      finishFlush: zlib.constants.BROTLI_OPERATION_FLUSH
+    };
+    var zstdOptions = {
+      flush: zlib.constants.ZSTD_e_flush,
+      finishFlush: zlib.constants.ZSTD_e_flush
+    };
+    var isBrotliSupported = utils$1.isFunction(zlib.createBrotliDecompress);
+    var isZstdSupported = utils$1.isFunction(zlib.createZstdDecompress);
+    var ACCEPT_ENCODING = "gzip, compress, deflate" + (isBrotliSupported ? ", br" : "");
+    var ACCEPT_ENCODING_WITH_ZSTD = ACCEPT_ENCODING + (isZstdSupported ? ", zstd" : "");
+    var scheduleProgress = typeof process !== "undefined" && process.nextTick ? process.nextTick.bind(process) : utils$1.asap;
+    var {
+      http: httpFollow,
+      https: httpsFollow
+    } = followRedirects;
+    var isHttps = /https:?/;
+    var kAxiosSocketListener = /* @__PURE__ */ Symbol("axios.http.socketListener");
+    var kAxiosCurrentReq = /* @__PURE__ */ Symbol("axios.http.currentReq");
+    function handleSocketError(err) {
+      const current = this[kAxiosCurrentReq];
+      if (current && !current.destroyed) {
+        current.destroy(err);
+      }
+    }
+    var kAxiosInstalledTunnel = /* @__PURE__ */ Symbol("axios.http.installedTunnel");
+    var tunnelingAgentCache = /* @__PURE__ */ new Map();
+    var tunnelingAgentCacheUser = /* @__PURE__ */ new WeakMap();
+    var NODE_NATIVE_ENV_PROXY_SUPPORT = {
+      22: 21,
+      24: 5
+    };
+    function isNodeNativeEnvProxySupported(nodeVersion = process.versions && process.versions.node) {
+      if (!nodeVersion) {
+        return false;
+      }
+      const [major, minor] = nodeVersion.split(".").map((part) => Number(part));
+      if (!Number.isInteger(major) || !Number.isInteger(minor)) {
+        return false;
+      }
+      if (major > 24) {
+        return true;
+      }
+      return NODE_NATIVE_ENV_PROXY_SUPPORT[major] != null && minor >= NODE_NATIVE_ENV_PROXY_SUPPORT[major];
+    }
+    function isNodeEnvProxyEnabled(agent, nodeVersion = process.versions && process.versions.node) {
+      if (!isNodeNativeEnvProxySupported(nodeVersion)) {
+        return false;
+      }
+      const agentOptions = agent && agent.options;
+      return Boolean(agentOptions && utils$1.hasOwnProp(agentOptions, "proxyEnv") && agentOptions.proxyEnv != null);
+    }
+    function getProxyEnvAgent(options, configHttpAgent, configHttpsAgent) {
+      return isHttps.test(options.protocol) ? configHttpsAgent || https.globalAgent : configHttpAgent || http.globalAgent;
+    }
+    function getTunnelingAgent(agentOptions, userHttpsAgent) {
+      const key = agentOptions.protocol + "//" + agentOptions.hostname + ":" + (agentOptions.port || "") + "#" + (agentOptions.auth || "");
+      const cache2 = userHttpsAgent ? tunnelingAgentCacheUser.get(userHttpsAgent) || tunnelingAgentCacheUser.set(userHttpsAgent, /* @__PURE__ */ new Map()).get(userHttpsAgent) : tunnelingAgentCache;
+      let agent = cache2.get(key);
+      if (agent) return agent;
+      const merged = userHttpsAgent && userHttpsAgent.options ? {
+        ...userHttpsAgent.options,
+        ...agentOptions
+      } : agentOptions;
+      agent = new HttpsProxyAgent(merged);
+      if (userHttpsAgent && userHttpsAgent.options) {
+        const originTLSOptions = {
+          ...userHttpsAgent.options
+        };
+        const callback = agent.callback;
+        agent.callback = function axiosTunnelingAgentCallback(req, opts) {
+          return callback.call(this, req, {
+            ...originTLSOptions,
+            ...opts
+          });
+        };
+      }
+      agent[kAxiosInstalledTunnel] = true;
+      cache2.set(key, agent);
+      return agent;
+    }
+    var supportedProtocols = platform.protocols.map((protocol) => {
+      return protocol + ":";
+    });
+    var decodeURIComponentSafe$1 = (value) => {
+      if (!utils$1.isString(value)) {
+        return value;
+      }
+      try {
+        return decodeURIComponent(value);
+      } catch (error40) {
+        return value;
+      }
+    };
+    var flushOnFinish = (stream2, [throttled, flush]) => {
+      stream2.on("end", flush).on("error", flush);
+      return throttled;
+    };
+    var http2Sessions = new Http2Sessions();
+    function dispatchBeforeRedirect(options, responseDetails, requestDetails) {
+      if (options.beforeRedirects.proxy) {
+        options.beforeRedirects.proxy(options);
+      }
+      if (options.beforeRedirects.auth) {
+        options.beforeRedirects.auth(options);
+      }
+      if (options.beforeRedirects.sensitiveHeaders) {
+        options.beforeRedirects.sensitiveHeaders(options, requestDetails);
+      }
+      if (options.beforeRedirects.config) {
+        options.beforeRedirects.config(options, responseDetails, requestDetails);
+      }
+    }
+    function stripMatchingHeaders(headers, sensitiveSet) {
+      if (!headers) {
+        return;
+      }
+      Object.keys(headers).forEach((header) => {
+        if (sensitiveSet.has(header.toLowerCase())) {
+          delete headers[header];
+        }
+      });
+    }
+    function isSameOriginRedirect(redirectOptions, requestDetails) {
+      if (!requestDetails) {
+        return false;
+      }
+      try {
+        return new URL(requestDetails.url).origin === new URL(redirectOptions.href).origin;
+      } catch (e) {
+        return false;
+      }
+    }
+    function setProxy(options, configProxy, location, isRedirect, configHttpsAgent, configHttpAgent, allowEnvProxy = true) {
+      let proxy = configProxy;
+      const proxyEnvAgent = getProxyEnvAgent(options, configHttpAgent, configHttpsAgent);
+      if (!proxy && proxy !== false && allowEnvProxy && !isNodeEnvProxyEnabled(proxyEnvAgent)) {
+        const proxyUrl = getProxyForUrl(location);
+        if (proxyUrl) {
+          if (!shouldBypassProxy(location)) {
+            proxy = new URL(proxyUrl);
+          }
+        }
+      }
+      if (isRedirect && options.headers) {
+        for (const name of Object.keys(options.headers)) {
+          if (name.toLowerCase() === "proxy-authorization") {
+            delete options.headers[name];
+          }
+        }
+      }
+      if (isRedirect && options.agent && options.agent[kAxiosInstalledTunnel]) {
+        options.agent = void 0;
+      }
+      if (proxy) {
+        const isProxyURL = proxy instanceof URL;
+        const readProxyField = (key) => isProxyURL || utils$1.hasOwnProp(proxy, key) ? proxy[key] : void 0;
+        const proxyUsername = readProxyField("username");
+        const proxyPassword = readProxyField("password");
+        let proxyAuth = utils$1.hasOwnProp(proxy, "auth") ? proxy.auth : void 0;
+        if (proxyUsername) {
+          proxyAuth = (proxyUsername || "") + ":" + (proxyPassword || "");
+        }
+        if (proxyAuth) {
+          const authIsObject = typeof proxyAuth === "object";
+          const authUsername = authIsObject && utils$1.hasOwnProp(proxyAuth, "username") ? proxyAuth.username : void 0;
+          const authPassword = authIsObject && utils$1.hasOwnProp(proxyAuth, "password") ? proxyAuth.password : void 0;
+          const validProxyAuth = Boolean(authUsername || authPassword);
+          if (validProxyAuth) {
+            proxyAuth = (authUsername || "") + ":" + (authPassword || "");
+          } else if (authIsObject) {
+            throw new AxiosError("Invalid proxy authorization", AxiosError.ERR_BAD_OPTION, {
+              proxy
+            });
+          }
+        }
+        const targetIsHttps = isHttps.test(options.protocol);
+        if (targetIsHttps) {
+          if (!(configHttpsAgent instanceof HttpsProxyAgent)) {
+            const proxyHost = readProxyField("hostname") || readProxyField("host");
+            const proxyPort = readProxyField("port");
+            const rawProxyProtocol = readProxyField("protocol");
+            const normalizedProtocol = rawProxyProtocol ? rawProxyProtocol.includes(":") ? rawProxyProtocol : `${rawProxyProtocol}:` : "http:";
+            const proxyHostForURL = proxyHost && proxyHost.includes(":") && !proxyHost.startsWith("[") ? `[${proxyHost}]` : proxyHost;
+            const proxyURL = new URL(`${normalizedProtocol}//${proxyHostForURL}${proxyPort ? ":" + proxyPort : ""}`);
+            const agentOptions = {
+              protocol: proxyURL.protocol,
+              hostname: proxyURL.hostname.replace(/^\[|\]$/g, ""),
+              port: proxyURL.port,
+              auth: proxyAuth && typeof proxyAuth === "string" ? proxyAuth : void 0
+            };
+            if (proxyURL.protocol === "https:") {
+              agentOptions.ALPNProtocols = ["http/1.1"];
+            }
+            const tunnelingAgent = getTunnelingAgent(agentOptions, configHttpsAgent);
+            options.agent = tunnelingAgent;
+            if (options.agents) {
+              options.agents.https = tunnelingAgent;
+            }
+          }
+        } else {
+          if (proxyAuth) {
+            const base643 = Buffer.from(proxyAuth, "utf8").toString("base64");
+            options.headers["Proxy-Authorization"] = "Basic " + base643;
+          }
+          let hasUserHostHeader = false;
+          for (const name of Object.keys(options.headers)) {
+            if (name.toLowerCase() === "host") {
+              hasUserHostHeader = true;
+              break;
+            }
+          }
+          if (!hasUserHostHeader) {
+            options.headers.host = options.hostname + (options.port ? ":" + options.port : "");
+          }
+          const proxyHost = readProxyField("hostname") || readProxyField("host");
+          options.hostname = proxyHost;
+          options.host = proxyHost;
+          options.port = readProxyField("port");
+          options.path = location;
+          const proxyProtocol = readProxyField("protocol");
+          if (proxyProtocol) {
+            options.protocol = proxyProtocol.includes(":") ? proxyProtocol : `${proxyProtocol}:`;
+          }
+        }
+      }
+      options.beforeRedirects.proxy = function beforeRedirect(redirectOptions) {
+        setProxy(redirectOptions, configProxy, redirectOptions.href, true, configHttpsAgent, configHttpAgent, allowEnvProxy);
+      };
+      return Boolean(proxy || configProxy !== false && allowEnvProxy && isNodeEnvProxyEnabled(proxyEnvAgent));
+    }
+    var isHttpAdapterSupported = typeof process !== "undefined" && utils$1.kindOf(process) === "process";
+    var wrapAsync = (asyncExecutor) => {
+      return new Promise((resolve, reject) => {
+        let onDone;
+        let isDone;
+        const done = (value, isRejected) => {
+          if (isDone) return;
+          isDone = true;
+          onDone && onDone(value, isRejected);
+        };
+        const _resolve = (value) => {
+          done(value);
+          resolve(value);
+        };
+        const _reject = (reason) => {
+          done(reason, true);
+          reject(reason);
+        };
+        asyncExecutor(_resolve, _reject, (onDoneHandler) => onDone = onDoneHandler).catch(_reject);
+      });
+    };
+    var resolveFamily = ({
+      address,
+      family
+    }) => {
+      if (!utils$1.isString(address)) {
+        throw new AxiosError("address must be a string", AxiosError.ERR_BAD_OPTION_VALUE);
+      }
+      return {
+        address,
+        family: family || (address.indexOf(".") < 0 ? 6 : 4)
+      };
+    };
+    var buildAddressEntry = (address, family) => resolveFamily(utils$1.isObject(address) ? address : {
+      address,
+      family
+    });
+    var normalizedLookupCache = /* @__PURE__ */ new WeakMap();
+    var normalizeLookup = (lookup) => {
+      let normalized = normalizedLookupCache.get(lookup);
+      if (normalized) {
+        return normalized;
+      }
+      const callbackLookup = callbackify(lookup, (value) => utils$1.isArray(value) ? value : [value]);
+      normalized = (hostname2, opt, cb) => {
+        callbackLookup(hostname2, opt, (err, arg0, arg1) => {
+          if (err) {
+            return cb(err);
+          }
+          let addresses;
+          try {
+            addresses = utils$1.isArray(arg0) ? arg0.map((addr) => buildAddressEntry(addr)) : [buildAddressEntry(arg0, arg1)];
+          } catch (error40) {
+            return cb(error40);
+          }
+          opt.all ? cb(err, addresses) : cb(err, addresses[0].address, addresses[0].family);
+        });
+      };
+      normalizedLookupCache.set(lookup, normalized);
+      return normalized;
+    };
+    var http2Transport = {
+      request(options, cb) {
+        const authority = options.protocol + "//" + options.hostname + ":" + (options.port || (options.protocol === "https:" ? 443 : 80));
+        const {
+          http2Options,
+          headers
+        } = options;
+        const session = http2Sessions.getSession(authority, http2Options);
+        const {
+          HTTP2_HEADER_SCHEME,
+          HTTP2_HEADER_METHOD,
+          HTTP2_HEADER_PATH,
+          HTTP2_HEADER_STATUS
+        } = http2.constants;
+        const http2Headers = {
+          [HTTP2_HEADER_SCHEME]: options.protocol.replace(":", ""),
+          [HTTP2_HEADER_METHOD]: options.method,
+          [HTTP2_HEADER_PATH]: options.path
+        };
+        utils$1.forEach(headers, (header, name) => {
+          name.charAt(0) !== ":" && (http2Headers[name] = header);
+        });
+        const req = session.request(http2Headers);
+        req.once("response", (responseHeaders) => {
+          const response = req;
+          responseHeaders = Object.assign({}, responseHeaders);
+          const status = responseHeaders[HTTP2_HEADER_STATUS];
+          delete responseHeaders[HTTP2_HEADER_STATUS];
+          response.headers = responseHeaders;
+          response.statusCode = +status;
+          cb(response);
+        });
+        return req;
+      }
+    };
+    var httpAdapter = isHttpAdapterSupported && function httpAdapter2(config2) {
+      return wrapAsync(async function dispatchHttpRequest(resolve, reject, onDone) {
+        const own2 = (key) => utils$1.getSafeProp(config2, key);
+        const transitional = own2("transitional") || transitionalDefaults;
+        let data = own2("data");
+        let lookup = own2("lookup");
+        let family = own2("family");
+        let httpVersion = own2("httpVersion");
+        if (httpVersion === void 0) httpVersion = 1;
+        const rawHttpVersion = httpVersion;
+        let http2Options = own2("http2Options");
+        const httpAgent = own2("httpAgent");
+        const httpsAgent = own2("httpsAgent");
+        const configProxy = own2("proxy");
+        const responseType = own2("responseType");
+        const responseEncoding = own2("responseEncoding");
+        const socketPath = own2("socketPath");
+        const method = own2("method").toUpperCase();
+        const maxRedirects = own2("maxRedirects");
+        const maxBodyLength = own2("maxBodyLength");
+        const maxContentLength = own2("maxContentLength");
+        const decompress = own2("decompress");
+        let isDone;
+        let rejected = false;
+        let req;
+        let connectPhaseTimer;
+        try {
+          httpVersion = +httpVersion;
+        } catch (err) {
+          throw new AxiosError("Invalid protocol version: value is not a number", AxiosError.ERR_BAD_OPTION_VALUE, config2);
+        }
+        if (Number.isNaN(httpVersion)) {
+          throw new AxiosError(`Invalid protocol version: '${rawHttpVersion}' is not a number`, AxiosError.ERR_BAD_OPTION_VALUE, config2);
+        }
+        if (httpVersion !== 1 && httpVersion !== 2) {
+          throw new AxiosError(`Unsupported protocol version '${httpVersion}'`, AxiosError.ERR_BAD_OPTION_VALUE, config2);
+        }
+        const isHttp2 = httpVersion === 2;
+        if (lookup) {
+          lookup = normalizeLookup(lookup);
+        }
+        const abortEmitter = new events.EventEmitter();
+        function abort(reason) {
+          try {
+            abortEmitter.emit("abort", !reason || reason.type ? new CanceledError(null, config2, req) : reason);
+          } catch (err) {
+          }
+        }
+        function clearConnectPhaseTimer() {
+          if (connectPhaseTimer) {
+            clearTimeout(connectPhaseTimer);
+            connectPhaseTimer = null;
+          }
+        }
+        function createTimeoutError() {
+          const configTimeout = own2("timeout");
+          let timeoutErrorMessage = configTimeout ? "timeout of " + configTimeout + "ms exceeded" : "timeout exceeded";
+          const configTimeoutErrorMessage = own2("timeoutErrorMessage");
+          if (configTimeoutErrorMessage) {
+            timeoutErrorMessage = configTimeoutErrorMessage;
+          }
+          return new AxiosError(timeoutErrorMessage, transitional.clarifyTimeoutError ? AxiosError.ETIMEDOUT : AxiosError.ECONNABORTED, config2, req);
+        }
+        abortEmitter.once("abort", reject);
+        const onFinished = () => {
+          clearConnectPhaseTimer();
+          if (config2.cancelToken) {
+            config2.cancelToken.unsubscribe(abort);
+          }
+          if (config2.signal) {
+            config2.signal.removeEventListener("abort", abort);
+          }
+          abortEmitter.removeAllListeners();
+        };
+        if (config2.cancelToken || config2.signal) {
+          config2.cancelToken && config2.cancelToken.subscribe(abort);
+          if (config2.signal) {
+            config2.signal.aborted ? abort() : config2.signal.addEventListener("abort", abort);
+          }
+        }
+        onDone((response, isRejected) => {
+          isDone = true;
+          clearConnectPhaseTimer();
+          if (isRejected) {
+            rejected = true;
+            onFinished();
+            return;
+          }
+          const {
+            data: data2
+          } = response;
+          if (data2 instanceof stream.Readable || data2 instanceof stream.Duplex) {
+            const offListeners = stream.finished(data2, () => {
+              offListeners();
+              onFinished();
+            });
+          } else {
+            onFinished();
+          }
+        });
+        const fullPath = buildFullPath(own2("baseURL"), own2("url"), own2("allowAbsoluteUrls"), config2);
+        const urlBase = socketPath ? "http://localhost" : platform.hasBrowserEnv ? platform.origin : void 0;
+        const parsed = new URL(fullPath, urlBase);
+        const protocol = parsed.protocol || supportedProtocols[0];
+        if (protocol === "data:") {
+          if (maxContentLength > -1) {
+            const dataUrl = String(own2("url") || fullPath || "");
+            const estimated = estimateDataURLBufferAllocation(dataUrl);
+            if (estimated > maxContentLength) {
+              return reject(new AxiosError("maxContentLength size of " + maxContentLength + " exceeded", AxiosError.ERR_BAD_RESPONSE, config2));
+            }
+          }
+          let convertedData;
+          if (method !== "GET") {
+            return settle(resolve, reject, {
+              status: 405,
+              statusText: "method not allowed",
+              headers: {},
+              config: config2
+            });
+          }
+          try {
+            convertedData = fromDataURI(own2("url"), responseType === "blob", {
+              Blob: config2.env && config2.env.Blob
+            });
+          } catch (err) {
+            throw AxiosError.from(err, AxiosError.ERR_BAD_REQUEST, config2);
+          }
+          if (responseType === "text") {
+            convertedData = convertedData.toString(responseEncoding);
+            if (!responseEncoding || responseEncoding === "utf8") {
+              convertedData = utils$1.stripBOM(convertedData);
+            }
+          } else if (responseType === "stream") {
+            convertedData = stream.Readable.from(convertedData);
+          }
+          return settle(resolve, reject, {
+            data: convertedData,
+            status: 200,
+            statusText: "OK",
+            headers: new AxiosHeaders(),
+            config: config2
+          });
+        }
+        if (supportedProtocols.indexOf(protocol) === -1) {
+          return reject(new AxiosError("Unsupported protocol " + protocol, AxiosError.ERR_BAD_REQUEST, config2));
+        }
+        const headers = AxiosHeaders.from(config2.headers).normalize();
+        headers.set("User-Agent", "axios/" + VERSION, false);
+        const {
+          onUploadProgress,
+          onDownloadProgress
+        } = config2;
+        const maxRate = config2.maxRate;
+        let maxUploadRate = void 0;
+        let maxDownloadRate = void 0;
+        if (utils$1.isSpecCompliantForm(data)) {
+          const userBoundary = headers.getContentType(/boundary=([-_\w\d]{10,70})/i);
+          data = formDataToStream(data, (formHeaders) => {
+            headers.set(formHeaders);
+          }, {
+            tag: `axios-${VERSION}-boundary`,
+            boundary: userBoundary && userBoundary[1] || void 0
+          });
+        } else if (utils$1.isFormData(data) && utils$1.isFunction(data.getHeaders) && data.getHeaders !== Object.prototype.getHeaders) {
+          setFormDataHeaders(headers, data.getHeaders(), own2("formDataHeaderPolicy"));
+          if (!headers.hasContentLength()) {
+            try {
+              const knownLength = await util2.promisify(data.getLength).call(data);
+              Number.isFinite(knownLength) && knownLength >= 0 && headers.setContentLength(knownLength);
+            } catch (e) {
+            }
+          }
+        } else if (utils$1.isBlob(data) || utils$1.isFile(data)) {
+          data.size && headers.setContentType(data.type || "application/octet-stream");
+          headers.setContentLength(data.size || 0);
+          data = stream.Readable.from(readBlob(data));
+        } else if (data && !utils$1.isStream(data)) {
+          if (Buffer.isBuffer(data)) ;
+          else if (utils$1.isArrayBuffer(data)) {
+            data = Buffer.from(new Uint8Array(data));
+          } else if (utils$1.isString(data)) {
+            data = Buffer.from(data, "utf-8");
+          } else {
+            return reject(new AxiosError("Data after transformation must be a string, an ArrayBuffer, a Buffer, or a Stream", AxiosError.ERR_BAD_REQUEST, config2));
+          }
+          headers.setContentLength(data.length, false);
+          if (maxBodyLength > -1 && data.length > maxBodyLength) {
+            return reject(new AxiosError("Request body larger than maxBodyLength limit", AxiosError.ERR_BAD_REQUEST, config2));
+          }
+        }
+        const contentLength = utils$1.toFiniteNumber(headers.getContentLength());
+        if (utils$1.isArray(maxRate)) {
+          maxUploadRate = maxRate[0];
+          maxDownloadRate = maxRate[1];
+        } else {
+          maxUploadRate = maxDownloadRate = maxRate;
+        }
+        if (data && (onUploadProgress || maxUploadRate)) {
+          if (!utils$1.isStream(data)) {
+            data = stream.Readable.from(data, {
+              objectMode: false
+            });
+          }
+          data = stream.pipeline([data, new AxiosTransformStream({
+            maxRate: utils$1.toFiniteNumber(maxUploadRate)
+          })], utils$1.noop);
+          onUploadProgress && data.on("progress", flushOnFinish(data, progressEventDecorator(contentLength, progressEventReducer(asyncDecorator(onUploadProgress, scheduleProgress), false, 3))));
+        }
+        let auth = void 0;
+        const configAuth = own2("auth");
+        if (configAuth) {
+          const username = utils$1.getSafeProp(configAuth, "username") || "";
+          const password = utils$1.getSafeProp(configAuth, "password") || "";
+          auth = username + ":" + password;
+        }
+        if (!auth && (parsed.username || parsed.password)) {
+          const urlUsername = decodeURIComponentSafe$1(parsed.username);
+          const urlPassword = decodeURIComponentSafe$1(parsed.password);
+          auth = urlUsername + ":" + urlPassword;
+        }
+        auth && headers.delete("authorization");
+        let path$1;
+        try {
+          path$1 = buildURL(parsed.pathname + parsed.search, own2("params"), own2("paramsSerializer")).replace(/^\?/, "");
+        } catch (err) {
+          return reject(AxiosError.from(err, AxiosError.ERR_BAD_REQUEST, config2, null, null, {
+            url: own2("url"),
+            exists: true
+          }));
+        }
+        headers.set("Accept-Encoding", utils$1.hasOwnProp(transitional, "advertiseZstdAcceptEncoding") && transitional.advertiseZstdAcceptEncoding === true ? ACCEPT_ENCODING_WITH_ZSTD : ACCEPT_ENCODING, false);
+        if (isHttp2 && lookup) {
+          http2Options = Object.assign(/* @__PURE__ */ Object.create(null), http2Options, {
+            lookup
+          });
+        }
+        const options = Object.assign(/* @__PURE__ */ Object.create(null), {
+          path: path$1,
+          method,
+          headers: toByteStringHeaderObject(headers),
+          agents: {
+            http: httpAgent,
+            https: httpsAgent
+          },
+          auth,
+          protocol,
+          family,
+          beforeRedirect: dispatchBeforeRedirect,
+          beforeRedirects: /* @__PURE__ */ Object.create(null),
+          http2Options,
+          createConnection: void 0
+        });
+        !utils$1.isUndefined(lookup) && (options.lookup = lookup);
+        let proxyApplied = false;
+        if (socketPath) {
+          if (typeof socketPath !== "string") {
+            return reject(new AxiosError("socketPath must be a string", AxiosError.ERR_BAD_OPTION_VALUE, config2));
+          }
+          const allowedSocketPaths = own2("allowedSocketPaths");
+          if (allowedSocketPaths != null) {
+            const allowed = Array.isArray(allowedSocketPaths) ? allowedSocketPaths : [allowedSocketPaths];
+            const resolvedSocket = path.resolve(socketPath);
+            const isAllowed = allowed.some((entry) => typeof entry === "string" && path.resolve(entry) === resolvedSocket);
+            if (!isAllowed) {
+              return reject(new AxiosError(`socketPath "${socketPath}" is not permitted by allowedSocketPaths`, AxiosError.ERR_BAD_OPTION_VALUE, config2));
+            }
+          }
+          options.socketPath = socketPath;
+        } else {
+          options.hostname = parsed.hostname.startsWith("[") ? parsed.hostname.slice(1, -1) : parsed.hostname;
+          options.port = parsed.port;
+          proxyApplied = setProxy(
+            options,
+            configProxy,
+            protocol + "//" + parsed.hostname + (parsed.port ? ":" + parsed.port : "") + options.path,
+            false,
+            httpsAgent,
+            httpAgent,
+            // The HTTP/2 transport connects independently of HTTP/1 agents, so it
+            // cannot apply either axios-resolved or agent-local environment proxies.
+            // Explicit proxy config is still processed and rejected below.
+            !isHttp2
+          );
+        }
+        let transport;
+        let isNativeTransport = false;
+        let transportEnforcesMaxBodyLength = false;
+        const isHttpsRequest = isHttps.test(options.protocol);
+        if (options.agent == null) {
+          options.agent = isHttpsRequest ? httpsAgent : httpAgent;
+        }
+        if (isHttp2) {
+          if (proxyApplied) {
+            return reject(new AxiosError("HTTP/2 requests with a proxy are not supported", AxiosError.ERR_NOT_SUPPORT, config2));
+          }
+          transport = http2Transport;
+        } else {
+          const configTransport = own2("transport");
+          if (configTransport) {
+            transport = configTransport;
+          } else if (maxRedirects === 0) {
+            transport = isHttpsRequest ? https : http;
+            isNativeTransport = true;
+          } else {
+            transportEnforcesMaxBodyLength = true;
+            options.sensitiveHeaders = [];
+            if (maxRedirects) {
+              options.maxRedirects = maxRedirects;
+            }
+            const configBeforeRedirect = own2("beforeRedirect");
+            if (configBeforeRedirect) {
+              options.beforeRedirects.config = configBeforeRedirect;
+            }
+            if (auth) {
+              const requestOrigin = parsed.origin;
+              const authToRestore = auth;
+              options.beforeRedirects.auth = function beforeRedirectAuth(redirectOptions) {
+                try {
+                  if (new URL(redirectOptions.href).origin === requestOrigin) {
+                    redirectOptions.auth = authToRestore;
+                  }
+                } catch (e) {
+                }
+              };
+            }
+            const sensitiveHeaders = own2("sensitiveHeaders");
+            if (sensitiveHeaders != null) {
+              if (!utils$1.isArray(sensitiveHeaders)) {
+                return reject(new AxiosError("sensitiveHeaders must be an array of strings", AxiosError.ERR_BAD_OPTION_VALUE, config2));
+              }
+              const sensitiveSet = /* @__PURE__ */ new Set();
+              for (const header of sensitiveHeaders) {
+                if (!utils$1.isString(header)) {
+                  return reject(new AxiosError("sensitiveHeaders must be an array of strings", AxiosError.ERR_BAD_OPTION_VALUE, config2));
+                }
+                sensitiveSet.add(header.toLowerCase());
+              }
+              if (sensitiveSet.size) {
+                options.sensitiveHeaders = Array.from(sensitiveSet);
+                options.beforeRedirects.sensitiveHeaders = function beforeRedirectSensitiveHeaders(redirectOptions, requestDetails) {
+                  if (!isSameOriginRedirect(redirectOptions, requestDetails)) {
+                    stripMatchingHeaders(redirectOptions.headers, sensitiveSet);
+                  }
+                };
+              }
+            }
+            transport = isHttpsRequest ? httpsFollow : httpFollow;
+          }
+        }
+        if (maxBodyLength > -1) {
+          options.maxBodyLength = maxBodyLength;
+        } else {
+          options.maxBodyLength = Infinity;
+        }
+        options.insecureHTTPParser = Boolean(own2("insecureHTTPParser"));
+        req = transport.request(options, function handleResponse(res) {
+          clearConnectPhaseTimer();
+          if (req.destroyed) return;
+          const streams = [res];
+          const responseLength = utils$1.toFiniteNumber(res.headers["content-length"]);
+          if (onDownloadProgress || maxDownloadRate) {
+            const transformStream = new AxiosTransformStream({
+              maxRate: utils$1.toFiniteNumber(maxDownloadRate)
+            });
+            onDownloadProgress && transformStream.on("progress", flushOnFinish(transformStream, progressEventDecorator(responseLength, progressEventReducer(asyncDecorator(onDownloadProgress, scheduleProgress), true, 3))));
+            streams.push(transformStream);
+          }
+          let responseStream = res;
+          const lastRequest = res.req || req;
+          if (decompress !== false && res.headers["content-encoding"]) {
+            if (method === "HEAD" || res.statusCode === 204) {
+              delete res.headers["content-encoding"];
+            }
+            switch ((res.headers["content-encoding"] || "").toLowerCase()) {
+              /*eslint default-case:0*/
+              case "gzip":
+              case "x-gzip":
+              case "compress":
+              case "x-compress":
+                streams.push(zlib.createUnzip(zlibOptions));
+                delete res.headers["content-encoding"];
+                break;
+              case "deflate":
+                streams.push(new ZlibHeaderTransformStream());
+                streams.push(zlib.createUnzip(zlibOptions));
+                delete res.headers["content-encoding"];
+                break;
+              case "br":
+                if (isBrotliSupported) {
+                  streams.push(zlib.createBrotliDecompress(brotliOptions));
+                  delete res.headers["content-encoding"];
+                }
+                break;
+              case "zstd":
+                if (isZstdSupported) {
+                  streams.push(zlib.createZstdDecompress(zstdOptions));
+                  delete res.headers["content-encoding"];
+                }
+                break;
+            }
+          }
+          responseStream = streams.length > 1 ? stream.pipeline(streams, utils$1.noop) : streams[0];
+          const response = {
+            status: res.statusCode,
+            statusText: res.statusMessage,
+            headers: new AxiosHeaders(res.headers),
+            config: config2,
+            request: lastRequest
+          };
+          if (responseType === "stream") {
+            if (maxContentLength > -1) {
+              const limit = maxContentLength;
+              const source = responseStream;
+              async function* enforceMaxContentLength() {
+                let totalResponseBytes = 0;
+                for await (const chunk of source) {
+                  totalResponseBytes += chunk.length;
+                  if (totalResponseBytes > limit) {
+                    throw new AxiosError("maxContentLength size of " + limit + " exceeded", AxiosError.ERR_BAD_RESPONSE, config2, lastRequest);
+                  }
+                  yield chunk;
+                }
+              }
+              responseStream = stream.Readable.from(enforceMaxContentLength(), {
+                objectMode: false
+              });
+            }
+            response.data = responseStream;
+            settle(resolve, reject, response);
+          } else {
+            const responseBuffer = [];
+            let totalResponseBytes = 0;
+            responseStream.on("data", function handleStreamData(chunk) {
+              responseBuffer.push(chunk);
+              totalResponseBytes += chunk.length;
+              if (maxContentLength > -1 && totalResponseBytes > maxContentLength) {
+                rejected = true;
+                responseStream.destroy();
+                abort(new AxiosError("maxContentLength size of " + maxContentLength + " exceeded", AxiosError.ERR_BAD_RESPONSE, config2, lastRequest));
+              }
+            });
+            responseStream.on("aborted", function handlerStreamAborted() {
+              if (rejected) {
+                return;
+              }
+              const err = new AxiosError("stream has been aborted", AxiosError.ERR_BAD_RESPONSE, config2, lastRequest, response);
+              responseStream.destroy(err);
+              reject(err);
+            });
+            responseStream.on("error", function handleStreamError(err) {
+              if (rejected) return;
+              reject(AxiosError.from(err, null, config2, lastRequest, response));
+            });
+            responseStream.on("end", function handleStreamEnd() {
+              try {
+                let responseData = responseBuffer.length === 1 ? responseBuffer[0] : Buffer.concat(responseBuffer);
+                if (responseType !== "arraybuffer") {
+                  responseData = responseData.toString(responseEncoding);
+                  if (!responseEncoding || responseEncoding === "utf8") {
+                    responseData = utils$1.stripBOM(responseData);
+                  }
+                }
+                response.data = responseData;
+              } catch (err) {
+                return reject(AxiosError.from(err, null, config2, response.request, response));
+              }
+              settle(resolve, reject, response);
+            });
+          }
+          abortEmitter.once("abort", (err) => {
+            if (!responseStream.destroyed) {
+              responseStream.emit("error", err);
+              responseStream.destroy();
+            }
+          });
+        });
+        abortEmitter.once("abort", (err) => {
+          if (req.close) {
+            req.close();
+          } else {
+            req.destroy(err);
+          }
+        });
+        req.on("error", function handleRequestError(err) {
+          reject(AxiosError.from(err, null, config2, req));
+        });
+        const boundSockets = /* @__PURE__ */ new Set();
+        req.on("socket", function handleRequestSocket(socket) {
+          if (typeof socket.setKeepAlive === "function") {
+            socket.setKeepAlive(true, 1e3 * 60);
+          }
+          if (!socket[kAxiosSocketListener]) {
+            socket.on("error", handleSocketError);
+            socket[kAxiosSocketListener] = true;
+          }
+          socket[kAxiosCurrentReq] = req;
+          boundSockets.add(socket);
+        });
+        req.once("close", function clearCurrentReq() {
+          clearConnectPhaseTimer();
+          for (const socket of boundSockets) {
+            if (socket[kAxiosCurrentReq] === req) {
+              socket[kAxiosCurrentReq] = null;
+            }
+          }
+          boundSockets.clear();
+        });
+        if (own2("timeout")) {
+          const timeout = parseInt(own2("timeout"), 10);
+          if (Number.isNaN(timeout)) {
+            abort(new AxiosError("error trying to parse `config.timeout` to int", AxiosError.ERR_BAD_OPTION_VALUE, config2, req));
+            return;
+          }
+          const handleTimeout = function handleTimeout2() {
+            if (isDone) return;
+            abort(createTimeoutError());
+          };
+          if (isNativeTransport && timeout > 0) {
+            connectPhaseTimer = setTimeout(handleTimeout, timeout);
+          }
+          req.setTimeout(timeout, handleTimeout);
+        } else {
+          req.setTimeout(0);
+        }
+        if (utils$1.isStream(data)) {
+          let ended = false;
+          let errored = false;
+          data.on("end", () => {
+            ended = true;
+          });
+          data.once("error", (err) => {
+            errored = true;
+            req.destroy(err);
+          });
+          data.on("close", () => {
+            if (!ended && !errored) {
+              abort(new CanceledError("Request stream has been aborted", config2, req));
+            }
+          });
+          let uploadStream = data;
+          if (maxBodyLength > -1 && !transportEnforcesMaxBodyLength) {
+            const limit = maxBodyLength;
+            let bytesSent = 0;
+            uploadStream = stream.pipeline([data, new stream.Transform({
+              transform(chunk, _enc, cb) {
+                bytesSent += chunk.length;
+                if (bytesSent > limit) {
+                  return cb(new AxiosError("Request body larger than maxBodyLength limit", AxiosError.ERR_BAD_REQUEST, config2, req));
+                }
+                cb(null, chunk);
+              }
+            })], utils$1.noop);
+            uploadStream.on("error", (err) => {
+              if (!req.destroyed) req.destroy(err);
+            });
+          }
+          uploadStream.pipe(req);
+        } else {
+          data && req.write(data);
+          req.end();
+        }
+      });
+    };
+    var isURLSameOrigin = platform.hasStandardBrowserEnv ? /* @__PURE__ */ ((origin2, isMSIE) => (url3) => {
+      url3 = new URL(url3, platform.origin);
+      return origin2.protocol === url3.protocol && origin2.host === url3.host && (isMSIE || origin2.port === url3.port);
+    })(new URL(platform.origin), platform.navigator && /(msie|trident)/i.test(platform.navigator.userAgent)) : () => true;
+    var cookies = platform.hasStandardBrowserEnv ? (
+      // Standard browser envs support document.cookie
+      {
+        write(name, value, expires, path2, domain2, secure, sameSite) {
+          if (typeof document === "undefined") return;
+          const cookie = [`${name}=${encodeURIComponent(value)}`];
+          if (utils$1.isNumber(expires)) {
+            cookie.push(`expires=${new Date(expires).toUTCString()}`);
+          }
+          if (utils$1.isString(path2)) {
+            cookie.push(`path=${path2}`);
+          }
+          if (utils$1.isString(domain2)) {
+            cookie.push(`domain=${domain2}`);
+          }
+          if (secure === true) {
+            cookie.push("secure");
+          }
+          if (utils$1.isString(sameSite)) {
+            cookie.push(`SameSite=${sameSite}`);
+          }
+          document.cookie = cookie.join("; ");
+        },
+        read(name) {
+          if (typeof document === "undefined") return null;
+          const cookies2 = document.cookie.split(";");
+          for (let i = 0; i < cookies2.length; i++) {
+            const cookie = cookies2[i].replace(/^\s+/, "");
+            const eq2 = cookie.indexOf("=");
+            if (eq2 !== -1 && cookie.slice(0, eq2) === name) {
+              try {
+                return decodeURIComponent(cookie.slice(eq2 + 1));
+              } catch (e) {
+                return cookie.slice(eq2 + 1);
+              }
+            }
+          }
+          return null;
+        },
+        remove(name) {
+          this.write(name, "", Date.now() - 864e5, "/");
+        }
+      }
+    ) : (
+      // Non-standard browser env (web workers, react-native) lack needed support.
+      {
+        write() {
+        },
+        read() {
+          return null;
+        },
+        remove() {
+        }
+      }
+    );
+    var headersToObject = (thing) => thing instanceof AxiosHeaders ? {
+      ...thing
+    } : thing;
+    var ownEnumerableKeys = (thing) => {
+      if (Object.getOwnPropertySymbols && Object.getOwnPropertyDescriptor) {
+        return Object.keys(thing).concat(Object.getOwnPropertySymbols(thing).filter((symbol2) => Object.getOwnPropertyDescriptor(thing, symbol2).enumerable));
+      }
+      return Object.keys(thing);
+    };
+    function mergeConfig(config1, config2) {
+      config1 = config1 || {};
+      config2 = config2 || {};
+      const config3 = /* @__PURE__ */ Object.create(null);
+      Object.defineProperty(config3, "hasOwnProperty", {
+        // Null-proto descriptor so a polluted Object.prototype.get cannot turn
+        // this data descriptor into an accessor descriptor on the way in.
+        __proto__: null,
+        value: Object.prototype.hasOwnProperty,
+        enumerable: false,
+        writable: true,
+        configurable: true
+      });
+      function getMergedValue(target, source, prop, caseless) {
+        if (utils$1.isPlainObject(target) && utils$1.isPlainObject(source)) {
+          return utils$1.merge.call({
+            caseless
+          }, target, source);
+        } else if (utils$1.isPlainObject(source)) {
+          return utils$1.merge({}, source);
+        } else if (utils$1.isArray(source)) {
+          return source.slice();
+        }
+        return source;
+      }
+      function mergeDeepProperties(a, b, prop, caseless) {
+        if (!utils$1.isUndefined(b)) {
+          return getMergedValue(a, b, prop, caseless);
+        } else if (!utils$1.isUndefined(a)) {
+          return getMergedValue(void 0, a, prop, caseless);
+        }
+      }
+      function valueFromConfig2(a, b) {
+        if (!utils$1.isUndefined(b)) {
+          return getMergedValue(void 0, b);
+        }
+      }
+      function defaultToConfig2(a, b) {
+        if (!utils$1.isUndefined(b)) {
+          return getMergedValue(void 0, b);
+        } else if (!utils$1.isUndefined(a)) {
+          return getMergedValue(void 0, a);
+        }
+      }
+      function getMergedTransitionalOption(prop) {
+        const transitional2 = utils$1.hasOwnProp(config2, "transitional") ? config2.transitional : void 0;
+        if (!utils$1.isUndefined(transitional2)) {
+          if (utils$1.isPlainObject(transitional2)) {
+            if (utils$1.hasOwnProp(transitional2, prop)) {
+              return transitional2[prop];
+            }
+          } else {
+            return void 0;
+          }
+        }
+        const transitional1 = utils$1.hasOwnProp(config1, "transitional") ? config1.transitional : void 0;
+        if (utils$1.isPlainObject(transitional1) && utils$1.hasOwnProp(transitional1, prop)) {
+          return transitional1[prop];
+        }
+        return void 0;
+      }
+      function mergeDirectKeys(a, b, prop) {
+        if (utils$1.hasOwnProp(config2, prop)) {
+          return getMergedValue(a, b);
+        } else if (utils$1.hasOwnProp(config1, prop)) {
+          return getMergedValue(void 0, a);
+        }
+      }
+      const mergeMap = {
+        url: valueFromConfig2,
+        method: valueFromConfig2,
+        data: valueFromConfig2,
+        baseURL: defaultToConfig2,
+        transformRequest: defaultToConfig2,
+        transformResponse: defaultToConfig2,
+        paramsSerializer: defaultToConfig2,
+        timeout: defaultToConfig2,
+        timeoutErrorMessage: defaultToConfig2,
+        withCredentials: defaultToConfig2,
+        withXSRFToken: defaultToConfig2,
+        adapter: defaultToConfig2,
+        responseType: defaultToConfig2,
+        xsrfCookieName: defaultToConfig2,
+        xsrfHeaderName: defaultToConfig2,
+        onUploadProgress: defaultToConfig2,
+        onDownloadProgress: defaultToConfig2,
+        decompress: defaultToConfig2,
+        maxContentLength: defaultToConfig2,
+        maxBodyLength: defaultToConfig2,
+        beforeRedirect: defaultToConfig2,
+        transport: defaultToConfig2,
+        httpAgent: defaultToConfig2,
+        httpsAgent: defaultToConfig2,
+        cancelToken: defaultToConfig2,
+        socketPath: defaultToConfig2,
+        allowedSocketPaths: defaultToConfig2,
+        responseEncoding: defaultToConfig2,
+        validateStatus: mergeDirectKeys,
+        headers: (a, b, prop) => mergeDeepProperties(headersToObject(a), headersToObject(b), prop, true)
+      };
+      utils$1.forEach(ownEnumerableKeys({
+        ...config1,
+        ...config2
+      }), function computeConfigValue(prop) {
+        if (prop === "__proto__" || prop === "constructor" || prop === "prototype") return;
+        const merge3 = utils$1.hasOwnProp(mergeMap, prop) ? mergeMap[prop] : mergeDeepProperties;
+        const a = utils$1.hasOwnProp(config1, prop) ? config1[prop] : void 0;
+        const b = utils$1.hasOwnProp(config2, prop) ? config2[prop] : void 0;
+        const configValue = merge3(a, b, prop);
+        utils$1.isUndefined(configValue) && merge3 !== mergeDirectKeys || (config3[prop] = configValue);
+      });
+      if (utils$1.hasOwnProp(config2, "validateStatus") && utils$1.isUndefined(config2.validateStatus) && getMergedTransitionalOption("validateStatusUndefinedResolves") === false) {
+        if (utils$1.hasOwnProp(config1, "validateStatus")) {
+          config3.validateStatus = getMergedValue(void 0, config1.validateStatus);
+        } else {
+          delete config3.validateStatus;
+        }
+      }
+      return config3;
+    }
+    var encodeUTF8$1 = (str) => encodeURIComponent(str).replace(/%([0-9A-F]{2})/gi, (_2, hex) => String.fromCharCode(parseInt(hex, 16)));
+    function resolveConfig(config2) {
+      const newConfig = mergeConfig({}, config2);
+      const own2 = (key) => utils$1.hasOwnProp(newConfig, key) ? newConfig[key] : void 0;
+      const data = own2("data");
+      let withXSRFToken = own2("withXSRFToken");
+      const xsrfHeaderName = own2("xsrfHeaderName");
+      const xsrfCookieName = own2("xsrfCookieName");
+      let headers = own2("headers");
+      const auth = own2("auth");
+      const baseURL = own2("baseURL");
+      const allowAbsoluteUrls = own2("allowAbsoluteUrls");
+      const url3 = own2("url");
+      newConfig.headers = headers = AxiosHeaders.from(headers);
+      newConfig.url = buildURL(buildFullPath(baseURL, url3, allowAbsoluteUrls, newConfig), own2("params"), own2("paramsSerializer"));
+      if (auth) {
+        const username = utils$1.getSafeProp(auth, "username") || "";
+        const password = utils$1.getSafeProp(auth, "password") || "";
+        try {
+          headers.set("Authorization", "Basic " + btoa(username + ":" + (password ? encodeUTF8$1(password) : "")));
+        } catch (e) {
+          throw AxiosError.from(e, AxiosError.ERR_BAD_OPTION_VALUE, config2);
+        }
+      }
+      if (utils$1.isFormData(data)) {
+        const getHeaders = utils$1.getSafeProp(data, "getHeaders");
+        if (platform.hasStandardBrowserEnv || platform.hasStandardBrowserWebWorkerEnv || utils$1.isReactNative(data)) {
+          headers.setContentType(void 0);
+        } else if (utils$1.isFunction(getHeaders)) {
+          setFormDataHeaders(headers, getHeaders.call(data), own2("formDataHeaderPolicy"));
+        }
+      }
+      if (platform.hasStandardBrowserEnv) {
+        if (utils$1.isFunction(withXSRFToken)) {
+          withXSRFToken = withXSRFToken(newConfig);
+        }
+        const shouldSendXSRF = withXSRFToken === true || withXSRFToken == null && isURLSameOrigin(newConfig.url);
+        if (shouldSendXSRF) {
+          const xsrfValue = xsrfHeaderName && xsrfCookieName && cookies.read(xsrfCookieName);
+          if (xsrfValue) {
+            headers.set(xsrfHeaderName, xsrfValue);
+          }
+        }
+      }
+      return newConfig;
+    }
+    var isXHRAdapterSupported = typeof XMLHttpRequest !== "undefined";
+    var xhrAdapter = isXHRAdapterSupported && function(config2) {
+      return new Promise(function dispatchXhrRequest(resolve, reject) {
+        const _config = resolveConfig(config2);
+        let requestData = _config.data;
+        const requestHeaders = AxiosHeaders.from(_config.headers).normalize();
+        let {
+          responseType,
+          onUploadProgress,
+          onDownloadProgress
+        } = _config;
+        let onCanceled;
+        let uploadThrottled, downloadThrottled;
+        let flushUpload, flushDownload, flushDownloadWithEvent;
+        function done() {
+          flushUpload && flushUpload();
+          flushDownload && flushDownload();
+          _config.cancelToken && _config.cancelToken.unsubscribe(onCanceled);
+          _config.signal && _config.signal.removeEventListener("abort", onCanceled);
+        }
+        let request = new XMLHttpRequest();
+        request.open(_config.method.toUpperCase(), _config.url, true);
+        request.timeout = _config.timeout;
+        function onloadend(event) {
+          if (!request) {
+            return;
+          }
+          if (request.status === 0 && (parseProtocol(normalizeURLForProtocolCheck(_config.url)) || parseProtocol(platform.origin)) !== "file" && !(request.responseURL && request.responseURL.startsWith("file:"))) {
+            reject(new AxiosError("Request aborted", AxiosError.ECONNABORTED, config2, request));
+            done();
+            request = null;
+            return;
+          }
+          try {
+            if (event) {
+              flushDownloadWithEvent && flushDownloadWithEvent(event);
+            } else {
+              flushDownload && flushDownload();
+            }
+          } catch (err) {
+            setTimeout(() => {
+              throw err;
+            });
+          }
+          if (!request) {
+            return;
+          }
+          const responseHeaders = AxiosHeaders.from("getAllResponseHeaders" in request && request.getAllResponseHeaders());
+          const responseData = !responseType || responseType === "text" || responseType === "json" ? request.responseText : request.response;
+          const response = {
+            data: responseData,
+            status: request.status,
+            statusText: request.statusText,
+            headers: responseHeaders,
+            config: config2,
+            request
+          };
+          settle(function _resolve(value) {
+            resolve(value);
+            done();
+          }, function _reject(err) {
+            reject(err);
+            done();
+          }, response);
+          request = null;
+        }
+        if ("onloadend" in request) {
+          request.onloadend = onloadend;
+        } else {
+          request.onreadystatechange = function handleLoad() {
+            if (!request || request.readyState !== 4) {
+              return;
+            }
+            if (request.status === 0 && !(request.responseURL && request.responseURL.startsWith("file:"))) {
+              return;
+            }
+            setTimeout(onloadend);
+          };
+        }
+        request.onabort = function handleAbort() {
+          if (!request) {
+            return;
+          }
+          reject(new AxiosError("Request aborted", AxiosError.ECONNABORTED, config2, request));
+          done();
+          request = null;
+        };
+        request.onerror = function handleError(event) {
+          const msg = event && event.message ? event.message : "Network Error";
+          const err = new AxiosError(msg, AxiosError.ERR_NETWORK, config2, request);
+          err.event = event || null;
+          reject(err);
+          done();
+          request = null;
+        };
+        request.ontimeout = function handleTimeout() {
+          let timeoutErrorMessage = _config.timeout ? "timeout of " + _config.timeout + "ms exceeded" : "timeout exceeded";
+          const transitional = _config.transitional || transitionalDefaults;
+          if (_config.timeoutErrorMessage) {
+            timeoutErrorMessage = _config.timeoutErrorMessage;
+          }
+          reject(new AxiosError(timeoutErrorMessage, transitional.clarifyTimeoutError ? AxiosError.ETIMEDOUT : AxiosError.ECONNABORTED, config2, request));
+          done();
+          request = null;
+        };
+        requestData === void 0 && requestHeaders.setContentType(null);
+        if ("setRequestHeader" in request) {
+          utils$1.forEach(toByteStringHeaderObject(requestHeaders), function setRequestHeader(val, key) {
+            request.setRequestHeader(key, val);
+          });
+        }
+        if (!utils$1.isUndefined(_config.withCredentials)) {
+          request.withCredentials = !!_config.withCredentials;
+        }
+        if (responseType && responseType !== "json") {
+          request.responseType = _config.responseType;
+        }
+        if (onDownloadProgress) {
+          [downloadThrottled, flushDownload, flushDownloadWithEvent] = progressEventReducer(onDownloadProgress, true);
+          request.addEventListener("progress", downloadThrottled);
+        }
+        if (onUploadProgress && request.upload) {
+          [uploadThrottled, flushUpload] = progressEventReducer(onUploadProgress);
+          request.upload.addEventListener("progress", uploadThrottled);
+          request.upload.addEventListener("loadend", flushUpload);
+        }
+        if (_config.cancelToken || _config.signal) {
+          onCanceled = (cancel) => {
+            if (!request) {
+              return;
+            }
+            reject(!cancel || cancel.type ? new CanceledError(null, config2, request) : cancel);
+            request.abort();
+            done();
+            request = null;
+          };
+          _config.cancelToken && _config.cancelToken.subscribe(onCanceled);
+          if (_config.signal) {
+            _config.signal.aborted ? onCanceled() : _config.signal.addEventListener("abort", onCanceled);
+          }
+        }
+        const protocol = parseProtocol(_config.url);
+        if (protocol && !platform.protocols.includes(protocol)) {
+          reject(new AxiosError("Unsupported protocol " + protocol + ":", AxiosError.ERR_BAD_REQUEST, config2));
+          done();
+          return;
+        }
+        request.send(requestData || null);
+      });
+    };
+    var composeSignals = (signals, timeout) => {
+      signals = signals ? signals.filter(Boolean) : [];
+      if (!timeout && !signals.length) {
+        return;
+      }
+      const controller = new AbortController();
+      let aborted2 = false;
+      const onabort = function(reason) {
+        if (!aborted2) {
+          aborted2 = true;
+          unsubscribe();
+          const err = reason instanceof Error ? reason : this.reason;
+          controller.abort(err instanceof AxiosError ? err : new CanceledError(err instanceof Error ? err.message : err));
+        }
+      };
+      let timer = timeout && setTimeout(() => {
+        timer = null;
+        onabort(new AxiosError(`timeout of ${timeout}ms exceeded`, AxiosError.ETIMEDOUT));
+      }, timeout);
+      const unsubscribe = () => {
+        if (!signals) {
+          return;
+        }
+        timer && clearTimeout(timer);
+        timer = null;
+        signals.forEach((signal2) => {
+          signal2.unsubscribe ? signal2.unsubscribe(onabort) : signal2.removeEventListener("abort", onabort);
+        });
+        signals = null;
+      };
+      signals.forEach((signal2) => {
+        if (aborted2) {
+          return;
+        }
+        if (signal2.aborted) {
+          onabort.call(signal2);
+          return;
+        }
+        signal2.addEventListener("abort", onabort, {
+          once: true
+        });
+      });
+      const {
+        signal
+      } = controller;
+      signal.unsubscribe = () => utils$1.asap(unsubscribe);
+      return signal;
+    };
+    var streamChunk = function* (chunk, chunkSize) {
+      let len = chunk.byteLength;
+      if (len < chunkSize) {
+        yield chunk;
+        return;
+      }
+      let pos = 0;
+      let end;
+      while (pos < len) {
+        end = pos + chunkSize;
+        yield chunk.slice(pos, end);
+        pos = end;
+      }
+    };
+    var readBytes = async function* (iterable, chunkSize) {
+      for await (const chunk of readStream(iterable)) {
+        yield* streamChunk(chunk, chunkSize);
+      }
+    };
+    var readStream = async function* (stream2) {
+      if (stream2[Symbol.asyncIterator]) {
+        yield* stream2;
+        return;
+      }
+      const reader = stream2.getReader();
+      try {
+        for (; ; ) {
+          const {
+            done,
+            value
+          } = await reader.read();
+          if (done) {
+            break;
+          }
+          yield value;
+        }
+      } finally {
+        await reader.cancel();
+      }
+    };
+    var trackStream = (stream2, chunkSize, onProgress, onFinish) => {
+      const iterator2 = readBytes(stream2, chunkSize);
+      let bytes = 0;
+      let done;
+      let _onFinish = (e) => {
+        if (!done) {
+          done = true;
+          onFinish && onFinish(e);
+        }
+      };
+      return new ReadableStream({
+        async pull(controller) {
+          try {
+            const {
+              done: done2,
+              value
+            } = await iterator2.next();
+            if (done2) {
+              _onFinish();
+              controller.close();
+              return;
+            }
+            let len = value.byteLength;
+            if (onProgress) {
+              let loadedBytes = bytes += len;
+              onProgress(loadedBytes);
+            }
+            controller.enqueue(new Uint8Array(value));
+          } catch (err) {
+            _onFinish(err);
+            throw err;
+          }
+        },
+        cancel(reason) {
+          _onFinish(reason);
+          return iterator2.return();
+        }
+      }, {
+        highWaterMark: 2
+      });
+    };
+    var DEFAULT_CHUNK_SIZE = 64 * 1024;
+    var DEFAULT_REQUEST_OPTIONS = {
+      cache: "default",
+      redirect: "follow",
+      referrer: "about:client",
+      referrerPolicy: "",
+      mode: "cors",
+      integrity: "",
+      keepalive: false,
+      priority: "auto",
+      window: null
+    };
+    var {
+      isFunction
+    } = utils$1;
+    var encodeUTF8 = (str) => encodeURIComponent(str).replace(/%([0-9A-F]{2})/gi, (_2, hex) => String.fromCharCode(parseInt(hex, 16)));
+    var decodeURIComponentSafe = (value) => {
+      if (!utils$1.isString(value)) {
+        return value;
+      }
+      try {
+        return decodeURIComponent(value);
+      } catch (error40) {
+        return value;
+      }
+    };
+    var test = (fn, ...args) => {
+      try {
+        return !!fn(...args);
+      } catch (e) {
+        return false;
+      }
+    };
+    var maybeWithAuthCredentials = (url3) => {
+      const protocolIndex = url3.indexOf("://");
+      let urlToCheck = url3;
+      if (protocolIndex !== -1) {
+        urlToCheck = urlToCheck.slice(protocolIndex + 3);
+      }
+      return urlToCheck.includes("@") || urlToCheck.includes(":");
+    };
+    var factory = (env) => {
+      const globalObject = utils$1.global !== void 0 && utils$1.global !== null ? utils$1.global : globalThis;
+      const {
+        ReadableStream: ReadableStream2,
+        TextEncoder: TextEncoder2
+      } = globalObject;
+      env = utils$1.merge.call({
+        skipUndefined: true
+      }, {
+        Request: globalObject.Request,
+        Response: globalObject.Response
+      }, env);
+      const {
+        fetch: envFetch,
+        Request: Request2,
+        Response: Response2
+      } = env;
+      const isFetchSupported = envFetch ? isFunction(envFetch) : typeof fetch === "function";
+      const isRequestSupported = isFunction(Request2);
+      const isResponseSupported = isFunction(Response2);
+      if (!isFetchSupported) {
+        return false;
+      }
+      const isReadableStreamSupported = isFetchSupported && isFunction(ReadableStream2);
+      const encodeText = isFetchSupported && (typeof TextEncoder2 === "function" ? /* @__PURE__ */ ((encoder) => (str) => encoder.encode(str))(new TextEncoder2()) : async (str) => new Uint8Array(await new Request2(str).arrayBuffer()));
+      const supportsRequestStream = isRequestSupported && isReadableStreamSupported && test(() => {
+        let duplexAccessed = false;
+        const request = new Request2(platform.origin, {
+          body: new ReadableStream2(),
+          method: "POST",
+          get duplex() {
+            duplexAccessed = true;
+            return "half";
+          }
+        });
+        const hasContentType = request.headers.has("Content-Type");
+        if (request.body != null) {
+          request.body.cancel();
+        }
+        return duplexAccessed && !hasContentType;
+      });
+      const supportsResponseStream = isResponseSupported && isReadableStreamSupported && test(() => utils$1.isReadableStream(new Response2("").body));
+      const resolvers = {
+        stream: supportsResponseStream && ((res) => res.body)
+      };
+      isFetchSupported && (() => {
+        ["text", "arrayBuffer", "blob", "formData", "stream"].forEach((type) => {
+          !resolvers[type] && (resolvers[type] = (res, config2) => {
+            let method = res && res[type];
+            if (method) {
+              return method.call(res);
+            }
+            throw new AxiosError(`Response type '${type}' is not supported`, AxiosError.ERR_NOT_SUPPORT, config2);
+          });
+        });
+      })();
+      const getBodyLength = async (body) => {
+        if (body == null) {
+          return 0;
+        }
+        if (utils$1.isBlob(body)) {
+          return body.size;
+        }
+        if (utils$1.isSpecCompliantForm(body)) {
+          const _request = new Request2(platform.origin, {
+            method: "POST",
+            body
+          });
+          return (await _request.arrayBuffer()).byteLength;
+        }
+        if (utils$1.isArrayBufferView(body) || utils$1.isArrayBuffer(body)) {
+          return body.byteLength;
+        }
+        if (utils$1.isURLSearchParams(body)) {
+          body = body + "";
+        }
+        if (utils$1.isString(body)) {
+          return (await encodeText(body)).byteLength;
+        }
+      };
+      const resolveBodyLength = async (headers, body) => {
+        const length = utils$1.toFiniteNumber(headers.getContentLength());
+        return length == null ? getBodyLength(body) : length;
+      };
+      return async (config2) => {
+        let {
+          url: url3,
+          method,
+          data,
+          signal,
+          cancelToken,
+          timeout,
+          onDownloadProgress,
+          onUploadProgress,
+          responseType,
+          headers,
+          withCredentials = "same-origin",
+          fetchOptions,
+          maxContentLength,
+          maxBodyLength,
+          maxRedirects
+        } = resolveConfig(config2);
+        const hasMaxContentLength = utils$1.isNumber(maxContentLength) && maxContentLength > -1;
+        const hasMaxBodyLength = utils$1.isNumber(maxBodyLength) && maxBodyLength > -1;
+        const own2 = (key) => utils$1.hasOwnProp(config2, key) ? config2[key] : void 0;
+        let _fetch = envFetch || fetch;
+        responseType = responseType ? (responseType + "").toLowerCase() : "text";
+        let composedSignal = composeSignals([signal, cancelToken && cancelToken.toAbortSignal()], timeout);
+        let request = null;
+        const unsubscribe = composedSignal && composedSignal.unsubscribe && (() => {
+          composedSignal.unsubscribe();
+        });
+        let requestContentLength;
+        let pendingBodyError = null;
+        const maxBodyLengthError = () => new AxiosError("Request body larger than maxBodyLength limit", AxiosError.ERR_BAD_REQUEST, config2, request);
+        try {
+          let auth = void 0;
+          const configAuth = own2("auth");
+          if (configAuth) {
+            const username = utils$1.getSafeProp(configAuth, "username") || "";
+            const password = utils$1.getSafeProp(configAuth, "password") || "";
+            auth = {
+              username,
+              password
+            };
+          }
+          if (maybeWithAuthCredentials(url3)) {
+            const parsedURL = new URL(url3, platform.origin);
+            if (!auth && (parsedURL.username || parsedURL.password)) {
+              const urlUsername = decodeURIComponentSafe(parsedURL.username);
+              const urlPassword = decodeURIComponentSafe(parsedURL.password);
+              auth = {
+                username: urlUsername,
+                password: urlPassword
+              };
+            }
+            if (parsedURL.username || parsedURL.password) {
+              parsedURL.username = "";
+              parsedURL.password = "";
+              url3 = parsedURL.href;
+            }
+          }
+          if (auth) {
+            headers.delete("authorization");
+            headers.set("Authorization", "Basic " + btoa(encodeUTF8((auth.username || "") + ":" + (auth.password || ""))));
+          }
+          if (hasMaxContentLength && typeof url3 === "string" && url3.startsWith("data:")) {
+            const estimated = estimateDataURLDecodedBytes(url3);
+            if (estimated > maxContentLength) {
+              throw new AxiosError("maxContentLength size of " + maxContentLength + " exceeded", AxiosError.ERR_BAD_RESPONSE, config2, request);
+            }
+          }
+          if (hasMaxBodyLength && method !== "get" && method !== "head") {
+            const outboundLength = await getBodyLength(data);
+            if (typeof outboundLength === "number" && isFinite(outboundLength)) {
+              requestContentLength = outboundLength;
+              if (outboundLength > maxBodyLength) {
+                throw maxBodyLengthError();
+              }
+            }
+          }
+          const mustEnforceStreamBody = hasMaxBodyLength && (utils$1.isReadableStream(data) || utils$1.isStream(data));
+          const trackRequestStream = (stream2, onProgress, flush) => trackStream(stream2, DEFAULT_CHUNK_SIZE, (loadedBytes) => {
+            if (hasMaxBodyLength && loadedBytes > maxBodyLength) {
+              throw pendingBodyError = maxBodyLengthError();
+            }
+            onProgress && onProgress(loadedBytes);
+          }, flush);
+          if (supportsRequestStream && method !== "get" && method !== "head" && (onUploadProgress || mustEnforceStreamBody)) {
+            requestContentLength = requestContentLength == null ? await resolveBodyLength(headers, data) : requestContentLength;
+            if (requestContentLength !== 0 || mustEnforceStreamBody) {
+              let _request = new Request2(url3, {
+                method: "POST",
+                body: data,
+                duplex: "half"
+              });
+              let contentTypeHeader;
+              if (utils$1.isFormData(data) && (contentTypeHeader = _request.headers.get("content-type"))) {
+                headers.setContentType(contentTypeHeader);
+              }
+              if (_request.body) {
+                const [onProgress, flush] = onUploadProgress && progressEventDecorator(requestContentLength, progressEventReducer(asyncDecorator(onUploadProgress))) || [];
+                data = trackRequestStream(_request.body, onProgress, flush);
+              }
+            }
+          } else if (mustEnforceStreamBody && !isRequestSupported && isReadableStreamSupported && method !== "get" && method !== "head") {
+            data = trackRequestStream(data);
+          } else if (mustEnforceStreamBody && isRequestSupported && !supportsRequestStream && method !== "get" && method !== "head") {
+            throw new AxiosError("Stream request bodies are not supported by the current fetch implementation", AxiosError.ERR_NOT_SUPPORT, config2, request);
+          }
+          if (!utils$1.isString(withCredentials)) {
+            withCredentials = withCredentials ? "include" : "omit";
+          }
+          const isCredentialsSupported = isRequestSupported && "credentials" in Request2.prototype;
+          if (utils$1.isFormData(data)) {
+            const contentType = headers.getContentType();
+            if (contentType && /^multipart\/form-data/i.test(contentType) && !/boundary=/i.test(contentType)) {
+              headers.delete("content-type");
+            }
+          }
+          headers.set("User-Agent", "axios/" + VERSION, false);
+          const safeFetchOptions = fetchOptions == null ? fetchOptions : Object.assign(/* @__PURE__ */ Object.create(null), fetchOptions);
+          if (safeFetchOptions) {
+            delete safeFetchOptions.body;
+            delete safeFetchOptions.headers;
+            delete safeFetchOptions.method;
+            delete safeFetchOptions.signal;
+            delete safeFetchOptions.duplex;
+            delete safeFetchOptions.credentials;
+          }
+          const resolvedOptions = Object.assign(/* @__PURE__ */ Object.create(null), safeFetchOptions, {
+            signal: composedSignal,
+            method: method.toUpperCase(),
+            headers: toByteStringHeaderObject(headers.normalize()),
+            body: data,
+            duplex: "half",
+            credentials: isCredentialsSupported ? withCredentials : void 0
+          });
+          if (isRequestSupported) {
+            utils$1.forEach(DEFAULT_REQUEST_OPTIONS, (value, key) => {
+              if (resolvedOptions[key] === void 0) {
+                resolvedOptions[key] = value;
+              }
+            });
+            if (resolvedOptions.signal === void 0) {
+              resolvedOptions.signal = null;
+            }
+            if (resolvedOptions.body === void 0) {
+              resolvedOptions.body = null;
+            }
+          }
+          if (maxRedirects === 0) {
+            resolvedOptions.redirect = "manual";
+            if (safeFetchOptions) {
+              safeFetchOptions.redirect = "manual";
+            }
+          }
+          request = isRequestSupported && new Request2(url3, resolvedOptions);
+          let response = await (isRequestSupported ? _fetch(request, safeFetchOptions) : _fetch(url3, resolvedOptions));
+          const responseHeaders = AxiosHeaders.from(response.headers);
+          if (hasMaxContentLength) {
+            const declaredLength = utils$1.toFiniteNumber(responseHeaders.getContentLength());
+            if (declaredLength != null && declaredLength > maxContentLength) {
+              throw new AxiosError("maxContentLength size of " + maxContentLength + " exceeded", AxiosError.ERR_BAD_RESPONSE, config2, request);
+            }
+          }
+          const isStreamResponse = supportsResponseStream && (responseType === "stream" || responseType === "response");
+          if (supportsResponseStream && response.body && (onDownloadProgress || hasMaxContentLength || isStreamResponse && unsubscribe)) {
+            const options = {};
+            ["status", "statusText", "headers"].forEach((prop) => {
+              options[prop] = response[prop];
+            });
+            const responseContentLength = utils$1.toFiniteNumber(responseHeaders.getContentLength());
+            const [onProgress, flush] = onDownloadProgress && progressEventDecorator(responseContentLength, progressEventReducer(asyncDecorator(onDownloadProgress), true)) || [];
+            let bytesRead = 0;
+            const onChunkProgress = (loadedBytes) => {
+              if (hasMaxContentLength) {
+                bytesRead = loadedBytes;
+                if (bytesRead > maxContentLength) {
+                  throw new AxiosError("maxContentLength size of " + maxContentLength + " exceeded", AxiosError.ERR_BAD_RESPONSE, config2, request);
+                }
+              }
+              onProgress && onProgress(loadedBytes);
+            };
+            response = new Response2(trackStream(response.body, DEFAULT_CHUNK_SIZE, onChunkProgress, () => {
+              flush && flush();
+              unsubscribe && unsubscribe();
+            }), options);
+          }
+          responseType = responseType || "text";
+          let responseData = await resolvers[utils$1.findKey(resolvers, responseType) || "text"](response, config2);
+          if (hasMaxContentLength && !supportsResponseStream && !isStreamResponse) {
+            let materializedSize;
+            if (responseData != null) {
+              if (typeof responseData.byteLength === "number") {
+                materializedSize = responseData.byteLength;
+              } else if (typeof responseData.size === "number") {
+                materializedSize = responseData.size;
+              } else if (typeof responseData === "string") {
+                materializedSize = typeof TextEncoder2 === "function" ? new TextEncoder2().encode(responseData).byteLength : responseData.length;
+              }
+            }
+            if (typeof materializedSize === "number" && materializedSize > maxContentLength) {
+              throw new AxiosError("maxContentLength size of " + maxContentLength + " exceeded", AxiosError.ERR_BAD_RESPONSE, config2, request);
+            }
+          }
+          !isStreamResponse && unsubscribe && unsubscribe();
+          return await new Promise((resolve, reject) => {
+            settle(resolve, reject, {
+              data: responseData,
+              headers: AxiosHeaders.from(response.headers),
+              status: response.status,
+              statusText: response.statusText,
+              config: config2,
+              request
+            });
+          });
+        } catch (err) {
+          unsubscribe && unsubscribe();
+          if (composedSignal && composedSignal.aborted && composedSignal.reason instanceof AxiosError) {
+            const canceledError = composedSignal.reason;
+            canceledError.config = config2;
+            request && (canceledError.request = request);
+            if (err !== canceledError) {
+              Object.defineProperty(canceledError, "cause", {
+                __proto__: null,
+                value: err,
+                writable: true,
+                enumerable: false,
+                configurable: true
+              });
+            }
+            throw canceledError;
+          }
+          if (pendingBodyError) {
+            request && !pendingBodyError.request && (pendingBodyError.request = request);
+            throw pendingBodyError;
+          }
+          if (err instanceof AxiosError) {
+            request && !err.request && (err.request = request);
+            throw err;
+          }
+          if (err && err.name === "TypeError" && /Load failed|fetch/i.test(err.message)) {
+            const networkError = new AxiosError("Network Error", AxiosError.ERR_NETWORK, config2, request, err && err.response);
+            Object.defineProperty(networkError, "cause", {
+              __proto__: null,
+              value: err.cause || err,
+              writable: true,
+              enumerable: false,
+              configurable: true
+            });
+            throw networkError;
+          }
+          throw AxiosError.from(err, err && err.code, config2, request, err && err.response);
+        }
+      };
+    };
+    var seedCache = /* @__PURE__ */ new Map();
+    var getFetch = (config2) => {
+      let env = config2 && config2.env || {};
+      const {
+        fetch: fetch2,
+        Request: Request2,
+        Response: Response2
+      } = env;
+      const seeds = [Request2, Response2, fetch2];
+      let len = seeds.length, i = len, seed, target, map2 = seedCache;
+      while (i--) {
+        seed = seeds[i];
+        target = map2.get(seed);
+        target === void 0 && map2.set(seed, target = i ? /* @__PURE__ */ new Map() : factory(env));
+        map2 = target;
+      }
+      return target;
+    };
+    getFetch();
+    var knownAdapters = {
+      http: httpAdapter,
+      xhr: xhrAdapter,
+      fetch: {
+        get: getFetch
+      }
+    };
+    utils$1.forEach(knownAdapters, (fn, value) => {
+      if (fn) {
+        try {
+          Object.defineProperty(fn, "name", {
+            __proto__: null,
+            value
+          });
+        } catch (e) {
+        }
+        Object.defineProperty(fn, "adapterName", {
+          __proto__: null,
+          value
+        });
+      }
+    });
+    var renderReason = (reason) => `- ${reason}`;
+    var isResolvedHandle = (adapter) => utils$1.isFunction(adapter) || adapter === null || adapter === false;
+    function getAdapter(adapters2, config2) {
+      adapters2 = utils$1.isArray(adapters2) ? adapters2 : [adapters2];
+      const {
+        length
+      } = adapters2;
+      let nameOrAdapter;
+      let adapter;
+      const rejectedReasons = {};
+      for (let i = 0; i < length; i++) {
+        nameOrAdapter = adapters2[i];
+        let id;
+        adapter = nameOrAdapter;
+        if (!isResolvedHandle(nameOrAdapter)) {
+          adapter = knownAdapters[(id = String(nameOrAdapter)).toLowerCase()];
+          if (adapter === void 0) {
+            throw new AxiosError(`Unknown adapter '${id}'`);
+          }
+        }
+        if (adapter && (utils$1.isFunction(adapter) || (adapter = adapter.get(config2)))) {
+          break;
+        }
+        rejectedReasons[id || "#" + i] = adapter;
+      }
+      if (!adapter) {
+        const reasons = Object.entries(rejectedReasons).map(([id, state]) => `adapter ${id} ` + (state === false ? "is not supported by the environment" : "is not available in the build"));
+        let s2 = length ? reasons.length > 1 ? "since :\n" + reasons.map(renderReason).join("\n") : " " + renderReason(reasons[0]) : "as no adapter specified";
+        throw new AxiosError(`There is no suitable adapter to dispatch the request ` + s2, AxiosError.ERR_NOT_SUPPORT);
+      }
+      return adapter;
+    }
+    var adapters = {
+      /**
+       * Resolve an adapter from a list of adapter names or functions.
+       * @type {Function}
+       */
+      getAdapter,
+      /**
+       * Exposes all known adapters
+       * @type {Object<string, Function|Object>}
+       */
+      adapters: knownAdapters
+    };
+    function throwIfCancellationRequested(config2) {
+      if (config2.cancelToken) {
+        config2.cancelToken.throwIfRequested();
+      }
+      if (config2.signal && config2.signal.aborted) {
+        throw new CanceledError(null, config2);
+      }
+    }
+    function dispatchRequest(_config) {
+      const config2 = utils$1.toSafeFlatObject(_config);
+      throwIfCancellationRequested(config2);
+      config2.headers = AxiosHeaders.from(utils$1.getSafeProp(config2, "headers"));
+      config2.data = transformData.call(config2, config2.transformRequest);
+      if (["post", "put", "patch"].indexOf(config2.method) !== -1) {
+        config2.headers.setContentType("application/x-www-form-urlencoded", false);
+      }
+      const adapter = adapters.getAdapter(config2.adapter || defaults2.adapter, config2);
+      return adapter(config2).then(function onAdapterResolution(response) {
+        throwIfCancellationRequested(config2);
+        config2.response = response;
+        try {
+          response.data = transformData.call(config2, config2.transformResponse, response);
+        } finally {
+          delete config2.response;
+        }
+        response.headers = AxiosHeaders.from(response.headers);
+        return response;
+      }, function onAdapterRejection(reason) {
+        if (!isCancel(reason)) {
+          throwIfCancellationRequested(config2);
+          if (reason && reason.response) {
+            config2.response = reason.response;
+            try {
+              reason.response.data = transformData.call(config2, config2.transformResponse, reason.response);
+            } finally {
+              delete config2.response;
+            }
+            reason.response.headers = AxiosHeaders.from(reason.response.headers);
+          }
+        }
+        return Promise.reject(reason);
+      });
+    }
+    var validators$1 = {};
+    ["object", "boolean", "number", "function", "string", "symbol"].forEach((type, i) => {
+      validators$1[type] = function validator2(thing) {
+        return typeof thing === type || "a" + (i < 1 ? "n " : " ") + type;
+      };
+    });
+    var deprecatedWarnings = {};
+    validators$1.transitional = function transitional(validator2, version3, message) {
+      function formatMessage(opt, desc2) {
+        return "[Axios v" + VERSION + "] Transitional option '" + opt + "'" + desc2 + (message ? ". " + message : "");
+      }
+      return (value, opt, opts) => {
+        if (validator2 === false) {
+          throw new AxiosError(formatMessage(opt, " has been removed" + (version3 ? " in " + version3 : "")), AxiosError.ERR_DEPRECATED);
+        }
+        if (version3 && !deprecatedWarnings[opt]) {
+          deprecatedWarnings[opt] = true;
+          console.warn(formatMessage(opt, " has been deprecated since v" + version3 + " and will be removed in the near future"));
+        }
+        return validator2 ? validator2(value, opt, opts) : true;
+      };
+    };
+    validators$1.spelling = function spelling(correctSpelling) {
+      return (value, opt) => {
+        console.warn(`${opt} is likely a misspelling of ${correctSpelling}`);
+        return true;
+      };
+    };
+    function assertOptions(options, schema, allowUnknown) {
+      if (typeof options !== "object" || options === null) {
+        throw new AxiosError("options must be an object", AxiosError.ERR_BAD_OPTION_VALUE);
+      }
+      const keys = Object.keys(options);
+      let i = keys.length;
+      while (i-- > 0) {
+        const opt = keys[i];
+        const validator2 = Object.prototype.hasOwnProperty.call(schema, opt) ? schema[opt] : void 0;
+        if (validator2) {
+          const value = options[opt];
+          const result = value === void 0 || validator2(value, opt, options);
+          if (result !== true) {
+            throw new AxiosError("option " + opt + " must be " + result, AxiosError.ERR_BAD_OPTION_VALUE);
+          }
+          continue;
+        }
+        if (allowUnknown !== true) {
+          throw new AxiosError("Unknown option " + opt, AxiosError.ERR_BAD_OPTION);
+        }
+      }
+    }
+    var validator = {
+      assertOptions,
+      validators: validators$1
+    };
+    var validators = validator.validators;
+    var Axios = class {
+      constructor(instanceConfig) {
+        this.defaults = instanceConfig || {};
+        this.interceptors = {
+          request: new InterceptorManager(),
+          response: new InterceptorManager()
+        };
+      }
+      /**
+       * Dispatch a request
+       *
+       * @param {String|Object} configOrUrl The config specific for this request (merged with this.defaults)
+       * @param {?Object} config
+       *
+       * @returns {Promise} The Promise to be fulfilled
+       */
+      async request(configOrUrl, config2) {
+        try {
+          return await this._request(configOrUrl, config2);
+        } catch (err) {
+          if (err instanceof Error) {
+            try {
+              let dummy = {};
+              Error.captureStackTrace ? Error.captureStackTrace(dummy) : dummy = new Error();
+              const dummyStack = dummy.stack;
+              let stack = "";
+              if (typeof dummyStack === "string") {
+                const firstNewlineIndex = dummyStack.indexOf("\n");
+                stack = firstNewlineIndex === -1 ? "" : dummyStack.slice(firstNewlineIndex + 1);
+              }
+              if (!err.stack) {
+                err.stack = stack;
+              } else if (stack) {
+                const firstNewlineIndex = stack.indexOf("\n");
+                const secondNewlineIndex = firstNewlineIndex === -1 ? -1 : stack.indexOf("\n", firstNewlineIndex + 1);
+                const stackWithoutTwoTopLines = secondNewlineIndex === -1 ? "" : stack.slice(secondNewlineIndex + 1);
+                if (!String(err.stack).endsWith(stackWithoutTwoTopLines)) {
+                  err.stack += "\n" + stack;
+                }
+              }
+            } catch (e) {
+            }
+          }
+          throw err;
+        }
+      }
+      _request(configOrUrl, config2) {
+        if (typeof configOrUrl === "string") {
+          config2 = config2 || {};
+          config2.url = configOrUrl;
+        } else {
+          config2 = configOrUrl || {};
+        }
+        config2 = mergeConfig(this.defaults, config2);
+        const {
+          transitional,
+          paramsSerializer,
+          headers
+        } = config2;
+        if (transitional !== void 0) {
+          validator.assertOptions(transitional, {
+            silentJSONParsing: validators.transitional(validators.boolean),
+            forcedJSONParsing: validators.transitional(validators.boolean),
+            clarifyTimeoutError: validators.transitional(validators.boolean),
+            legacyInterceptorReqResOrdering: validators.transitional(validators.boolean),
+            advertiseZstdAcceptEncoding: validators.transitional(validators.boolean),
+            validateStatusUndefinedResolves: validators.transitional(validators.boolean)
+          }, false);
+        }
+        if (paramsSerializer != null) {
+          if (utils$1.isFunction(paramsSerializer)) {
+            config2.paramsSerializer = {
+              serialize: paramsSerializer
+            };
+          } else {
+            validator.assertOptions(paramsSerializer, {
+              encode: validators.function,
+              serialize: validators.function
+            }, true);
+          }
+        }
+        if (config2.allowAbsoluteUrls !== void 0) ;
+        else if (this.defaults.allowAbsoluteUrls !== void 0) {
+          config2.allowAbsoluteUrls = this.defaults.allowAbsoluteUrls;
+        } else {
+          config2.allowAbsoluteUrls = true;
+        }
+        validator.assertOptions(config2, {
+          baseUrl: validators.spelling("baseURL"),
+          withXsrfToken: validators.spelling("withXSRFToken")
+        }, true);
+        config2.method = (utils$1.getSafeProp(config2, "method") || utils$1.getSafeProp(this.defaults, "method") || "get").toLowerCase();
+        let contextHeaders = headers && utils$1.merge(headers.common, headers[config2.method]);
+        headers && utils$1.forEach(methodList.concat("common"), (method) => {
+          delete headers[method];
+        });
+        config2.headers = AxiosHeaders.concat(contextHeaders, headers);
+        const requestInterceptorChain = [];
+        let synchronousRequestInterceptors = true;
+        this.interceptors.request.forEach(function unshiftRequestInterceptors(interceptor) {
+          if (typeof interceptor.runWhen === "function" && interceptor.runWhen(config2) === false) {
+            return;
+          }
+          synchronousRequestInterceptors = synchronousRequestInterceptors && interceptor.synchronous;
+          const transitional2 = config2.transitional || transitionalDefaults;
+          const legacyInterceptorReqResOrdering = transitional2 && transitional2.legacyInterceptorReqResOrdering;
+          if (legacyInterceptorReqResOrdering) {
+            requestInterceptorChain.unshift(interceptor.fulfilled, interceptor.rejected);
+          } else {
+            requestInterceptorChain.push(interceptor.fulfilled, interceptor.rejected);
+          }
+        });
+        const responseInterceptorChain = [];
+        this.interceptors.response.forEach(function pushResponseInterceptors(interceptor) {
+          responseInterceptorChain.push(interceptor.fulfilled, interceptor.rejected);
+        });
+        let promise2;
+        let i = 0;
+        let len;
+        if (!synchronousRequestInterceptors) {
+          const chain = [dispatchRequest.bind(this), void 0];
+          chain.unshift(...requestInterceptorChain);
+          chain.push(...responseInterceptorChain);
+          len = chain.length;
+          promise2 = Promise.resolve(config2);
+          while (i < len) {
+            promise2 = promise2.then(chain[i++], chain[i++]);
+          }
+          return promise2;
+        }
+        len = requestInterceptorChain.length;
+        let newConfig = config2;
+        while (i < len) {
+          const onFulfilled = requestInterceptorChain[i++];
+          const onRejected = requestInterceptorChain[i++];
+          try {
+            newConfig = onFulfilled ? onFulfilled(newConfig) : newConfig;
+          } catch (error40) {
+            if (!onRejected) {
+              promise2 = Promise.reject(error40);
+              break;
+            }
+            try {
+              const rejectedResult = onRejected.call(this, error40);
+              if (utils$1.isThenable(rejectedResult)) {
+                promise2 = Promise.resolve(rejectedResult).then(() => dispatchRequest.call(this, newConfig));
+              }
+            } catch (rejectedError) {
+              promise2 = Promise.reject(rejectedError);
+            }
+            break;
+          }
+        }
+        if (!promise2) {
+          try {
+            promise2 = dispatchRequest.call(this, newConfig);
+          } catch (error40) {
+            promise2 = Promise.reject(error40);
+          }
+        }
+        i = 0;
+        len = responseInterceptorChain.length;
+        while (i < len) {
+          promise2 = promise2.then(responseInterceptorChain[i++], responseInterceptorChain[i++]);
+        }
+        return promise2;
+      }
+      getUri(config2) {
+        config2 = mergeConfig(this.defaults, config2);
+        const fullPath = buildFullPath(config2.baseURL, config2.url, config2.allowAbsoluteUrls, config2);
+        return buildURL(fullPath, config2.params, config2.paramsSerializer);
+      }
+    };
+    utils$1.forEach(["delete", "get", "head", "options"], function forEachMethodNoData(method) {
+      Axios.prototype[method] = function(url3, config2) {
+        return this.request(mergeConfig(config2 || {}, {
+          method,
+          url: url3,
+          data: config2 && utils$1.hasOwnProp(config2, "data") ? config2.data : void 0
+        }));
+      };
+    });
+    utils$1.forEach(["post", "put", "patch", "query"], function forEachMethodWithData(method) {
+      function generateHTTPMethod(isForm) {
+        return function httpMethod(url3, data, config2) {
+          return this.request(mergeConfig(config2 || {}, {
+            method,
+            headers: isForm ? {
+              "Content-Type": "multipart/form-data"
+            } : {},
+            url: url3,
+            data
+          }));
+        };
+      }
+      Axios.prototype[method] = generateHTTPMethod();
+      if (method !== "query") {
+        Axios.prototype[method + "Form"] = generateHTTPMethod(true);
+      }
+    });
+    var CancelToken = class _CancelToken {
+      constructor(executor) {
+        if (typeof executor !== "function") {
+          throw new TypeError("executor must be a function.");
+        }
+        let resolvePromise;
+        this.promise = new Promise(function promiseExecutor(resolve) {
+          resolvePromise = resolve;
+        });
+        const token = this;
+        this.promise.then((cancel) => {
+          if (!token._listeners) return;
+          let i = token._listeners.length;
+          while (i-- > 0) {
+            token._listeners[i](cancel);
+          }
+          token._listeners = null;
+        });
+        this.promise.then = (onfulfilled) => {
+          let _resolve;
+          const promise2 = new Promise((resolve) => {
+            token.subscribe(resolve);
+            _resolve = resolve;
+          }).then(onfulfilled);
+          promise2.cancel = function reject() {
+            token.unsubscribe(_resolve);
+          };
+          return promise2;
+        };
+        executor(function cancel(message, config2, request) {
+          if (token.reason) {
+            return;
+          }
+          token.reason = new CanceledError(message, config2, request);
+          resolvePromise(token.reason);
+        });
+      }
+      /**
+       * Throws a `CanceledError` if cancellation has been requested.
+       */
+      throwIfRequested() {
+        if (this.reason) {
+          throw this.reason;
+        }
+      }
+      /**
+       * Subscribe to the cancel signal
+       */
+      subscribe(listener) {
+        if (this.reason) {
+          listener(this.reason);
+          return;
+        }
+        if (this._listeners) {
+          this._listeners.push(listener);
+        } else {
+          this._listeners = [listener];
+        }
+      }
+      /**
+       * Unsubscribe from the cancel signal
+       */
+      unsubscribe(listener) {
+        if (!this._listeners) {
+          return;
+        }
+        const index = this._listeners.indexOf(listener);
+        if (index !== -1) {
+          this._listeners.splice(index, 1);
+        }
+      }
+      toAbortSignal() {
+        const controller = new AbortController();
+        const abort = (err) => {
+          controller.abort(err);
+        };
+        this.subscribe(abort);
+        controller.signal.unsubscribe = () => this.unsubscribe(abort);
+        return controller.signal;
+      }
+      /**
+       * Returns an object that contains a new `CancelToken` and a function that, when called,
+       * cancels the `CancelToken`.
+       */
+      static source() {
+        let cancel;
+        const token = new _CancelToken(function executor(c) {
+          cancel = c;
+        });
+        return {
+          token,
+          cancel
+        };
+      }
+    };
+    function spread(callback) {
+      return function wrap(arr) {
+        return callback.apply(null, arr);
+      };
+    }
+    function isAxiosError(payload) {
+      return utils$1.isObject(payload) && payload.isAxiosError === true;
+    }
+    var HttpStatusCode = {
+      Continue: 100,
+      SwitchingProtocols: 101,
+      Processing: 102,
+      EarlyHints: 103,
+      Ok: 200,
+      Created: 201,
+      Accepted: 202,
+      NonAuthoritativeInformation: 203,
+      NoContent: 204,
+      ResetContent: 205,
+      PartialContent: 206,
+      MultiStatus: 207,
+      AlreadyReported: 208,
+      ImUsed: 226,
+      MultipleChoices: 300,
+      MovedPermanently: 301,
+      Found: 302,
+      SeeOther: 303,
+      NotModified: 304,
+      UseProxy: 305,
+      Unused: 306,
+      TemporaryRedirect: 307,
+      PermanentRedirect: 308,
+      BadRequest: 400,
+      Unauthorized: 401,
+      PaymentRequired: 402,
+      Forbidden: 403,
+      NotFound: 404,
+      MethodNotAllowed: 405,
+      NotAcceptable: 406,
+      ProxyAuthenticationRequired: 407,
+      RequestTimeout: 408,
+      Conflict: 409,
+      Gone: 410,
+      LengthRequired: 411,
+      PreconditionFailed: 412,
+      /**
+       * @deprecated Use `ContentTooLarge` instead.
+       */
+      PayloadTooLarge: 413,
+      ContentTooLarge: 413,
+      UriTooLong: 414,
+      UnsupportedMediaType: 415,
+      RangeNotSatisfiable: 416,
+      ExpectationFailed: 417,
+      ImATeapot: 418,
+      MisdirectedRequest: 421,
+      /**
+       * @deprecated Use `UnprocessableContent` instead.
+       */
+      UnprocessableEntity: 422,
+      UnprocessableContent: 422,
+      Locked: 423,
+      FailedDependency: 424,
+      TooEarly: 425,
+      UpgradeRequired: 426,
+      PreconditionRequired: 428,
+      TooManyRequests: 429,
+      RequestHeaderFieldsTooLarge: 431,
+      UnavailableForLegalReasons: 451,
+      InternalServerError: 500,
+      NotImplemented: 501,
+      BadGateway: 502,
+      ServiceUnavailable: 503,
+      GatewayTimeout: 504,
+      HttpVersionNotSupported: 505,
+      VariantAlsoNegotiates: 506,
+      InsufficientStorage: 507,
+      LoopDetected: 508,
+      NotExtended: 510,
+      NetworkAuthenticationRequired: 511,
+      WebServerReturnsAnUnknownError: 520,
+      WebServerIsDown: 521,
+      ConnectionTimedOut: 522,
+      OriginIsUnreachable: 523,
+      TimeoutOccurred: 524,
+      SslHandshakeFailed: 525,
+      InvalidSslCertificate: 526
+    };
+    Object.entries(HttpStatusCode).forEach(([key, value]) => {
+      if (HttpStatusCode[value] === void 0) {
+        HttpStatusCode[value] = key;
+      }
+    });
+    function createInstance(defaultConfig) {
+      const context = new Axios(defaultConfig);
+      const instance = bind(Axios.prototype.request, context);
+      utils$1.extend(instance, Axios.prototype, context, {
+        allOwnKeys: true
+      });
+      utils$1.extend(instance, context, null, {
+        allOwnKeys: true
+      });
+      instance.create = function create(instanceConfig) {
+        return createInstance(mergeConfig(defaultConfig, instanceConfig));
+      };
+      return instance;
+    }
+    var axios = createInstance(defaults2);
+    axios.Axios = Axios;
+    axios.CanceledError = CanceledError;
+    axios.CancelToken = CancelToken;
+    axios.isCancel = isCancel;
+    axios.VERSION = VERSION;
+    axios.toFormData = toFormData;
+    axios.AxiosError = AxiosError;
+    axios.Cancel = axios.CanceledError;
+    axios.all = function all(promises) {
+      return Promise.all(promises);
+    };
+    axios.spread = spread;
+    axios.isAxiosError = isAxiosError;
+    axios.mergeConfig = mergeConfig;
+    axios.AxiosHeaders = AxiosHeaders;
+    axios.formToJSON = (thing) => formDataToJSON(utils$1.isHTMLForm(thing) ? new FormData(thing) : thing);
+    axios.getAdapter = adapters.getAdapter;
+    axios.HttpStatusCode = HttpStatusCode;
+    axios.default = axios;
+    module.exports = axios;
+  }
+});
+
+// ../../node_modules/.pnpm/midtrans-client@1.4.3/node_modules/midtrans-client/lib/midtransError.js
+var require_midtransError = __commonJS({
+  "../../node_modules/.pnpm/midtrans-client@1.4.3/node_modules/midtrans-client/lib/midtransError.js"(exports, module) {
+    var MidtransError = class extends Error {
+      constructor(message, httpStatusCode = null, ApiResponse = null, rawHttpClientData = null) {
+        super(message);
+        this.name = this.constructor.name;
+        this.httpStatusCode = httpStatusCode;
+        this.ApiResponse = ApiResponse;
+        this.rawHttpClientData = rawHttpClientData;
+        Error.captureStackTrace(this, this.constructor);
+      }
+    };
+    module.exports = MidtransError;
+  }
+});
+
+// ../../node_modules/.pnpm/midtrans-client@1.4.3/node_modules/midtrans-client/lib/httpClient.js
+var require_httpClient = __commonJS({
+  "../../node_modules/.pnpm/midtrans-client@1.4.3/node_modules/midtrans-client/lib/httpClient.js"(exports, module) {
+    "use strict";
+    var axios = require_axios().default;
+    var querystring = __require("querystring");
+    var MidtransError = require_midtransError();
+    var HttpClient = class {
+      constructor(parentObj = {}) {
+        this.parent = parentObj;
+        this.http_client = axios.create();
+      }
+      request(httpMethod, serverKey, requestUrl, firstParam = {}, secondParam = {}) {
+        let headers = {
+          "content-type": "application/json",
+          "accept": "application/json",
+          "user-agent": "midtransclient-nodejs/1.4.3"
+        };
+        let reqBodyPayload = {};
+        let reqQueryParam = {};
+        if (httpMethod.toLowerCase() == "get") {
+          reqQueryParam = firstParam;
+          reqBodyPayload = secondParam;
+        } else {
+          reqBodyPayload = firstParam;
+          reqQueryParam = secondParam;
+        }
+        let thisInstance = this;
+        return new Promise(function(resolve, reject) {
+          if (typeof reqBodyPayload === "string" || reqBodyPayload instanceof String) {
+            try {
+              reqBodyPayload = JSON.parse(reqBodyPayload);
+            } catch (err) {
+              reject(new MidtransError(`fail to parse 'body parameters' string as JSON. Use JSON string or Object as 'body parameters'. with message: ${err}`));
+            }
+          }
+          if (typeof reqQueryParam === "string" || reqQueryParam instanceof String) {
+            try {
+              reqQueryParam = JSON.parse(reqQueryParam);
+            } catch (err) {
+              reject(new MidtransError(`fail to parse 'query parameters' string as JSON. Use JSON string or Object as 'query parameters'. with message: ${err}`));
+            }
+          }
+          let response = thisInstance.http_client({
+            method: httpMethod,
+            headers,
+            url: requestUrl,
+            data: reqBodyPayload,
+            params: reqQueryParam,
+            auth: {
+              username: serverKey,
+              password: ""
+            }
+          }).then(function(res) {
+            if (res.data.hasOwnProperty("status_code") && res.data.status_code >= 400 && res.data.status_code != 407) {
+              reject(
+                new MidtransError(
+                  `Midtrans API is returning API error. HTTP status code: ${res.data.status_code}. API response: ${JSON.stringify(res.data)}`,
+                  res.data.status_code,
+                  res.data,
+                  res
+                )
+              );
+            }
+            resolve(res.data);
+          }).catch(function(err) {
+            let res = err.response;
+            if (typeof res !== "undefined" && res.status >= 400) {
+              reject(
+                new MidtransError(
+                  `Midtrans API is returning API error. HTTP status code: ${res.status}. API response: ${JSON.stringify(res.data)}`,
+                  res.status,
+                  res.data,
+                  res
+                )
+              );
+            } else if (typeof res === "undefined") {
+              reject(
+                new MidtransError(
+                  `Midtrans API request failed. HTTP response not found, likely connection failure, with message: ${JSON.stringify(err.message)}`,
+                  null,
+                  null,
+                  err
+                )
+              );
+            }
+            reject(err);
+          });
+        });
+      }
+    };
+    module.exports = HttpClient;
+  }
+});
+
+// ../../node_modules/.pnpm/midtrans-client@1.4.3/node_modules/midtrans-client/lib/transaction.js
+var require_transaction = __commonJS({
+  "../../node_modules/.pnpm/midtrans-client@1.4.3/node_modules/midtrans-client/lib/transaction.js"(exports, module) {
+    "use strict";
+    var ApiConfig = require_apiConfig();
+    var HttpClient = require_httpClient();
+    var Transaction = class {
+      constructor(parentObj = {}) {
+        this.parent = parentObj;
+      }
+      status(transactionId = "") {
+        let apiUrl = this.parent.apiConfig.getCoreApiBaseUrl() + "/v2/" + transactionId + "/status";
+        let responsePromise = this.parent.httpClient.request(
+          "get",
+          this.parent.apiConfig.get().serverKey,
+          apiUrl,
+          null
+        );
+        return responsePromise;
+      }
+      statusb2b(transactionId = "") {
+        let apiUrl = this.parent.apiConfig.getCoreApiBaseUrl() + "/v2/" + transactionId + "/status/b2b";
+        let responsePromise = this.parent.httpClient.request(
+          "get",
+          this.parent.apiConfig.get().serverKey,
+          apiUrl,
+          null
+        );
+        return responsePromise;
+      }
+      approve(transactionId = "") {
+        let apiUrl = this.parent.apiConfig.getCoreApiBaseUrl() + "/v2/" + transactionId + "/approve";
+        let responsePromise = this.parent.httpClient.request(
+          "post",
+          this.parent.apiConfig.get().serverKey,
+          apiUrl,
+          null
+        );
+        return responsePromise;
+      }
+      deny(transactionId = "") {
+        let apiUrl = this.parent.apiConfig.getCoreApiBaseUrl() + "/v2/" + transactionId + "/deny";
+        let responsePromise = this.parent.httpClient.request(
+          "post",
+          this.parent.apiConfig.get().serverKey,
+          apiUrl,
+          null
+        );
+        return responsePromise;
+      }
+      cancel(transactionId = "") {
+        let apiUrl = this.parent.apiConfig.getCoreApiBaseUrl() + "/v2/" + transactionId + "/cancel";
+        let responsePromise = this.parent.httpClient.request(
+          "post",
+          this.parent.apiConfig.get().serverKey,
+          apiUrl,
+          null
+        );
+        return responsePromise;
+      }
+      expire(transactionId = "") {
+        let apiUrl = this.parent.apiConfig.getCoreApiBaseUrl() + "/v2/" + transactionId + "/expire";
+        let responsePromise = this.parent.httpClient.request(
+          "post",
+          this.parent.apiConfig.get().serverKey,
+          apiUrl,
+          null
+        );
+        return responsePromise;
+      }
+      refund(transactionId = "", parameter = {}) {
+        let apiUrl = this.parent.apiConfig.getCoreApiBaseUrl() + "/v2/" + transactionId + "/refund";
+        let responsePromise = this.parent.httpClient.request(
+          "post",
+          this.parent.apiConfig.get().serverKey,
+          apiUrl,
+          parameter
+        );
+        return responsePromise;
+      }
+      refundDirect(transactionId = "", parameter = {}) {
+        let apiUrl = this.parent.apiConfig.getCoreApiBaseUrl() + "/v2/" + transactionId + "/refund/online/direct";
+        let responsePromise = this.parent.httpClient.request(
+          "post",
+          this.parent.apiConfig.get().serverKey,
+          apiUrl,
+          parameter
+        );
+        return responsePromise;
+      }
+      notification(notificationObj = {}) {
+        let self2 = this;
+        return new Promise(function(resolve, reject) {
+          if (typeof notificationObj === "string" || notificationObj instanceof String) {
+            try {
+              notificationObj = JSON.parse(notificationObj);
+            } catch (err) {
+              reject(new MidtransNotificationError("fail to parse `notification` string as JSON. Use JSON string or Object as `notification`. with message:" + err.message));
+            }
+          }
+          let transactionId = notificationObj.transaction_id;
+          self2.status(transactionId).then(function(res) {
+            resolve(res);
+          }).catch(function(err) {
+            reject(err);
+          });
+        });
+      }
+    };
+    var MidtransNotificationError = class extends Error {
+    };
+    module.exports = Transaction;
+  }
+});
+
+// ../../node_modules/.pnpm/midtrans-client@1.4.3/node_modules/midtrans-client/lib/snap.js
+var require_snap = __commonJS({
+  "../../node_modules/.pnpm/midtrans-client@1.4.3/node_modules/midtrans-client/lib/snap.js"(exports, module) {
+    "use strict";
+    var ApiConfig = require_apiConfig();
+    var HttpClient = require_httpClient();
+    var Transaction = require_transaction();
+    var Snap = class {
+      constructor(options = { isProduction: false, serverKey: "", clientKey: "" }) {
+        this.apiConfig = new ApiConfig(options);
+        this.httpClient = new HttpClient(this);
+        this.transaction = new Transaction(this);
+      }
+      /**
+       * Do `/transactions` API request to Snap API
+       * @param  {Object} parameter - object of Core API JSON body as parameter, will be converted to JSON (more params detail refer to: https://snap-docs.midtrans.com)
+       * @return {Promise} - Promise contains Object from JSON decoded response
+       */
+      createTransaction(parameter = {}) {
+        let apiUrl = this.apiConfig.getSnapApiBaseUrl() + "/transactions";
+        let responsePromise = this.httpClient.request(
+          "post",
+          this.apiConfig.get().serverKey,
+          apiUrl,
+          parameter
+        );
+        return responsePromise;
+      }
+      /**
+       * Wrapper function that call `createTransaction` then:
+       * @return {Promise} - Promise of String token
+       */
+      createTransactionToken(parameter = {}) {
+        return this.createTransaction(parameter).then(function(res) {
+          return res.token;
+        });
+      }
+      /**
+       * Wrapper function that call `createTransaction` then:
+       * @return {Promise} - Promise of String redirect_url
+       */
+      createTransactionRedirectUrl(parameter = {}) {
+        return this.createTransaction(parameter).then(function(res) {
+          return res.redirect_url;
+        });
+      }
+    };
+    module.exports = Snap;
+  }
+});
+
+// ../../node_modules/.pnpm/midtrans-client@1.4.3/node_modules/midtrans-client/lib/coreApi.js
+var require_coreApi = __commonJS({
+  "../../node_modules/.pnpm/midtrans-client@1.4.3/node_modules/midtrans-client/lib/coreApi.js"(exports, module) {
+    "use strict";
+    var ApiConfig = require_apiConfig();
+    var HttpClient = require_httpClient();
+    var Transaction = require_transaction();
+    var CoreApi = class {
+      /**
+       * Initiate with options
+       * @param  {Object} options - should have these props:
+       * isProduction, serverKey, clientKey
+       */
+      constructor(options = { isProduction: false, serverKey: "", clientKey: "" }) {
+        this.apiConfig = new ApiConfig(options);
+        this.httpClient = new HttpClient(this);
+        this.transaction = new Transaction(this);
+      }
+      /**
+       * Do `/v2/charge` API request to Core API
+       * @param  {Object} parameter - object of Core API JSON body as parameter, will be converted to JSON (more params detail refer to: https://api-docs.midtrans.com)
+       * @return {Promise} - Promise contains Object from JSON decoded response
+       */
+      charge(parameter = {}) {
+        let apiUrl = this.apiConfig.getCoreApiBaseUrl() + "/v2/charge";
+        let responsePromise = this.httpClient.request(
+          "post",
+          this.apiConfig.get().serverKey,
+          apiUrl,
+          parameter
+        );
+        return responsePromise;
+      }
+      /**
+       * Do `/v2/capture` API request to Core API
+       * @param  {Object} parameter - object of Core API JSON body as parameter, will be converted to JSON (more params detail refer to: https://api-docs.midtrans.com)
+       * @return {Promise} - Promise contains Object from JSON decoded response
+       */
+      capture(parameter = {}) {
+        let apiUrl = this.apiConfig.getCoreApiBaseUrl() + "/v2/capture";
+        let responsePromise = this.httpClient.request(
+          "post",
+          this.apiConfig.get().serverKey,
+          apiUrl,
+          parameter
+        );
+        return responsePromise;
+      }
+      /**
+       * Do `/v2/card/register` API request to Core API
+       * @param  {Object} parameter - object of Core API JSON body as parameter, will be converted to JSON (more params detail refer to: https://api-docs.midtrans.com)
+       * @return {Promise} - Promise contains Object from JSON decoded response
+       */
+      cardRegister(parameter = {}) {
+        let apiUrl = this.apiConfig.getCoreApiBaseUrl() + "/v2/card/register";
+        let responsePromise = this.httpClient.request(
+          "get",
+          this.apiConfig.get().serverKey,
+          apiUrl,
+          parameter
+        );
+        return responsePromise;
+      }
+      /**
+       * Do `/v2/token` API request to Core API
+       * @param  {Object} parameter - object of Core API JSON body as parameter, will be converted to JSON (more params detail refer to: https://api-docs.midtrans.com)
+       * @return {Promise} - Promise contains Object from JSON decoded response
+       */
+      cardToken(parameter = {}) {
+        let apiUrl = this.apiConfig.getCoreApiBaseUrl() + "/v2/token";
+        let responsePromise = this.httpClient.request(
+          "get",
+          this.apiConfig.get().serverKey,
+          apiUrl,
+          parameter
+        );
+        return responsePromise;
+      }
+      /**
+       * Do `/v2/point_inquiry/<tokenId>` API request to Core API
+       * @param  {String} tokenId - tokenId of credit card (more params detail refer to: https://api-docs.midtrans.com)
+       * @return {Promise} - Promise contains Object from JSON decoded response
+       */
+      cardPointInquiry(tokenId) {
+        let apiUrl = this.apiConfig.getCoreApiBaseUrl() + "/v2/point_inquiry/" + tokenId;
+        let responsePromise = this.httpClient.request(
+          "get",
+          this.apiConfig.get().serverKey,
+          apiUrl,
+          null
+        );
+        return responsePromise;
+      }
+      /**
+       * Create `/v2/pay/account` API request to Core API
+       * @param  {Object} parameter - object of Core API JSON body as parameter, will be converted to JSON (more params detail refer to: https://api-docs.midtrans.com/#create-pay-account)
+       * @return {Promise} - Promise contains Object from JSON decoded response
+       */
+      linkPaymentAccount(parameter = {}) {
+        let apiUrl = this.apiConfig.getCoreApiBaseUrl() + "/v2/pay/account";
+        let responsePromise = this.httpClient.request(
+          "post",
+          this.apiConfig.get().serverKey,
+          apiUrl,
+          parameter
+        );
+        return responsePromise;
+      }
+      /**
+       * Do `/v2/pay/account/<accountId>` API request to Core API
+       * @param  {String} accountId - accountId for specific payment channel (more params detail refer to: https://api-docs.midtrans.com/#get-pay-account)
+       * @return {Promise} - Promise contains Object from JSON decoded response
+       */
+      getPaymentAccount(accountId) {
+        let apiUrl = this.apiConfig.getCoreApiBaseUrl() + "/v2/pay/account/" + accountId;
+        let responsePromise = this.httpClient.request(
+          "get",
+          this.apiConfig.get().serverKey,
+          apiUrl,
+          null
+        );
+        return responsePromise;
+      }
+      /**
+       * Unbind `/v2/pay/account/<accountId>/unbind` API request to Core API
+       * @param  {String} accountId - accountId for specific payment channel (more params detail refer to: https://api-docs.midtrans.com/#unbind-pay-account)
+       * @return {Promise} - Promise contains Object from JSON decoded response
+       */
+      unlinkPaymentAccount(accountId) {
+        let apiUrl = this.apiConfig.getCoreApiBaseUrl() + "/v2/pay/account/" + accountId + "/unbind";
+        let responsePromise = this.httpClient.request(
+          "post",
+          this.apiConfig.get().serverKey,
+          apiUrl,
+          null
+        );
+        return responsePromise;
+      }
+      /**
+       * Create `/v1/subscription` API request to Core API
+       * @param  {Object} parameter - object of Core API JSON body as parameter, will be converted to JSON (more params detail refer to: https://api-docs.midtrans.com/#create-subscription)
+       * @return {Promise} - Promise contains Object from JSON decoded response
+       */
+      createSubscription(parameter = {}) {
+        let apiUrl = this.apiConfig.getCoreApiBaseUrl() + "/v1/subscriptions";
+        let responsePromise = this.httpClient.request(
+          "post",
+          this.apiConfig.get().serverKey,
+          apiUrl,
+          parameter
+        );
+        return responsePromise;
+      }
+      /**
+       * Do `/v1/subscription/<subscriptionId>` API request to Core API
+       * @param  {String} subscriptionId - subscriptionId given by Midtrans (more params detail refer to: https://api-docs.midtrans.com/#get-subscription)
+       * @return {Promise} - Promise contains Object from JSON decoded response
+       */
+      getSubscription(subscriptionId) {
+        let apiUrl = this.apiConfig.getCoreApiBaseUrl() + "/v1/subscriptions/" + subscriptionId;
+        let responsePromise = this.httpClient.request(
+          "get",
+          this.apiConfig.get().serverKey,
+          apiUrl,
+          null
+        );
+        return responsePromise;
+      }
+      /**
+       * Do `/v1/subscription/<subscriptionId>/disable` API request to Core API
+       * @param  {String} subscriptionId - subscriptionId given by Midtrans (more params detail refer to: https://api-docs.midtrans.com/#disable-subscription)
+       * @return {Promise} - Promise contains Object from JSON decoded response
+       */
+      disableSubscription(subscriptionId) {
+        let apiUrl = this.apiConfig.getCoreApiBaseUrl() + "/v1/subscriptions/" + subscriptionId + "/disable";
+        let responsePromise = this.httpClient.request(
+          "post",
+          this.apiConfig.get().serverKey,
+          apiUrl,
+          null
+        );
+        return responsePromise;
+      }
+      /**
+       * Do `/v1/subscription/<subscriptionId>/enable` API request to Core API
+       * @param  {String} subscriptionId - subscriptionId given by Midtrans (more params detail refer to: https://api-docs.midtrans.com/#enable-subscription)
+       * @return {Promise} - Promise contains Object from JSON decoded response
+       */
+      enableSubscription(subscriptionId) {
+        let apiUrl = this.apiConfig.getCoreApiBaseUrl() + "/v1/subscriptions/" + subscriptionId + "/enable";
+        let responsePromise = this.httpClient.request(
+          "post",
+          this.apiConfig.get().serverKey,
+          apiUrl,
+          null
+        );
+        return responsePromise;
+      }
+      /**
+       * Do update subscription `/v1/subscription/<subscriptionId>` API request to Core API
+       * @param  {String} subscriptionId - subscriptionId given by Midtrans (more params detail refer to: https://api-docs.midtrans.com/#update-subscription)
+       * @return {Promise} - Promise contains Object from JSON decoded response
+       */
+      updateSubscription(subscriptionId, parameter = {}) {
+        let apiUrl = this.apiConfig.getCoreApiBaseUrl() + "/v1/subscriptions/" + subscriptionId;
+        let responsePromise = this.httpClient.request(
+          "patch",
+          this.apiConfig.get().serverKey,
+          apiUrl,
+          parameter
+        );
+        return responsePromise;
+      }
+    };
+    module.exports = CoreApi;
+  }
+});
+
+// ../../node_modules/.pnpm/midtrans-client@1.4.3/node_modules/midtrans-client/lib/iris.js
+var require_iris = __commonJS({
+  "../../node_modules/.pnpm/midtrans-client@1.4.3/node_modules/midtrans-client/lib/iris.js"(exports, module) {
+    "use strict";
+    var ApiConfig = require_apiConfig();
+    var HttpClient = require_httpClient();
+    var Transaction = require_transaction();
+    var Iris = class {
+      /**
+       * Initiate with options
+       * @param  {Object} options - should have these props:
+       * isProduction, apiKey
+       */
+      constructor(options = { isProduction: false, serverKey: "" }) {
+        this.apiConfig = new ApiConfig(options);
+        this.httpClient = new HttpClient(this);
+        this.transaction = new Transaction(this);
+      }
+      /**
+       * Do `/ping` API request to Iris API
+       * @return {Promise} - Promise contains Object from JSON decoded response
+       */
+      ping() {
+        let apiUrl = this.apiConfig.getIrisApiBaseUrl() + "/ping";
+        let responsePromise = this.httpClient.request(
+          "get",
+          this.apiConfig.get().serverKey,
+          apiUrl
+        );
+        return responsePromise;
+      }
+      /**
+       * Do create `/beneficiaries` API request to Iris API
+       * @param  {Object} parameter - object of Iris API JSON body as parameter, will be converted to JSON (more params detail refer to: https://iris-docs.midtrans.com)
+       * @return {Promise} - Promise contains Object from JSON decoded response
+       */
+      createBeneficiaries(parameter = {}) {
+        let apiUrl = this.apiConfig.getIrisApiBaseUrl() + "/beneficiaries";
+        let responsePromise = this.httpClient.request(
+          "post",
+          this.apiConfig.get().serverKey,
+          apiUrl,
+          parameter
+        );
+        return responsePromise;
+      }
+      /**
+       * Do update `/beneficiaries/<alias_name>` API request to Iris API
+       * @param  {String} parameter - alias_name of the beneficiaries that need to be updated
+       * @param  {Object} parameter - object of Iris API JSON body as parameter, will be converted to JSON (more params detail refer to: https://iris-docs.midtrans.com)
+       * @return {Promise} - Promise contains Object from JSON decoded response
+       */
+      updateBeneficiaries(aliasName, parameter = {}) {
+        let apiUrl = this.apiConfig.getIrisApiBaseUrl() + "/beneficiaries/" + aliasName;
+        let responsePromise = this.httpClient.request(
+          "patch",
+          this.apiConfig.get().serverKey,
+          apiUrl,
+          parameter
+        );
+        return responsePromise;
+      }
+      /**
+       * Do `/beneficiaries` API request to Iris API
+       * @return {Promise} - Promise contains Object from JSON decoded response
+       */
+      getBeneficiaries() {
+        let apiUrl = this.apiConfig.getIrisApiBaseUrl() + "/beneficiaries";
+        let responsePromise = this.httpClient.request(
+          "get",
+          this.apiConfig.get().serverKey,
+          apiUrl
+        );
+        return responsePromise;
+      }
+      /**
+       * Do create `/payouts` API request to Iris API
+       * @param  {Object} parameter - object of Iris API JSON body as parameter, will be converted to JSON (more params detail refer to: https://iris-docs.midtrans.com)
+       * @return {Promise} - Promise contains Object from JSON decoded response
+       */
+      createPayouts(parameter = {}) {
+        let apiUrl = this.apiConfig.getIrisApiBaseUrl() + "/payouts";
+        let responsePromise = this.httpClient.request(
+          "post",
+          this.apiConfig.get().serverKey,
+          apiUrl,
+          parameter
+        );
+        return responsePromise;
+      }
+      /**
+       * Do approve `/payouts/approve` API request to Iris API
+       * @param  {Object} parameter - object of Iris API JSON body as parameter, will be converted to JSON (more params detail refer to: https://iris-docs.midtrans.com)
+       * @return {Promise} - Promise contains Object from JSON decoded response
+       */
+      approvePayouts(parameter = {}) {
+        let apiUrl = this.apiConfig.getIrisApiBaseUrl() + "/payouts/approve";
+        let responsePromise = this.httpClient.request(
+          "post",
+          this.apiConfig.get().serverKey,
+          apiUrl,
+          parameter
+        );
+        return responsePromise;
+      }
+      /**
+       * Do reject `/payouts/reject` API request to Iris API
+       * @param  {Object} parameter - object of Iris API JSON body as parameter, will be converted to JSON (more params detail refer to: https://iris-docs.midtrans.com)
+       * @return {Promise} - Promise contains Object from JSON decoded response
+       */
+      rejectPayouts(parameter = {}) {
+        let apiUrl = this.apiConfig.getIrisApiBaseUrl() + "/payouts/reject";
+        let responsePromise = this.httpClient.request(
+          "post",
+          this.apiConfig.get().serverKey,
+          apiUrl,
+          parameter
+        );
+        return responsePromise;
+      }
+      /**
+       * Do `/payouts/<reference_no>` API request to Iris API
+       * @param  {String} parameter - reference_no of the payout
+       * @return {Promise} - Promise contains Object from JSON decoded response
+       */
+      getPayoutDetails(referenceNo) {
+        let apiUrl = this.apiConfig.getIrisApiBaseUrl() + "/payouts/" + referenceNo;
+        let responsePromise = this.httpClient.request(
+          "get",
+          this.apiConfig.get().serverKey,
+          apiUrl
+        );
+        return responsePromise;
+      }
+      /**
+       * Do `/statements` API request to Iris API
+       * @return {Promise} - Promise contains Object from JSON decoded response
+       */
+      // https://iris-docs.midtrans.com/#transaction-history
+      getTransactionHistory(parameter = {}) {
+        let apiUrl = this.apiConfig.getIrisApiBaseUrl() + "/statements";
+        let isGetMethodWithJsonBodyParam = true;
+        let responsePromise = this.httpClient.request(
+          "get",
+          this.apiConfig.get().serverKey,
+          apiUrl,
+          null,
+          // it doesn't use URL query param
+          parameter
+        );
+        return responsePromise;
+      }
+      /**
+       * Do `/channels` API request to Iris API
+       * @return {Promise} - Promise contains Object from JSON decoded response
+       */
+      getTopupChannels() {
+        let apiUrl = this.apiConfig.getIrisApiBaseUrl() + "/channels";
+        let responsePromise = this.httpClient.request(
+          "get",
+          this.apiConfig.get().serverKey,
+          apiUrl
+        );
+        return responsePromise;
+      }
+      /**
+       * Do `/balance` API request to Iris API
+       * @return {Promise} - Promise contains Object from JSON decoded response
+       */
+      getBalance() {
+        let apiUrl = this.apiConfig.getIrisApiBaseUrl() + "/balance";
+        let responsePromise = this.httpClient.request(
+          "get",
+          this.apiConfig.get().serverKey,
+          apiUrl
+        );
+        return responsePromise;
+      }
+      /**
+       * Do `/bank_accounts` API request to Iris API
+       * @return {Promise} - Promise contains Object from JSON decoded response
+       */
+      getFacilitatorBankAccounts() {
+        let apiUrl = this.apiConfig.getIrisApiBaseUrl() + "/bank_accounts";
+        let responsePromise = this.httpClient.request(
+          "get",
+          this.apiConfig.get().serverKey,
+          apiUrl
+        );
+        return responsePromise;
+      }
+      /**
+       * Do `/bank_accounts/<bank_account_id>/balance` API request to Iris API
+       * @param  {String} parameter - bank_account_id of the bank account
+       * @return {Promise} - Promise contains Object from JSON decoded response
+       */
+      getFacilitatorBalance(bankAccountId) {
+        let apiUrl = this.apiConfig.getIrisApiBaseUrl() + "/bank_accounts/" + bankAccountId + "/balance";
+        let responsePromise = this.httpClient.request(
+          "get",
+          this.apiConfig.get().serverKey,
+          apiUrl
+        );
+        return responsePromise;
+      }
+      /**
+       * Do `/beneficiary_banks` API request to Iris API
+       * @return {Promise} - Promise contains Object from JSON decoded response
+       */
+      getBeneficiaryBanks() {
+        let apiUrl = this.apiConfig.getIrisApiBaseUrl() + "/beneficiary_banks";
+        let responsePromise = this.httpClient.request(
+          "get",
+          this.apiConfig.get().serverKey,
+          apiUrl
+        );
+        return responsePromise;
+      }
+      /**
+       * Do `/account_validation` API request to Iris API
+       * @param  {Object} parameter - object of Iris API JSON body as parameter, will be converted to GET Query param (more params detail refer to: https://iris-docs.midtrans.com)
+       * @return {Promise} - Promise contains Object from JSON decoded response
+       */
+      validateBankAccount(parameter = {}) {
+        let apiUrl = this.apiConfig.getIrisApiBaseUrl() + "/account_validation";
+        let responsePromise = this.httpClient.request(
+          "get",
+          this.apiConfig.get().serverKey,
+          apiUrl,
+          parameter
+        );
+        return responsePromise;
+      }
+    };
+    module.exports = Iris;
+  }
+});
+
+// ../../node_modules/.pnpm/midtrans-client@1.4.3/node_modules/midtrans-client/lib/snapBi/snapBiConfig.js
+var require_snapBiConfig = __commonJS({
+  "../../node_modules/.pnpm/midtrans-client@1.4.3/node_modules/midtrans-client/lib/snapBi/snapBiConfig.js"(exports, module) {
+    var SnapBiConfig = class {
+      // Static properties for configuration values
+      static isProduction = false;
+      static snapBiClientId = null;
+      static snapBiPrivateKey = null;
+      static snapBiClientSecret = null;
+      static snapBiPartnerId = null;
+      static snapBiChannelId = null;
+      static enableLogging = false;
+      static snapBiPublicKey = null;
+      // Constants for base URLs
+      static SNAP_BI_SANDBOX_BASE_URL = "https://merchants.sbx.midtrans.com";
+      static SNAP_BI_PRODUCTION_BASE_URL = "https://merchants.midtrans.com";
+      static getBaseUrl() {
+        return this.isProduction ? this.SNAP_BI_PRODUCTION_BASE_URL : this.SNAP_BI_SANDBOX_BASE_URL;
+      }
+    };
+    module.exports = SnapBiConfig;
+  }
+});
+
+// ../../node_modules/.pnpm/midtrans-client@1.4.3/node_modules/midtrans-client/lib/snapBi/snapBiApiRequestor.js
+var require_snapBiApiRequestor = __commonJS({
+  "../../node_modules/.pnpm/midtrans-client@1.4.3/node_modules/midtrans-client/lib/snapBi/snapBiApiRequestor.js"(exports, module) {
+    var axios = require_axios();
+    var SnapBiConfig = require_snapBiConfig();
+    var https = __require("https");
+    axios.interceptors.request.use(
+      function(config2) {
+        if (SnapBiConfig.enableLogging) {
+          console.log(`Request URL: ${config2.url}`);
+          console.log(`Request Headers: 
+${JSON.stringify(config2.headers, null, 2)}`);
+          if (config2.data) {
+            console.log(`Request Body: 
+${JSON.stringify(config2.data, null, 2)}`);
+          }
+        }
+        return config2;
+      },
+      function(error40) {
+        if (SnapBiConfig.enableLogging) {
+          console.error(`Request Error: ${error40.message}`);
+        }
+        return Promise.reject(error40);
+      }
+    );
+    axios.interceptors.response.use(
+      function(response) {
+        if (SnapBiConfig.enableLogging) {
+          console.log(`Response Status: ${response.status}`);
+          console.log(`Response Body: 
+${JSON.stringify(response.data, null, 2)}`);
+        }
+        return response;
+      },
+      function(error40) {
+        if (SnapBiConfig.enableLogging) {
+          console.error(`Response Error: ${error40.message}`);
+        }
+        return Promise.reject(error40);
+      }
+    );
+    var SnapBiApiRequestor = class {
+      /**
+       * Make a remote API call with the specified URL, headers, and request body.
+       * @param {string} url - The API endpoint URL.
+       * @param {object} header - The headers for the request.
+       * @param {object} body - The JSON payload for the request.
+       * @returns {Promise<object>} - The JSON response from the API.
+       */
+      static async remoteCall(url2, header, body, timeout = 1e4) {
+        const axiosHeaders = { ...header };
+        try {
+          const axiosOptions = {
+            headers: axiosHeaders,
+            validateStatus: function(status) {
+              return status >= 200 && status < 300;
+            },
+            httpsAgent: new https.Agent({ rejectUnauthorized: false })
+          };
+          if (timeout !== null) {
+            axiosOptions.timeout = timeout;
+          }
+          const response = await axios.post(url2, body, axiosOptions);
+          return response.data;
+        } catch (error40) {
+          if (error40.response) {
+            return error40.response.data;
+          } else {
+            return { message: error40.message, status: error40.code || 500 };
+          }
+        }
+      }
+    };
+    module.exports = SnapBiApiRequestor;
+  }
+});
+
+// ../../node_modules/.pnpm/midtrans-client@1.4.3/node_modules/midtrans-client/lib/snapBi/snapBi.js
+var require_snapBi = __commonJS({
+  "../../node_modules/.pnpm/midtrans-client@1.4.3/node_modules/midtrans-client/lib/snapBi/snapBi.js"(exports, module) {
+    var SnapBiApiRequestor = require_snapBiApiRequestor();
+    var SnapBiConfig = require_snapBiConfig();
+    var crypto2 = __require("crypto");
+    var SnapBi = class _SnapBi {
+      static ACCESS_TOKEN = "/v1.0/access-token/b2b";
+      static PAYMENT_HOST_TO_HOST = "/v1.0/debit/payment-host-to-host";
+      static CREATE_VA = "/v1.0/transfer-va/create-va";
+      static DEBIT_STATUS = "/v1.0/debit/status";
+      static DEBIT_REFUND = "/v1.0/debit/refund";
+      static DEBIT_CANCEL = "/v1.0/debit/cancel";
+      static VA_STATUS = "/v1.0/transfer-va/status";
+      static VA_CANCEL = "/v1.0/transfer-va/delete-va";
+      static QRIS_PAYMENT = "/v1.0/qr/qr-mpm-generate";
+      static QRIS_STATUS = "/v1.0/qr/qr-mpm-query";
+      static QRIS_REFUND = "/v1.0/qr/qr-mpm-refund";
+      static QRIS_CANCEL = "/v1.0/qr/qr-mpm-cancel";
+      constructor(paymentMethod) {
+        this.paymentMethod = paymentMethod;
+        this.apiPath = "";
+        this.accessTokenHeader = [];
+        this.transactionHeader = [];
+        this.body = {};
+        this.accessToken = "";
+        this.deviceId = "";
+        this.debugId = "";
+        this.timeStamp = (/* @__PURE__ */ new Date()).toISOString();
+        this.timeout = null;
+        this.signature = "";
+        this.notificationUrlPath = "";
+        this.notificationPayload = {};
+      }
+      static directDebit() {
+        return new _SnapBi("directDebit");
+      }
+      static va() {
+        return new _SnapBi("va");
+      }
+      static qris() {
+        return new _SnapBi("qris");
+      }
+      static notification() {
+        return new _SnapBi("");
+      }
+      withAccessTokenHeader(headers) {
+        this.accessTokenHeader = { ...this.accessTokenHeader, ...headers };
+        return this;
+      }
+      withTransactionHeader(headers) {
+        this.transactionHeader = { ...this.transactionHeader, ...headers };
+        return this;
+      }
+      withAccessToken(accessToken) {
+        this.accessToken = accessToken;
+        return this;
+      }
+      withBody(body) {
+        this.body = body;
+        return this;
+      }
+      withSignature(signature) {
+        this.signature = signature;
+        return this;
+      }
+      withTimeStamp(timeStamp) {
+        this.timeStamp = timeStamp;
+        return this;
+      }
+      withNotificationPayload(notificationPayload) {
+        this.notificationPayload = notificationPayload;
+        return this;
+      }
+      withNotificationUrlPath(notificationUrlPath) {
+        this.notificationUrlPath = notificationUrlPath;
+        return this;
+      }
+      withPrivateKey(privateKey) {
+        SnapBiConfig.snapBiPrivateKey = privateKey;
+        return this;
+      }
+      withClientId(clientId) {
+        SnapBiConfig.snapBiClientId = clientId;
+        return this;
+      }
+      withClientSecret(clientSecret) {
+        SnapBiConfig.snapBiClientSecret = clientSecret;
+        return this;
+      }
+      withPartnerId(partnerId) {
+        SnapBiConfig.snapBiPartnerId = partnerId;
+        return this;
+      }
+      withChannelId(channelId) {
+        SnapBiConfig.snapBiChannelId = channelId;
+        return this;
+      }
+      withDeviceId(deviceId) {
+        this.deviceId = deviceId;
+        return this;
+      }
+      withDebugId(debugId) {
+        this.debugId = debugId;
+        return this;
+      }
+      withTimeout(timeout) {
+        this.timeout = timeout;
+        return this;
+      }
+      async createPayment(externalId) {
+        this.apiPath = this.setupCreatePaymentApiPath(this.paymentMethod);
+        return await this.createConnection(externalId);
+      }
+      async cancel(externalId) {
+        this.apiPath = this.setupCancelApiPath(this.paymentMethod);
+        return await this.createConnection(externalId);
+      }
+      async refund(externalId) {
+        this.apiPath = this.setupRefundApiPath(this.paymentMethod);
+        return await this.createConnection(externalId);
+      }
+      async getStatus(externalId) {
+        this.apiPath = this.setupGetStatusApiPath(this.paymentMethod);
+        return await this.createConnection(externalId);
+      }
+      isWebhookNotificationVerified() {
+        if (SnapBiConfig.snapBiPublicKey == null) {
+          throw new Error("The public key is null, You need to set the public key from SnapBiConfig.'\nFor more details, contact support at support@midtrans.com if you have any questions.");
+        }
+        var notificationHttpMethod = "POST";
+        var minifiedNotificationBodyJsonString = JSON.stringify(this.notificationPayload);
+        var hashedNotificationBodyJsonString = crypto2.createHash("sha256").update(minifiedNotificationBodyJsonString).digest("hex").toLowerCase();
+        var rawStringDataToVerifyAgainstSignature = notificationHttpMethod + ":" + this.notificationUrlPath + ":" + hashedNotificationBodyJsonString + ":" + this.timeStamp;
+        var verifier = crypto2.createVerify("SHA256");
+        verifier.update(rawStringDataToVerifyAgainstSignature, "utf8");
+        var isSignatureVerified = verifier.verify(
+          SnapBiConfig.snapBiPublicKey,
+          this.signature,
+          "base64"
+        );
+        return isSignatureVerified;
+      }
+      async getAccessToken() {
+        const snapBiAccessTokenHeader = this.buildAccessTokenHeader(this.timeStamp);
+        const openApiPayload = {
+          grant_type: "client_credentials"
+        };
+        return await SnapBiApiRequestor.remoteCall(
+          SnapBiConfig.getBaseUrl() + _SnapBi.ACCESS_TOKEN,
+          snapBiAccessTokenHeader,
+          openApiPayload,
+          this.timeout
+        );
+      }
+      async createConnection(externalId = null) {
+        if (!this.accessToken) {
+          const accessTokenResponse = await this.getAccessToken();
+          if (!accessTokenResponse.accessToken) {
+            return accessTokenResponse;
+          }
+          this.accessToken = accessTokenResponse.accessToken;
+        }
+        const snapBiTransactionHeader = this.buildSnapBiTransactionHeader(externalId, this.timeStamp);
+        return await SnapBiApiRequestor.remoteCall(
+          SnapBiConfig.getBaseUrl() + this.apiPath,
+          snapBiTransactionHeader,
+          this.body,
+          this.timeout
+        );
+      }
+      static getSymmetricSignatureHmacSh512(accessToken, requestBody, method, path, clientSecret, timeStamp) {
+        const minifiedBody = JSON.stringify(requestBody);
+        const hashedBody = crypto2.createHash("sha256").update(minifiedBody).digest("hex").toLowerCase();
+        const payload = `${method.toUpperCase()}:${path}:${accessToken}:${hashedBody}:${timeStamp}`;
+        const hmac = crypto2.createHmac("sha512", clientSecret).update(payload).digest("base64");
+        return hmac;
+      }
+      static getAsymmetricSignatureSha256WithRsa(clientId, xTimeStamp, privateKey) {
+        const stringToSign = clientId + "|" + xTimeStamp;
+        return crypto2.sign("RSA-SHA256", Buffer.from(stringToSign), privateKey).toString("base64");
+      }
+      buildSnapBiTransactionHeader(externalId, timeStamp) {
+        let snapBiTransactionHeader = {
+          "Content-Type": "application/json",
+          "Accept": "application/json",
+          "X-PARTNER-ID": SnapBiConfig.snapBiPartnerId,
+          "X-EXTERNAL-ID": externalId,
+          "X-DEVICE-ID": this.deviceId,
+          "CHANNEL-ID": SnapBiConfig.snapBiChannelId,
+          "debug-id": this.debugId,
+          "Authorization": `Bearer ${this.accessToken}`,
+          "X-TIMESTAMP": timeStamp,
+          "X-SIGNATURE": _SnapBi.getSymmetricSignatureHmacSh512(
+            this.accessToken,
+            this.body,
+            "post",
+            this.apiPath,
+            SnapBiConfig.snapBiClientSecret,
+            timeStamp
+          )
+        };
+        if (this.transactionHeader) {
+          snapBiTransactionHeader = { ...snapBiTransactionHeader, ...this.transactionHeader };
+        }
+        return snapBiTransactionHeader;
+      }
+      buildAccessTokenHeader(timeStamp) {
+        let snapBiAccessTokenHeader = {
+          "Content-Type": "application/json",
+          "Accept": "application/json",
+          "X-CLIENT-KEY": SnapBiConfig.snapBiClientId,
+          "X-SIGNATURE": _SnapBi.getAsymmetricSignatureSha256WithRsa(
+            SnapBiConfig.snapBiClientId,
+            timeStamp,
+            SnapBiConfig.snapBiPrivateKey
+          ),
+          "X-TIMESTAMP": timeStamp,
+          "debug-id": this.debugId
+        };
+        if (this.accessTokenHeader) {
+          snapBiAccessTokenHeader = { ...snapBiAccessTokenHeader, ...this.accessTokenHeader };
+        }
+        return snapBiAccessTokenHeader;
+      }
+      setupCreatePaymentApiPath(paymentMethod) {
+        switch (paymentMethod) {
+          case "va":
+            return _SnapBi.CREATE_VA;
+          case "qris":
+            return _SnapBi.QRIS_PAYMENT;
+          case "directDebit":
+            return _SnapBi.PAYMENT_HOST_TO_HOST;
+          default:
+            throw new Error(`Payment method not implemented: ${paymentMethod}`);
+        }
+      }
+      setupRefundApiPath(paymentMethod) {
+        switch (paymentMethod) {
+          case "qris":
+            return _SnapBi.QRIS_REFUND;
+          case "directDebit":
+            return _SnapBi.DEBIT_REFUND;
+          default:
+            throw new Error(`Payment method not implemented: ${paymentMethod}`);
+        }
+      }
+      setupCancelApiPath(paymentMethod) {
+        switch (paymentMethod) {
+          case "va":
+            return _SnapBi.VA_CANCEL;
+          case "qris":
+            return _SnapBi.QRIS_CANCEL;
+          case "directDebit":
+            return _SnapBi.DEBIT_CANCEL;
+          default:
+            throw new Error(`Payment method not implemented: ${paymentMethod}`);
+        }
+      }
+      setupGetStatusApiPath(paymentMethod) {
+        switch (paymentMethod) {
+          case "va":
+            return _SnapBi.VA_STATUS;
+          case "qris":
+            return _SnapBi.QRIS_STATUS;
+          case "directDebit":
+            return _SnapBi.DEBIT_STATUS;
+          default:
+            throw new Error(`Payment method not implemented: ${paymentMethod}`);
+        }
+      }
+    };
+    module.exports = SnapBi;
+  }
+});
+
+// ../../node_modules/.pnpm/midtrans-client@1.4.3/node_modules/midtrans-client/index.js
+var require_midtrans_client = __commonJS({
+  "../../node_modules/.pnpm/midtrans-client@1.4.3/node_modules/midtrans-client/index.js"(exports, module) {
+    var Snap = require_snap();
+    var CoreApi = require_coreApi();
+    var Iris = require_iris();
+    var MidtransError = require_midtransError();
+    var SnapBiConfig = require_snapBiConfig();
+    var SnapBi = require_snapBi();
+    var Midtrans = {
+      Snap,
+      CoreApi,
+      Iris,
+      MidtransError,
+      SnapBiConfig,
+      SnapBi
+    };
+    module.exports = Midtrans;
   }
 });
 
@@ -47405,12 +69733,12 @@ var QueryBuilder = class {
     return { as };
   };
   with(...queries) {
-    const self = this;
+    const self2 = this;
     function select(fields) {
       return new PgSelectBuilder({
         fields: fields ?? void 0,
         session: void 0,
-        dialect: self.getDialect(),
+        dialect: self2.getDialect(),
         withList: queries
       });
     }
@@ -47418,7 +69746,7 @@ var QueryBuilder = class {
       return new PgSelectBuilder({
         fields: fields ?? void 0,
         session: void 0,
-        dialect: self.getDialect(),
+        dialect: self2.getDialect(),
         distinct: true
       });
     }
@@ -47426,7 +69754,7 @@ var QueryBuilder = class {
       return new PgSelectBuilder({
         fields: fields ?? void 0,
         session: void 0,
-        dialect: self.getDialect(),
+        dialect: self2.getDialect(),
         distinct: { on }
       });
     }
@@ -48294,10 +70622,10 @@ var PgDatabase = class {
    * ```
    */
   $with = (alias, selection) => {
-    const self = this;
+    const self2 = this;
     const as = (qb) => {
       if (typeof qb === "function") {
-        qb = qb(new QueryBuilder(self.dialect));
+        qb = qb(new QueryBuilder(self2.dialect));
       }
       return new Proxy(
         new WithSubquery(
@@ -48335,20 +70663,20 @@ var PgDatabase = class {
    * ```
    */
   with(...queries) {
-    const self = this;
+    const self2 = this;
     function select(fields) {
       return new PgSelectBuilder({
         fields: fields ?? void 0,
-        session: self.session,
-        dialect: self.dialect,
+        session: self2.session,
+        dialect: self2.dialect,
         withList: queries
       });
     }
     function selectDistinct(fields) {
       return new PgSelectBuilder({
         fields: fields ?? void 0,
-        session: self.session,
-        dialect: self.dialect,
+        session: self2.session,
+        dialect: self2.dialect,
         withList: queries,
         distinct: true
       });
@@ -48356,20 +70684,20 @@ var PgDatabase = class {
     function selectDistinctOn(on, fields) {
       return new PgSelectBuilder({
         fields: fields ?? void 0,
-        session: self.session,
-        dialect: self.dialect,
+        session: self2.session,
+        dialect: self2.dialect,
         withList: queries,
         distinct: { on }
       });
     }
     function update(table) {
-      return new PgUpdateBuilder(table, self.session, self.dialect, queries);
+      return new PgUpdateBuilder(table, self2.session, self2.dialect, queries);
     }
     function insert(table) {
-      return new PgInsertBuilder(table, self.session, self.dialect, queries);
+      return new PgInsertBuilder(table, self2.session, self2.dialect, queries);
     }
     function delete_(table) {
-      return new PgDeleteBase(table, self.session, self.dialect, queries);
+      return new PgDeleteBase(table, self2.session, self2.dialect, queries);
     }
     return { select, selectDistinct, selectDistinctOn, update, insert, delete: delete_ };
   }
@@ -60555,6 +82883,7 @@ function requireAdmin(req, res, next) {
 }
 
 // src/routes/wallet.ts
+var import_midtrans_client = __toESM(require_midtrans_client(), 1);
 var router = (0, import_express2.Router)();
 async function getUserId(req, res) {
   const userId = getAuth(req)?.userId;
@@ -60622,21 +82951,36 @@ router.post("/wallet/deposit", async (req, res) => {
     const amount = Number(req.body.amount);
     if (!Number.isInteger(amount) || amount < 1e3) {
       return res.status(400).json({
-        error: "Minimal deposit Rp10.000"
+        error: "Minimal deposit Rp1.000"
       });
     }
     const reference = `DEP-${(/* @__PURE__ */ new Date()).toISOString().slice(0, 10).replace(/-/g, "")}-` + Math.random().toString(36).slice(2, 8).toUpperCase();
+    const snap = new import_midtrans_client.default.CoreApi({
+      isProduction: true,
+      serverKey: process.env.MIDTRANS_SERVER_KEY,
+      clientKey: ""
+    });
+    const midtrans = await snap.charge({
+      payment_type: "qris",
+      transaction_details: {
+        order_id: reference,
+        gross_amount: amount
+      },
+      qris: {
+        acquirer: "gopay"
+      }
+    });
     const [transaction] = await db.insert(walletTransactionsTable).values({
       userId,
       type: "DEPOSIT",
       amount,
       reference,
-      description: "Deposit QRIS DANA",
+      description: "Deposit QRIS Midtrans",
       status: "PENDING"
     }).returning();
     return res.json({
       transaction,
-      qrisProvider: "DANA",
+      qrisProvider: "MIDTRANS",
       status: "PENDING"
     });
   } catch (err) {
@@ -65858,6 +88202,7 @@ content-type/index.js:
    *)
 
 mime-db/index.js:
+mime-db/index.js:
   (*!
    * mime-db
    * Copyright(c) 2014 Jonathan Ong
@@ -65865,6 +88210,7 @@ mime-db/index.js:
    * MIT Licensed
    *)
 
+mime-types/index.js:
 mime-types/index.js:
   (*!
    * mime-types
@@ -66069,5 +88415,18 @@ object-assign/index.js:
   (c) Sindre Sorhus
   @license MIT
   *)
+
+lodash/lodash.js:
+  (**
+   * @license
+   * Lodash <https://lodash.com/>
+   * Copyright OpenJS Foundation and other contributors <https://openjsf.org/>
+   * Released under MIT license <https://lodash.com/license>
+   * Based on Underscore.js 1.8.3 <http://underscorejs.org/LICENSE>
+   * Copyright Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
+   *)
+
+axios/dist/node/axios.cjs:
+  (*! Axios v1.20.0 Copyright (c) 2026 Matt Zabriskie and contributors *)
 */
 //# sourceMappingURL=index.mjs.map

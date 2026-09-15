@@ -22,6 +22,7 @@
     "drizzle-orm": "^0.45.2",
     "express": "^5",
     "http-proxy-middleware": "^4.0.0",
+    "midtrans-client": "^1.4.3",
     "p-limit": "^7.3.0",
     "p-retry": "^7.1.1",
     "pino": "^9",
