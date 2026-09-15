@@ -1,10 +1,11 @@
 {
   "version": 2,
-  "buildCommand": "node ./build.mjs",
+  "installCommand": "cd ../.. && pnpm install --frozen-lockfile",
+  "buildCommand": "pnpm build",
   "rewrites": [
     {
       "source": "/(.*)",
-      "destination": "/api/index.js"
+      "destination": "/api/index"
     }
   ]
 }
