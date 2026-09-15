@@ -818,7 +818,7 @@ const [imageUrl, setImageUrl] = useState("");
               setEditingProductId(null);
               loadProducts();
             } else {
-              alert("EDIT DIKLIK"); setEditingProductId(p.id);
+              setEditingProductId(p.id);
             }
           }}
           className="relative z-10 pointer-events-auto cursor-pointer w-full sm:w-auto px-3 py-2 rounded-lg bg-cyan-400/10 text-cyan-300 text-sm"
