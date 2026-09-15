@@ -20650,27 +20650,27 @@ var require_router = __commonJS({
     var slice = Array.prototype.slice;
     var flatten = Array.prototype.flat;
     var methods = METHODS.map((method) => method.toLowerCase());
-    module.exports = Router10;
+    module.exports = Router11;
     module.exports.Route = Route;
-    function Router10(options) {
-      if (!(this instanceof Router10)) {
-        return new Router10(options);
+    function Router11(options) {
+      if (!(this instanceof Router11)) {
+        return new Router11(options);
       }
       const opts = options || {};
-      function router10(req, res, next) {
-        router10.handle(req, res, next);
+      function router11(req, res, next) {
+        router11.handle(req, res, next);
       }
-      Object.setPrototypeOf(router10, this);
-      router10.caseSensitive = opts.caseSensitive;
-      router10.mergeParams = opts.mergeParams;
-      router10.params = {};
-      router10.strict = opts.strict;
-      router10.stack = [];
-      return router10;
+      Object.setPrototypeOf(router11, this);
+      router11.caseSensitive = opts.caseSensitive;
+      router11.mergeParams = opts.mergeParams;
+      router11.params = {};
+      router11.strict = opts.strict;
+      router11.stack = [];
+      return router11;
     }
-    Router10.prototype = function() {
+    Router11.prototype = function() {
     };
-    Router10.prototype.param = function param(name, fn) {
+    Router11.prototype.param = function param(name, fn) {
       if (!name) {
         throw new TypeError("argument name is required");
       }
@@ -20690,7 +20690,7 @@ var require_router = __commonJS({
       params.push(fn);
       return this;
     };
-    Router10.prototype.handle = function handle(req, res, callback) {
+    Router11.prototype.handle = function handle(req, res, callback) {
       if (!callback) {
         throw new TypeError("argument callback is required");
       }
@@ -20817,7 +20817,7 @@ var require_router = __commonJS({
         }
       }
     };
-    Router10.prototype.use = function use(handler) {
+    Router11.prototype.use = function use(handler) {
       let offset = 0;
       let path = "/";
       if (typeof handler !== "function") {
@@ -20850,7 +20850,7 @@ var require_router = __commonJS({
       }
       return this;
     };
-    Router10.prototype.route = function route(path) {
+    Router11.prototype.route = function route(path) {
       const route2 = new Route(path);
       const layer = new Layer(path, {
         sensitive: this.caseSensitive,
@@ -20865,7 +20865,7 @@ var require_router = __commonJS({
       return route2;
     };
     methods.concat("all").forEach(function(method) {
-      Router10.prototype[method] = function(path) {
+      Router11.prototype[method] = function(path) {
         const route = this.route(path);
         route[method].apply(route, slice.call(arguments, 1));
         return this;
@@ -21048,13 +21048,13 @@ var require_application = __commonJS({
     var compileTrust = require_utils3().compileTrust;
     var resolve = __require("node:path").resolve;
     var once = require_once();
-    var Router10 = require_router();
+    var Router11 = require_router();
     var slice = Array.prototype.slice;
     var flatten = Array.prototype.flat;
     var app2 = exports = module.exports = {};
     var trustProxyDefaultSymbol = "@@symbol:trust_proxy_default";
     app2.init = function init() {
-      var router10 = null;
+      var router11 = null;
       this.cache = /* @__PURE__ */ Object.create(null);
       this.engines = /* @__PURE__ */ Object.create(null);
       this.settings = /* @__PURE__ */ Object.create(null);
@@ -21063,13 +21063,13 @@ var require_application = __commonJS({
         configurable: true,
         enumerable: true,
         get: function getrouter() {
-          if (router10 === null) {
-            router10 = new Router10({
+          if (router11 === null) {
+            router11 = new Router11({
               caseSensitive: this.enabled("case sensitive routing"),
               strict: this.enabled("strict routing")
             });
           }
-          return router10;
+          return router11;
         }
       });
     };
@@ -21140,15 +21140,15 @@ var require_application = __commonJS({
       if (fns.length === 0) {
         throw new TypeError("app.use() requires a middleware function");
       }
-      var router10 = this.router;
+      var router11 = this.router;
       fns.forEach(function(fn2) {
         if (!fn2 || !fn2.handle || !fn2.set) {
-          return router10.use(path, fn2);
+          return router11.use(path, fn2);
         }
         debug(".use app under %s", path);
         fn2.mountpath = path;
         fn2.parent = this;
-        router10.use(path, function mounted_app(req, res, next) {
+        router11.use(path, function mounted_app(req, res, next) {
           var orig = req.app;
           fn2.handle(req, res, function(err) {
             Object.setPrototypeOf(req, orig.request);
@@ -23721,7 +23721,7 @@ var require_express = __commonJS({
     var EventEmitter = __require("node:events").EventEmitter;
     var mixin = require_merge_descriptors();
     var proto = require_application();
-    var Router10 = require_router();
+    var Router11 = require_router();
     var req = require_request();
     var res = require_response();
     exports = module.exports = createApplication;
@@ -23743,8 +23743,8 @@ var require_express = __commonJS({
     exports.application = proto;
     exports.request = req;
     exports.response = res;
-    exports.Route = Router10.Route;
-    exports.Router = Router10;
+    exports.Route = Router11.Route;
+    exports.Router = Router11;
     exports.json = bodyParser.json;
     exports.raw = bodyParser.raw;
     exports.static = require_serve_static();
@@ -33690,7 +33690,7 @@ var require_lib5 = __commonJS({
 });
 
 // src/app.ts
-var import_express11 = __toESM(require_express2(), 1);
+var import_express12 = __toESM(require_express2(), 1);
 var import_cors = __toESM(require_lib3(), 1);
 var import_pino_http = __toESM(require_logger(), 1);
 
@@ -42010,7 +42010,7 @@ var getAuth = ((req, options) => {
 });
 
 // src/routes/index.ts
-var import_express10 = __toESM(require_express2(), 1);
+var import_express11 = __toESM(require_express2(), 1);
 
 // src/routes/health.ts
 var import_express = __toESM(require_express2(), 1);
@@ -53046,6 +53046,8 @@ __export(schema_exports, {
   insertSongSchema: () => insertSongSchema,
   linksTable: () => linksTable,
   messages: () => messages,
+  ordersTable: () => ordersTable,
+  productKeysTable: () => productKeysTable,
   productOptionsTable: () => productOptionsTable,
   productsTable: () => productsTable,
   settingsTable: () => settingsTable,
@@ -64516,6 +64518,9 @@ var settingsTable = pgTable("settings", {
 var productsTable = pgTable("products", {
   id: serial("id").primaryKey(),
   name: text("name").notNull(),
+  imageUrl: text("image_url"),
+  deliveryType: text("delivery_type").default("WHATSAPP"),
+  deliveryValue: text("delivery_value"),
   createdAt: timestamp("created_at").defaultNow().notNull()
 });
 var productOptionsTable = pgTable("product_options", {
@@ -64525,6 +64530,31 @@ var productOptionsTable = pgTable("product_options", {
   price: integer("price").notNull(),
   stock: integer("stock").notNull().default(0),
   createdAt: timestamp("created_at").defaultNow().notNull()
+});
+var productKeysTable = pgTable("product_keys", {
+  id: serial("id").primaryKey(),
+  productId: integer("product_id").notNull(),
+  optionId: integer("option_id").notNull(),
+  key: text("key").notNull().unique(),
+  status: text("status").notNull().default("READY"),
+  createdAt: timestamp("created_at").defaultNow().notNull()
+});
+
+// ../../lib/db/src/schema/orders.ts
+var ordersTable = pgTable("orders", {
+  id: serial("id").primaryKey(),
+  invoice: text("invoice").notNull().unique(),
+  productId: integer("product_id").notNull(),
+  optionId: integer("option_id").notNull(),
+  productName: text("product_name").notNull(),
+  duration: text("duration").notNull(),
+  amount: integer("amount").notNull(),
+  whatsapp: text("whatsapp"),
+  status: text("status").notNull().default("PENDING"),
+  paymentRef: text("payment_ref"),
+  qrContent: text("qr_content"),
+  qrImage: text("qr_image"),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull()
 });
 
 // ../../lib/db/src/index.ts
@@ -64560,6 +64590,36 @@ function requireAdmin(req, res, next) {
 // src/routes/products.ts
 var router2 = (0, import_express3.Router)();
 router2.get("/products", async (_req, res) => {
+  await db.execute(sql`ALTER TABLE products ADD COLUMN IF NOT EXISTS image_url TEXT`);
+  await db.execute(sql`ALTER TABLE products ADD COLUMN IF NOT EXISTS delivery_type TEXT DEFAULT 'WHATSAPP'`);
+  await db.execute(sql`ALTER TABLE products ADD COLUMN IF NOT EXISTS delivery_value TEXT`);
+  await db.execute(sql`
+    CREATE TABLE IF NOT EXISTS product_keys (
+      id SERIAL PRIMARY KEY,
+      product_id INTEGER NOT NULL,
+      option_id INTEGER NOT NULL,
+      key TEXT NOT NULL UNIQUE,
+      status TEXT NOT NULL DEFAULT 'READY',
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    )
+  `);
+  await db.execute(sql`
+    CREATE TABLE IF NOT EXISTS orders (
+      id SERIAL PRIMARY KEY,
+      invoice TEXT NOT NULL UNIQUE,
+      product_id INTEGER NOT NULL,
+      option_id INTEGER NOT NULL,
+      product_name TEXT NOT NULL,
+      duration TEXT NOT NULL,
+      amount INTEGER NOT NULL,
+      whatsapp TEXT,
+      status TEXT NOT NULL DEFAULT 'PENDING',
+      payment_ref TEXT,
+      qr_content TEXT,
+      qr_image TEXT,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    )
+  `);
   const products = await db.select().from(productsTable);
   const options = await db.select().from(productOptionsTable);
   return res.json(products.map((p) => ({
@@ -64569,12 +64629,13 @@ router2.get("/products", async (_req, res) => {
 });
 router2.post("/products", requireAdmin, async (req, res) => {
   const [product] = await db.insert(productsTable).values({
-    name: req.body.name
+    name: req.body.name,
+    imageUrl: req.body.imageUrl || null
   }).returning();
   return res.json(product);
 });
 router2.patch("/products/:id", requireAdmin, async (req, res) => {
-  const [product] = await db.update(productsTable).set({ name: req.body.name }).where(eq(productsTable.id, Number(req.params.id))).returning();
+  const [product] = await db.update(productsTable).set({ name: req.body.name, imageUrl: req.body.imageUrl || null, deliveryType: req.body.deliveryType || "WHATSAPP" }).where(eq(productsTable.id, Number(req.params.id))).returning();
   return res.json(product);
 });
 router2.delete("/products/:id", requireAdmin, async (req, res) => {
@@ -64602,6 +64663,28 @@ router2.patch("/products/options/:id", requireAdmin, async (req, res) => {
 router2.delete("/products/options/:id", requireAdmin, async (req, res) => {
   await db.delete(productOptionsTable).where(eq(productOptionsTable.id, Number(req.params.id)));
   return res.json({ ok: true });
+});
+router2.post("/products/:productId/options/:optionId/keys", requireAdmin, async (req, res) => {
+  const productId = Number(req.params.productId);
+  const optionId = Number(req.params.optionId);
+  const keys = Array.isArray(req.body.keys) ? req.body.keys : [];
+  if (!Number.isInteger(productId) || !Number.isInteger(optionId) || !keys.length) {
+    return res.status(400).json({ error: "Product, option, dan keys wajib diisi" });
+  }
+  const cleanKeys = [...new Set(
+    keys.map((key) => String(key).trim()).filter(Boolean)
+  )];
+  const values = cleanKeys.map((key) => ({
+    productId,
+    optionId,
+    key,
+    status: "READY"
+  }));
+  const inserted = await db.insert(productKeysTable).values(values).onConflictDoNothing({ target: productKeysTable.key }).returning();
+  return res.json({
+    added: inserted.length,
+    skipped: cleanKeys.length - inserted.length
+  });
 });
 var products_default = router2;
 
@@ -65286,17 +65369,51 @@ router8.delete("/announcements", requireAdmin, async (req, res) => {
   }
 });
 
-// src/routes/index.ts
+// src/routes/orders.ts
+var import_express10 = __toESM(require_express2(), 1);
 var router9 = (0, import_express10.Router)();
-router9.use(health_default);
-router9.use(products_default);
-router9.use(links_default);
-router9.use(songs_default);
-router9.use(anthropic_default);
-router9.use(feedback_default);
-router9.use(stats_default);
-router9.use(settings_default);
-var routes_default = router9;
+router9.post("/orders", async (req, res) => {
+  try {
+    const { productId, optionId, whatsapp } = req.body;
+    const [product] = await db.select().from(productsTable).where(eq(productsTable.id, Number(productId)));
+    const [option] = await db.select().from(productOptionsTable).where(eq(productOptionsTable.id, Number(optionId)));
+    if (!product || !option || option.productId !== product.id) {
+      return res.status(400).json({ error: "Produk atau durasi tidak valid" });
+    }
+    if (option.stock <= 0) {
+      return res.status(400).json({ error: "Stok habis" });
+    }
+    const invoice = `INV-${(/* @__PURE__ */ new Date()).toISOString().slice(0, 10).replace(/-/g, "")}-${Math.random().toString(36).slice(2, 7).toUpperCase()}`;
+    const [order] = await db.insert(ordersTable).values({
+      invoice,
+      productId: product.id,
+      optionId: option.id,
+      productName: product.name,
+      duration: option.duration,
+      amount: option.price,
+      whatsapp: whatsapp || null,
+      status: "PENDING"
+    }).returning();
+    return res.json(order);
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ error: "Gagal membuat invoice" });
+  }
+});
+var orders_default = router9;
+
+// src/routes/index.ts
+var router10 = (0, import_express11.Router)();
+router10.use(health_default);
+router10.use(products_default);
+router10.use(links_default);
+router10.use(songs_default);
+router10.use(anthropic_default);
+router10.use(feedback_default);
+router10.use(stats_default);
+router10.use(settings_default);
+router10.use(orders_default);
+var routes_default = router10;
 
 // src/lib/logger.ts
 var import_pino = __toESM(require_pino(), 1);
@@ -65317,7 +65434,7 @@ var logger = (0, import_pino.default)({
 });
 
 // src/app.ts
-var app = (0, import_express11.default)();
+var app = (0, import_express12.default)();
 app.use(
   (0, import_pino_http.default)({
     logger,
@@ -65331,7 +65448,7 @@ app.use(
     allowedHeaders: ["Content-Type", "Authorization"]
   })
 );
-app.use(import_express11.default.json());
+app.use(import_express12.default.json());
 app.use(clerkMiddleware());
 app.use("/api", routes_default);
 var app_default = app;
