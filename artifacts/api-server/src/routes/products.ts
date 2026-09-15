@@ -126,7 +126,7 @@ router.post("/products/:productId/options/:optionId/keys", requireAdmin, async (
   const values = cleanKeys.map((key) => ({
     productId,
     optionId,
-    key,
+    key: String(key),
     status: "READY",
   }));
 
