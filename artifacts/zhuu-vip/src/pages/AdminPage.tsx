@@ -792,6 +792,17 @@ const [imageUrl, setImageUrl] = useState("");
             disabled={editingProductId !== p.id}
             className="flex-1 px-3 py-2 rounded-lg bg-black/20 text-cyan-300 font-semibold"
           />
+            {editingProductId === p.id && (
+              <select
+                id={`delivery-type-${p.id}`}
+                defaultValue={p.deliveryType || "WHATSAPP"}
+                className="px-3 py-2 rounded-lg bg-black/20 text-sm"
+              >
+                <option value="WHATSAPP">WhatsApp</option>
+                <option value="DOWNLOAD">Download</option>
+                <option value="KEY">Key</option>
+              </select>
+            )}
 
           <button
             onClick={async () => {
@@ -801,7 +812,7 @@ const [imageUrl, setImageUrl] = useState("");
               const r = await fetch(`${API_BASE}/api/products/${p.id}`, {
                 method: "PATCH",
                 headers: await authHeaders(),
-                body: JSON.stringify({name: el.value, imageUrl: img.value || null})
+                body: JSON.stringify({name: el.value, imageUrl: img.value || null, deliveryType: (document.getElementById(`delivery-type-${p.id}`) as HTMLSelectElement).value})
               });
               if (!r.ok) { alert("Gagal menyimpan produk"); return; }
               setEditingProductId(null);
