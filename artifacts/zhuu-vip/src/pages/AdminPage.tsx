@@ -806,7 +806,7 @@ const [imageUrl, setImageUrl] = useState("");
 
           <button type="button"
             onClick={async () => {
-            if (editingProductId === p.id) {
+            if (editingProductId === p.id) { alert("SIMPAN DIKLIK");
               const el = document.getElementById(`product-name-${p.id}`) as HTMLInputElement;
             const img = document.getElementById(`product-image-${p.id}`) as HTMLInputElement;
               const r = await fetch(`${API_BASE}/api/products/${p.id}`, {
