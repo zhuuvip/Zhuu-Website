@@ -92,7 +92,7 @@ const addKeys = async (productId: number, optionId: number) => {
   if (!keys.length) { alert("Isi key dulu"); return; }
   const r = await fetch(`${API_BASE}/api/products/${productId}/options/${optionId}/keys`, {
     method: "POST",
-    headers: headers,
+      headers: await authHeaders(),
     body: JSON.stringify({ keys }),
   });
   if (!r.ok) { alert("Gagal menambahkan key"); return; }
@@ -157,8 +157,7 @@ const [imageUrl, setImageUrl] = useState("");
   };
 
   const fetchStats = async () => {
-    setStatsLoading(true);
-    try {
+    setStatsLoading(true); try {
       const res = await fetch(`${API_BASE}/api/admin/stats`, { headers: await authHeaders() });
       const visRes = await fetch(`${API_BASE}/api/visitors`);
       const visData = await visRes.json();
@@ -168,16 +167,16 @@ const [imageUrl, setImageUrl] = useState("");
   };
 
   const fetchFeedback = async () => {
+  try {
     setFeedbackLoading(true);
-    try {
       const res = await fetch(`${API_BASE}/api/feedback`, { headers: await authHeaders() });
       if (res.ok) setFeedback(await res.json());
-    } catch {}
+      } catch {}
     setFeedbackLoading(false);
   };
 
   const fetchAnnouncement = async () => {
-    try {
+  try {
       const res = await fetch(`${API_BASE}/api/announcements`);
       const data = await res.json();
       setCurrentAnnouncement(data);
@@ -187,10 +186,10 @@ const [imageUrl, setImageUrl] = useState("");
   const saveAnnouncement = async () => {
     if (!announcement.trim()) return;
     setAnnouncementSaving(true);
-    try {
+  try {
       await fetch(`${API_BASE}/api/announcements`, {
         method: "POST",
-        headers: await authHeaders(),
+      headers: await authHeaders(),
         body: JSON.stringify({ message: announcement, color: announcementColor }),
       });
       setCurrentAnnouncement({ message: announcement, color: announcementColor });
@@ -201,7 +200,7 @@ const [imageUrl, setImageUrl] = useState("");
   };
 
   const deleteAnnouncement = async () => {
-    try {
+  try {
       await fetch(`${API_BASE}/api/announcements`, { method: "DELETE", headers: await authHeaders() });
       setCurrentAnnouncement(null);
     } catch {}
@@ -209,28 +208,27 @@ const [imageUrl, setImageUrl] = useState("");
 
   const fetchSettings = async () => {
     setSettingsLoading(true);
-    try {
+  try {
       const res = await fetch(`${API_BASE}/api/settings`);
       if (res.ok) setSettings(await res.json());
     } catch {}
     setSettingsLoading(false);
   };
 
-  const saveSettings = async () => {
-    setSettingsSaving(true);
-    try {
-      const res = await fetch(`${API_BASE}/api/settings`, {
-        method: "PUT",
-        headers: await authHeaders(),
-        body: JSON.stringify(settings),
-      });
-      if (res.ok) {
-        setSettings(await res.json());
-        setSettingsSaved(true);
-        setTimeout(() => setSettingsSaved(false), 2500);
-      }
-    } catch {}
-    setSettingsSaving(false);
+const saveSettings = async () => {
+  setSettingsSaving(true);
+  try {
+    const res = await fetch(`${API_BASE}/api/settings`, {
+      method: "PUT",
+      headers: await authHeaders(),
+      body: JSON.stringify(settings),
+    });
+    if (res.ok) {
+      setSettings(await res.json());
+      setSettingsSaved(true);
+      setTimeout(() => setSettingsSaved(false), 2500);
+    }
+  } catch {}
   };
 
   useEffect(() => {
@@ -245,12 +243,12 @@ const [imageUrl, setImageUrl] = useState("");
   const handleSaveSong = async () => {
     if (!songForm.title || !songForm.artist || !songForm.url) return;
     setSongSaving(true);
-    try {
+  try {
       const method = editingSongId !== null ? "PATCH" : "POST";
       const url = editingSongId !== null ? `${API_BASE}/api/songs/${editingSongId}` : `${API_BASE}/api/songs`;
       const res = await fetch(url, {
         method,
-        headers: await authHeaders(),
+      headers: await authHeaders(),
         body: JSON.stringify({
           title: songForm.title,
           artist: songForm.artist,
@@ -270,7 +268,7 @@ const [imageUrl, setImageUrl] = useState("");
   const handleDeleteSong = async (id: number) => {
     if (!confirm("Delete this song?")) return;
     setDeletingSongId(id);
-    try {
+  try {
       await fetch(`${API_BASE}/api/songs/${id}`, { method: "DELETE", headers: await authHeaders() });
       queryClient.invalidateQueries({ queryKey: getListSongsQueryKey() });
     } catch {}
@@ -291,7 +289,7 @@ const [imageUrl, setImageUrl] = useState("");
   // Link actions
   const handleSaveLink = async () => {
     if (!linkForm.title || !linkForm.url) return;
-    try {
+  try {
       if (editingLinkId !== null) {
         await updateLink.mutateAsync({ id: editingLinkId ?? undefined, data: { title: linkForm.title, url: linkForm.url, icon: linkForm.icon || undefined, sortOrder: linkForm.sortOrder, isActive: linkForm.isActive } });
       } else {
@@ -311,7 +309,7 @@ const [imageUrl, setImageUrl] = useState("");
   const handleDeleteFeedback = async (id: number) => {
     if (!confirm("Delete this feedback entry?")) return;
     setDeletingFeedbackId(id);
-    try {
+  try {
       await fetch(`${API_BASE}/api/feedback/${id}`, { method: "DELETE", headers: await authHeaders() });
       setFeedback((prev) => prev.filter((f) => f.id !== id));
     } catch {}
@@ -738,15 +736,17 @@ const [imageUrl, setImageUrl] = useState("");
       <button type="button"
         onClick={async () => {
           if (!productName.trim()) return;
+          try {
           const r = await fetch(`${API_BASE}/api/products`, {
             method: "POST",
-            headers: await authHeaders(),
+      headers: await authHeaders(),
             body: JSON.stringify({name: productName, imageUrl: imageUrl || null, deliveryType})
           });
           if (r.ok) {
             setProductName("");
             loadProducts();
           }
+          } catch (e) { }
         }}
         className="px-4 py-2 rounded-lg bg-cyan-400/10 text-cyan-300 text-sm"
       >
@@ -765,9 +765,10 @@ const [imageUrl, setImageUrl] = useState("");
       <button type="button"
         onClick={async () => {
           if (!selectedProductId || !duration) { alert("Pilih produk dan isi durasi dulu"); return; }
+          try {
           const r = await fetch(`${API_BASE}/api/products/${selectedProductId}/options`, {
             method: "POST",
-            headers: await authHeaders(),
+      headers: await authHeaders(),
             body: JSON.stringify({duration, price, stock})
           });
           if (r.ok) {
@@ -776,6 +777,7 @@ const [imageUrl, setImageUrl] = useState("");
             setStock("");
             loadProducts();
           }
+          } catch (e) { }
         }}
         className="px-4 py-2 rounded-lg bg-cyan-400/10 text-cyan-300 text-sm"
       >
@@ -809,14 +811,14 @@ const [imageUrl, setImageUrl] = useState("");
             if (editingProductId === p.id) { alert("SIMPAN DIKLIK");
               const el = document.getElementById(`product-name-${p.id}`) as HTMLInputElement;
             const img = document.getElementById(`product-image-${p.id}`) as HTMLInputElement;
-              const headers = await authHeaders(); alert("TOKEN OK"); const r = await fetch(`${API_BASE}/api/products/${p.id}`, {
+              const headers = await authHeaders(); let r; try { r = await fetch(`${API_BASE}/api/products/${p.id}`, {
                 method: "PATCH",
-                headers: await authHeaders(),
+      headers: await authHeaders(),
                 body: JSON.stringify({name: el.value, imageUrl: img.value || null, deliveryType: (document.getElementById(`delivery-type-${p.id}`) as HTMLSelectElement).value})
               });
               if (!r.ok) { alert("Gagal menyimpan produk"); return; }
               setEditingProductId(null);
-              loadProducts();
+              loadProducts(); } catch (e) { }
             } else {
               setEditingProductId(p.id);
             }
@@ -877,7 +879,7 @@ const [imageUrl, setImageUrl] = useState("");
                   const st = document.getElementById(`stock-${o.id}`) as HTMLInputElement;
                   const r = await fetch(`${API_BASE}/api/products/options/${o.id}`, {
                     method: "PATCH",
-                    headers: await authHeaders(),
+      headers: await authHeaders(),
                     body: JSON.stringify({duration: d.value, price: pr.value, stock: st.value})
                   });
                   if (!r.ok) { alert("Gagal menyimpan durasi"); return; }
