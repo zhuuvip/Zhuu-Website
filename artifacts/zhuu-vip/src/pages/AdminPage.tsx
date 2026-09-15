@@ -900,6 +900,23 @@ const [imageUrl, setImageUrl] = useState("");
             >
               Hapus
             </button>
+              {p.deliveryType === "KEY" && (
+                <div className="col-span-full mt-2 flex flex-col gap-2">
+                  <textarea
+                    value={keyInput}
+                    onChange={e => setKeyInput(e.target.value)}
+                    placeholder="Paste key, satu key per baris"
+                    className="w-full min-h-[80px] px-3 py-2 rounded-lg bg-black/20 text-sm"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => addKeys(p.id, o.id)}
+                    className="w-fit px-3 py-2 rounded-lg bg-green-400/10 text-green-300 text-sm"
+                  >
+                    + Tambah Key
+                  </button>
+                </div>
+              )}
           </div>
         ))}
       </div>
