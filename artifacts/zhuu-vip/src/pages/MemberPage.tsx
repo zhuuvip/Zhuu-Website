@@ -19,7 +19,7 @@ import {
 } from "lucide-react";
 import RankBadge, { type RankType } from "@/components/RankBadge";
 
-const QUICK_AMOUNTS = [10000, 25000, 50000, 100000, 250000];
+const QUICK_AMOUNTS = [1000, 25000, 50000, 10000, 250000];
 const QRIS_CODE = "https://api.qrserver.com/v1/create-qr-code/?size=420x420&data=QRIS-ZHUUVIP-TOPUP";
 
 const formatRupiah = (value: number) => `Rp${new Intl.NumberFormat("id-ID").format(value)}`;
@@ -150,7 +150,7 @@ function TopUpFlow() {
   }
 
   return <div className="flex flex-col gap-5"><BalanceCard balance={balance} /><div className="glass-card rounded-[24px] p-5 sm:p-7"><div className="mb-5 flex items-end justify-between"><div><p className="text-xs uppercase tracking-[.2em] text-cyan-300/45">Auto QRIS</p><h3 className="mt-1 text-xl font-bold text-cyan-50">Pilih nominal top up</h3></div><Zap className="size-5 text-cyan-300" /></div><div className="grid grid-cols-3 gap-2 sm:grid-cols-5">{QUICK_AMOUNTS.map((quick) => <button key={quick} onClick={() => { setAmount(quick); setCustom(""); }} className={`rounded-xl border px-2 py-3 text-sm font-bold transition-all ${!custom && amount === quick ? "border-cyan-300 bg-cyan-300/15 text-cyan-200 shadow-[0_0_18px_rgba(0,229,255,.16)]" : "border-cyan-300/15 bg-cyan-300/5 text-cyan-100/60 hover:border-cyan-300/40 hover:text-cyan-200"}`}>{formatRupiah(quick).replace("Rp", "")}</button>)}</div><label className="mt-5 block text-xs text-cyan-100/45" htmlFor="custom-amount">Nominal custom</label><div className="relative mt-2"><span className="absolute left-4 top-1/2 -translate-y-1/2 text-sm text-cyan-100/45">Rp</span><input id="custom-amount" value={custom ? new Intl.NumberFormat("id-ID").format(Number(custom.replace(/\D/g, ""))) : ""} onChange={(event) => setCustom(event.target.value)} placeholder="Masukkan nominal lain" className="w-full rounded-xl border border-cyan-300/15 bg-cyan-300/5 px-4 py-3 pl-11 text-sm text-cyan-100 outline-none placeholder:text-cyan-100/25 focus:border-cyan-300/50 focus:ring-2 focus:ring-cyan-300/10" inputMode="numeric" /></div><button onClick={async () => {
-              if (selectedAmount < 10000) return;
+              if (selectedAmount < 1000) return;
 
               try {
                 const token = await getToken();
@@ -184,12 +184,12 @@ function TopUpFlow() {
                 setChecking(false);
                 alert(error instanceof Error ? error.message : "Gagal membuat deposit.");
               }
-            }} disabled={selectedAmount < 10000} className="neon-btn-solid mt-5 flex w-full items-center justify-center gap-2 rounded-xl py-3.5 font-bold disabled:cursor-not-allowed disabled:opacity-40">Top Up {formatRupiah(selectedAmount)} <ChevronRight className="size-4" /></button><p className="mt-3 text-center text-[11px] text-cyan-100/35">Minimal Rp10.000 · via QRIS (semua e-wallet & bank)</p></div></div>;
+            }} disabled={selectedAmount < 1000} className="neon-btn-solid mt-5 flex w-full items-center justify-center gap-2 rounded-xl py-3.5 font-bold disabled:cursor-not-allowed disabled:opacity-40">Top Up {formatRupiah(selectedAmount)} <ChevronRight className="size-4" /></button><p className="mt-3 text-center text-[11px] text-cyan-100/35">Minimal Rp10.000 · via QRIS (semua e-wallet & bank)</p></div></div>;
 }
 
 function RankSection() {
   const current = 6420;
-  const next = 10000;
+  const next = 1000;
   return <div className="flex flex-col gap-5"><div className="glass-card rounded-[24px] p-5 sm:p-7"><div className="flex items-center justify-between"><div><p className="text-xs uppercase tracking-[.2em] text-cyan-300/45">Member rank</p><h3 className="mt-1 text-xl font-bold text-cyan-50">Progress kamu</h3></div><RankBadge rank="deep-sea" size="large" /></div><div className="mt-6 flex items-center justify-between"><div><p className="text-xs text-cyan-100/45">Rank saat ini</p><RankBadge rank="deep-sea" showLabel size="medium" /></div><div className="text-right"><p className="text-xs text-cyan-100/45">Next rank</p><RankBadge rank="trench" showLabel size="small" /></div></div><div className="mt-6"><div className="mb-2 flex justify-between text-xs"><span className="text-cyan-200">{current.toLocaleString("id-ID")} XP</span><span className="text-cyan-100/40">10.000 XP</span></div><div className="h-2 overflow-hidden rounded-full bg-cyan-300/10"><div className="h-full rounded-full bg-gradient-to-r from-cyan-400 to-purple-400 shadow-[0_0_14px_rgba(0,229,255,.55)]" style={{ width: `${(current / next) * 100}%` }} /></div><p className="mt-3 flex items-center gap-2 text-xs text-cyan-100/45"><LockKeyhole className="size-3.5 text-purple-300" /> Butuh 3.580 XP lagi · aktifkan streak harian untuk naik rank</p></div></div><div className="glass-card rounded-[24px] p-5 sm:p-7"><div className="mb-5 flex items-center justify-between"><div><p className="text-xs uppercase tracking-[.2em] text-cyan-300/45">Community status</p><h3 className="mt-1 text-xl font-bold text-cyan-50">Deep Divers</h3></div><Trophy className="size-5 text-purple-300" /></div><div className="flex flex-col gap-2">{LEADERBOARD.map((member, index) => <div key={member.name} className={`flex items-center gap-3 rounded-2xl border px-3 py-3 transition-colors hover:bg-cyan-300/5 ${index === 0 ? "border-purple-300/30 bg-purple-300/5" : index === 1 ? "border-cyan-300/25 bg-cyan-300/5" : "border-cyan-300/10 bg-cyan-300/[.02]"}`}><div className="flex w-5 justify-center text-sm font-black text-cyan-100/35">{index === 0 ? <Crown className="size-4 text-yellow-300" /> : `0${index + 1}`}</div><div className="flex size-9 items-center justify-center rounded-full border text-xs font-bold" style={{ borderColor: `${member.color}66`, background: `${member.color}18`, color: member.color }}>{member.initials}</div><div className="min-w-0 flex-1"><p className="truncate text-sm font-semibold text-cyan-50">{member.name}</p><p className="text-[11px] text-cyan-100/35">{member.handle}</p></div><RankBadge rank={member.rank} size="small" /><span className="w-16 text-right font-mono text-xs font-bold text-cyan-200">{member.points}</span></div>)}</div><button className="mt-4 flex w-full items-center justify-center gap-1 text-xs font-semibold text-cyan-300/65 hover:text-cyan-200">Lihat leaderboard lengkap <ChevronRight className="size-3.5" /></button></div></div>;
 }
 

@@ -1,3 +1,4 @@
+import walletRouter from "./wallet";
 import { Router, type IRouter } from "express";
 import healthRouter from "./health";
 import productsRouter from "./products";
@@ -20,5 +21,7 @@ router.use(feedbackRouter);
 router.use(statsRouter);
 router.use(settingsRouter);
 router.use(ordersRouter);
+
+router.use(walletRouter);
 
 export default router;

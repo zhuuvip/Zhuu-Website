@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useAuth } from "@clerk/react";
 
 const WA = "62882005730502";
 
@@ -8,8 +9,20 @@ export default function ProductsPage() {
   const [products, setProducts] = useState<any[]>([]);
   const [selectedProduct, setSelectedProduct] = useState<any>(null);
   const [selectedOption, setSelectedOption] = useState<any>(null);
+  const [balance, setBalance] = useState(0);
+  const [buying, setBuying] = useState(false);
+  const { getToken } = useAuth();
 
   useEffect(() => {
+    getToken().then(token => {
+      if (!token) return;
+      fetch(`${API_BASE}/api/wallet`, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+        .then(res => res.json())
+        .then(data => setBalance(Number(data.balance || 0)))
+        .catch(() => {});
+    });
     fetch(`${API_BASE}/api/products`)
       .then(res => res.json())
       .then(data => {
@@ -28,50 +41,61 @@ export default function ProductsPage() {
 
   if (!selectedProduct || !selectedOption) return <main className="min-h-screen px-4 py-10 text-center">Memuat produk...</main>;
 
-  const confirmPayment = async () => {
+  const buyProduct = async () => {
+    if (!selectedProduct || !selectedOption || buying) return;
+
+    if (balance < selectedOption.price) {
+      alert(
+        `Saldo tidak cukup.\\n\\nSaldo: Rp${balance.toLocaleString("id-ID")}\\nHarga: Rp${selectedOption.price.toLocaleString("id-ID")}\\n\\nSilakan deposit terlebih dahulu di halaman Member.`
+      );
+      return;
+    }
+
     try {
+      setBuying(true);
+
+      const token = await getToken();
+
+      if (!token) {
+        alert("Silakan login terlebih dahulu.");
+        return;
+      }
+
       const r = await fetch(`${API_BASE}/api/orders`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
           productId: selectedProduct.id,
           optionId: selectedOption.id,
-          whatsapp: WA,
         }),
       });
 
       const data = await r.json();
 
       if (!r.ok) {
-        alert(data.error || "Gagal membuat order");
+        alert(data.error || "Gagal membeli produk");
         return;
       }
 
-      const orderId = data.invoice || `ZHUU-${Date.now().toString().slice(-6)}`;
+      setBalance(Number(data.balance || 0));
 
-      const text = [
-        "🔔 KONFIRMASI PEMBAYARAN",
-        "",
-        "Halo Admin, saya sudah melakukan pembayaran melalui QRIS DANA.",
-        "",
-        `📦 Produk: ${selectedProduct.name}`,
-        `⏱️ Durasi: ${selectedOption.duration}`,
-        `💰 Total: Rp${selectedOption.price.toLocaleString("id-ID")}`,
-        `🧾 Invoice: ${orderId}`,
-        data.deliveryKey ? `🔑 Key: ${data.deliveryKey}` : "",
-        "",
-        "Mohon dicek pembayaran saya.",
-        "Terima kasih 🙏",
-      ].filter(Boolean).join("\\n");
-
-      window.open(
-        `https://wa.me/${WA}?text=${encodeURIComponent(text)}`,
-        "_blank"
+      alert(
+        data.deliveryKey
+          ? `Pembelian berhasil!\\n\\nProduk: ${selectedProduct.name}\\nDurasi: ${selectedOption.duration}\\nKey: ${data.deliveryKey}`
+          : `Pembelian berhasil!\\n\\nProduk: ${selectedProduct.name}\\nDurasi: ${selectedOption.duration}`
       );
-    } catch (e) {
+
+      fetch(`${API_BASE}/api/products`)
+        .then(res => res.json())
+        .then(data => setProducts(data))
+        .catch(() => {});
+    } catch {
       alert("Gagal terhubung ke server");
+    } finally {
+      setBuying(false);
     }
   };
 
@@ -83,19 +107,21 @@ export default function ProductsPage() {
           <p className="mt-2 opacity-70">Pilih produk yang kamu inginkan</p>
         </div>
 
-        <div className="mb-8 rounded-2xl border p-6 text-center">
-          <h2 className="mb-4 text-xl font-bold">💳 Pembayaran QRIS DANA</h2>
-          <img
-            src="/attached_assets/qr_ID1026531275638_12.09.26_1789202677_1789202677296.jpeg"
-            alt="QRIS DANA"
-            className="mx-auto h-64 w-64 rounded-xl object-contain"
-          />
-          <p className="mt-3 text-sm opacity-70">
-            Scan QRIS di atas, lalu klik tombol konfirmasi melalui WhatsApp.
-          </p>
-          <a href="/attached_assets/qr_ID1026531275638_12.09.26_1789202677_1789202677296.jpeg" download="QRIS-DANA-ZhuuVIP.jpeg" className="mx-auto mt-4 inline-flex items-center justify-center rounded-xl border px-5 py-3 font-semibold transition hover:scale-105">
-            ⬇️ Download QRIS
-          </a>
+        <div className="mb-8 rounded-2xl border p-5">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <p className="text-sm opacity-60">Saldo Wallet</p>
+              <h2 className="text-2xl font-bold">
+                Rp{balance.toLocaleString("id-ID")}
+              </h2>
+            </div>
+            <a
+              href="/member"
+              className="rounded-xl border px-5 py-3 text-center font-semibold transition hover:scale-105"
+            >
+              💳 Deposit Saldo
+            </a>
+          </div>
         </div>
 
         <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
@@ -161,11 +187,13 @@ export default function ProductsPage() {
           </p>
 
           <button
-            onClick={confirmPayment}
-            disabled={selectedOption.stock <= 0}
+            onClick={buyProduct}
+            disabled={selectedOption.stock <= 0 || buying}
             className="mt-4 w-full rounded-xl px-5 py-3 font-bold disabled:opacity-40"
           >
-            ✅ Sudah Bayar — Konfirmasi via WhatsApp
+            {buying
+              ? "⏳ Memproses..."
+              : `🛒 Beli dengan Saldo — Rp${selectedOption.price.toLocaleString("id-ID")}`}
           </button>
         </div>
       </div>
