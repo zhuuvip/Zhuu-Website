@@ -735,7 +735,7 @@ const [imageUrl, setImageUrl] = useState("");
     </div>
 
     <div className="flex gap-2 mt-3 flex-wrap">
-      <button
+      <button type="button"
         onClick={async () => {
           if (!productName.trim()) return;
           const r = await fetch(`${API_BASE}/api/products`, {
@@ -762,7 +762,7 @@ const [imageUrl, setImageUrl] = useState("");
         {products.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
       </select>
 
-      <button
+      <button type="button"
         onClick={async () => {
           if (!selectedProductId || !duration) { alert("Pilih produk dan isi durasi dulu"); return; }
           const r = await fetch(`${API_BASE}/api/products/${selectedProductId}/options`, {
@@ -804,7 +804,7 @@ const [imageUrl, setImageUrl] = useState("");
               </select>
             )}
 
-          <button
+          <button type="button"
             onClick={async () => {
             if (editingProductId === p.id) {
               const el = document.getElementById(`product-name-${p.id}`) as HTMLInputElement;
@@ -818,15 +818,15 @@ const [imageUrl, setImageUrl] = useState("");
               setEditingProductId(null);
               loadProducts();
             } else {
-              setEditingProductId(p.id);
+              console.log("EDIT PRODUK", p.id); setEditingProductId(p.id);
             }
           }}
-          className="w-full sm:w-auto px-3 py-2 rounded-lg bg-cyan-400/10 text-cyan-300 text-sm"
+          className="relative z-10 pointer-events-auto cursor-pointer w-full sm:w-auto px-3 py-2 rounded-lg bg-cyan-400/10 text-cyan-300 text-sm"
         >
           {editingProductId === p.id ? "Simpan" : "Edit"}
         </button>
         {editingProductId === p.id && (
-          <button
+          <button type="button"
             onClick={() => {
               setEditingProductId(null);
               loadProducts();
@@ -837,7 +837,7 @@ const [imageUrl, setImageUrl] = useState("");
           </button>
         )}
 
-          <button
+          <button type="button"
             onClick={async () => {
               if (!confirm(`Hapus ${p.name}?`)) return;
               await fetch(`${API_BASE}/api/products/${p.id}`, {method: "DELETE", headers: await authHeaders()});
@@ -886,12 +886,12 @@ const [imageUrl, setImageUrl] = useState("");
                   setEditingOptionId(o.id);
                 }
               }}
-              className="w-full sm:w-auto px-3 py-2 rounded-lg bg-cyan-400/10 text-cyan-300 text-sm"
+              className="relative z-10 pointer-events-auto cursor-pointer w-full sm:w-auto px-3 py-2 rounded-lg bg-cyan-400/10 text-cyan-300 text-sm"
             >
               {editingOptionId === o.id ? "Simpan" : "Edit"}
             </button>
             {editingOptionId === o.id && (
-              <button
+              <button type="button"
                 onClick={() => {
                   setEditingOptionId(null);
                   loadProducts();
@@ -902,7 +902,7 @@ const [imageUrl, setImageUrl] = useState("");
               </button>
             )}
 
-            <button
+            <button type="button"
               onClick={async () => {
                 if (!confirm(`Hapus ${o.duration}?`)) return;
                 await fetch(`${API_BASE}/api/products/options/${o.id}`, {method: "DELETE", headers: await authHeaders()});
@@ -919,8 +919,7 @@ const [imageUrl, setImageUrl] = useState("");
                     placeholder="Paste key, satu key per baris"
                     className="w-full min-h-[80px] px-3 py-2 rounded-lg bg-black/20 text-sm"
                   />
-                  <button
-                    type="button"
+                  <button type="button"
                     onClick={() => addKeys(p.id, o.id)}
                     className="w-fit px-3 py-2 rounded-lg bg-green-400/10 text-green-300 text-sm"
                   >
