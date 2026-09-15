@@ -92,7 +92,7 @@ const addKeys = async (productId: number, optionId: number) => {
   if (!keys.length) { alert("Isi key dulu"); return; }
   const r = await fetch(`${API_BASE}/api/products/${productId}/options/${optionId}/keys`, {
     method: "POST",
-    headers: await authHeaders(),
+    headers: headers,
     body: JSON.stringify({ keys }),
   });
   if (!r.ok) { alert("Gagal menambahkan key"); return; }
@@ -809,7 +809,7 @@ const [imageUrl, setImageUrl] = useState("");
             if (editingProductId === p.id) { alert("SIMPAN DIKLIK");
               const el = document.getElementById(`product-name-${p.id}`) as HTMLInputElement;
             const img = document.getElementById(`product-image-${p.id}`) as HTMLInputElement;
-              const r = await fetch(`${API_BASE}/api/products/${p.id}`, {
+              const headers = await authHeaders(); alert("TOKEN OK"); const r = await fetch(`${API_BASE}/api/products/${p.id}`, {
                 method: "PATCH",
                 headers: await authHeaders(),
                 body: JSON.stringify({name: el.value, imageUrl: img.value || null, deliveryType: (document.getElementById(`delivery-type-${p.id}`) as HTMLSelectElement).value})
