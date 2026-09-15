@@ -19,7 +19,7 @@
     "@workspace/integrations-anthropic-ai": "workspace:*",
     "cookie-parser": "^1.4.7",
     "cors": "^2",
-    "drizzle-orm": "^0.45.2",
+    "drizzle-orm": "0.44.7",
     "express": "^5",
     "http-proxy-middleware": "^4.0.0",
     "midtrans-client": "^1.4.3",

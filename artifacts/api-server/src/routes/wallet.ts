@@ -3,7 +3,7 @@ import { db } from "@workspace/db";
 import { walletsTable, walletTransactionsTable } from "@workspace/db";
 import { eq, and, desc, sql } from "drizzle-orm";
 import { getAuth } from "@clerk/express";
-import { requireAdmin } from "../lib/auth";
+import { requireAdmin } from "../lib/auth.js";
 import midtransClient from "midtrans-client";
 
 const router = Router();
