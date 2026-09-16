@@ -9,5 +9,5 @@
       "destination": "/index.html"
     }
   ],
-  "outputDirectory": "artifacts/zhuu-vip/dist"
+  "outputDirectory": "artifacts/zhuu-vip/dist/public"
 }
