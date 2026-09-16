@@ -78,5 +78,10 @@
     "typescript": "^5.8.3",
     "vite": "^7.3.2"
   },
-  "packageManager": "pnpm@10.28.0"
+  "packageManager": "pnpm@10.28.0",
+  "pnpm": {
+    "overrides": {
+      "drizzle-orm": "0.44.7"
+    }
+  }
 }
