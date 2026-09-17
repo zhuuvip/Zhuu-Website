@@ -186,7 +186,7 @@ function TopUpFlow() {
                 setChecking(false);
                 alert(error instanceof Error ? error.message : "Gagal membuat deposit.");
               }
-            }} disabled={selectedAmount < 1000} className="neon-btn-solid mt-5 flex w-full items-center justify-center gap-2 rounded-xl py-3.5 font-bold disabled:cursor-not-allowed disabled:opacity-40">Top Up {formatRupiah(selectedAmount)} <ChevronRight className="size-4" /></button><p className="mt-3 text-center text-[11px] text-cyan-100/35">Minimal Rp10.000 · via QRIS (semua e-wallet & bank)</p></div></div>;
+            }} disabled={selectedAmount < 1000} className="neon-btn-solid mt-5 flex w-full items-center justify-center gap-2 rounded-xl py-3.5 font-bold disabled:cursor-not-allowed disabled:opacity-40">Top Up {formatRupiah(selectedAmount)} <ChevronRight className="size-4" /></button><p className="mt-3 text-center text-[11px] text-cyan-100/35">Minimal Rp1.000 · via QRIS (semua e-wallet & bank)</p></div></div>;
 }
 
 function RankSection() {
