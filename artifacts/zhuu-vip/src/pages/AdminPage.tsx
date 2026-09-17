@@ -50,7 +50,7 @@ interface SiteSettings {
   bannerUrl?: string; themeColor?: string; statusText?: string;
 }
 
-type Tab = "stats" | "links" | "songs" | "settings" | "feedback" | "products" | "orders" | "deposits";
+type Tab = "stats" | "links" | "songs" | "settings" | "feedback" | "products" | "orders" | "deposits" | "wallet";
 
 const iconOptions = ["SiDiscord","SiYoutube","SiTiktok","SiInstagram","SiTwitch","SiX","SiGithub","SiSpotify","SiPatreon","SiReddit","SiWhatsapp"];
 
@@ -92,6 +92,12 @@ export default function AdminPage() {
   const [deposits, setDeposits] = useState<any[]>([]);
   const [depositsLoading, setDepositsLoading] = useState(false);
 
+  const [walletUserId, setWalletUserId] = useState("");
+  const [walletAmount, setWalletAmount] = useState("");
+  const [walletAction, setWalletAction] = useState<"add" | "subtract">("add");
+  const [walletReason, setWalletReason] = useState("");
+  const [walletAdjusting, setWalletAdjusting] = useState(false);
+
   const loadDeposits = async () => {
     try {
       setDepositsLoading(true);
@@ -125,6 +131,68 @@ export default function AdminPage() {
     }
   };
 
+
+  const adjustWallet = async () => {
+    const userId = walletUserId.trim();
+    const amount = Number(walletAmount);
+    const reason = walletReason.trim();
+
+    if (!userId) {
+      alert("User ID wajib diisi");
+      return;
+    }
+
+    if (!Number.isInteger(amount) || amount <= 0) {
+      alert("Nominal harus berupa angka bulat lebih dari 0");
+      return;
+    }
+
+    if (!reason) {
+      alert("Alasan wajib diisi");
+      return;
+    }
+
+    const actionText = walletAction === "add" ? "MENAMBAH" : "MENGURANGI";
+
+    if (!confirm(
+      `Yakin ${actionText} saldo member sebesar Rp${amount.toLocaleString("id-ID")}?\n\nUser ID: ${userId}\nAlasan: ${reason}`
+    )) return;
+
+    try {
+      setWalletAdjusting(true);
+
+      const res = await fetch(`${API_BASE}/api/admin/wallet/adjust`, {
+        method: "POST",
+        headers: await authHeaders(),
+        body: JSON.stringify({
+          userId,
+          action: walletAction,
+          amount,
+          reason,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        alert(data.error || "Gagal mengubah saldo");
+        return;
+      }
+
+      alert(
+        `Saldo berhasil diubah.\n\n` +
+        `Sebelum: Rp${Number(data.balanceBefore).toLocaleString("id-ID")}\n` +
+        `Sesudah: Rp${Number(data.balanceAfter).toLocaleString("id-ID")}`
+      );
+
+      setWalletAmount("");
+      setWalletReason("");
+    } catch {
+      alert("Gagal terhubung ke server");
+    } finally {
+      setWalletAdjusting(false);
+    }
+  };
 
   const loadOrders = async () => {
     try {
@@ -415,6 +483,7 @@ const saveSettings = async () => {
     { id: "products", label: "Products", icon: <ShoppingCart size={14} /> },
     { id: "orders", label: "Orders", icon: <ShoppingCart size={14} /> },
     { id: "deposits", label: "Deposits", icon: <WalletCards size={14} /> },
+  { id: "wallet", label: "Wallet Control", icon: <WalletCards size={14} /> },
   ];
 
   if (!user) return (
@@ -1020,6 +1089,82 @@ const saveSettings = async () => {
     ))}
   </div>
       )}
+      {tab === "wallet" && (
+        <div className="space-y-4">
+          <div>
+            <h2 className="text-lg font-semibold text-blue-100">Wallet Control</h2>
+            <p className="text-xs text-blue-300/40 mt-1">
+              Tambah atau kurangi saldo member secara manual.
+            </p>
+          </div>
+
+          <div className="glass-card rounded-2xl p-5 space-y-4">
+            <div>
+              <label className="text-xs text-blue-300/50 mb-1 block">Member User ID *</label>
+              <input
+                value={walletUserId}
+                onChange={(e) => setWalletUserId(e.target.value)}
+                placeholder="user_xxxxxxxxx"
+                className="w-full bg-white/5 border border-cyan-400/20 rounded-xl px-3 py-2.5 text-sm text-blue-100 placeholder-blue-300/25 focus:outline-none focus:border-cyan-400/50"
+              />
+              <p className="text-[11px] text-blue-300/30 mt-1">
+                Masukkan Clerk User ID member.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label className="text-xs text-blue-300/50 mb-1 block">Aksi</label>
+                <select
+                  value={walletAction}
+                  onChange={(e) => setWalletAction(e.target.value as "add" | "subtract")}
+                  className="w-full bg-slate-900 border border-cyan-400/20 rounded-xl px-3 py-2.5 text-sm text-blue-100 focus:outline-none focus:border-cyan-400/50"
+                >
+                  <option value="add">+ Tambah Saldo</option>
+                  <option value="subtract">− Kurangi Saldo</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="text-xs text-blue-300/50 mb-1 block">Nominal (Rp) *</label>
+                <input
+                  type="number"
+                  min="1"
+                  value={walletAmount}
+                  onChange={(e) => setWalletAmount(e.target.value)}
+                  placeholder="10000"
+                  className="w-full bg-white/5 border border-cyan-400/20 rounded-xl px-3 py-2.5 text-sm text-blue-100 placeholder-blue-300/25 focus:outline-none focus:border-cyan-400/50"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="text-xs text-blue-300/50 mb-1 block">Alasan *</label>
+              <textarea
+                value={walletReason}
+                onChange={(e) => setWalletReason(e.target.value)}
+                placeholder="Contoh: Koreksi deposit yang tidak sengaja di-ACC"
+                rows={3}
+                className="w-full bg-white/5 border border-cyan-400/20 rounded-xl px-3 py-2.5 text-sm text-blue-100 placeholder-blue-300/25 focus:outline-none focus:border-cyan-400/50 resize-none"
+              />
+            </div>
+
+            <button
+              onClick={adjustWallet}
+              disabled={walletAdjusting}
+              className={`w-full sm:w-auto flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl text-sm font-medium transition-all disabled:opacity-50 ${
+                walletAction === "add"
+                  ? "bg-green-400/10 border border-green-400/20 text-green-300 hover:bg-green-400/20"
+                  : "bg-red-400/10 border border-red-400/20 text-red-300 hover:bg-red-400/20"
+              }`}
+            >
+              {walletAdjusting && <Loader2 size={14} className="animate-spin" />}
+              {walletAction === "add" ? "Tambah Saldo" : "Kurangi Saldo"}
+            </button>
+          </div>
+        </div>
+      )}
+
       {tab === "deposits" && (
         <div className="space-y-4">
           <div className="flex items-center justify-between">

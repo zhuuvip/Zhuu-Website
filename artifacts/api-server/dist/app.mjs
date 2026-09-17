@@ -78560,10 +78560,20 @@ router2.patch("/admin/wallet/deposits/:id/confirm", requireAdmin, async (req, re
         balance: 0
       }).returning();
     }
+    console.log("DEBUG ACC BEFORE:", {
+      transactionId: transaction.id,
+      userId: transaction.userId,
+      amount: transaction.amount,
+      balanceBefore: wallet.balance
+    });
     const [updatedWallet] = await db.update(walletsTable).set({
       balance: wallet.balance + transaction.amount,
       updatedAt: /* @__PURE__ */ new Date()
     }).where(eq(walletsTable.id, wallet.id)).returning();
+    console.log("DEBUG ACC AFTER:", {
+      walletId: updatedWallet.id,
+      balanceAfter: updatedWallet.balance
+    });
     const [updatedTransaction] = await db.update(walletTransactionsTable).set({
       status: "PAID"
     }).where(eq(walletTransactionsTable.id, transaction.id)).returning();
@@ -78574,6 +78584,81 @@ router2.patch("/admin/wallet/deposits/:id/confirm", requireAdmin, async (req, re
   } catch (err) {
     console.error(err);
     return res.status(500).json({ error: "Gagal mengonfirmasi deposit" });
+  }
+});
+router2.post("/admin/wallet/adjust", requireAdmin, async (req, res) => {
+  try {
+    await ensureWalletTables();
+    const { userId, action, amount, reason } = req.body;
+    if (!userId || typeof userId !== "string") {
+      return res.status(400).json({ error: "userId wajib diisi" });
+    }
+    if (action !== "add" && action !== "subtract") {
+      return res.status(400).json({
+        error: 'action harus "add" atau "subtract"'
+      });
+    }
+    const numericAmount = Number(amount);
+    if (!Number.isInteger(numericAmount) || numericAmount <= 0) {
+      return res.status(400).json({
+        error: "Nominal harus berupa angka bulat lebih dari 0"
+      });
+    }
+    if (!reason || typeof reason !== "string" || !reason.trim()) {
+      return res.status(400).json({
+        error: "Alasan wajib diisi"
+      });
+    }
+    let [wallet] = await db.select().from(walletsTable).where(eq(walletsTable.userId, userId)).limit(1);
+    if (!wallet) {
+      [wallet] = await db.insert(walletsTable).values({
+        userId,
+        balance: 0
+      }).returning();
+    }
+    const balanceBefore = wallet.balance;
+    if (action === "subtract" && balanceBefore < numericAmount) {
+      return res.status(400).json({
+        error: "Saldo member tidak cukup untuk dikurangi",
+        balance: balanceBefore
+      });
+    }
+    const newBalance = action === "add" ? balanceBefore + numericAmount : balanceBefore - numericAmount;
+    const [updatedWallet] = await db.update(walletsTable).set({
+      balance: newBalance,
+      updatedAt: /* @__PURE__ */ new Date()
+    }).where(
+      and(
+        eq(walletsTable.id, wallet.id),
+        action === "subtract" ? sql`${walletsTable.balance} >= ${numericAmount}` : sql`${walletsTable.balance} = ${balanceBefore}`
+      )
+    ).returning();
+    if (!updatedWallet) {
+      return res.status(409).json({
+        error: "Saldo berubah bersamaan. Silakan coba lagi."
+      });
+    }
+    const reference = `ADM-${(/* @__PURE__ */ new Date()).toISOString().slice(0, 10).replace(/-/g, "")}-` + Math.random().toString(36).slice(2, 8).toUpperCase();
+    const [transaction] = await db.insert(walletTransactionsTable).values({
+      userId,
+      type: "ADMIN_ADJUSTMENT",
+      amount: action === "add" ? numericAmount : -numericAmount,
+      reference,
+      description: `Admin ${action === "add" ? "menambah" : "mengurangi"} saldo: ${reason.trim()}`,
+      status: "PAID"
+    }).returning();
+    return res.json({
+      success: true,
+      wallet: updatedWallet,
+      transaction,
+      balanceBefore,
+      balanceAfter: updatedWallet.balance
+    });
+  } catch (err) {
+    console.error("ADMIN WALLET ADJUST ERROR:", err);
+    return res.status(500).json({
+      error: "Gagal mengubah saldo member"
+    });
   }
 });
 var wallet_default = router2;
