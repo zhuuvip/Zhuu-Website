@@ -2,12 +2,6 @@
   "version": 2,
   "installCommand": "pnpm install --no-frozen-lockfile --ignore-scripts",
   "buildCommand": "pnpm build",
-  "builds": [
-    {
-      "src": "api/index.js",
-      "use": "@vercel/node"
-    }
-  ],
   "routes": [
     {
       "src": "/(.*)",
