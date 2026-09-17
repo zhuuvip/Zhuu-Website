@@ -382,6 +382,12 @@ router.post("/admin/wallet/adjust", requireAdmin, async (req, res) => {
       });
     }
 
+    console.log("DEBUG ADMIN ADJUST:", {
+      rawAmount: amount,
+      rawAmountType: typeof amount,
+      numericAmount: Number(amount),
+    });
+
     const numericAmount = Number(amount);
 
     if (!Number.isInteger(numericAmount) || numericAmount <= 0) {
