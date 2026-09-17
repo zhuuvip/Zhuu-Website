@@ -246,6 +246,13 @@ router.patch("/admin/wallet/deposits/:id/confirm", requireAdmin, async (req, res
         .returning();
     }
 
+    console.log("DEBUG ACC BEFORE:", {
+      transactionId: transaction.id,
+      userId: transaction.userId,
+      amount: transaction.amount,
+      balanceBefore: wallet.balance,
+    });
+
     const [updatedWallet] = await db
       .update(walletsTable)
       .set({
@@ -254,6 +261,11 @@ router.patch("/admin/wallet/deposits/:id/confirm", requireAdmin, async (req, res
       })
       .where(eq(walletsTable.id, wallet.id))
       .returning();
+
+    console.log("DEBUG ACC AFTER:", {
+      walletId: updatedWallet.id,
+      balanceAfter: updatedWallet.balance,
+    });
 
     const [updatedTransaction] = await db
       .update(walletTransactionsTable)
