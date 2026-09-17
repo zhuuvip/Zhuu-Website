@@ -4,7 +4,6 @@ import { walletsTable, walletTransactionsTable } from "@workspace/db";
 import { eq, and, desc, sql } from "drizzle-orm";
 import { getAuth } from "@clerk/express";
 import { requireAdmin } from "../lib/auth.js";
-import midtransClient from "midtrans-client";
 
 const router = Router();
 
@@ -108,23 +107,6 @@ router.post("/wallet/deposit", async (req, res) => {
       `DEP-${new Date().toISOString().slice(0, 10).replace(/-/g, "")}-` +
       Math.random().toString(36).slice(2, 8).toUpperCase();
 
-    const snap = new midtransClient.CoreApi({
-      isProduction: true,
-      serverKey: process.env.MIDTRANS_SERVER_KEY!,
-      clientKey: "",
-    });
-
-    const midtrans = await snap.charge({
-      payment_type: "qris",
-      transaction_details: {
-        order_id: reference,
-        gross_amount: amount,
-      },
-      qris: {
-        acquirer: "gopay",
-      },
-    });
-
     const [transaction] = await db
       .insert(walletTransactionsTable)
       .values({
@@ -132,15 +114,16 @@ router.post("/wallet/deposit", async (req, res) => {
         type: "DEPOSIT",
         amount,
         reference,
-        description: "Deposit QRIS Midtrans",
+        description: "Deposit QRIS DANA",
         status: "PENDING",
       })
       .returning();
 
     return res.json({
       transaction,
-      qrisProvider: "MIDTRANS",
+      qrisProvider: "DANA",
       status: "PENDING",
+      qrUrl: "https://zhuusite.my.id/attached_assets/qr_ID1026531275638_12.09.26_1789202677_1789202677296.jpeg",
     });
   } catch (err) {
     console.error(err);
