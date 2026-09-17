@@ -61,6 +61,7 @@ function TopUpFlow() {
   const [balance, setBalance] = useState(0);
   const [animatedBalance, setAnimatedBalance] = useState(0);
   const [depositRef, setDepositRef] = useState("");
+  const [currentDepositId, setCurrentDepositId] = useState<number | null>(null);
   const [qrUrl, setQrUrl] = useState("");
 
   const selectedAmount = custom ? Number(custom.replace(/\D/g, "")) : amount;
@@ -104,6 +105,71 @@ function TopUpFlow() {
   }, [step, seconds]);
 
   useEffect(() => {
+    if (!paymentChecked || !currentDepositId || step !== "waiting") return;
+
+    let cancelled = false;
+    let notified = false;
+
+    const checkDepositStatus = async () => {
+      try {
+        const token = await getToken();
+        if (!token || cancelled) return;
+
+        const res = await fetch(`${API_BASE}/api/wallet/transactions`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (!res.ok || cancelled) return;
+
+        const transactions = await res.json();
+        const transaction = transactions.find(
+          (item: any) => Number(item.id) === currentDepositId
+        );
+
+        if (!transaction || notified || cancelled) return;
+
+        if (transaction.status === "PAID") {
+          notified = true;
+
+          const walletRes = await fetch(`${API_BASE}/api/wallet`, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+
+          if (walletRes.ok) {
+            const walletData = await walletRes.json();
+            setBalance(Number(walletData.balance || 0));
+          }
+
+          setStep("success");
+          alert("Pembayaran berhasil. Saldo kamu sudah bertambah.");
+        }
+
+        if (transaction.status === "REJECTED") {
+          notified = true;
+          alert(
+            "Kamu belum membayar. Silakan hubungi nomor admin untuk bertanya."
+          );
+          setStep("choose");
+          setPaymentChecked(false);
+          setCurrentDepositId(null);
+        }
+      } catch {}
+    };
+
+    checkDepositStatus();
+    const interval = window.setInterval(checkDepositStatus, 3000);
+
+    return () => {
+      cancelled = true;
+      window.clearInterval(interval);
+    };
+  }, [paymentChecked, currentDepositId, step, getToken]);
+
+  useEffect(() => {
     if (step !== "success") return;
     const start = balance;
     const difference = selectedAmount;
@@ -133,19 +199,38 @@ function TopUpFlow() {
         return;
       }
 
-      const res = await fetch(`${API_BASE}/api/wallet`, {
+      if (!currentDepositId) {
+        throw new Error("Transaksi deposit tidak ditemukan.");
+      }
+
+      const checkRes = await fetch(
+        `${API_BASE}/api/wallet/transactions/${currentDepositId}/check`,
+        {
+          method: "PATCH",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      const checkData = await checkRes.json().catch(() => ({}));
+
+      if (!checkRes.ok) {
+        throw new Error(checkData.error || "Gagal mengecek pembayaran");
+      }
+
+      const walletRes = await fetch(`${API_BASE}/api/wallet`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
 
-      const data = await res.json().catch(() => ({}));
+      const walletData = await walletRes.json().catch(() => ({}));
 
-      if (!res.ok) {
-        throw new Error(data.error || "Gagal mengecek saldo");
+      if (walletRes.ok) {
+        setBalance(Number(walletData.balance || 0));
       }
 
-      setBalance(Number(data.balance || 0));
       setChecking(false);
       setPaymentChecked(true);
 
@@ -215,6 +300,7 @@ function TopUpFlow() {
                 }
 
                 setDepositRef(data.transaction?.reference || "");
+                setCurrentDepositId(Number(data.transaction?.id || 0));
       setQrUrl(data.qrUrl || "");
                 setChecking(false);
                 setSeconds(900);

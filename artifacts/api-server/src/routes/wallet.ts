@@ -2,7 +2,7 @@ import axios from "axios";
 import { Router } from "express";
 import { db } from "@workspace/db";
 import { walletsTable, walletTransactionsTable } from "@workspace/db";
-import { eq, and, desc, sql } from "drizzle-orm";
+import { eq, and, desc, sql, like } from "drizzle-orm";
 import { getAuth } from "@clerk/express";
 import { createClerkClient } from "@clerk/backend";
 import { requireAdmin } from "../lib/auth.js";
@@ -162,6 +162,52 @@ router.post("/wallet/deposit", async (req, res) => {
   }
 });
 
+router.patch("/wallet/transactions/:id/check", async (req, res) => {
+  try {
+    const userId = await getUserId(req, res);
+    if (!userId) return;
+
+    await ensureWalletTables();
+
+    const id = Number(req.params.id);
+
+    const [transaction] = await db
+      .select()
+      .from(walletTransactionsTable)
+      .where(
+        and(
+          eq(walletTransactionsTable.id, id),
+          eq(walletTransactionsTable.userId, userId),
+          eq(walletTransactionsTable.type, "DEPOSIT")
+        )
+      )
+      .limit(1);
+
+    if (!transaction) {
+      return res.status(404).json({ error: "Transaksi deposit tidak ditemukan" });
+    }
+
+    const description = transaction.description || "";
+
+    if (!description.includes("MEMBER_CHECKED")) {
+      const [updated] = await db
+        .update(walletTransactionsTable)
+        .set({
+          description: `${description} | MEMBER_CHECKED`
+        })
+        .where(eq(walletTransactionsTable.id, id))
+        .returning();
+
+      return res.json({ transaction: updated });
+    }
+
+    return res.json({ transaction });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ error: "Gagal menandai deposit" });
+  }
+});
+
 router.get("/admin/wallet/deposits", requireAdmin, async (_req, res) => {
   try {
     await ensureWalletTables();
@@ -169,7 +215,12 @@ router.get("/admin/wallet/deposits", requireAdmin, async (_req, res) => {
     const deposits = await db
       .select()
       .from(walletTransactionsTable)
-      .where(eq(walletTransactionsTable.type, "DEPOSIT"))
+      .where(
+        and(
+          eq(walletTransactionsTable.type, "DEPOSIT"),
+          like(walletTransactionsTable.description, "%MEMBER_CHECKED%")
+        )
+      )
       .orderBy(desc(walletTransactionsTable.createdAt));
 
     return res.json(deposits);
@@ -196,7 +247,7 @@ router.patch("/admin/wallet/deposits/:id/reject", requireAdmin, async (req, res)
 
     const [updated] = await db
       .update(walletTransactionsTable)
-      .set({ status: "REJECTED", updatedAt: new Date() })
+      .set({ status: "REJECTED" })
       .where(eq(walletTransactionsTable.id, id))
       .returning();
 

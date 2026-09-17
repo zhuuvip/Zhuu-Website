@@ -147,7 +147,7 @@ export default function ProductsPage() {
               <h3 className="text-xl font-bold">{product.name}</h3>
 
               <div className="mt-4 space-y-2">
-                {product.options.map((option) => (
+                {product.options.map((option: any) => (
                   <button
                     key={option.duration}
                     disabled={option.stock <= 0}

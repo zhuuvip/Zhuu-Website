@@ -427,6 +427,16 @@ const saveSettings = async () => {
     if (tab === "wallet") loadWalletUsers();
   }, [tab, isAdmin, user]);
 
+  useEffect(() => {
+    if (!isAdmin || !user || tab !== "deposits") return;
+
+    const interval = window.setInterval(() => {
+      loadDeposits();
+    }, 3000);
+
+    return () => window.clearInterval(interval);
+  }, [tab, isAdmin, user]);
+
   // Song actions
   const handleSaveSong = async () => {
     if (!songForm.title || !songForm.artist || !songForm.url) return;

@@ -78504,17 +78504,51 @@ router2.post("/wallet/deposit", async (req, res) => {
       transaction,
       qrisProvider: "DANA",
       status: "PENDING",
-      qrUrl: "https://zhuusite.my.id/attached_assets/qr_ID1026531275638_12.09.26_1789202677_1789202677296.jpeg"
+      qrUrl: "/attached_assets/IMG_20260917_085309.jpg"
     });
   } catch (err) {
     console.error(err);
     return res.status(500).json({ error: "Gagal membuat deposit" });
   }
 });
+router2.patch("/wallet/transactions/:id/check", async (req, res) => {
+  try {
+    const userId = await getUserId(req, res);
+    if (!userId) return;
+    await ensureWalletTables();
+    const id = Number(req.params.id);
+    const [transaction] = await db.select().from(walletTransactionsTable).where(
+      and(
+        eq(walletTransactionsTable.id, id),
+        eq(walletTransactionsTable.userId, userId),
+        eq(walletTransactionsTable.type, "DEPOSIT")
+      )
+    ).limit(1);
+    if (!transaction) {
+      return res.status(404).json({ error: "Transaksi deposit tidak ditemukan" });
+    }
+    const description = transaction.description || "";
+    if (!description.includes("MEMBER_CHECKED")) {
+      const [updated] = await db.update(walletTransactionsTable).set({
+        description: `${description} | MEMBER_CHECKED`
+      }).where(eq(walletTransactionsTable.id, id)).returning();
+      return res.json({ transaction: updated });
+    }
+    return res.json({ transaction });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ error: "Gagal menandai deposit" });
+  }
+});
 router2.get("/admin/wallet/deposits", requireAdmin, async (_req, res) => {
   try {
     await ensureWalletTables();
-    const deposits = await db.select().from(walletTransactionsTable).where(eq(walletTransactionsTable.type, "DEPOSIT")).orderBy(desc(walletTransactionsTable.createdAt));
+    const deposits = await db.select().from(walletTransactionsTable).where(
+      and(
+        eq(walletTransactionsTable.type, "DEPOSIT"),
+        like(walletTransactionsTable.description, "%MEMBER_CHECKED%")
+      )
+    ).orderBy(desc(walletTransactionsTable.createdAt));
     return res.json(deposits);
   } catch (err) {
     console.error(err);
@@ -78530,7 +78564,7 @@ router2.patch("/admin/wallet/deposits/:id/reject", requireAdmin, async (req, res
     if (transaction.status !== "PENDING") {
       return res.status(400).json({ error: "Deposit sudah diproses" });
     }
-    const [updated] = await db.update(walletTransactionsTable).set({ status: "REJECTED", updatedAt: /* @__PURE__ */ new Date() }).where(eq(walletTransactionsTable.id, id)).returning();
+    const [updated] = await db.update(walletTransactionsTable).set({ status: "REJECTED" }).where(eq(walletTransactionsTable.id, id)).returning();
     return res.json({ transaction: updated });
   } catch (err) {
     console.error(err);
