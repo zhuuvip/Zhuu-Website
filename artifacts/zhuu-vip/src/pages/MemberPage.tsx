@@ -171,15 +171,25 @@ function TopUpFlow() {
 
   useEffect(() => {
     if (step !== "success") return;
-    const start = balance;
-    const difference = selectedAmount;
+
+    const start = Math.max(0, balance - selectedAmount);
+    const target = balance;
+    const difference = target - start;
     let frame = 0;
     const totalFrames = 36;
+
     const timer = window.setInterval(() => {
       frame += 1;
-      setAnimatedBalance(Math.round(start + difference * (frame / totalFrames)));
-      if (frame >= totalFrames) window.clearInterval(timer);
+      setAnimatedBalance(
+        Math.round(start + difference * (frame / totalFrames))
+      );
+
+      if (frame >= totalFrames) {
+        setAnimatedBalance(target);
+        window.clearInterval(timer);
+      }
     }, 24);
+
     return () => window.clearInterval(timer);
   }, [step, balance, selectedAmount]);
 
