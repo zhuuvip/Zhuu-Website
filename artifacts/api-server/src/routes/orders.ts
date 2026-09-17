@@ -24,182 +24,227 @@ router.post("/orders", async (req, res) => {
 
     const { productId, optionId, whatsapp } = req.body;
 
-    const [product] = await db
-      .select()
-      .from(productsTable)
-      .where(eq(productsTable.id, Number(productId)));
-
-    const [option] = await db
-      .select()
-      .from(productOptionsTable)
-      .where(eq(productOptionsTable.id, Number(optionId)));
-
-    if (!product || !option || option.productId !== product.id) {
-      return res.status(400).json({
-        error: "Produk atau durasi tidak valid",
-      });
-    }
-
-    if (option.stock <= 0) {
-      return res.status(400).json({
-        error: "Stok habis",
-      });
-    }
-
-    let deliveryKey: string | null = null;
-    let keyRow: any = null;
-
-    if (product.deliveryType === "KEY") {
-      [keyRow] = await db
+    const result = await db.transaction(async (tx) => {
+      const [product] = await tx
         .select()
-        .from(productKeysTable)
-        .where(
-          and(
-            eq(productKeysTable.productId, product.id),
-            eq(productKeysTable.optionId, option.id),
-            eq(productKeysTable.status, "READY"),
-          ),
-        )
-        .limit(1);
+        .from(productsTable)
+        .where(eq(productsTable.id, Number(productId)));
 
-      if (!keyRow) {
-        return res.status(400).json({
-          error: "Key untuk durasi ini habis",
-        });
+      const [option] = await tx
+        .select()
+        .from(productOptionsTable)
+        .where(eq(productOptionsTable.id, Number(optionId)));
+
+      if (!product || !option || option.productId !== product.id) {
+        throw new Error("Produk atau durasi tidak valid");
       }
 
-      deliveryKey = keyRow.key;
-    }
+      if (option.stock <= 0) {
+        throw new Error("Stok habis");
+      }
 
-    await db.execute(sql`
-      CREATE TABLE IF NOT EXISTS wallets (
-        id SERIAL PRIMARY KEY,
-        user_id TEXT NOT NULL UNIQUE,
-        balance INTEGER NOT NULL DEFAULT 0,
-        created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-        updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
-      )
-    `);
+      let deliveryKey: string | null = null;
+      let deliveryLink: string | null = null;
 
-    await db.execute(sql`
-      CREATE TABLE IF NOT EXISTS wallet_transactions (
-        id SERIAL PRIMARY KEY,
-        user_id TEXT NOT NULL,
-        type TEXT NOT NULL,
-        amount INTEGER NOT NULL,
-        reference TEXT UNIQUE,
-        description TEXT,
-        status TEXT NOT NULL DEFAULT 'PENDING',
-        created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
-      )
-    `);
+      /*
+       * KEY:
+       * Claim satu key READY secara atomic.
+       * FOR UPDATE SKIP LOCKED mencegah dua pembeli mengambil key yang sama.
+       */
+      if (product.deliveryType === "KEY") {
+        const claimed = await tx.execute(sql`
+          UPDATE product_keys
+          SET status = 'SOLD'
+          WHERE id = (
+            SELECT id
+            FROM product_keys
+            WHERE product_id = ${product.id}
+              AND option_id = ${option.id}
+              AND status = 'READY'
+            ORDER BY id ASC
+            LIMIT 1
+            FOR UPDATE SKIP LOCKED
+          )
+          RETURNING id, key
+        `);
 
-    let [wallet] = await db
-      .select()
-      .from(walletsTable)
-      .where(eq(walletsTable.userId, userId))
-      .limit(1);
+        const rows = (claimed as any).rows ?? claimed;
 
-    if (!wallet) {
-      [wallet] = await db
-        .insert(walletsTable)
+        if (!rows || rows.length === 0) {
+          throw new Error("Key untuk durasi ini habis");
+        }
+
+        deliveryKey = rows[0].key;
+      }
+
+      /*
+       * LINK:
+       * Ambil link yang sudah diatur Admin Panel.
+       * Tidak membuat setting/table baru.
+       */
+      if (product.deliveryType === "LINK") {
+        deliveryLink = product.deliveryValue || null;
+
+        if (!deliveryLink) {
+          throw new Error("Link delivery belum diatur oleh admin");
+        }
+      }
+
+      await tx.execute(sql`
+        CREATE TABLE IF NOT EXISTS wallets (
+          id SERIAL PRIMARY KEY,
+          user_id TEXT NOT NULL UNIQUE,
+          balance INTEGER NOT NULL DEFAULT 0,
+          created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+          updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+        )
+      `);
+
+      await tx.execute(sql`
+        CREATE TABLE IF NOT EXISTS wallet_transactions (
+          id SERIAL PRIMARY KEY,
+          user_id TEXT NOT NULL,
+          type TEXT NOT NULL,
+          amount INTEGER NOT NULL,
+          reference TEXT UNIQUE,
+          description TEXT,
+          status TEXT NOT NULL DEFAULT 'PENDING',
+          created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+        )
+      `);
+
+      let [wallet] = await tx
+        .select()
+        .from(walletsTable)
+        .where(eq(walletsTable.userId, userId))
+        .limit(1);
+
+      if (!wallet) {
+        [wallet] = await tx
+          .insert(walletsTable)
+          .values({
+            userId,
+            balance: 0,
+          })
+          .returning();
+      }
+
+      if (wallet.balance < option.price) {
+        throw new Error(`Saldo tidak cukup|${wallet.balance}|${option.price}`);
+      }
+
+      const invoice =
+        `INV-${new Date().toISOString().slice(0, 10).replace(/-/g, "")}-` +
+        Math.random().toString(36).slice(2, 7).toUpperCase();
+
+      const [updatedWallet] = await tx
+        .update(walletsTable)
+        .set({
+          balance: sql`${walletsTable.balance} - ${option.price}`,
+          updatedAt: new Date(),
+        })
+        .where(
+          and(
+            eq(walletsTable.id, wallet.id),
+            sql`${walletsTable.balance} >= ${option.price}`,
+          ),
+        )
+        .returning();
+
+      if (!updatedWallet) {
+        throw new Error(
+          "Saldo tidak cukup atau saldo berubah, silakan coba lagi",
+        );
+      }
+
+      const [updatedOption] = await tx
+        .update(productOptionsTable)
+        .set({
+          stock: sql`${productOptionsTable.stock} - 1`,
+        })
+        .where(
+          and(
+            eq(productOptionsTable.id, option.id),
+            sql`${productOptionsTable.stock} > 0`,
+          ),
+        )
+        .returning();
+
+      if (!updatedOption) {
+        throw new Error("Stok habis atau stok berubah, silakan coba lagi");
+      }
+
+      const paymentRef = deliveryKey || deliveryLink || null;
+
+      const [order] = await tx
+        .insert(ordersTable)
         .values({
-          userId,
-          balance: 0,
+          invoice,
+          productId: product.id,
+          optionId: option.id,
+          productName: product.name,
+          duration: option.duration,
+          amount: option.price,
+          whatsapp: whatsapp || null,
+          status: "PAID",
+          paymentRef,
         })
         .returning();
-    }
 
-    if (wallet.balance < option.price) {
-      return res.status(400).json({
-        error: "Saldo tidak cukup",
-        balance: wallet.balance,
-        required: option.price,
-      });
-    }
-
-    const invoice =
-      `INV-${new Date().toISOString().slice(0, 10).replace(/-/g, "")}-` +
-      Math.random().toString(36).slice(2, 7).toUpperCase();
-
-    const newBalance = wallet.balance - option.price;
-
-    const [updatedWallet] = await db
-      .update(walletsTable)
-      .set({
-        balance: newBalance,
-        updatedAt: new Date(),
-      })
-      .where(
-        and(
-          eq(walletsTable.id, wallet.id),
-          sql`${walletsTable.balance} >= ${option.price}`,
-        ),
-      )
-      .returning();
-
-    if (!updatedWallet) {
-      return res.status(400).json({
-        error: "Saldo tidak cukup atau saldo berubah, silakan coba lagi",
-      });
-    }
-
-    if (product.deliveryType === "KEY" && keyRow) {
-      await db
-        .update(productKeysTable)
-        .set({ status: "SOLD" })
-        .where(eq(productKeysTable.id, keyRow.id));
-    }
-
-    await db
-      .update(productOptionsTable)
-      .set({
-        stock: Math.max(0, option.stock - 1),
-      })
-      .where(
-        and(
-          eq(productOptionsTable.id, option.id),
-          sql`${productOptionsTable.stock} > 0`,
-        ),
-      );
-
-    const [order] = await db
-      .insert(ordersTable)
-      .values({
-        invoice,
-        productId: product.id,
-        optionId: option.id,
-        productName: product.name,
-        duration: option.duration,
-        amount: option.price,
-        whatsapp: whatsapp || null,
+      await tx.insert(walletTransactionsTable).values({
+        userId,
+        type: "PURCHASE",
+        amount: -option.price,
+        reference: invoice,
+        description: `${product.name} - ${option.duration}`,
         status: "PAID",
-        paymentRef: deliveryKey,
-      })
-      .returning();
+      });
 
-    await db.insert(walletTransactionsTable).values({
-      userId,
-      type: "PURCHASE",
-      amount: -option.price,
-      reference: invoice,
-      description: `${product.name} - ${option.duration}`,
-      status: "PAID",
+      return {
+        order,
+        deliveryKey,
+        deliveryLink,
+        balance: updatedWallet.balance,
+      };
     });
 
     return res.json({
-      ...order,
-      deliveryKey,
-      balance: updatedWallet.balance,
+      ...result.order,
+      deliveryKey: result.deliveryKey,
+      deliveryLink: result.deliveryLink,
+      balance: result.balance,
     });
   } catch (err) {
     console.error(err);
+
+    const message = err instanceof Error ? err.message : "";
+
+    if (message.startsWith("Saldo tidak cukup|")) {
+      const [, balance, required] = message.split("|");
+
+      return res.status(400).json({
+        error: "Saldo tidak cukup",
+        balance: Number(balance),
+        required: Number(required),
+      });
+    }
+
+    if (
+      message === "Produk atau durasi tidak valid" ||
+      message === "Stok habis" ||
+      message === "Key untuk durasi ini habis" ||
+      message === "Link delivery belum diatur oleh admin" ||
+      message === "Saldo tidak cukup atau saldo berubah, silakan coba lagi" ||
+      message === "Stok habis atau stok berubah, silakan coba lagi"
+    ) {
+      return res.status(400).json({ error: message });
+    }
+
     return res.status(500).json({
       error: "Gagal melakukan pembelian",
     });
   }
 });
-
 router.get("/orders", async (req, res) => {
   try {
     const userId = getAuth(req)?.userId;

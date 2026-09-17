@@ -1,15 +1,31 @@
 import { Router } from "express";
 import { db } from "@workspace/db";
-import { productsTable, productOptionsTable, productKeysTable } from "@workspace/db";
+import {
+  productsTable,
+  productOptionsTable,
+  productKeysTable,
+} from "@workspace/db";
 import { eq, sql } from "drizzle-orm";
 import { requireAdmin } from "../lib/auth";
 
 const router = Router();
 
 router.get("/products", async (_req, res) => {
-  await db.execute(sql`ALTER TABLE products ADD COLUMN IF NOT EXISTS image_url TEXT`);
-  await db.execute(sql`ALTER TABLE products ADD COLUMN IF NOT EXISTS delivery_type TEXT DEFAULT 'WHATSAPP'`);
-  await db.execute(sql`ALTER TABLE products ADD COLUMN IF NOT EXISTS delivery_value TEXT`);
+  await db.execute(sql`
+    ALTER TABLE products
+    ADD COLUMN IF NOT EXISTS image_url TEXT
+  `);
+
+  await db.execute(sql`
+    ALTER TABLE products
+    ADD COLUMN IF NOT EXISTS delivery_type TEXT DEFAULT 'WHATSAPP'
+  `);
+
+  await db.execute(sql`
+    ALTER TABLE products
+    ADD COLUMN IF NOT EXISTS delivery_value TEXT
+  `);
+
   await db.execute(sql`
     CREATE TABLE IF NOT EXISTS product_keys (
       id SERIAL PRIMARY KEY,
@@ -20,6 +36,7 @@ router.get("/products", async (_req, res) => {
       created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
     )
   `);
+
   await db.execute(sql`
     CREATE TABLE IF NOT EXISTS orders (
       id SERIAL PRIMARY KEY,
@@ -37,50 +54,80 @@ router.get("/products", async (_req, res) => {
       created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
     )
   `);
+
   const products = await db.select().from(productsTable);
   const options = await db.select().from(productOptionsTable);
-  return res.json(products.map(p => ({
-    ...p,
-    options: options.filter(o => o.productId === p.id),
-  })));
+
+  return res.json(
+    products.map((p) => ({
+      ...p,
+      options: options.filter((o) => o.productId === p.id),
+    })),
+  );
 });
 
 router.post("/products", requireAdmin, async (req, res) => {
-  const [product] = await db.insert(productsTable).values({
-    name: req.body.name, deliveryType: req.body.deliveryType || "WHATSAPP",
-    imageUrl: req.body.imageUrl || null,
-  }).returning();
+  const [product] = await db
+    .insert(productsTable)
+    .values({
+      name: req.body.name,
+      deliveryType: req.body.deliveryType || "WHATSAPP",
+      deliveryValue: req.body.deliveryValue || null,
+      imageUrl: req.body.imageUrl || null,
+    })
+    .returning();
+
   return res.json(product);
 });
 
 router.patch("/products/:id", requireAdmin, async (req, res) => {
-  const [product] = await db.update(productsTable)
-    .set({ name: req.body.name, deliveryType: req.body.deliveryType || "WHATSAPP", imageUrl: req.body.imageUrl || null })
+  const [product] = await db
+    .update(productsTable)
+    .set({
+      name: req.body.name,
+      deliveryType: req.body.deliveryType || "WHATSAPP",
+      deliveryValue: req.body.deliveryValue || null,
+      imageUrl: req.body.imageUrl || null,
+    })
     .where(eq(productsTable.id, Number(req.params.id)))
     .returning();
+
   return res.json(product);
 });
 
 router.delete("/products/:id", requireAdmin, async (req, res) => {
-  await db.delete(productOptionsTable)
+  await db
+    .delete(productKeysTable)
+    .where(eq(productKeysTable.productId, Number(req.params.id)));
+
+  await db
+    .delete(productOptionsTable)
     .where(eq(productOptionsTable.productId, Number(req.params.id)));
-  await db.delete(productsTable)
+
+  await db
+    .delete(productsTable)
     .where(eq(productsTable.id, Number(req.params.id)));
+
   return res.json({ ok: true });
 });
 
 router.post("/products/:id/options", requireAdmin, async (req, res) => {
-  const [option] = await db.insert(productOptionsTable).values({
-    productId: Number(req.params.id),
-    duration: req.body.duration,
-    price: Number(req.body.price),
-    stock: Number(req.body.stock ?? 0),
-  }).returning();
+  const [option] = await db
+    .insert(productOptionsTable)
+    .values({
+      productId: Number(req.params.id),
+      duration: req.body.duration,
+      price: Number(req.body.price),
+      stock: Number(req.body.stock ?? 0),
+    })
+    .returning();
+
   return res.json(option);
 });
 
 router.patch("/products/options/:id", requireAdmin, async (req, res) => {
-  const [option] = await db.update(productOptionsTable)
+  const [option] = await db
+    .update(productOptionsTable)
     .set({
       duration: req.body.duration,
       price: Number(req.body.price),
@@ -88,68 +135,90 @@ router.patch("/products/options/:id", requireAdmin, async (req, res) => {
     })
     .where(eq(productOptionsTable.id, Number(req.params.id)))
     .returning();
+
   return res.json(option);
 });
 
 router.delete("/products/options/:id", requireAdmin, async (req, res) => {
-  await db.delete(productOptionsTable)
+  await db
+    .delete(productKeysTable)
+    .where(eq(productKeysTable.optionId, Number(req.params.id)));
+
+  await db
+    .delete(productOptionsTable)
     .where(eq(productOptionsTable.id, Number(req.params.id)));
+
   return res.json({ ok: true });
 });
 
-router.post("/products/:productId/options/:optionId/keys", requireAdmin, async (req, res) => {
-  const productId = Number(req.params.productId);
-  const optionId = Number(req.params.optionId);
-  const keys = Array.isArray(req.body.keys) ? req.body.keys : [];
+router.post(
+  "/products/:productId/options/:optionId/keys",
+  requireAdmin,
+  async (req, res) => {
+    const productId = Number(req.params.productId);
+    const optionId = Number(req.params.optionId);
 
-  if (!Number.isInteger(productId) || !Number.isInteger(optionId) || !keys.length) {
-    return res.status(400).json({
-      error: "Product, option, dan keys wajib diisi",
-    });
-  }
+    const keys = Array.isArray(req.body.keys) ? req.body.keys : [];
 
-  const [option] = await db
-    .select()
-    .from(productOptionsTable)
-    .where(eq(productOptionsTable.id, optionId));
+    if (
+      !Number.isInteger(productId) ||
+      !Number.isInteger(optionId) ||
+      !keys.length
+    ) {
+      return res.status(400).json({
+        error: "Product, option, dan keys wajib diisi",
+      });
+    }
 
-  if (!option || option.productId !== productId) {
-    return res.status(400).json({
-      error: "Durasi tidak cocok dengan produk",
-    });
-  }
-
-  const cleanKeys = [...new Set(
-    keys.map((key: unknown) => String(key).trim()).filter(Boolean)
-  )];
-
-  const values = cleanKeys.map((key) => ({
-    productId,
-    optionId,
-    key: String(key),
-    status: "READY",
-  }));
-
-  const inserted = await db
-    .insert(productKeysTable)
-    .values(values)
-    .onConflictDoNothing({ target: productKeysTable.key })
-    .returning();
-
-  if (inserted.length > 0) {
-    await db
-      .update(productOptionsTable)
-      .set({
-        stock: option.stock + inserted.length,
-      })
+    const [option] = await db
+      .select()
+      .from(productOptionsTable)
       .where(eq(productOptionsTable.id, optionId));
-  }
 
-  return res.json({
-    added: inserted.length,
-    skipped: cleanKeys.length - inserted.length,
-    stock: option.stock + inserted.length,
-  });
-});
+    if (!option || option.productId !== productId) {
+      return res.status(400).json({
+        error: "Durasi tidak cocok dengan produk",
+      });
+    }
+
+    const cleanKeys = [
+      ...new Set(
+        keys
+          .map((key: unknown) => String(key).trim())
+          .filter(Boolean),
+      ),
+    ];
+
+    const values = cleanKeys.map((key) => ({
+      productId,
+      optionId,
+      key: String(key),
+      status: "READY",
+    }));
+
+    const inserted = await db
+      .insert(productKeysTable)
+      .values(values)
+      .onConflictDoNothing({
+        target: productKeysTable.key,
+      })
+      .returning();
+
+    if (inserted.length > 0) {
+      await db
+        .update(productOptionsTable)
+        .set({
+          stock: option.stock + inserted.length,
+        })
+        .where(eq(productOptionsTable.id, optionId));
+    }
+
+    return res.json({
+      added: inserted.length,
+      skipped: cleanKeys.length - inserted.length,
+      stock: option.stock + inserted.length,
+    });
+  },
+);
 
 export default router;

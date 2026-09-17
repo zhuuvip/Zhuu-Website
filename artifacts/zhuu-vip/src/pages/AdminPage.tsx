@@ -293,6 +293,7 @@ const addKeys = async (productId: number, optionId: number) => {
   const [productName, setProductName] = useState("");
 const [imageUrl, setImageUrl] = useState("");
   const [deliveryType, setDeliveryType] = useState("WHATSAPP");
+const [deliveryValue, setDeliveryValue] = useState("");
   const [selectedProductId, setSelectedProductId] = useState("");
   const [duration, setDuration] = useState("");
   const [price, setPrice] = useState("");
@@ -927,7 +928,15 @@ const saveSettings = async () => {
     <div className="grid sm:grid-cols-4 gap-2">
       <input value={productName} onChange={e => setProductName(e.target.value)} placeholder="Nama produk" className="px-3 py-2 rounded-lg bg-black/20 text-sm" />
           <input value={imageUrl} onChange={e => setImageUrl(e.target.value)} placeholder="URL gambar produk" className="px-3 py-2 rounded-lg bg-black/20 text-sm" />
-            <select value={deliveryType} onChange={e => setDeliveryType(e.target.value)} className="px-3 py-2 rounded-lg bg-black/20 text-sm"><option value="WHATSAPP">WhatsApp</option><option value="DOWNLOAD">Download</option><option value="KEY">Key</option></select>
+            <select value={deliveryType} onChange={e => setDeliveryType(e.target.value)} className="px-3 py-2 rounded-lg bg-black/20 text-sm"><option value="WHATSAPP">WhatsApp</option><option value="DOWNLOAD">Download</option><option value="LINK">Link</option><option value="KEY">Key</option></select>
+{deliveryType === "LINK" && (
+  <input
+    value={deliveryValue}
+    onChange={e => setDeliveryValue(e.target.value)}
+    placeholder="URL delivery, contoh https://mediafire.com/..."
+    className="px-3 py-2 rounded-lg bg-black/20 text-sm sm:col-span-2"
+  />
+)}
       <input value={duration} onChange={e => setDuration(e.target.value)} placeholder="Durasi" className="px-3 py-2 rounded-lg bg-black/20 text-sm" />
       <input value={price} onChange={e => setPrice(e.target.value)} placeholder="Harga" type="number" className="px-3 py-2 rounded-lg bg-black/20 text-sm" />
       <input value={stock} onChange={e => setStock(e.target.value)} placeholder="Stock" type="number" className="px-3 py-2 rounded-lg bg-black/20 text-sm" />
@@ -941,7 +950,12 @@ const saveSettings = async () => {
           const r = await fetch(`${API_BASE}/api/products`, {
             method: "POST",
       headers: await authHeaders(),
-            body: JSON.stringify({name: productName, imageUrl: imageUrl || null, deliveryType})
+            body: JSON.stringify({
+  name: productName,
+  imageUrl: imageUrl || null,
+  deliveryType,
+  deliveryValue: deliveryValue || null,
+})
           });
           if (r.ok) {
             setProductName("");
@@ -993,68 +1007,102 @@ const saveSettings = async () => {
     {products.map(p => (
       <div key={p.id} className="mt-4 p-4 rounded-xl bg-black/20">
         <div className="flex flex-col sm:flex-row gap-2 items-stretch sm:items-center">
-          <input
-            defaultValue={p.name}
-            id={`product-name-${p.id}`}
-            readOnly={editingProductId !== p.id}
-            className="flex-1 px-3 py-2 rounded-lg bg-black/20 text-cyan-300 font-semibold"
-          />
-            {editingProductId === p.id && (
-              <select
-                id={`delivery-type-${p.id}`}
-                defaultValue={p.deliveryType || "WHATSAPP"}
-                className="px-3 py-2 rounded-lg bg-black/20 text-sm"
-              >
-                <option value="WHATSAPP">WhatsApp</option>
-                <option value="DOWNLOAD">Download</option>
-                <option value="KEY">Key</option>
-              </select>
-            )}
+                          <input
+                            defaultValue={p.name}
+                            id={`product-name-${p.id}`}
+                            readOnly={editingProductId !== p.id}
+                            className="flex-1 px-3 py-2 rounded-lg bg-black/20 text-cyan-300 font-semibold"
+                          />
 
-          <button type="button"
-            onClick={async () => {
-            if (editingProductId === p.id) { alert("SIMPAN DIKLIK");
-              const el = document.getElementById(`product-name-${p.id}`) as HTMLInputElement;
-            const typeEl = document.getElementById(`delivery-type-${p.id}`) as HTMLSelectElement;
-              try { const r = await fetch(`${API_BASE}/api/products/${p.id}`, {
-                method: "PATCH",
-                headers: await authHeaders(),
-                body: JSON.stringify({name: el.value, imageUrl: p.imageUrl || null, deliveryType: typeEl.value})
-              });
-              if (!r.ok) { alert("Gagal menyimpan produk"); return; }
-              setEditingProductId(null);
-              loadProducts(); } catch (e) { }
-            } else {
-              setEditingProductId(p.id);
-            }
-          }}
-          className="relative z-10 pointer-events-auto cursor-pointer w-full sm:w-auto px-3 py-2 rounded-lg bg-cyan-400/10 text-cyan-300 text-sm"
-        >
-          {editingProductId === p.id ? "Simpan" : "Edit"}
-        </button>
-        {editingProductId === p.id && (
-          <button type="button"
-            onClick={() => {
-              setEditingProductId(null);
-              loadProducts();
-            }}
-            className="px-3 py-2 rounded-lg bg-yellow-400/10 text-yellow-300 text-sm"
-          >
-            Batal
-          </button>
-        )}
+                          {editingProductId === p.id && (
+                            <>
+                              <select
+                                id={`delivery-type-${p.id}`}
+                                defaultValue={p.deliveryType || "WHATSAPP"}
+                                className="px-3 py-2 rounded-lg bg-black/20 text-sm"
+                              >
+                                <option value="WHATSAPP">WhatsApp</option>
+                                <option value="DOWNLOAD">Download</option>
+                                <option value="LINK">Link</option>
+                                <option value="KEY">Key</option>
+                              </select>
 
-          <button type="button"
-            onClick={async () => {
-              if (!confirm(`Hapus ${p.name}?`)) return;
-              await fetch(`${API_BASE}/api/products/${p.id}`, {method: "DELETE", headers: await authHeaders()});
-              loadProducts();
-            }}
-            className="px-3 py-2 rounded-lg bg-red-400/10 text-red-300 text-sm"
-          >
-            Hapus
-          </button>
-        </div>
+                              <input
+                                id={`delivery-value-${p.id}`}
+                                defaultValue={p.deliveryValue || ""}
+                                placeholder="URL delivery (MediaFire, dll)"
+                                className="flex-1 px-3 py-2 rounded-lg bg-black/20 text-sm"
+                              />
+                            </>
+                          )}
+
+                          <button
+                            type="button"
+                            onClick={async () => {
+                              if (editingProductId === p.id) {
+                                const el = document.getElementById(`product-name-${p.id}`) as HTMLInputElement;
+                                const typeEl = document.getElementById(`delivery-type-${p.id}`) as HTMLSelectElement;
+                                const valueEl = document.getElementById(`delivery-value-${p.id}`) as HTMLInputElement;
+
+                                try {
+                                  const r = await fetch(`${API_BASE}/api/products/${p.id}`, {
+                                    method: "PATCH",
+                                    headers: await authHeaders(),
+                                    body: JSON.stringify({
+                                      name: el.value,
+                                      imageUrl: p.imageUrl || null,
+                                      deliveryType: typeEl.value,
+                                      deliveryValue: valueEl?.value || null,
+                                    }),
+                                  });
+
+                                  if (!r.ok) {
+                                    alert("Gagal menyimpan produk");
+                                    return;
+                                  }
+
+                                  setEditingProductId(null);
+                                  loadProducts();
+                                } catch (e) {
+                                  alert("Gagal menyimpan produk");
+                                }
+                              } else {
+                                setEditingProductId(p.id);
+                              }
+                            }}
+                            className="relative z-10 pointer-events-auto cursor-pointer w-full sm:w-auto px-3 py-2 rounded-lg bg-cyan-400/10 text-cyan-300 text-sm"
+                          >
+                            {editingProductId === p.id ? "Simpan" : "Edit"}
+                          </button>
+
+                          {editingProductId === p.id && (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setEditingProductId(null);
+                                loadProducts();
+                              }}
+                              className="px-3 py-2 rounded-lg bg-yellow-400/10 text-yellow-300 text-sm"
+                            >
+                              Batal
+                            </button>
+                          )}
+
+                          <button
+                            type="button"
+                            onClick={async () => {
+                              if (!confirm(`Hapus ${p.name}?`)) return;
+                              await fetch(`${API_BASE}/api/products/${p.id}`, {
+                                method: "DELETE",
+                                headers: await authHeaders(),
+                              });
+                              loadProducts();
+                            }}
+                            className="px-3 py-2 rounded-lg bg-red-400/10 text-red-300 text-sm"
+                          >
+                            Hapus
+                          </button>
+                        </div>
 
         {p.options?.map((o:any) => (
           <div key={o.id} className="grid grid-cols-1 sm:grid-cols-[1fr_1fr_1fr_auto_auto] gap-2 items-center mt-2">

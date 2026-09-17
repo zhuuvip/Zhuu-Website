@@ -38,6 +38,7 @@ export default function ProductsPage() {
     product: string;
     duration: string;
     deliveryKey?: string;
+    deliveryLink?: string;
   } | null>(null);
 
   const [copied, setCopied] = useState(false);
@@ -681,6 +682,51 @@ export default function ProductsPage() {
                     >
                       {copied ? "✓ Berhasil Disalin" : "Salin Key"}
                     </button>
+                  </div>
+                </div>
+              )}
+
+              {purchaseResult.deliveryLink && (
+                <div className="mt-4">
+                  <p className="mb-2 text-xs font-bold uppercase tracking-wider text-white/40">
+                    Delivery Link
+                  </p>
+
+                  <div className="rounded-2xl border border-cyan-400/20 bg-cyan-500/[0.06] p-4">
+                    <a
+                      href={purchaseResult.deliveryLink}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="block break-all text-sm leading-6 text-cyan-300 underline"
+                    >
+                      {purchaseResult.deliveryLink}
+                    </a>
+
+                    <button
+                      onClick={async () => {
+                        try {
+                          await navigator.clipboard.writeText(
+                            purchaseResult.deliveryLink || ""
+                          );
+                          setCopied(true);
+                          window.setTimeout(() => setCopied(false), 1800);
+                        } catch {
+                          alert("Gagal menyalin link. Silakan salin secara manual.");
+                        }
+                      }}
+                      className="mt-4 w-full rounded-xl bg-white px-4 py-3 text-sm font-black text-black transition hover:bg-white/90 active:scale-[0.98]"
+                    >
+                      {copied ? "✓ Berhasil Disalin" : "Salin Link"}
+                    </button>
+
+                    <a
+                      href={purchaseResult.deliveryLink}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="mt-2 block w-full rounded-xl bg-cyan-400 px-4 py-3 text-center text-sm font-black text-black transition hover:bg-cyan-300 active:scale-[0.98]"
+                    >
+                      Buka Link
+                    </a>
                   </div>
                 </div>
               )}

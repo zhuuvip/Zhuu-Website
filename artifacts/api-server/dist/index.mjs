@@ -78745,9 +78745,18 @@ var health_default = router3;
 var import_express6 = __toESM(require_express2(), 1);
 var router4 = (0, import_express6.Router)();
 router4.get("/products", async (_req, res) => {
-  await db.execute(sql`ALTER TABLE products ADD COLUMN IF NOT EXISTS image_url TEXT`);
-  await db.execute(sql`ALTER TABLE products ADD COLUMN IF NOT EXISTS delivery_type TEXT DEFAULT 'WHATSAPP'`);
-  await db.execute(sql`ALTER TABLE products ADD COLUMN IF NOT EXISTS delivery_value TEXT`);
+  await db.execute(sql`
+    ALTER TABLE products
+    ADD COLUMN IF NOT EXISTS image_url TEXT
+  `);
+  await db.execute(sql`
+    ALTER TABLE products
+    ADD COLUMN IF NOT EXISTS delivery_type TEXT DEFAULT 'WHATSAPP'
+  `);
+  await db.execute(sql`
+    ALTER TABLE products
+    ADD COLUMN IF NOT EXISTS delivery_value TEXT
+  `);
   await db.execute(sql`
     CREATE TABLE IF NOT EXISTS product_keys (
       id SERIAL PRIMARY KEY,
@@ -78777,24 +78786,33 @@ router4.get("/products", async (_req, res) => {
   `);
   const products = await db.select().from(productsTable);
   const options = await db.select().from(productOptionsTable);
-  return res.json(products.map((p) => ({
-    ...p,
-    options: options.filter((o) => o.productId === p.id)
-  })));
+  return res.json(
+    products.map((p) => ({
+      ...p,
+      options: options.filter((o) => o.productId === p.id)
+    }))
+  );
 });
 router4.post("/products", requireAdmin, async (req, res) => {
   const [product] = await db.insert(productsTable).values({
     name: req.body.name,
     deliveryType: req.body.deliveryType || "WHATSAPP",
+    deliveryValue: req.body.deliveryValue || null,
     imageUrl: req.body.imageUrl || null
   }).returning();
   return res.json(product);
 });
 router4.patch("/products/:id", requireAdmin, async (req, res) => {
-  const [product] = await db.update(productsTable).set({ name: req.body.name, deliveryType: req.body.deliveryType || "WHATSAPP", imageUrl: req.body.imageUrl || null }).where(eq(productsTable.id, Number(req.params.id))).returning();
+  const [product] = await db.update(productsTable).set({
+    name: req.body.name,
+    deliveryType: req.body.deliveryType || "WHATSAPP",
+    deliveryValue: req.body.deliveryValue || null,
+    imageUrl: req.body.imageUrl || null
+  }).where(eq(productsTable.id, Number(req.params.id))).returning();
   return res.json(product);
 });
 router4.delete("/products/:id", requireAdmin, async (req, res) => {
+  await db.delete(productKeysTable).where(eq(productKeysTable.productId, Number(req.params.id)));
   await db.delete(productOptionsTable).where(eq(productOptionsTable.productId, Number(req.params.id)));
   await db.delete(productsTable).where(eq(productsTable.id, Number(req.params.id)));
   return res.json({ ok: true });
@@ -78817,45 +78835,54 @@ router4.patch("/products/options/:id", requireAdmin, async (req, res) => {
   return res.json(option);
 });
 router4.delete("/products/options/:id", requireAdmin, async (req, res) => {
+  await db.delete(productKeysTable).where(eq(productKeysTable.optionId, Number(req.params.id)));
   await db.delete(productOptionsTable).where(eq(productOptionsTable.id, Number(req.params.id)));
   return res.json({ ok: true });
 });
-router4.post("/products/:productId/options/:optionId/keys", requireAdmin, async (req, res) => {
-  const productId = Number(req.params.productId);
-  const optionId = Number(req.params.optionId);
-  const keys = Array.isArray(req.body.keys) ? req.body.keys : [];
-  if (!Number.isInteger(productId) || !Number.isInteger(optionId) || !keys.length) {
-    return res.status(400).json({
-      error: "Product, option, dan keys wajib diisi"
-    });
-  }
-  const [option] = await db.select().from(productOptionsTable).where(eq(productOptionsTable.id, optionId));
-  if (!option || option.productId !== productId) {
-    return res.status(400).json({
-      error: "Durasi tidak cocok dengan produk"
-    });
-  }
-  const cleanKeys = [...new Set(
-    keys.map((key) => String(key).trim()).filter(Boolean)
-  )];
-  const values = cleanKeys.map((key) => ({
-    productId,
-    optionId,
-    key: String(key),
-    status: "READY"
-  }));
-  const inserted = await db.insert(productKeysTable).values(values).onConflictDoNothing({ target: productKeysTable.key }).returning();
-  if (inserted.length > 0) {
-    await db.update(productOptionsTable).set({
+router4.post(
+  "/products/:productId/options/:optionId/keys",
+  requireAdmin,
+  async (req, res) => {
+    const productId = Number(req.params.productId);
+    const optionId = Number(req.params.optionId);
+    const keys = Array.isArray(req.body.keys) ? req.body.keys : [];
+    if (!Number.isInteger(productId) || !Number.isInteger(optionId) || !keys.length) {
+      return res.status(400).json({
+        error: "Product, option, dan keys wajib diisi"
+      });
+    }
+    const [option] = await db.select().from(productOptionsTable).where(eq(productOptionsTable.id, optionId));
+    if (!option || option.productId !== productId) {
+      return res.status(400).json({
+        error: "Durasi tidak cocok dengan produk"
+      });
+    }
+    const cleanKeys = [
+      ...new Set(
+        keys.map((key) => String(key).trim()).filter(Boolean)
+      )
+    ];
+    const values = cleanKeys.map((key) => ({
+      productId,
+      optionId,
+      key: String(key),
+      status: "READY"
+    }));
+    const inserted = await db.insert(productKeysTable).values(values).onConflictDoNothing({
+      target: productKeysTable.key
+    }).returning();
+    if (inserted.length > 0) {
+      await db.update(productOptionsTable).set({
+        stock: option.stock + inserted.length
+      }).where(eq(productOptionsTable.id, optionId));
+    }
+    return res.json({
+      added: inserted.length,
+      skipped: cleanKeys.length - inserted.length,
       stock: option.stock + inserted.length
-    }).where(eq(productOptionsTable.id, optionId));
+    });
   }
-  return res.json({
-    added: inserted.length,
-    skipped: cleanKeys.length - inserted.length,
-    stock: option.stock + inserted.length
-  });
-});
+);
 var products_default = router4;
 
 // src/routes/links.ts
@@ -83591,123 +83618,149 @@ router11.post("/orders", async (req, res) => {
       return res.status(401).json({ error: "Login diperlukan" });
     }
     const { productId, optionId, whatsapp } = req.body;
-    const [product] = await db.select().from(productsTable).where(eq(productsTable.id, Number(productId)));
-    const [option] = await db.select().from(productOptionsTable).where(eq(productOptionsTable.id, Number(optionId)));
-    if (!product || !option || option.productId !== product.id) {
-      return res.status(400).json({
-        error: "Produk atau durasi tidak valid"
-      });
-    }
-    if (option.stock <= 0) {
-      return res.status(400).json({
-        error: "Stok habis"
-      });
-    }
-    let deliveryKey = null;
-    let keyRow = null;
-    if (product.deliveryType === "KEY") {
-      [keyRow] = await db.select().from(productKeysTable).where(
-        and(
-          eq(productKeysTable.productId, product.id),
-          eq(productKeysTable.optionId, option.id),
-          eq(productKeysTable.status, "READY")
-        )
-      ).limit(1);
-      if (!keyRow) {
-        return res.status(400).json({
-          error: "Key untuk durasi ini habis"
-        });
+    const result = await db.transaction(async (tx) => {
+      const [product] = await tx.select().from(productsTable).where(eq(productsTable.id, Number(productId)));
+      const [option] = await tx.select().from(productOptionsTable).where(eq(productOptionsTable.id, Number(optionId)));
+      if (!product || !option || option.productId !== product.id) {
+        throw new Error("Produk atau durasi tidak valid");
       }
-      deliveryKey = keyRow.key;
-    }
-    await db.execute(sql`
-      CREATE TABLE IF NOT EXISTS wallets (
-        id SERIAL PRIMARY KEY,
-        user_id TEXT NOT NULL UNIQUE,
-        balance INTEGER NOT NULL DEFAULT 0,
-        created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-        updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
-      )
-    `);
-    await db.execute(sql`
-      CREATE TABLE IF NOT EXISTS wallet_transactions (
-        id SERIAL PRIMARY KEY,
-        user_id TEXT NOT NULL,
-        type TEXT NOT NULL,
-        amount INTEGER NOT NULL,
-        reference TEXT UNIQUE,
-        description TEXT,
-        status TEXT NOT NULL DEFAULT 'PENDING',
-        created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
-      )
-    `);
-    let [wallet] = await db.select().from(walletsTable).where(eq(walletsTable.userId, userId)).limit(1);
-    if (!wallet) {
-      [wallet] = await db.insert(walletsTable).values({
-        userId,
-        balance: 0
+      if (option.stock <= 0) {
+        throw new Error("Stok habis");
+      }
+      let deliveryKey = null;
+      let deliveryLink = null;
+      if (product.deliveryType === "KEY") {
+        const claimed = await tx.execute(sql`
+          UPDATE product_keys
+          SET status = 'SOLD'
+          WHERE id = (
+            SELECT id
+            FROM product_keys
+            WHERE product_id = ${product.id}
+              AND option_id = ${option.id}
+              AND status = 'READY'
+            ORDER BY id ASC
+            LIMIT 1
+            FOR UPDATE SKIP LOCKED
+          )
+          RETURNING id, key
+        `);
+        const rows = claimed.rows ?? claimed;
+        if (!rows || rows.length === 0) {
+          throw new Error("Key untuk durasi ini habis");
+        }
+        deliveryKey = rows[0].key;
+      }
+      if (product.deliveryType === "LINK") {
+        deliveryLink = product.deliveryValue || null;
+        if (!deliveryLink) {
+          throw new Error("Link delivery belum diatur oleh admin");
+        }
+      }
+      await tx.execute(sql`
+        CREATE TABLE IF NOT EXISTS wallets (
+          id SERIAL PRIMARY KEY,
+          user_id TEXT NOT NULL UNIQUE,
+          balance INTEGER NOT NULL DEFAULT 0,
+          created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+          updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+        )
+      `);
+      await tx.execute(sql`
+        CREATE TABLE IF NOT EXISTS wallet_transactions (
+          id SERIAL PRIMARY KEY,
+          user_id TEXT NOT NULL,
+          type TEXT NOT NULL,
+          amount INTEGER NOT NULL,
+          reference TEXT UNIQUE,
+          description TEXT,
+          status TEXT NOT NULL DEFAULT 'PENDING',
+          created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+        )
+      `);
+      let [wallet] = await tx.select().from(walletsTable).where(eq(walletsTable.userId, userId)).limit(1);
+      if (!wallet) {
+        [wallet] = await tx.insert(walletsTable).values({
+          userId,
+          balance: 0
+        }).returning();
+      }
+      if (wallet.balance < option.price) {
+        throw new Error(`Saldo tidak cukup|${wallet.balance}|${option.price}`);
+      }
+      const invoice = `INV-${(/* @__PURE__ */ new Date()).toISOString().slice(0, 10).replace(/-/g, "")}-` + Math.random().toString(36).slice(2, 7).toUpperCase();
+      const [updatedWallet] = await tx.update(walletsTable).set({
+        balance: sql`${walletsTable.balance} - ${option.price}`,
+        updatedAt: /* @__PURE__ */ new Date()
+      }).where(
+        and(
+          eq(walletsTable.id, wallet.id),
+          sql`${walletsTable.balance} >= ${option.price}`
+        )
+      ).returning();
+      if (!updatedWallet) {
+        throw new Error(
+          "Saldo tidak cukup atau saldo berubah, silakan coba lagi"
+        );
+      }
+      const [updatedOption] = await tx.update(productOptionsTable).set({
+        stock: sql`${productOptionsTable.stock} - 1`
+      }).where(
+        and(
+          eq(productOptionsTable.id, option.id),
+          sql`${productOptionsTable.stock} > 0`
+        )
+      ).returning();
+      if (!updatedOption) {
+        throw new Error("Stok habis atau stok berubah, silakan coba lagi");
+      }
+      const paymentRef = deliveryKey || deliveryLink || null;
+      const [order] = await tx.insert(ordersTable).values({
+        invoice,
+        productId: product.id,
+        optionId: option.id,
+        productName: product.name,
+        duration: option.duration,
+        amount: option.price,
+        whatsapp: whatsapp || null,
+        status: "PAID",
+        paymentRef
       }).returning();
-    }
-    if (wallet.balance < option.price) {
-      return res.status(400).json({
-        error: "Saldo tidak cukup",
-        balance: wallet.balance,
-        required: option.price
+      await tx.insert(walletTransactionsTable).values({
+        userId,
+        type: "PURCHASE",
+        amount: -option.price,
+        reference: invoice,
+        description: `${product.name} - ${option.duration}`,
+        status: "PAID"
       });
-    }
-    const invoice = `INV-${(/* @__PURE__ */ new Date()).toISOString().slice(0, 10).replace(/-/g, "")}-` + Math.random().toString(36).slice(2, 7).toUpperCase();
-    const newBalance = wallet.balance - option.price;
-    const [updatedWallet] = await db.update(walletsTable).set({
-      balance: newBalance,
-      updatedAt: /* @__PURE__ */ new Date()
-    }).where(
-      and(
-        eq(walletsTable.id, wallet.id),
-        sql`${walletsTable.balance} >= ${option.price}`
-      )
-    ).returning();
-    if (!updatedWallet) {
-      return res.status(400).json({
-        error: "Saldo tidak cukup atau saldo berubah, silakan coba lagi"
-      });
-    }
-    if (product.deliveryType === "KEY" && keyRow) {
-      await db.update(productKeysTable).set({ status: "SOLD" }).where(eq(productKeysTable.id, keyRow.id));
-    }
-    await db.update(productOptionsTable).set({
-      stock: Math.max(0, option.stock - 1)
-    }).where(
-      and(
-        eq(productOptionsTable.id, option.id),
-        sql`${productOptionsTable.stock} > 0`
-      )
-    );
-    const [order] = await db.insert(ordersTable).values({
-      invoice,
-      productId: product.id,
-      optionId: option.id,
-      productName: product.name,
-      duration: option.duration,
-      amount: option.price,
-      whatsapp: whatsapp || null,
-      status: "PAID",
-      paymentRef: deliveryKey
-    }).returning();
-    await db.insert(walletTransactionsTable).values({
-      userId,
-      type: "PURCHASE",
-      amount: -option.price,
-      reference: invoice,
-      description: `${product.name} - ${option.duration}`,
-      status: "PAID"
+      return {
+        order,
+        deliveryKey,
+        deliveryLink,
+        balance: updatedWallet.balance
+      };
     });
     return res.json({
-      ...order,
-      deliveryKey,
-      balance: updatedWallet.balance
+      ...result.order,
+      deliveryKey: result.deliveryKey,
+      deliveryLink: result.deliveryLink,
+      balance: result.balance
     });
   } catch (err) {
     console.error(err);
+    const message = err instanceof Error ? err.message : "";
+    if (message.startsWith("Saldo tidak cukup|")) {
+      const [, balance, required2] = message.split("|");
+      return res.status(400).json({
+        error: "Saldo tidak cukup",
+        balance: Number(balance),
+        required: Number(required2)
+      });
+    }
+    if (message === "Produk atau durasi tidak valid" || message === "Stok habis" || message === "Key untuk durasi ini habis" || message === "Link delivery belum diatur oleh admin" || message === "Saldo tidak cukup atau saldo berubah, silakan coba lagi" || message === "Stok habis atau stok berubah, silakan coba lagi") {
+      return res.status(400).json({ error: message });
+    }
     return res.status(500).json({
       error: "Gagal melakukan pembelian"
     });
