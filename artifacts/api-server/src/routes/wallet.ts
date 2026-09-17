@@ -1,3 +1,4 @@
+import axios from "axios";
 import { Router } from "express";
 import { db } from "@workspace/db";
 import { walletsTable, walletTransactionsTable } from "@workspace/db";
@@ -118,6 +119,35 @@ router.post("/wallet/deposit", async (req, res) => {
         status: "PENDING",
       })
       .returning();
+
+    try {
+      const token = process.env.WABLAS_API_KEY;
+      const secret = process.env.WABLAS_SECRET_KEY;
+      const owner = process.env.WABLAS_OWNER;
+
+      if (token && secret && owner) {
+        await axios.post(
+          "https://kudus.wablas.com/api/send-message",
+          new URLSearchParams({
+            phone: owner,
+            message:
+              `🔔 DEPOSIT BARU\\n\\n` +
+              `Nominal: Rp${amount.toLocaleString("id-ID")}\\n` +
+              `Ref: ${reference}\\n` +
+              `Status: PENDING\\n\\n` +
+              `Silakan cek Admin Panel untuk menerima atau menolak deposit.`,
+          }),
+          {
+            headers: {
+              Authorization: `${token}.${secret}`,
+              "Content-Type": "application/x-www-form-urlencoded",
+            },
+          }
+        );
+      }
+    } catch (wablasErr) {
+      console.error("WABLAS DEPOSIT NOTIFICATION ERROR:", wablasErr);
+    }
 
     return res.json({
       transaction,

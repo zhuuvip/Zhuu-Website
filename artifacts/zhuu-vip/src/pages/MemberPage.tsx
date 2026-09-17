@@ -20,7 +20,7 @@ import {
 import RankBadge, { type RankType } from "@/components/RankBadge";
 
 const QUICK_AMOUNTS = [1000, 25000, 50000, 10000, 250000];
-const QRIS_CODE = "https://api.qrserver.com/v1/create-qr-code/?size=420x420&data=QRIS-ZHUUVIP-TOPUP";
+const QRIS_CODE = "https://zhuusite.my.id/attached_assets/qr_ID1026531275638_12.09.26_1789202677_1789202677296.jpeg";
 
 const formatRupiah = (value: number) => `Rp${new Intl.NumberFormat("id-ID").format(value)}`;
 
@@ -98,7 +98,7 @@ function TopUpFlow() {
         return;
       }
 
-      const res = await fetch("https://zhuuapi-hgeming2009-1446s-projects.vercel.app/api/wallet", {
+      const res = await fetch("https://zhuuapi.vercel.app/api/wallet", {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -162,7 +162,7 @@ function TopUpFlow() {
 
                 setChecking(true);
 
-                const res = await fetch("https://zhuuapi-hgeming2009-1446s-projects.vercel.app/api/wallet/deposit", {
+                const res = await fetch("https://zhuuapi.vercel.app/api/wallet/deposit", {
                   method: "POST",
                   headers: {
                     "Content-Type": "application/json",

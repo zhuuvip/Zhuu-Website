@@ -1,3 +1,4 @@
+import wablasRouter from "./wablas.js";
 import walletRouter from "./wallet.js";
 import { Router } from "express";
 import healthRouter from "./health.js";
@@ -23,5 +24,6 @@ router.use(settingsRouter);
 router.use(ordersRouter);
 
 router.use(walletRouter);
+router.use(wablasRouter);
 
 export default router;

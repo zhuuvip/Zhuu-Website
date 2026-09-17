@@ -285,6 +285,9 @@ importers:
       '@workspace/integrations-anthropic-ai':
         specifier: workspace:*
         version: link:../../lib/integrations-anthropic-ai
+      axios:
+        specifier: ^1.20.0
+        version: 1.20.0
       cookie-parser:
         specifier: ^1.4.7
         version: 1.4.7
