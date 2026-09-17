@@ -12,6 +12,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@clerk/backend": "3.18.1",
     "@clerk/react": "^6.6.2",
     "@clerk/themes": "^2.4.57",
     "@hookform/resolvers": "^3.10.0",

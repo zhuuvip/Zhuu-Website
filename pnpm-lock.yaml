@@ -74,6 +74,9 @@ importers:
 
   .:
     dependencies:
+      '@clerk/backend':
+        specifier: 3.18.1
+        version: 3.18.1(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@clerk/react':
         specifier: ^6.6.2
         version: 6.7.1(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
@@ -899,10 +902,6 @@ packages:
 
   '@clerk/backend@3.18.1':
     resolution: {integrity: sha512-JjaibgZ9OuYE/tcJUgU7w3c83KdCooHNkt9OBjKznbWUuTXI0lcZQQWyy4ZDw3kB1uszeDfs1WGbsOvVkZA/aQ==}
-    engines: {node: '>=20.9.0'}
-
-  '@clerk/backend@3.4.13':
-    resolution: {integrity: sha512-3BABnKE1YZpQqJ/S8QD5FpzE7jq+mgaMrO7rLiWTI8Bfs/xk11XYSp1lMEf3BTo/rzEtaUsXaVDGvccYogKapg==}
     engines: {node: '>=20.9.0'}
 
   '@clerk/express@2.1.21':
@@ -5131,18 +5130,9 @@ snapshots:
       - react
       - react-dom
 
-  '@clerk/backend@3.4.13(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
-    dependencies:
-      '@clerk/shared': 4.13.1(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
-      standardwebhooks: 1.0.0
-      tslib: 2.8.1
-    transitivePeerDependencies:
-      - react
-      - react-dom
-
   '@clerk/express@2.1.21(express@5.2.1)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
     dependencies:
-      '@clerk/backend': 3.4.13(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      '@clerk/backend': 3.18.1(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@clerk/shared': 4.13.1(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       express: 5.2.1
       tslib: 2.8.1
