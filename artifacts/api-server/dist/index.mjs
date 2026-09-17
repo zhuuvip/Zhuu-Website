@@ -78478,28 +78478,6 @@ router2.post("/wallet/deposit", async (req, res) => {
       description: "Deposit QRIS DANA",
       status: "PENDING"
     }).returning();
-    try {
-      const token = process.env.WABLAS_API_KEY;
-      const secret = process.env.WABLAS_SECRET_KEY;
-      const owner = process.env.WABLAS_OWNER;
-      if (token && secret && owner) {
-        await axios_default.post(
-          "https://kudus.wablas.com/api/send-message",
-          new URLSearchParams({
-            phone: owner,
-            message: `\u{1F514} DEPOSIT BARU\\n\\nNominal: Rp${amount.toLocaleString("id-ID")}\\nRef: ${reference}\\nStatus: PENDING\\n\\nSilakan cek Admin Panel untuk menerima atau menolak deposit.`
-          }),
-          {
-            headers: {
-              Authorization: `${token}.${secret}`,
-              "Content-Type": "application/x-www-form-urlencoded"
-            }
-          }
-        );
-      }
-    } catch (wablasErr) {
-      console.error("WABLAS DEPOSIT NOTIFICATION ERROR:", wablasErr);
-    }
     return res.json({
       transaction,
       qrisProvider: "DANA",
