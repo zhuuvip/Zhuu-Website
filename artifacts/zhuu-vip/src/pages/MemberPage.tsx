@@ -20,7 +20,7 @@ import {
 import RankBadge, { type RankType } from "@/components/RankBadge";
 
 const QUICK_AMOUNTS = [1000, 25000, 50000, 10000, 250000];
-const QRIS_CODE = "https://zhuusite.my.id/attached_assets/qr_ID1026531275638_12.09.26_1789202677_1789202677296.jpeg";
+const QRIS_CODE = "https://zhuusite.my.id/attached_assets/qr_ID1026531275638_12.09.26_1789202677_1789202677296.jpg";
 
 const formatRupiah = (value: number) => `Rp${new Intl.NumberFormat("id-ID").format(value)}`;
 
