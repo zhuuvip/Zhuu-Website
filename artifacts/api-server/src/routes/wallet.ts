@@ -154,7 +154,7 @@ router.post("/wallet/deposit", async (req, res) => {
       transaction,
       qrisProvider: "DANA",
       status: "PENDING",
-      qrUrl: "https://zhuusite.my.id/attached_assets/qr_ID1026531275638_12.09.26_1789202677_1789202677296.jpeg",
+      qrUrl: "/attached_assets/IMG_20260917_085309.jpg",
     });
   } catch (err) {
     console.error(err);
