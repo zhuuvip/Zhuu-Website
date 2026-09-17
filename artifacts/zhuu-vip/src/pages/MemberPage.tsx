@@ -23,6 +23,7 @@ const QUICK_AMOUNTS = [1000, 25000, 50000, 10000, 250000];
 const QRIS_CODE = "https://zhuusite.my.id/attached_assets/qr_ID1026531275638_12.09.26_1789202677_1789202677296.jpg";
 
 const formatRupiah = (value: number) => `Rp${new Intl.NumberFormat("id-ID").format(value)}`;
+const API_BASE = (import.meta.env.VITE_API_URL || "").replace(/\/$/, "");
 
 const LEADERBOARD = [
   { name: "Naya Ocean", handle: "@naya", rank: "trench" as RankType, points: "12.840", initials: "NO", color: "#c084fc" },
@@ -65,6 +66,37 @@ function TopUpFlow() {
   const newBalance = balance + selectedAmount;
 
   useEffect(() => {
+    let cancelled = false;
+
+    const loadBalance = async () => {
+      try {
+        const token = await getToken();
+        if (!token || cancelled) return;
+
+        const res = await fetch(`${API_BASE}/api/wallet`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        const data = await res.json().catch(() => ({}));
+
+        if (res.ok && !cancelled) {
+          setBalance(Number(data.balance || 0));
+        }
+      } catch {
+        // Saldo tetap 0 jika gagal mengambil data.
+      }
+    };
+
+    loadBalance();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [getToken]);
+
+  useEffect(() => {
     if (step !== "waiting" || seconds <= 0) return;
     const timer = window.setInterval(() => setSeconds((current) => current - 1), 1000);
     return () => window.clearInterval(timer);
@@ -98,7 +130,7 @@ function TopUpFlow() {
         return;
       }
 
-      const res = await fetch("https://zhuuapi.vercel.app/api/wallet", {
+      const res = await fetch(`${API_BASE}/api/wallet`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -162,7 +194,7 @@ function TopUpFlow() {
 
                 setChecking(true);
 
-                const res = await fetch("https://zhuuapi.vercel.app/api/wallet/deposit", {
+                const res = await fetch(`${API_BASE}/api/wallet/deposit`, {
                   method: "POST",
                   headers: {
                     "Content-Type": "application/json",
