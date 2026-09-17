@@ -4,6 +4,7 @@ import { db } from "@workspace/db";
 import { walletsTable, walletTransactionsTable } from "@workspace/db";
 import { eq, and, desc, sql } from "drizzle-orm";
 import { getAuth } from "@clerk/express";
+import { createClerkClient } from "@clerk/backend";
 import { requireAdmin } from "../lib/auth.js";
 
 const router = Router();
@@ -285,6 +286,85 @@ router.patch("/admin/wallet/deposits/:id/confirm", requireAdmin, async (req, res
   }
 });
 
+
+router.get("/admin/wallet/users", requireAdmin, async (req, res) => {
+  try {
+    await ensureWalletTables();
+
+    const secretKey = process.env.CLERK_SECRET_KEY;
+
+    if (!secretKey) {
+      return res.status(500).json({
+        error: "CLERK_SECRET_KEY belum dikonfigurasi di server",
+      });
+    }
+
+    const clerk = createClerkClient({ secretKey });
+
+    const query =
+      typeof req.query.query === "string"
+        ? req.query.query.trim()
+        : "";
+
+    const limitRaw = Number(req.query.limit);
+    const offsetRaw = Number(req.query.offset);
+
+    const limit =
+      Number.isInteger(limitRaw) && limitRaw > 0
+        ? Math.min(limitRaw, 100)
+        : 100;
+
+    const offset =
+      Number.isInteger(offsetRaw) && offsetRaw >= 0
+        ? offsetRaw
+        : 0;
+
+    const result = await clerk.users.getUserList({
+      limit,
+      offset,
+      ...(query ? { query } : {}),
+    });
+
+    const users = await Promise.all(
+      result.data.map(async (user) => {
+        const [wallet] = await db
+          .select()
+          .from(walletsTable)
+          .where(eq(walletsTable.userId, user.id))
+          .limit(1);
+
+        const email =
+          user.emailAddresses.find(
+            (item) => item.id === user.primaryEmailAddressId
+          )?.emailAddress ||
+          user.emailAddresses[0]?.emailAddress ||
+          "";
+
+        return {
+          id: user.id,
+          username: user.username || "",
+          email,
+          firstName: user.firstName || "",
+          lastName: user.lastName || "",
+          imageUrl: user.imageUrl || "",
+          balance: wallet?.balance || 0,
+        };
+      })
+    );
+
+    return res.json({
+      users,
+      totalCount: result.totalCount,
+      offset,
+      limit,
+    });
+  } catch (err) {
+    console.error("ADMIN GET USERS ERROR:", err);
+    return res.status(500).json({
+      error: "Gagal mengambil daftar member",
+    });
+  }
+});
 
 router.post("/admin/wallet/adjust", requireAdmin, async (req, res) => {
   try {
