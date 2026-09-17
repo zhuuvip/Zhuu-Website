@@ -16,7 +16,7 @@ import {
   Loader2, ChevronLeft, ToggleLeft, ToggleRight, Eye, EyeOff,
   MessageSquare, ShoppingCart, BarChart3, Star, Users, Bot, RefreshCw,
   Settings, Image as ImageIcon, Palette, Upload, CheckCircle2,
-  GripVertical, ExternalLink,
+  GripVertical, ExternalLink, WalletCards,
 } from "lucide-react";
 
 const ADMIN_EMAIL = import.meta.env.VITE_ADMIN_EMAIL || "zhuusite@gmail.com";
@@ -50,7 +50,7 @@ interface SiteSettings {
   bannerUrl?: string; themeColor?: string; statusText?: string;
 }
 
-type Tab = "stats" | "links" | "songs" | "settings" | "feedback" | "products" | "orders";
+type Tab = "stats" | "links" | "songs" | "settings" | "feedback" | "products" | "orders" | "deposits";
 
 const iconOptions = ["SiDiscord","SiYoutube","SiTiktok","SiInstagram","SiTwitch","SiX","SiGithub","SiSpotify","SiPatreon","SiReddit","SiWhatsapp"];
 
@@ -89,6 +89,42 @@ export default function AdminPage() {
   const [products, setProducts] = useState<any[]>([]);
   const [orders, setOrders] = useState<any[]>([]);
   const [ordersLoading, setOrdersLoading] = useState(false);
+  const [deposits, setDeposits] = useState<any[]>([]);
+  const [depositsLoading, setDepositsLoading] = useState(false);
+
+  const loadDeposits = async () => {
+    try {
+      setDepositsLoading(true);
+      const res = await fetch(`${API_BASE}/api/admin/wallet/deposits`, {
+        headers: await authHeaders(),
+      });
+      if (res.ok) setDeposits(await res.json());
+    } catch {}
+    setDepositsLoading(false);
+  };
+
+  const updateDeposit = async (id: number, action: "confirm" | "reject") => {
+    if (!confirm(action === "confirm" ? "ACC deposit ini?" : "TOLAK deposit ini?")) return;
+
+    try {
+      const res = await fetch(`${API_BASE}/api/admin/wallet/deposits/${id}/${action}`, {
+        method: "PATCH",
+        headers: await authHeaders(),
+      });
+      const data = await res.json();
+
+      if (!res.ok) {
+        alert(data.error || "Gagal memproses deposit");
+        return;
+      }
+
+      await loadDeposits();
+      alert(action === "confirm" ? "Deposit berhasil di-ACC." : "Deposit ditolak.");
+    } catch {
+      alert("Gagal terhubung ke server");
+    }
+  };
+
 
   const loadOrders = async () => {
     try {
@@ -279,6 +315,7 @@ const saveSettings = async () => {
     if (tab === "settings") { fetchSettings(); fetchAnnouncement(); }
     if (tab === "products") loadProducts();
     if (tab === "orders") loadOrders();
+    if (tab === "deposits") loadDeposits();
   }, [tab, isAdmin, user]);
 
   // Song actions
@@ -377,6 +414,7 @@ const saveSettings = async () => {
     { id: "feedback", label: "Feedback", icon: <MessageSquare size={14} /> },
     { id: "products", label: "Products", icon: <ShoppingCart size={14} /> },
     { id: "orders", label: "Orders", icon: <ShoppingCart size={14} /> },
+    { id: "deposits", label: "Deposits", icon: <WalletCards size={14} /> },
   ];
 
   if (!user) return (
@@ -982,6 +1020,64 @@ const saveSettings = async () => {
     ))}
   </div>
       )}
+      {tab === "deposits" && (
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <h2 className="text-lg font-semibold text-blue-100">Wallet Deposits</h2>
+            <button onClick={loadDeposits} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs text-blue-300/60 hover:text-cyan-300 hover:bg-cyan-400/10">
+              <RefreshCw size={12} className={depositsLoading ? "animate-spin" : ""} /> Refresh
+            </button>
+          </div>
+
+          {depositsLoading ? (
+            <div className="flex justify-center py-12">
+              <Loader2 size={24} className="animate-spin text-cyan-400" />
+            </div>
+          ) : deposits.length === 0 ? (
+            <div className="glass-card rounded-2xl p-8 text-center text-blue-300/40 text-sm">
+              Belum ada deposit.
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {deposits.map((d) => (
+                <div key={d.id} className="glass-card rounded-2xl p-4">
+                  <div className="flex items-center justify-between gap-3">
+                    <div>
+                      <div className="font-semibold text-blue-100">
+                        Rp{Number(d.amount).toLocaleString("id-ID")}
+                      </div>
+                      <div className="text-xs text-blue-300/50 mt-1">
+                        {d.reference} · User: {d.userId}
+                      </div>
+                      <div className="text-xs mt-1 text-blue-300/40">
+                        Status: {d.status}
+                      </div>
+                    </div>
+
+                    {d.status === "PENDING" && (
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => updateDeposit(d.id, "confirm")}
+                          className="px-3 py-2 rounded-lg bg-green-400/10 border border-green-400/20 text-green-300 text-xs"
+                        >
+                          ACC
+                        </button>
+                        <button
+                          onClick={() => updateDeposit(d.id, "reject")}
+                          className="px-3 py-2 rounded-lg bg-red-400/10 border border-red-400/20 text-red-300 text-xs"
+                        >
+                          TOLAK
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
       {tab === "orders" && (
         <div className="space-y-4">
           <div className="flex items-center justify-between">

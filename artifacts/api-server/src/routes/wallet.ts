@@ -148,6 +148,34 @@ router.get("/admin/wallet/deposits", requireAdmin, async (_req, res) => {
   }
 });
 
+router.patch("/admin/wallet/deposits/:id/reject", requireAdmin, async (req, res) => {
+  try {
+    await ensureWalletTables();
+    const id = Number(req.params.id);
+    const [transaction] = await db
+      .select()
+      .from(walletTransactionsTable)
+      .where(and(eq(walletTransactionsTable.id, id), eq(walletTransactionsTable.type, "DEPOSIT")))
+      .limit(1);
+
+    if (!transaction) return res.status(404).json({ error: "Deposit tidak ditemukan" });
+    if (transaction.status !== "PENDING") {
+      return res.status(400).json({ error: "Deposit sudah diproses" });
+    }
+
+    const [updated] = await db
+      .update(walletTransactionsTable)
+      .set({ status: "REJECTED", updatedAt: new Date() })
+      .where(eq(walletTransactionsTable.id, id))
+      .returning();
+
+    return res.json({ transaction: updated });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ error: "Gagal menolak deposit" });
+  }
+});
+
 router.patch("/admin/wallet/deposits/:id/confirm", requireAdmin, async (req, res) => {
   try {
     await ensureWalletTables();
