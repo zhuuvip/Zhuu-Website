@@ -3,7 +3,7 @@ import { useAuth } from "@clerk/react";
 
 const WA = "62882005730502";
 
-const API_BASE = "https://zhuuapi-oohb6q2xd-hgeming2009-1446s-projects.vercel.app";
+const API_BASE = "https://zhuuapi-hgeming2009-1446s-projects.vercel.app";
 
 export default function ProductsPage() {
   const [products, setProducts] = useState<any[]>([]);

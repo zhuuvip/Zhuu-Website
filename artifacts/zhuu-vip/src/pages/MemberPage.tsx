@@ -98,7 +98,7 @@ function TopUpFlow() {
         return;
       }
 
-      const res = await fetch("https://zhuuapi-oohb6q2xd-hgeming2009-1446s-projects.vercel.app/api/wallet", {
+      const res = await fetch("https://zhuuapi-hgeming2009-1446s-projects.vercel.app/api/wallet", {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -162,7 +162,7 @@ function TopUpFlow() {
 
                 setChecking(true);
 
-                const res = await fetch("https://zhuuapi-oohb6q2xd-hgeming2009-1446s-projects.vercel.app/api/wallet/deposit", {
+                const res = await fetch("https://zhuuapi-hgeming2009-1446s-projects.vercel.app/api/wallet/deposit", {
                   method: "POST",
                   headers: {
                     "Content-Type": "application/json",

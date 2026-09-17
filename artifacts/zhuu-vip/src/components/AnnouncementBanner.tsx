@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { X } from "lucide-react";
 
-const API_BASE = "https://zhuuapi-oohb6q2xd-hgeming2009-1446s-projects.vercel.app";
+const API_BASE = "https://zhuuapi-hgeming2009-1446s-projects.vercel.app";
 
 export default function AnnouncementBanner() {
   const [announcement, setAnnouncement] = useState<any>(null);
