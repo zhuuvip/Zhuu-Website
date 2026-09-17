@@ -294,14 +294,19 @@ function TopUpFlow() {
       setChecking(false);
       setPaymentChecked(true);
 
-      const message =
-        `Halo Admin Zhuu Shop 👋\\n\\n` +
-        `Saya ingin melakukan verifikasi pembayaran deposit.\\n\\n` +
-        `💰 Nominal: ${formatRupiah(selectedAmount)}\\n` +
-        `🧾 Reference: ${depositRef}\\n\\n` +
-        `Pembayaran sudah saya lakukan melalui QRIS.\\n` +
-        `Mohon bantu cek pembayarannya dan konfirmasi jika sudah diterima.\\n\\n` +
-        `Terima kasih, Admin 🙏`;
+      const message = [
+        "Halo Admin Zhuu Shop 👋",
+        "",
+        "Saya ingin konfirmasi deposit.",
+        "",
+        `💰 Nominal: ${formatRupiah(selectedAmount)}`,
+        `🧾 Ref: ${depositRef}`,
+        "",
+        "Pembayaran sudah saya lakukan melalui QRIS.",
+        "Mohon dicek dan dikonfirmasi.",
+        "",
+        "Terima kasih, Admin 🙏",
+      ].join(String.fromCharCode(10));
 
       window.open(
         `https://wa.me/62882005730502?text=${encodeURIComponent(message)}`,
