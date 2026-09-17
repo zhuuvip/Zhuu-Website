@@ -56,6 +56,7 @@ function TopUpFlow() {
   const [amount, setAmount] = useState(50000);
   const [custom, setCustom] = useState("");
   const [checking, setChecking] = useState(false);
+  const [paymentChecked, setPaymentChecked] = useState(false);
   const [seconds, setSeconds] = useState(900);
   const [balance, setBalance] = useState(0);
   const [animatedBalance, setAnimatedBalance] = useState(0);
@@ -120,6 +121,8 @@ function TopUpFlow() {
   const progress = (seconds / 900) * 100;
 
   const checkPayment = async () => {
+    if (paymentChecked || checking) return;
+
     try {
       setChecking(true);
 
@@ -144,6 +147,7 @@ function TopUpFlow() {
 
       setBalance(Number(data.balance || 0));
       setChecking(false);
+      setPaymentChecked(true);
 
       alert(
         "Deposit masih PENDING.\n\n" +
@@ -172,7 +176,7 @@ function TopUpFlow() {
         )}
         <div className="mb-5 flex items-center justify-center gap-3 text-xs text-cyan-100/60"><div className="relative flex size-10 items-center justify-center rounded-full border border-cyan-300/20"><svg className="absolute inset-[-3px] size-12 -rotate-90"><circle cx="24" cy="24" r="21" fill="none" stroke="rgba(0,229,255,.12)" strokeWidth="2" /><circle cx="24" cy="24" r="21" fill="none" stroke="#00e5ff" strokeWidth="2" strokeDasharray="132" strokeDashoffset={132 - 132 * (progress / 100)} strokeLinecap="round" /></svg><span className="font-mono text-[10px] text-cyan-200">{Math.ceil(seconds / 60)}m</span></div><span>Berlaku sampai <b className="font-mono text-cyan-200">{timerLabel}</b></span></div>
         <div className="mb-6 flex justify-center gap-2 text-[10px] text-cyan-100/45"><span className="rounded-lg border border-cyan-300/10 bg-cyan-300/5 px-2 py-1">GoPay</span><span className="rounded-lg border border-cyan-300/10 bg-cyan-300/5 px-2 py-1">OVO</span><span className="rounded-lg border border-cyan-300/10 bg-cyan-300/5 px-2 py-1">DANA</span><span className="rounded-lg border border-cyan-300/10 bg-cyan-300/5 px-2 py-1">QRIS</span></div>
-        <button onClick={checkPayment} disabled={checking} className="neon-btn-solid flex w-full items-center justify-center gap-2 rounded-xl py-3.5 font-bold disabled:cursor-wait disabled:opacity-70">{checking ? <Loader2 className="size-4 animate-spin" /> : <RefreshCw className="size-4" />} {checking ? "Memeriksa pembayaran..." : "Cek Status Pembayaran"}</button>
+        <button onClick={checkPayment} disabled={checking || paymentChecked} className="neon-btn-solid flex w-full items-center justify-center gap-2 rounded-xl py-3.5 font-bold disabled:cursor-not-allowed disabled:opacity-70">{checking ? <Loader2 className="size-4 animate-spin" /> : <RefreshCw className="size-4" />} {checking ? "Memeriksa pembayaran..." : paymentChecked ? "Sudah Dicek" : "Cek Status Pembayaran"}</button>
         <button onClick={() => setStep("choose")} className="mt-4 text-xs text-cyan-100/45 underline-offset-4 hover:text-cyan-200 hover:underline">Batal, top up jumlah lain</button>
       </div>
     );
@@ -193,6 +197,7 @@ function TopUpFlow() {
                 }
 
                 setChecking(true);
+                setPaymentChecked(false);
 
                 const res = await fetch(`${API_BASE}/api/wallet/deposit`, {
                   method: "POST",
