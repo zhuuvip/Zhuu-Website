@@ -1033,6 +1033,13 @@ const saveSettings = async () => {
 
                           {editingProductId === p.id && (
                             <>
+                              <input
+                                id={`product-image-${p.id}`}
+                                defaultValue={p.imageUrl || ""}
+                                placeholder="URL logo/gambar produk"
+                                className="flex-1 px-3 py-2 rounded-lg bg-black/20 text-sm"
+                              />
+
                               <select
                                 id={`delivery-type-${p.id}`}
                                 defaultValue={p.deliveryType || "WHATSAPP"}
@@ -1058,6 +1065,7 @@ const saveSettings = async () => {
                             onClick={async () => {
                               if (editingProductId === p.id) {
                                 const el = document.getElementById(`product-name-${p.id}`) as HTMLInputElement;
+                                const imageEl = document.getElementById(`product-image-${p.id}`) as HTMLInputElement;
                                 const typeEl = document.getElementById(`delivery-type-${p.id}`) as HTMLSelectElement;
                                 const valueEl = document.getElementById(`delivery-value-${p.id}`) as HTMLInputElement;
 
@@ -1067,7 +1075,7 @@ const saveSettings = async () => {
                                     headers: await authHeaders(),
                                     body: JSON.stringify({
                                       name: el.value,
-                                      imageUrl: p.imageUrl || null,
+                                      imageUrl: imageEl.value.trim() || null,
                                       deliveryType: typeEl.value,
                                       deliveryValue: valueEl?.value || null,
                                     }),
