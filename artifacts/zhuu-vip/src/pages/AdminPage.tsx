@@ -927,7 +927,24 @@ const saveSettings = async () => {
 
     <div className="grid sm:grid-cols-4 gap-2">
       <input value={productName} onChange={e => setProductName(e.target.value)} placeholder="Nama produk" className="px-3 py-2 rounded-lg bg-black/20 text-sm" />
-          <input value={imageUrl} onChange={e => setImageUrl(e.target.value)} placeholder="URL gambar produk" className="px-3 py-2 rounded-lg bg-black/20 text-sm" />
+          <div className="flex gap-2 items-center">
+            <input
+              value={imageUrl}
+              onChange={e => setImageUrl(e.target.value)}
+              placeholder="URL gambar produk, contoh https://files.catbox.moe/xsm1bo.jpg"
+              className="flex-1 px-3 py-2 rounded-lg bg-black/20 text-sm"
+            />
+            {imageUrl.trim() && (
+              <img
+                src={imageUrl.trim()}
+                alt="Preview"
+                className="w-10 h-10 rounded-lg object-cover border border-cyan-400/20"
+                onError={(e) => {
+                  (e.currentTarget as HTMLImageElement).style.display = "none";
+                }}
+              />
+            )}
+          </div>
             <select value={deliveryType} onChange={e => setDeliveryType(e.target.value)} className="px-3 py-2 rounded-lg bg-black/20 text-sm"><option value="WHATSAPP">WhatsApp</option><option value="DOWNLOAD">Download</option><option value="LINK">Link</option><option value="KEY">Key</option></select>
 {deliveryType === "LINK" && (
   <input

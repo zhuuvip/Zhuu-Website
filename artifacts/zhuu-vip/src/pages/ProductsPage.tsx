@@ -465,10 +465,14 @@ export default function ProductsPage() {
                   >
                     {logo ? (
                       <img
-                        src={logo}
+                        src={logo.trim()}
                         alt={product.name}
                         className="h-full w-full object-contain p-7 transition duration-500 group-hover:scale-105"
                         loading="lazy"
+                        referrerPolicy="no-referrer"
+                        onError={(e) => {
+                          e.currentTarget.style.display = "none";
+                        }}
                       />
                     ) : (
                       <div className="flex size-20 items-center justify-center rounded-3xl bg-gradient-to-br from-purple-500/15 to-blue-500/15 text-4xl ring-1 ring-white/10">
