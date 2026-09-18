@@ -23,6 +23,129 @@ interface Message {
 
 const BASE = (import.meta.env.VITE_API_URL || import.meta.env.BASE_URL).replace(/\/$/, "");
 
+async function createLootLabsLink(
+  getToken: () => Promise<string | null>,
+) {
+  const token = await getToken();
+
+  if (!token) {
+    alert("Silakan login terlebih dahulu.");
+    return null;
+  }
+
+  const response = await fetch(`${BASE}/api/ads/lootlabs`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({
+      type: "ai",
+    }),
+  });
+
+  const data = await response.json().catch(() => null);
+
+  if (!response.ok || !data?.shortLink) {
+    alert(data?.error || "Gagal membuat link LootLabs.");
+    return null;
+  }
+
+  return data.shortLink as string;
+}
+
+
+interface DailyLimit {
+  used: number;
+  bonus: number;
+  limit: number;
+  remaining: number;
+}
+
+interface UsageResponse {
+  date: string;
+  ai: DailyLimit;
+  tools: DailyLimit;
+  adRewards: number;
+}
+
+function DailyLimitCard({
+  type,
+  limit,
+  onWatchAd,
+  onUpgrade,
+}: {
+  type: "ai" | "tools";
+  limit: DailyLimit;
+  onWatchAd?: () => void;
+  onUpgrade?: () => void;
+}) {
+  const isAI = type === "ai";
+  const percentage =
+    limit.limit > 0
+      ? Math.min(100, Math.round((limit.remaining / limit.limit) * 100))
+      : 0;
+
+  return (
+    <div className="mb-4 rounded-2xl border border-white/10 bg-white/[0.04] p-4">
+      <div className="flex items-center justify-between gap-3">
+        <div>
+          <div className="text-sm font-semibold text-white">
+            {isAI ? "🤖 AI Limit" : "🛠️ Tools Limit"}
+          </div>
+          <div className="mt-1 text-xs text-white/50">
+            {limit.remaining} penggunaan tersisa
+          </div>
+        </div>
+
+        <div className="text-right">
+          <div className="text-sm font-bold text-white">
+            {limit.used} / {limit.limit}
+          </div>
+
+          {limit.bonus > 0 && (
+            <div className="text-[11px] text-emerald-400">
+              +{limit.bonus} bonus
+            </div>
+          )}
+        </div>
+      </div>
+
+      <div className="mt-3 h-2 overflow-hidden rounded-full bg-white/10">
+        <div
+          className="h-full rounded-full bg-white transition-all duration-300"
+          style={{ width: `${percentage}%` }}
+        />
+      </div>
+
+      <div className="mt-2 flex items-center justify-between text-[11px] text-white/40">
+        <span>
+          {limit.remaining > 0 ? `${limit.remaining} kali lagi` : "Limit habis"}
+        </span>
+        <span>Reset setiap hari</span>
+      </div>
+
+      <div className="mt-3 grid grid-cols-2 gap-2">
+        <button
+          type="button"
+          onClick={onWatchAd}
+          className="rounded-xl border border-cyan-400/20 bg-cyan-400/10 px-3 py-2 text-xs font-medium text-cyan-300 transition hover:bg-cyan-400/20"
+        >
+          🎬 Tonton Iklan
+        </button>
+
+        <button
+          type="button"
+          onClick={onUpgrade}
+          className="rounded-xl border border-purple-400/20 bg-purple-400/10 px-3 py-2 text-xs font-medium text-purple-300 transition hover:bg-purple-400/20"
+        >
+          ⭐ Upgrade Premium
+        </button>
+      </div>
+    </div>
+  );
+}
+
 function formatContent(text: string): React.ReactNode {
   if (!text) return null;
   const codeBlockRe = /```(\w+)?\n?([\s\S]*?)```/g;
@@ -123,6 +246,7 @@ function useVoiceRecorder(onTranscript: (text: string) => void) {
 function AIChat() {
   const { getToken } = useAuth();
   const queryClient = useQueryClient();
+  const [usage, setUsage] = useState<UsageResponse | null>(null);
   const { data: conversations = [] } = useListAnthropicConversations();
   const createConv = useCreateAnthropicConversation();
   const deleteConv = useDeleteAnthropicConversation();
@@ -135,6 +259,68 @@ function AIChat() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  const watchAd = async () => {
+    const shortLink = await createLootLabsLink(getToken);
+
+    if (!shortLink) return;
+
+    window.open(shortLink, "_blank", "noopener,noreferrer");
+  };
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const loadUsage = async () => {
+      try {
+        const token = await getToken();
+
+        if (!token || cancelled) return;
+
+        const res = await fetch(`${BASE}/api/usage`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (!res.ok) return;
+
+        const data = (await res.json()) as UsageResponse;
+
+        if (!cancelled) {
+          setUsage(data);
+        }
+      } catch (err) {
+        console.error("Gagal mengambil limit AI:", err);
+      }
+    };
+
+    loadUsage();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [getToken]);
+
+  const refreshUsage = useCallback(async () => {
+    try {
+      const token = await getToken();
+      if (!token) return;
+
+      const res = await fetch(`${BASE}/api/usage`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!res.ok) return;
+
+      const data = (await res.json()) as UsageResponse;
+      setUsage(data);
+    } catch (err) {
+      console.error("Gagal refresh limit AI:", err);
+    }
+  }, [getToken]);
 
   const { data: savedMessages = [] } = useListAnthropicMessages(activeConvId ?? 0, {
     query: {
@@ -238,6 +424,11 @@ function AIChat() {
   };
 
   const sendMessage = async () => {
+    if (usage && usage.ai.remaining <= 0) {
+      alert("Limit AI harian kamu sudah habis. Limit akan reset besok.");
+      return;
+    }
+
     const content = buildMessageContent();
     const imagePayload = getImagePayload();
     if (!content || streaming) return;
@@ -266,10 +457,15 @@ function AIChat() {
         queryClient.invalidateQueries({ queryKey: getListAnthropicMessagesQueryKey(activeConvId) });
       } else {
         const allMsgs = [...messages, userMsg].map((m) => ({ role: m.role, content: m.content }));
-        full = await streamResponse(`${BASE}/api/chat/stream`, {
-          messages: allMsgs,
-          ...(imagePayload.length > 0 ? { images: imagePayload } : {}),
-        });
+        const token = await getToken();
+        full = await streamResponse(
+          `${BASE}/api/chat/stream`,
+          {
+            messages: allMsgs,
+            ...(imagePayload.length > 0 ? { images: imagePayload } : {}),
+          },
+          token ? { Authorization: `Bearer ${token}` } : {}
+        );
       }
       setMessages((prev) => {
         const u = [...prev];
@@ -284,6 +480,7 @@ function AIChat() {
       });
     } finally {
       setStreaming(false);
+      await refreshUsage();
     }
   };
 
@@ -356,6 +553,18 @@ function AIChat() {
             <div className="text-xs text-blue-300/40">Powered by Claude · File upload & voice enabled</div>
           </div>
         </div>
+
+        {/* Daily AI Limit */}
+        {usage && (
+          <div className="px-4 md:px-6 pt-3 bg-slate-950/30">
+            <DailyLimitCard
+  type="ai"
+  limit={usage.ai}
+  onWatchAd={watchAd}
+  onUpgrade={() => window.location.href = "/products"}
+ />
+          </div>
+        )}
 
         {/* Messages */}
         <div className="flex-1 overflow-y-auto px-4 md:px-6 py-6 space-y-4" data-testid="messages-container">
@@ -549,6 +758,7 @@ function AIGuestQuick() {
 }
 
 function AIGuestChat() {
+  const { getToken } = useAuth();
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [streaming, setStreaming] = useState(false);
@@ -564,8 +774,14 @@ function AIGuestChat() {
     setInput("");
     setStreaming(true);
     try {
+      const token = await getToken();
+
       const res = await fetch(`${BASE}/api/chat/stream`, {
-        method: "POST", headers: { "Content-Type": "application/json" },
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
         body: JSON.stringify({ messages: newMsgs }),
       });
       const reader = res.body?.getReader();

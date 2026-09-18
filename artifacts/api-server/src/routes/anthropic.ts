@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { db, conversations, messages } from "@workspace/db";
 import { eq, and } from "drizzle-orm";
+import { consumeDailyLimit } from "../lib/dailyLimits.js";
 import {
   CreateAnthropicConversationBody,
   SendAnthropicMessageBody,
@@ -265,6 +266,16 @@ router.post("/anthropic/conversations/:id/messages", async (req, res): Promise<v
       .where(and(eq(conversations.id, params.data.id), eq(conversations.userId, userId)));
     if (!conv) { res.status(404).json({ error: "Conversation not found" }); return; }
 
+    const limit = await consumeDailyLimit(userId, "ai");
+
+    if (!limit.allowed) {
+      res.status(429).json({
+        error: "Limit AI harian kamu sudah habis.",
+        limit,
+      });
+      return;
+    }
+
     await db.insert(messages).values({
       conversationId: params.data.id,
       role: "user",
@@ -307,6 +318,9 @@ router.post("/anthropic/conversations/:id/messages", async (req, res): Promise<v
 });
 
 router.post("/chat/stream", async (req, res): Promise<void> => {
+  const userId = requireAuth(req, res);
+  if (!userId) return;
+
   const { messages: msgHistory } = req.body as {
     messages: { role: string; content: string }[];
   };
@@ -316,6 +330,16 @@ router.post("/chat/stream", async (req, res): Promise<void> => {
   }
 
   try {
+    const limit = await consumeDailyLimit(userId, "ai");
+
+    if (!limit.allowed) {
+      res.status(429).json({
+        error: "Limit AI harian kamu sudah habis.",
+        limit,
+      });
+      return;
+    }
+
     const fullContent = await callGeminiWithRetry(
       msgHistory.filter((m) => m.role === "user" || m.role === "assistant")
     );

@@ -1,5 +1,8 @@
 import { useState, useCallback, useRef, useEffect, createContext, useContext } from "react";
 import { Copy, Download, RefreshCw, Check, Shuffle } from "lucide-react";
+import { useAuth } from "@clerk/react";
+
+const API_BASE = "https://zhuuapi.vercel.app";
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -81,7 +84,11 @@ function JsonFormatter() {
   const [output, setOutput] = useState("");
   const [status, setStatus] = useState<{ ok: boolean; msg: string } | null>(null);
 
-  const format = () => {
+  const format = async () => {
+    const allowed = await useToolUsage()?.("json");
+
+    if (!allowed) return;
+
     try {
       const parsed = JSON.parse(input);
       const formatted = JSON.stringify(parsed, null, 2);
@@ -94,7 +101,11 @@ function JsonFormatter() {
     }
   };
 
-  const minify = () => {
+  const minify = async () => {
+    const allowed = await useToolUsage()?.("json");
+
+    if (!allowed) return;
+
     try {
       const parsed = JSON.parse(input);
       const mini = JSON.stringify(parsed);
@@ -107,7 +118,11 @@ function JsonFormatter() {
     }
   };
 
-  const validate = () => {
+  const validate = async () => {
+    const allowed = await useToolUsage()?.("json");
+
+    if (!allowed) return;
+
     try {
       JSON.parse(input);
       setStatus({ ok: true, msg: "✓ Valid JSON!" });
@@ -174,9 +189,15 @@ function rgbToHsl(r: number, g: number, b: number): { h: number; s: number; l: n
 }
 
 function ColorConverter() {
+  const trackToolUse = useToolUsage();
   const [hex, setHex] = useState("#00d4ff");
   const rgb = hexToRgb(hex);
   const hsl = rgb ? rgbToHsl(rgb.r, rgb.g, rgb.b) : null;
+
+  const convert = async () => {
+    const allowed = await trackToolUse?.("color");
+    if (!allowed) return;
+  };
 
   return (
     <div className="space-y-5">
@@ -199,6 +220,19 @@ function ColorConverter() {
           </div>
         </div>
       </div>
+
+      <button
+        onClick={convert}
+        className="w-full py-2.5 rounded-xl text-sm font-bold cursor-pointer transition-all"
+        style={{
+          background: "rgba(0,200,220,0.15)",
+          border: "1px solid rgba(0,200,220,0.35)",
+          color: "#00e5ff"
+        }}
+      >
+        Convert Color
+      </button>
+
       {rgb && (
         <div className="grid grid-cols-2 gap-4">
           <div className="p-4 rounded-xl" style={{ background: "rgba(0,15,30,0.6)", border: "1px solid rgba(0,200,220,0.12)" }}>
@@ -248,13 +282,14 @@ function ColorConverter() {
           ))}
         </div>
       </div>
-    </div>
+      </div>
   );
 }
 
 // ─── Text Utilities ───────────────────────────────────────────────────────────
 
 function TextUtils() {
+  const trackToolUse = useToolUsage();
   const [text, setText] = useState("The quick brown fox jumps over the lazy ocean wave.");
 
   const wordCount = text.trim() ? text.trim().split(/\s+/).length : 0;
@@ -297,7 +332,14 @@ function TextUtils() {
       </div>
       <div className="flex flex-wrap gap-2">
         {transforms.map(({ label, fn }) => (
-          <button key={label} onClick={() => setText(fn())} className="px-3 py-1.5 rounded-lg text-xs font-medium transition-all cursor-pointer"
+          <button
+  key={label}
+  onClick={async () => {
+    const allowed = await trackToolUse?.("text");
+    if (!allowed) return;
+    setText(fn());
+  }}
+  className="px-3 py-1.5 rounded-lg text-xs font-medium transition-all cursor-pointer"
             style={{ background: "rgba(0,200,220,0.08)", border: "1px solid rgba(0,200,220,0.2)", color: "rgba(0,200,220,0.8)" }}>
             {label}
           </button>
@@ -313,13 +355,32 @@ function TextUtils() {
 // ─── URL Tools ────────────────────────────────────────────────────────────────
 
 function UrlTools() {
+  const trackToolUse = useToolUsage();
   const [input, setInput] = useState("https://zhuuvip.com/ai?query=hello world&tab=chat");
   const [output, setOutput] = useState("");
   const [parsed, setParsed] = useState<Record<string, string> | null>(null);
 
-  const encode = () => { setOutput(encodeURIComponent(input)); setParsed(null); };
-  const decode = () => { try { setOutput(decodeURIComponent(input)); setParsed(null); } catch { setOutput("Invalid encoded URL"); } };
-  const parseUrl = () => {
+  const encode = async () => {
+    const allowed = await trackToolUse?.("url");
+    if (!allowed) return;
+
+    setOutput(encodeURIComponent(input));
+    setParsed(null);
+  };
+  const decode = async () => {
+    const allowed = await trackToolUse?.("url");
+    if (!allowed) return;
+
+    try {
+      setOutput(decodeURIComponent(input));
+      setParsed(null);
+    } catch {
+      setOutput("Invalid encoded URL");
+    }
+  };
+  const parseUrl = async () => {
+    const allowed = await trackToolUse?.("url");
+    if (!allowed) return;
     try {
       const u = new URL(input.startsWith("http") ? input : "https://" + input);
       const params: Record<string, string> = {};
@@ -366,12 +427,16 @@ function UrlTools() {
 // ─── Base64 ───────────────────────────────────────────────────────────────────
 
 function Base64Tool() {
+  const trackToolUse = useToolUsage();
   const [input, setInput] = useState("Hello, ZhuuVIP! 🌊");
   const [output, setOutput] = useState("");
   const [mode, setMode] = useState<"encode" | "decode">("encode");
   const [error, setError] = useState("");
 
-  const run = (m = mode) => {
+  const run = async (m = mode) => {
+    const allowed = await trackToolUse?.("base64");
+    if (!allowed) return;
+
     setError("");
     try {
       if (m === "encode") {
@@ -429,6 +494,7 @@ const CHARS = {
 };
 
 function PasswordGenerator() {
+  const trackToolUse = useToolUsage();
   const [length, setLength] = useState(16);
   const [opts, setOpts] = useState({ upper: true, numbers: true, symbols: true });
   const [password, setPassword] = useState("");
@@ -494,7 +560,11 @@ function PasswordGenerator() {
           </button>
         ))}
       </div>
-      <button onClick={generate} className="w-full flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-bold cursor-pointer transition-all"
+      <button onClick={async () => {
+            const allowed = await trackToolUse?.("password");
+            if (!allowed) return;
+            generate();
+          }} className="w-full flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-bold cursor-pointer transition-all"
         style={{ background: "linear-gradient(135deg, rgba(0,200,220,0.2), rgba(155,89,182,0.2))", border: "1px solid rgba(0,200,220,0.35)", color: "#00e5ff" }}>
         <Shuffle size={15} /> Generate New Password
       </button>
@@ -505,6 +575,7 @@ function PasswordGenerator() {
 // ─── QR Code ──────────────────────────────────────────────────────────────────
 
 function QrCodeTool() {
+  const trackToolUse = useToolUsage();
   const [url, setUrl] = useState("https://zhuuvip.com");
   const [size, setSize] = useState(200);
   const [fgColor, setFgColor] = useState("#000000");
@@ -562,7 +633,11 @@ function QrCodeTool() {
           </div>
         ))}
       </div>
-      <button onClick={generate} className="w-full py-2.5 rounded-xl text-sm font-bold cursor-pointer transition-all"
+      <button onClick={async () => {
+          const allowed = await trackToolUse?.("qr");
+          if (!allowed) return;
+          generate();
+        }} className="w-full py-2.5 rounded-xl text-sm font-bold cursor-pointer transition-all"
         style={{ background: "rgba(0,200,220,0.15)", border: "1px solid rgba(0,200,220,0.35)", color: "#00e5ff" }}>
         Generate QR Code
       </button>
@@ -637,28 +712,67 @@ const greet = () => "Hello, ocean!";
 `;
 
 function MarkdownPreview() {
+  const trackToolUse = useToolUsage();
   const [md, setMd] = useState(SAMPLE_MD);
-  const html = parseMarkdown(md);
+  const [html, setHtml] = useState(() => parseMarkdown(md));
+
+  const preview = async () => {
+    const allowed = await trackToolUse?.("markdown");
+    if (!allowed) return;
+    setHtml(parseMarkdown(md));
+  };
 
   return (
     <div className="space-y-3">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4" style={{ minHeight: 320 }}>
         <div>
-          <p className="text-xs font-semibold mb-2" style={{ color: "rgba(0,200,220,0.5)" }}>MARKDOWN INPUT</p>
+          <p
+            className="text-xs font-semibold mb-2"
+            style={{ color: "rgba(0,200,220,0.5)" }}
+          >
+            MARKDOWN INPUT
+          </p>
+
           <textarea
             value={md}
             onChange={e => setMd(e.target.value)}
             style={{ ...inputStyle({ resize: "none", height: 300 }) }}
           />
+
+          <button
+            onClick={preview}
+            className="w-full mt-3 py-2.5 rounded-xl text-sm font-bold cursor-pointer transition-all"
+            style={{
+              background: "rgba(0,200,220,0.15)",
+              border: "1px solid rgba(0,200,220,0.35)",
+              color: "#00e5ff"
+            }}
+          >
+            Preview Markdown
+          </button>
         </div>
+
         <div>
           <div className="flex justify-between items-center mb-2">
-            <p className="text-xs font-semibold" style={{ color: "rgba(0,200,220,0.5)" }}>HTML PREVIEW</p>
+            <p
+              className="text-xs font-semibold"
+              style={{ color: "rgba(0,200,220,0.5)" }}
+            >
+              HTML PREVIEW
+            </p>
             <CopyBtn text={html} />
           </div>
+
           <div
             className="p-4 rounded-xl overflow-auto"
-            style={{ background: "rgba(0,15,30,0.7)", border: "1px solid rgba(0,200,220,0.18)", height: 300, color: "rgba(200,240,255,0.85)", fontSize: 13, lineHeight: 1.7 }}
+            style={{
+              background: "rgba(0,15,30,0.7)",
+              border: "1px solid rgba(0,200,220,0.18)",
+              height: 300,
+              color: "rgba(200,240,255,0.85)",
+              fontSize: 13,
+              lineHeight: 1.7
+            }}
             dangerouslySetInnerHTML={{ __html: html }}
           />
         </div>
@@ -668,10 +782,13 @@ function MarkdownPreview() {
 }
 
 function CalculatorTool() {
+  const trackToolUse = useToolUsage();
   const [input, setInput] = useState("12 * (8 + 2)");
   const [result, setResult] = useState("");
 
-  const calculate = () => {
+  const calculate = async () => {
+    const allowed = await trackToolUse?.("calculator");
+    if (!allowed) return;
     try {
       if (!/^[0-9+\-*/().%\s]+$/.test(input)) throw new Error("Invalid expression");
       const value = Function(`"use strict"; return (${input})`)();
@@ -692,10 +809,13 @@ function CalculatorTool() {
 }
 
 function JwtDecoder() {
+  const trackToolUse = useToolUsage();
   const [input, setInput] = useState("");
   const [output, setOutput] = useState("");
 
-  const decode = () => {
+  const decode = async () => {
+    const allowed = await trackToolUse?.("jwt");
+    if (!allowed) return;
     try {
       const parts = input.trim().split(".");
       if (parts.length !== 3) throw new Error();
@@ -720,7 +840,9 @@ function JwtDecoder() {
   );
 }
 
-const ToolUsageContext = createContext<((toolId: string) => void) | null>(null);
+const ToolUsageContext = createContext<
+  ((toolId: string) => Promise<boolean>) | null
+>(null);
 
 function useToolUsage() {
   return useContext(ToolUsageContext);
@@ -732,7 +854,11 @@ function SlugGenerator() {
   const [input, setInput] = useState("Hello ZhuuAI Developer Tools!");
   const [output, setOutput] = useState("");
 
-  const generate = () => {
+  const generate = async () => {
+    const allowed = await trackToolUse?.("slug");
+
+    if (!allowed) return;
+
     const slug = input
       .toLowerCase()
       .trim()
@@ -744,7 +870,6 @@ function SlugGenerator() {
       .replace(/^-|-$/g, "");
 
     setOutput(slug);
-    trackToolUse?.("slug");
   };
 
   return (
@@ -778,11 +903,14 @@ function SlugGenerator() {
 }
 
 function RandomGenerator() {
+  const trackToolUse = useToolUsage();
   const [min, setMin] = useState("1");
   const [max, setMax] = useState("100");
   const [result, setResult] = useState("");
 
-  const generate = () => {
+  const generate = async () => {
+    const allowed = await trackToolUse?.("random");
+    if (!allowed) return;
     const a = Number(min);
     const b = Number(max);
 
@@ -825,7 +953,11 @@ function WhitespaceCleaner() {
   const [input, setInput] = useState("");
   const [output, setOutput] = useState("");
 
-  const clean = () => {
+  const clean = async () => {
+    const allowed = await trackToolUse?.("whitespace");
+
+    if (!allowed) return;
+
     const result = input
       .split("\n")
       .map(line => line.trim().replace(/\s+/g, " "))
@@ -833,7 +965,6 @@ function WhitespaceCleaner() {
       .join("\n");
 
     setOutput(result);
-    trackToolUse?.("whitespace");
   };
 
   return (
@@ -878,22 +1009,33 @@ function WhitespaceCleaner() {
 }
 
 function NumberBaseConverter() {
+  const trackToolUse = useToolUsage();
   const [input, setInput] = useState("255");
   const [base, setBase] = useState(10);
+  const [results, setResults] = useState<[string, string][] | null>(null);
 
-  let value: number | null = null;
+  const convert = async () => {
+    const allowed = await trackToolUse?.("numberbase");
+    if (!allowed) return;
 
-  try {
-    const parsed = parseInt(input.trim(), base);
-    if (Number.isFinite(parsed)) value = parsed;
-  } catch {}
+    try {
+      const parsed = parseInt(input.trim(), base);
 
-  const results = value === null ? null : [
-    ["Binary", value.toString(2)],
-    ["Octal", value.toString(8)],
-    ["Decimal", value.toString(10)],
-    ["Hexadecimal", value.toString(16).toUpperCase()],
-  ];
+      if (!Number.isFinite(parsed)) {
+        setResults(null);
+        return;
+      }
+
+      setResults([
+        ["Binary", parsed.toString(2)],
+        ["Octal", parsed.toString(8)],
+        ["Decimal", parsed.toString(10)],
+        ["Hexadecimal", parsed.toString(16).toUpperCase()],
+      ]);
+    } catch {
+      setResults(null);
+    }
+  };
 
   return (
     <div className="space-y-4">
@@ -906,6 +1048,18 @@ function NumberBaseConverter() {
           <option value={16}>Hex (16)</option>
         </select>
       </div>
+
+      <button
+        onClick={convert}
+        className="w-full py-2.5 rounded-xl text-sm font-bold cursor-pointer transition-all"
+        style={{
+          background: "rgba(0,200,220,0.15)",
+          border: "1px solid rgba(0,200,220,0.35)",
+          color: "#00e5ff"
+        }}
+      >
+        Convert
+      </button>
 
       {results && (
         <div className="space-y-2">
@@ -934,10 +1088,13 @@ function NumberBaseConverter() {
 }
 
 function JsonToCsvTool() {
+  const trackToolUse = useToolUsage();
   const [input, setInput] = useState('[{"name":"Zhuu","age":18},{"name":"AI","age":99}]');
   const [output, setOutput] = useState("");
 
-  const convert = () => {
+  const convert = async () => {
+    const allowed = await trackToolUse?.("jsoncsv");
+    if (!allowed) return;
     try {
       const data = JSON.parse(input);
       if (!Array.isArray(data) || !data.length || typeof data[0] !== "object") {
@@ -1028,6 +1185,123 @@ const TOOLS = [
 
 export default function DevToolsPage() {
   const [activeId, setActiveId] = useState("qr");
+  const [toolsUsage, setToolsUsage] = useState<{
+    used: number;
+    bonus: number;
+    limit: number;
+    remaining: number;
+  } | null>(null);
+  const { getToken } = useAuth();
+
+  const watchAd = async () => {
+    const token = await getToken();
+
+    if (!token) {
+      alert("Silakan login terlebih dahulu.");
+      return;
+    }
+
+    try {
+      const response = await fetch(`${API_BASE}/api/ads/lootlabs`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          type: "tools",
+        }),
+      });
+
+      const data = await response.json().catch(() => null);
+
+      if (!response.ok || !data?.shortLink) {
+        alert(data?.error || "Gagal membuat link LootLabs.");
+        return;
+      }
+
+      window.open(data.shortLink, "_blank", "noopener,noreferrer");
+    } catch {
+      alert("Gagal menghubungi server LootLabs.");
+    }
+  };
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const loadToolsUsage = async () => {
+      try {
+        const token = await getToken();
+        if (!token || cancelled) return;
+
+        const res = await fetch(`${API_BASE}/api/usage`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (!res.ok) return;
+
+        const data = await res.json();
+
+        if (!cancelled) {
+          setToolsUsage(data.tools);
+        }
+      } catch (err) {
+        console.error("Gagal mengambil limit Tools:", err);
+      }
+    };
+
+    loadToolsUsage();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [getToken]);
+
+  const trackToolUse = useCallback(async (toolId: string): Promise<boolean> => {
+    try {
+      const token = await getToken();
+
+      if (!token) {
+        alert("Silakan login untuk menggunakan Tools.");
+        return false;
+      }
+
+      const res = await fetch(`${API_BASE}/api/usage/consume`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          type: "tools",
+          toolId,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        if (res.status === 429) {
+          if (data.limit) {
+            setToolsUsage(data.limit);
+          }
+
+          alert("Limit Tools harian kamu sudah habis. Limit akan reset besok.");
+        }
+
+        return false;
+      }
+
+      setToolsUsage(data);
+      return true;
+    } catch (err) {
+      console.error("Gagal menggunakan limit Tools:", err);
+      return false;
+    }
+  }, [getToken]);
+
   const activeTool = TOOLS.find(t => t.id === activeId)!;
   const panelRef = useRef<HTMLDivElement>(null);
 
@@ -1037,7 +1311,8 @@ export default function DevToolsPage() {
   };
 
   return (
-    <div className="ocean-bg min-h-screen pt-6 pb-28 px-4">
+    <ToolUsageContext.Provider value={trackToolUse}>
+      <div className="ocean-bg min-h-screen pt-6 pb-28 px-4">
       <div className="max-w-3xl mx-auto">
         {/* Header */}
         <div className="text-center mb-10">
@@ -1063,6 +1338,76 @@ export default function DevToolsPage() {
           ))}
         </div>
 
+        {/* Daily Tools Limit */}
+        {toolsUsage && (
+          <div className="mb-6 rounded-2xl p-4" style={{
+            background: "rgba(255,255,255,0.04)",
+            border: "1px solid rgba(255,255,255,0.1)",
+          }}>
+            <div className="flex items-center justify-between gap-3">
+              <div>
+                <div className="text-sm font-semibold text-white">
+                  🛠️ Tools Limit
+                </div>
+                <div className="mt-1 text-xs text-white/50">
+                  {toolsUsage.remaining > 0
+                    ? `${toolsUsage.remaining} penggunaan tersisa`
+                    : "Limit habis"}
+                </div>
+              </div>
+
+              <div className="text-right">
+                <div className="text-sm font-bold text-white">
+                  {toolsUsage.used} / {toolsUsage.limit}
+                </div>
+                {toolsUsage.bonus > 0 && (
+                  <div className="text-[11px] text-emerald-400">
+                    +{toolsUsage.bonus} bonus
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div className="mt-3 h-2 overflow-hidden rounded-full bg-white/10">
+              <div
+                className="h-full rounded-full bg-white transition-all duration-300"
+                style={{
+                  width: `${toolsUsage.limit > 0
+                    ? Math.min(100, Math.round((toolsUsage.remaining / toolsUsage.limit) * 100))
+                    : 0}%`,
+                }}
+              />
+            </div>
+
+            <div className="mt-2 flex items-center justify-between text-[11px] text-white/40">
+              <span>
+                {toolsUsage.remaining > 0
+                  ? `${toolsUsage.remaining} kali lagi`
+                  : "Limit habis"}
+              </span>
+              <span>Reset setiap hari</span>
+            </div>
+
+            <div className="mt-3 grid grid-cols-2 gap-2">
+              <button
+                type="button"
+                onClick={watchAd}
+                className="rounded-xl border border-cyan-400/20 bg-cyan-400/10 px-3 py-2 text-xs font-medium text-cyan-300 transition hover:bg-cyan-400/20"
+              >
+                🎬 Tonton Iklan
+              </button>
+
+              <button
+                type="button"
+                onClick={() => window.location.href = "/products"}
+                className="rounded-xl border border-purple-400/20 bg-purple-400/10 px-3 py-2 text-xs font-medium text-purple-300 transition hover:bg-purple-400/20"
+              >
+                ⭐ Upgrade Premium
+              </button>
+            </div>
+          </div>
+        )}
+
         {/* Active Tool Panel */}
         <div
           ref={panelRef}
@@ -1087,5 +1432,6 @@ export default function DevToolsPage() {
         </div>
       </div>
     </div>
+      </ToolUsageContext.Provider>
   );
 }

@@ -10,6 +10,9 @@ import feedbackRouter from "./feedback.js";
 import statsRouter from "./stats.js";
 import settingsRouter from "./settings.js";
 import ordersRouter from "./orders.js";
+import usageRouter from "./usage.js";
+import move2linkRouter from "./move2link.js";
+import lootlabsRouter from "./lootlabs.js";
 
 const router = Router();
 
@@ -22,6 +25,9 @@ router.use(feedbackRouter);
 router.use(statsRouter);
 router.use(settingsRouter);
 router.use(ordersRouter);
+router.use(usageRouter);
+router.use(move2linkRouter);
+router.use(lootlabsRouter);
 
 router.use(walletRouter);
 router.use(wablasRouter);
