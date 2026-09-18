@@ -1,10 +1,11 @@
 import { Router } from "express";
+import { getAuth } from "@clerk/express";
 import { consumeDailyLimit, getDailyLimit } from "../lib/dailyLimits.js";
 
 const router = Router();
 
 async function requireAuth(req: any, res: any) {
-  const userId = req.auth?.userId;
+  const userId = getAuth(req)?.userId;
 
   if (!userId) {
     res.status(401).json({ error: "Unauthorized" });

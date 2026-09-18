@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { randomUUID } from "node:crypto";
 import { db } from "@workspace/db";
+import { getAuth } from "@clerk/express";
 import { sql } from "drizzle-orm";
 
 const router = Router();
@@ -37,7 +38,7 @@ async function ensureLootLabsTables() {
 }
 
 async function requireAuth(req: any, res: any) {
-  const userId = req.auth?.userId;
+  const userId = getAuth(req)?.userId;
 
   if (!userId) {
     res.status(401).json({ error: "Unauthorized" });

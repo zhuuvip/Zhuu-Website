@@ -1,4 +1,5 @@
 import { Router } from "express";
+import { getAuth } from "@clerk/express";
 import { db, conversations, messages } from "@workspace/db";
 import { eq, and } from "drizzle-orm";
 import { consumeDailyLimit } from "../lib/dailyLimits.js";
@@ -30,8 +31,7 @@ You are ZhuuAI, the intelligent AI assistant of ZhuuVIP.
 `;
 
 function requireAuth(req: any, res: any): string | null {
-  const auth = req.auth;
-  const userId: string | undefined = auth?.userId;
+  const userId = getAuth(req)?.userId;
 
   if (!userId) {
     res.status(401).json({ error: "Authentication required" });

@@ -1,10 +1,11 @@
 import { Router } from "express";
+import { getAuth } from "@clerk/express";
 
 const router = Router();
 
 router.post("/ads/move2link", async (req: any, res) => {
   try {
-    const userId = req.auth?.userId;
+    const userId = getAuth(req)?.userId;
 
     if (!userId) {
       return res.status(401).json({

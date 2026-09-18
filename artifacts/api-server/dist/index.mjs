@@ -44151,7 +44151,7 @@ var require_lib5 = __commonJS({
 });
 
 // src/app.ts
-var import_express19 = __toESM(require_express2(), 1);
+var import_express23 = __toESM(require_express2(), 1);
 var import_cors = __toESM(require_lib3(), 1);
 var import_pino_http = __toESM(require_logger(), 1);
 
@@ -78614,7 +78614,7 @@ router2.post("/admin/wallet/adjust", requireAdmin, async (req, res) => {
 var wallet_default = router2;
 
 // src/routes/index.ts
-var import_express18 = __toESM(require_express2(), 1);
+var import_express22 = __toESM(require_express2(), 1);
 
 // src/routes/health.ts
 var import_express5 = __toESM(require_express2(), 1);
@@ -83046,8 +83046,7 @@ You are ZhuuAI, the intelligent AI assistant of ZhuuVIP.
 - Your name is ZhuuAI.
 `;
 function requireAuth(req, res) {
-  const auth = req.auth;
-  const userId = auth?.userId;
+  const userId = getAuth(req)?.userId;
   if (!userId) {
     res.status(401).json({ error: "Authentication required" });
     return null;
@@ -83339,7 +83338,7 @@ router7.post("/chat/stream", async (req, res) => {
 var anthropic_default = router7;
 
 // src/routes/feedback.ts
-var import_express10 = __toESM(require_express2(), 1);
+var import_express11 = __toESM(require_express2(), 1);
 
 // src/lib/rateLimit.ts
 var store = /* @__PURE__ */ new Map();
@@ -83371,7 +83370,7 @@ function rateLimit(options) {
 }
 
 // src/routes/feedback.ts
-var router8 = (0, import_express10.Router)();
+var router8 = (0, import_express11.Router)();
 var RATINGS = ["\u{1F615} Not great", "\u{1F610} It's okay", "\u{1F642} Pretty good", "\u{1F60A} Really like it", "\u{1F929} Love it!"];
 var DISCORD_COLORS = {
   bug: 16739179,
@@ -83471,8 +83470,8 @@ router8.get("/guestbook", async (req, res) => {
 });
 
 // src/routes/stats.ts
-var import_express11 = __toESM(require_express2(), 1);
-var router9 = (0, import_express11.Router)();
+var import_express12 = __toESM(require_express2(), 1);
+var router9 = (0, import_express12.Router)();
 router9.get("/admin/stats", requireAdmin, async (req, res) => {
   try {
     const [
@@ -83523,8 +83522,8 @@ router9.get("/visitors", async (req, res) => {
 });
 
 // src/routes/settings.ts
-var import_express12 = __toESM(require_express2(), 1);
-var router10 = (0, import_express12.Router)();
+var import_express13 = __toESM(require_express2(), 1);
+var router10 = (0, import_express13.Router)();
 var SETTINGS_KEYS = [
   "profileName",
   "profileBio",
@@ -83598,8 +83597,8 @@ router10.delete("/announcements", requireAdmin, async (req, res) => {
 });
 
 // src/routes/orders.ts
-var import_express13 = __toESM(require_express2(), 1);
-var router11 = (0, import_express13.Router)();
+var import_express14 = __toESM(require_express2(), 1);
+var router11 = (0, import_express14.Router)();
 router11.post("/orders", async (req, res) => {
   try {
     const userId = getAuth(req)?.userId;
@@ -83786,10 +83785,10 @@ router11.get("/admin/orders", requireAdmin, async (_req, res) => {
 var orders_default = router11;
 
 // src/routes/usage.ts
-var import_express15 = __toESM(require_express2(), 1);
-var router12 = (0, import_express15.Router)();
+var import_express16 = __toESM(require_express2(), 1);
+var router12 = (0, import_express16.Router)();
 async function requireAuth2(req, res) {
-  const userId = req.auth?.userId;
+  const userId = getAuth(req)?.userId;
   if (!userId) {
     res.status(401).json({ error: "Unauthorized" });
     return null;
@@ -83835,11 +83834,11 @@ router12.post("/usage/consume", async (req, res) => {
 var usage_default = router12;
 
 // src/routes/move2link.ts
-var import_express16 = __toESM(require_express2(), 1);
-var router13 = (0, import_express16.Router)();
+var import_express18 = __toESM(require_express2(), 1);
+var router13 = (0, import_express18.Router)();
 router13.post("/ads/move2link", async (req, res) => {
   try {
-    const userId = req.auth?.userId;
+    const userId = getAuth(req)?.userId;
     if (!userId) {
       return res.status(401).json({
         error: "Unauthorized"
@@ -83892,9 +83891,9 @@ router13.post("/ads/move2link", async (req, res) => {
 var move2link_default = router13;
 
 // src/routes/lootlabs.ts
-var import_express17 = __toESM(require_express2(), 1);
+var import_express20 = __toESM(require_express2(), 1);
 import { randomUUID } from "node:crypto";
-var router14 = (0, import_express17.Router)();
+var router14 = (0, import_express20.Router)();
 var LOOTLABS_API_URL = "https://creators.lootlabs.gg/api/public/content_locker";
 var AI_REWARD = 5;
 var TOOLS_REWARD = 10;
@@ -83922,7 +83921,7 @@ async function ensureLootLabsTables() {
   `);
 }
 async function requireAuth3(req, res) {
-  const userId = req.auth?.userId;
+  const userId = getAuth(req)?.userId;
   if (!userId) {
     res.status(401).json({ error: "Unauthorized" });
     return null;
@@ -84086,7 +84085,7 @@ router14.get("/lootlabs/postback", async (req, res) => {
 var lootlabs_default = router14;
 
 // src/routes/index.ts
-var router15 = (0, import_express18.Router)();
+var router15 = (0, import_express22.Router)();
 router15.use(health_default);
 router15.use(products_default);
 router15.use(links_default);
@@ -84122,7 +84121,7 @@ var logger2 = (0, import_pino.default)({
 });
 
 // src/app.ts
-var app = (0, import_express19.default)();
+var app = (0, import_express23.default)();
 app.use(
   (0, import_pino_http.default)({
     logger: logger2,
@@ -84136,7 +84135,7 @@ app.use(
     allowedHeaders: ["Content-Type", "Authorization"]
   })
 );
-app.use(import_express19.default.json());
+app.use(import_express23.default.json());
 app.use(clerkMiddleware());
 app.use("/api", routes_default);
 var app_default = app;
