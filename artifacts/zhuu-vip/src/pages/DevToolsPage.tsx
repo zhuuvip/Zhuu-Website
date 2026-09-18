@@ -1191,7 +1191,7 @@ export default function DevToolsPage() {
     limit: number;
     remaining: number;
   } | null>(null);
-  const { getToken } = useAuth();
+  const { getToken, isLoaded, isSignedIn } = useAuth();
 
   const watchAd = async () => {
     const token = await getToken();
@@ -1231,6 +1231,7 @@ export default function DevToolsPage() {
 
     const loadToolsUsage = async () => {
       try {
+        if (!isLoaded || !isSignedIn || cancelled) return;
         const token = await getToken();
         if (!token || cancelled) return;
 
@@ -1257,7 +1258,7 @@ export default function DevToolsPage() {
     return () => {
       cancelled = true;
     };
-  }, [getToken]);
+  }, [getToken, isLoaded, isSignedIn]);
 
   const trackToolUse = useCallback(async (toolId: string): Promise<boolean> => {
     try {

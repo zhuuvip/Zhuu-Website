@@ -244,7 +244,7 @@ function useVoiceRecorder(onTranscript: (text: string) => void) {
 }
 
 function AIChat() {
-  const { getToken } = useAuth();
+  const { getToken, isLoaded, isSignedIn } = useAuth();
   const queryClient = useQueryClient();
   const [usage, setUsage] = useState<UsageResponse | null>(null);
   const { data: conversations = [] } = useListAnthropicConversations();
@@ -300,7 +300,7 @@ function AIChat() {
     return () => {
       cancelled = true;
     };
-  }, [getToken]);
+  }, [getToken, isLoaded, isSignedIn]);
 
   const refreshUsage = useCallback(async () => {
     try {
