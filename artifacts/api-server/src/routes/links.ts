@@ -8,7 +8,7 @@ import {
   UpdateLinkParams,
   DeleteLinkParams,
 } from "@workspace/api-zod";
-import { requireAdmin } from "../lib/auth";
+import { requireAdmin } from "../lib/auth.js";
 
 const router = Router();
 

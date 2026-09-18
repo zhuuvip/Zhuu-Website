@@ -6,17 +6,17 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export * from './anthropicConversation';
-export * from './anthropicConversationInput';
-export * from './anthropicConversationWithMessages';
-export * from './anthropicError';
-export * from './anthropicMessage';
-export * from './anthropicMessageInput';
-export * from './healthStatus';
-export * from './linkInput';
-export * from './linkItem';
-export * from './linkUpdate';
-export * from './siteSettings';
-export * from './song';
-export * from './songInput';
-export * from './songUpdate';
+export * from './anthropicConversation.js';
+export * from './anthropicConversationInput.js';
+export * from './anthropicConversationWithMessages.js';
+export * from './anthropicError.js';
+export * from './anthropicMessage.js';
+export * from './anthropicMessageInput.js';
+export * from './healthStatus.js';
+export * from './linkInput.js';
+export * from './linkItem.js';
+export * from './linkUpdate.js';
+export * from './siteSettings.js';
+export * from './song.js';
+export * from './songInput.js';
+export * from './songUpdate.js';

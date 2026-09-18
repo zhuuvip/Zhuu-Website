@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { db } from "@workspace/db";
 import { linksTable, songsTable, feedbackTable, conversations, messages } from "@workspace/db";
-import { requireAdmin } from "../lib/auth";
+import { requireAdmin } from "../lib/auth.js";
 import { sql } from "drizzle-orm";
 
 const router = Router();

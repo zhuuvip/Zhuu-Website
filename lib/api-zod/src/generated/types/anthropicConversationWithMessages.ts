@@ -5,7 +5,7 @@
  * ZhuuVIP API specification
  * OpenAPI spec version: 0.1.0
  */
-import type { AnthropicMessage } from './anthropicMessage';
+import type { AnthropicMessage } from './anthropicMessage.js';
 
 export interface AnthropicConversationWithMessages {
   id: number;

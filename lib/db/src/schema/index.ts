@@ -1,15 +1,15 @@
-export * from "./links";
-export * from "./songs";
-export * from "./feedback";
-export * from "./conversations";
-export * from "./messages";
-export * from "./settings";
+export * from "./links.js";
+export * from "./songs.js";
+export * from "./feedback.js";
+export * from "./conversations.js";
+export * from "./messages.js";
+export * from "./settings.js";
 
-export * from "./products";
+export * from "./products.js";
 
-export * from "./orders";
+export * from "./orders.js";
 
 
-export * from "./wallet";
+export * from "./wallet.js";
 
-export * from "./dailyLimits";
+export * from "./dailyLimits.js";

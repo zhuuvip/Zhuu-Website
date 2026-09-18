@@ -2,8 +2,8 @@ import { Router } from "express";
 import { db } from "@workspace/db";
 import { feedbackTable } from "@workspace/db";
 import { eq, desc } from "drizzle-orm";
-import { isAdmin, requireAdmin } from "../lib/auth";
-import { rateLimit } from "../lib/rateLimit";
+import { isAdmin, requireAdmin } from "../lib/auth.js";
+import { rateLimit } from "../lib/rateLimit.js";
 
 const router = Router();
 
