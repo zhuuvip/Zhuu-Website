@@ -14,6 +14,7 @@ import usageRouter from "./usage.js";
 import move2linkRouter from "./move2link.js";
 import lootlabsRouter from "./lootlabs.js";
 import premiumRouter from "./premium.js";
+import resellerRouter from "./reseller.js";
 
 const router = Router();
 
@@ -33,5 +34,6 @@ router.use(premiumRouter);
 
 router.use(walletRouter);
 router.use(wablasRouter);
+router.use(resellerRouter);
 
 export default router;
