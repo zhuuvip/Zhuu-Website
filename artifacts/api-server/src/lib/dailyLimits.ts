@@ -17,6 +17,18 @@ function getJakartaDate(): string {
 
 async function ensureDailyLimitTables() {
   await db.execute(sql`
+    CREATE TABLE IF NOT EXISTS premium_members (
+      id SERIAL PRIMARY KEY,
+      user_id TEXT NOT NULL UNIQUE,
+      tier TEXT NOT NULL,
+      ai_bonus INTEGER NOT NULL DEFAULT 0,
+      tools_bonus INTEGER NOT NULL DEFAULT 0,
+      amount_paid INTEGER NOT NULL,
+      purchased_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
+    )
+  `);
+
+  await db.execute(sql`
     CREATE TABLE IF NOT EXISTS user_daily_limits (
       id SERIAL PRIMARY KEY,
       user_id TEXT NOT NULL,

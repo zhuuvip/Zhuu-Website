@@ -5,6 +5,21 @@ import { eq, and, sql } from "drizzle-orm";
 
 const router = Router();
 
+async function ensurePremiumTables() {
+  await db.execute(sql`
+    CREATE TABLE IF NOT EXISTS premium_members (
+      id SERIAL PRIMARY KEY,
+      user_id TEXT NOT NULL UNIQUE,
+      tier TEXT NOT NULL,
+      ai_bonus INTEGER NOT NULL DEFAULT 0,
+      tools_bonus INTEGER NOT NULL DEFAULT 0,
+      amount_paid INTEGER NOT NULL,
+      purchased_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
+    )
+  `);
+}
+
+
 // Adjust these anytime — price in Rupiah, bonus = extra messages/tool-runs
 // per day on top of the free daily limit, forever (no expiry).
 const TIERS: Record<string, { price: number; aiBonus: number; toolsBonus: number; label: string }> = {
@@ -27,6 +42,8 @@ router.get("/premium/status", async (req: any, res: any) => {
   if (!userId) return;
 
   try {
+    await ensurePremiumTables();
+
     const [row] = await db
       .select()
       .from(premiumMembersTable)
@@ -43,6 +60,8 @@ router.get("/premium/status", async (req: any, res: any) => {
 router.post("/premium/purchase", async (req: any, res: any) => {
   const userId = requireAuth(req, res);
   if (!userId) return;
+
+  await ensurePremiumTables();
 
   const tierKey = req.body?.tier;
   const tier = TIERS[tierKey];
