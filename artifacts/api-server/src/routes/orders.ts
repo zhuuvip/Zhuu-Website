@@ -11,7 +11,6 @@ import {
 import { eq, and, sql, desc } from "drizzle-orm";
 import { getAuth } from "@clerk/express";
 import { requireAdmin } from "../lib/auth.js";
-import { createResellerAccount } from "./reseller.js";
 
 const router = Router();
 
@@ -46,11 +45,6 @@ router.post("/orders", async (req, res) => {
 
       let deliveryKey: string | null = null;
       let deliveryLink: string | null = null;
-
-      if (product.deliveryType === "RESELLER") {
-        const resAcc = await createResellerAccount(tx);
-        deliveryKey = "Username: " + resAcc.username + " | Password: " + resAcc.password;
-      }
 
       /*
        * KEY:

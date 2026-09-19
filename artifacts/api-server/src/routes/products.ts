@@ -66,7 +66,9 @@ router.get("/products", async (_req, res) => {
   return res.json(
     products.map((p) => ({
       ...p,
-      options: options.filter((o) => o.productId === p.id),
+      options: options
+        .filter((o) => o.productId === p.id)
+        .map((o) => ({ ...o, resellerPrice: undefined })),
     })),
   );
 });

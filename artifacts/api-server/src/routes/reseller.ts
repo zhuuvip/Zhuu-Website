@@ -1,6 +1,7 @@
 import { Router } from "express";
 import type { Request, Response, NextFunction } from "express";
 import crypto from "node:crypto";
+import { getAuth } from "@clerk/express";
 import { db } from "@workspace/db";
 import { productsTable, productOptionsTable, ordersTable } from "@workspace/db";
 import { eq, sql, desc } from "drizzle-orm";
@@ -8,6 +9,7 @@ import { requireAdmin } from "../lib/auth.js";
 
 const router = Router();
 const rowsOf = (r: any): any[] => r?.rows ?? r ?? [];
+const PLAN_DAYS = 30;
 
 class HttpError extends Error {
   constructor(public status: number, message: string) {
@@ -16,24 +18,47 @@ class HttpError extends Error {
 }
 
 let tablesReady: Promise<void> | null = null;
-export function ensureResellerTables(): Promise<void> {
+function ensureResellerTables(): Promise<void> {
   if (!tablesReady) {
     tablesReady = (async () => {
       await db.execute(sql`
-        CREATE TABLE IF NOT EXISTS reseller_accounts (
+        CREATE TABLE IF NOT EXISTS reseller_members (
           id SERIAL PRIMARY KEY,
-          username TEXT NOT NULL UNIQUE,
-          password_hash TEXT NOT NULL,
-          balance INTEGER NOT NULL DEFAULT 0,
+          user_id TEXT NOT NULL UNIQUE,
+          plan TEXT NOT NULL,
+          expires_at TIMESTAMPTZ,
+          username TEXT UNIQUE,
+          password_hash TEXT,
           active BOOLEAN NOT NULL DEFAULT TRUE,
-          note TEXT,
           created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
         )
       `);
       await db.execute(sql`
-        CREATE TABLE IF NOT EXISTS reseller_prices (
-          option_id INTEGER PRIMARY KEY,
-          price INTEGER NOT NULL
+        CREATE TABLE IF NOT EXISTS reseller_settings (
+          key TEXT PRIMARY KEY,
+          value TEXT NOT NULL
+        )
+      `);
+      await db.execute(sql`ALTER TABLE product_options ADD COLUMN IF NOT EXISTS reseller_price INTEGER`);
+      await db.execute(sql`
+        CREATE TABLE IF NOT EXISTS wallets (
+          id SERIAL PRIMARY KEY,
+          user_id TEXT NOT NULL UNIQUE,
+          balance INTEGER NOT NULL DEFAULT 0,
+          created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+          updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+        )
+      `);
+      await db.execute(sql`
+        CREATE TABLE IF NOT EXISTS wallet_transactions (
+          id SERIAL PRIMARY KEY,
+          user_id TEXT NOT NULL,
+          type TEXT NOT NULL,
+          amount INTEGER NOT NULL,
+          reference TEXT UNIQUE,
+          description TEXT,
+          status TEXT NOT NULL DEFAULT 'PENDING',
+          created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
         )
       `);
     })().catch((e) => {
@@ -65,13 +90,13 @@ function secret() {
 function sign(body: string) {
   return crypto.createHmac("sha256", secret()).update(body).digest("base64url");
 }
-function signToken(id: number) {
+function signToken(userId: string) {
   const body = Buffer.from(
-    JSON.stringify({ id, exp: Date.now() + 7 * 24 * 3600 * 1000 }),
+    JSON.stringify({ u: userId, exp: Date.now() + 7 * 24 * 3600 * 1000 }),
   ).toString("base64url");
   return `${body}.${sign(body)}`;
 }
-function readToken(token: string): number | null {
+function readToken(token: string): string | null {
   const [body, sig] = token.split(".");
   if (!body || !sig) return null;
   const a = Buffer.from(sig);
@@ -79,33 +104,11 @@ function readToken(token: string): number | null {
   if (a.length !== b.length || !crypto.timingSafeEqual(a, b)) return null;
   try {
     const p = JSON.parse(Buffer.from(body, "base64url").toString());
-    if (typeof p.id !== "number" || p.exp < Date.now()) return null;
-    return p.id;
+    if (typeof p.u !== "string" || p.exp < Date.now()) return null;
+    return p.u;
   } catch {
     return null;
   }
-}
-
-/* ---------- helper akun (dipakai juga oleh orders.ts) ---------- */
-export async function createResellerAccount(
-  ex: any = db,
-  opts: { username?: string; password?: string; balance?: number; note?: string } = {},
-) {
-  await ensureResellerTables();
-  const password = opts.password || crypto.randomBytes(8).toString("base64url");
-  for (let i = 0; i < 5; i++) {
-    const username = (opts.username || `rs${crypto.randomBytes(3).toString("hex")}`).toLowerCase();
-    const r = await ex.execute(sql`
-      INSERT INTO reseller_accounts (username, password_hash, balance, note)
-      VALUES (${username}, ${hashPassword(password)}, ${opts.balance ?? 0}, ${opts.note ?? null})
-      ON CONFLICT (username) DO NOTHING
-      RETURNING id, username
-    `);
-    const row = rowsOf(r)[0];
-    if (row) return { id: row.id as number, username: row.username as string, password };
-    if (opts.username) throw new HttpError(400, "Username sudah dipakai");
-  }
-  throw new Error("Gagal membuat username unik");
 }
 
 /* ---------- util ---------- */
@@ -121,6 +124,33 @@ const h =
       return res.status(500).json({ error: "Terjadi kesalahan server" });
     }
   };
+
+function isActiveMember(row: any): boolean {
+  if (!row || !row.active) return false;
+  if (row.plan === "lifetime") return true;
+  return !!row.expires_at && new Date(row.expires_at).getTime() > Date.now();
+}
+
+async function getPlanPrices() {
+  const rows = rowsOf(await db.execute(sql`SELECT key, value FROM reseller_settings`));
+  const m = new Map<string, number>(rows.map((r) => [String(r.key), Number(r.value)]));
+  const pick = (k: string, d: number) => {
+    const v = m.get(k);
+    return v !== undefined && Number.isFinite(v) ? v : d;
+  };
+  return { monthly: pick("price_monthly", 10000), lifetime: pick("price_lifetime", 50000) };
+}
+
+async function walletBalance(ex: any, userId: string) {
+  const r = rowsOf(await ex.execute(sql`SELECT balance FROM wallets WHERE user_id = ${userId}`))[0];
+  return r ? Number(r.balance) : 0;
+}
+
+function clerkUser(req: Request): string {
+  const id = getAuth(req)?.userId;
+  if (!id) throw new HttpError(401, "Login diperlukan");
+  return id;
+}
 
 const attempts = new Map<string, { n: number; t: number }>();
 function tooMany(ip: string) {
@@ -138,15 +168,22 @@ async function requireReseller(req: Request, res: Response, next: NextFunction) 
   try {
     await ensureResellerTables();
     const token = String(req.headers.authorization || "").replace(/^Bearer\s+/i, "");
-    const id = token ? readToken(token) : null;
-    if (!id) return res.status(401).json({ error: "Login reseller diperlukan" });
-    const rows = rowsOf(
-      await db.execute(sql`SELECT id, username, balance, active FROM reseller_accounts WHERE id = ${id}`),
-    );
-    if (!rows[0] || !rows[0].active) {
-      return res.status(401).json({ error: "Akun reseller tidak aktif" });
+    const userId = token ? readToken(token) : null;
+    if (!userId) return res.status(401).json({ error: "Login reseller diperlukan" });
+
+    const row = rowsOf(
+      await db.execute(sql`SELECT * FROM reseller_members WHERE user_id = ${userId}`),
+    )[0];
+    if (!isActiveMember(row) || !row.username) {
+      return res.status(401).json({ error: "Paket reseller tidak aktif atau sudah habis" });
     }
-    (req as any).reseller = rows[0];
+    (req as any).reseller = {
+      userId,
+      username: row.username,
+      plan: row.plan,
+      expiresAt: row.expires_at,
+      balance: await walletBalance(db, userId),
+    };
     next();
   } catch (e) {
     console.error(e);
@@ -154,7 +191,134 @@ async function requireReseller(req: Request, res: Response, next: NextFunction) 
   }
 }
 
-/* ================= RESELLER ================= */
+/* ================= MEMBER (Clerk) ================= */
+router.get(
+  "/reseller/plans",
+  h(async (req, res) => {
+    const prices = await getPlanPrices();
+    const userId = getAuth(req)?.userId;
+    let member: any = null;
+    if (userId) {
+      const row = rowsOf(
+        await db.execute(sql`SELECT * FROM reseller_members WHERE user_id = ${userId}`),
+      )[0];
+      if (row) {
+        member = {
+          plan: row.plan,
+          expiresAt: row.expires_at,
+          active: isActiveMember(row),
+          username: row.username,
+        };
+      }
+    }
+    return res.json({ prices, member });
+  }),
+);
+
+router.post(
+  "/reseller/plans/purchase",
+  h(async (req, res) => {
+    const userId = clerkUser(req);
+    const plan = String(req.body.plan);
+    if (plan !== "monthly" && plan !== "lifetime") throw new HttpError(400, "Paket tidak valid");
+    const price = (await getPlanPrices())[plan];
+
+    const result = await db.transaction(async (tx) => {
+      const existing = rowsOf(
+        await tx.execute(sql`SELECT * FROM reseller_members WHERE user_id = ${userId} FOR UPDATE`),
+      )[0];
+      if (existing && !existing.active) {
+        throw new HttpError(403, "Akun reseller kamu dinonaktifkan admin");
+      }
+      if (existing && existing.plan === "lifetime") {
+        throw new HttpError(409, "Kamu sudah reseller lifetime");
+      }
+
+      await tx.execute(
+        sql`INSERT INTO wallets (user_id, balance) VALUES (${userId}, 0) ON CONFLICT (user_id) DO NOTHING`,
+      );
+      const debit = rowsOf(
+        await tx.execute(sql`
+          UPDATE wallets SET balance = balance - ${price}, updated_at = NOW()
+          WHERE user_id = ${userId} AND balance >= ${price}
+          RETURNING balance
+        `),
+      )[0];
+      if (!debit) throw new HttpError(400, "Saldo tidak cukup. Top up dulu di tab Top Up Saldo.");
+
+      let expiresIso: string | null = null;
+      if (plan === "monthly") {
+        const now = Date.now();
+        const cur = existing?.expires_at ? new Date(existing.expires_at).getTime() : 0;
+        expiresIso = new Date(Math.max(now, cur) + PLAN_DAYS * 86400000).toISOString();
+      }
+
+      await tx.execute(sql`
+        INSERT INTO reseller_members (user_id, plan, expires_at)
+        VALUES (${userId}, ${plan}, ${expiresIso}::timestamptz)
+        ON CONFLICT (user_id) DO UPDATE
+        SET plan = EXCLUDED.plan, expires_at = EXCLUDED.expires_at
+      `);
+
+      await tx.execute(sql`
+        INSERT INTO wallet_transactions (user_id, type, amount, reference, description, status)
+        VALUES (${userId}, 'PURCHASE', ${-price},
+                ${`RESELLER-${plan.toUpperCase()}-${Date.now()}`},
+                ${`Rank Reseller Products (${plan === "monthly" ? "Bulanan" : "Lifetime"})`}, 'PAID')
+      `);
+
+      return { plan, expiresAt: expiresIso, balance: Number(debit.balance) };
+    });
+
+    return res.json(result);
+  }),
+);
+
+router.post(
+  "/reseller/credentials",
+  h(async (req, res) => {
+    const userId = clerkUser(req);
+    const username = String(req.body.username || "").trim().toLowerCase();
+    const password = String(req.body.password || "");
+
+    if (!/^[a-z0-9_]{3,24}$/.test(username)) {
+      throw new HttpError(400, "Username 3-24 karakter: huruf kecil, angka, atau _");
+    }
+    if (password.length < 6 || password.length > 72) {
+      throw new HttpError(400, "Password 6-72 karakter");
+    }
+
+    const member = rowsOf(
+      await db.execute(sql`SELECT * FROM reseller_members WHERE user_id = ${userId}`),
+    )[0];
+    if (!isActiveMember(member)) {
+      throw new HttpError(403, "Kamu belum punya paket reseller aktif");
+    }
+
+    const taken = rowsOf(
+      await db.execute(
+        sql`SELECT 1 FROM reseller_members WHERE username = ${username} AND user_id <> ${userId}`,
+      ),
+    )[0];
+    if (taken) throw new HttpError(400, "Username sudah dipakai, pilih yang lain");
+
+    try {
+      await db.execute(sql`
+        UPDATE reseller_members
+        SET username = ${username}, password_hash = ${hashPassword(password)}
+        WHERE user_id = ${userId}
+      `);
+    } catch (e: any) {
+      if (e?.code === "23505" || e?.cause?.code === "23505") {
+        throw new HttpError(400, "Username sudah dipakai, pilih yang lain");
+      }
+      throw e;
+    }
+    return res.json({ ok: true, username });
+  }),
+);
+
+/* ================= RESELLER (login sendiri) ================= */
 router.post(
   "/reseller/login",
   h(async (req, res) => {
@@ -164,20 +328,23 @@ router.post(
     const username = String(req.body.username || "").trim().toLowerCase();
     const password = String(req.body.password || "");
     const acc = rowsOf(
-      await db.execute(sql`SELECT * FROM reseller_accounts WHERE username = ${username}`),
+      await db.execute(sql`SELECT * FROM reseller_members WHERE username = ${username}`),
     )[0];
 
-    if (!acc || !acc.active || !verifyPassword(password, acc.password_hash)) {
+    if (!acc || !acc.password_hash || !verifyPassword(password, acc.password_hash)) {
       throw new HttpError(401, "Username atau password salah");
     }
+    if (!isActiveMember(acc)) {
+      throw new HttpError(403, "Paket reseller kamu habis atau dinonaktifkan. Perpanjang di halaman Member.");
+    }
     attempts.delete(ip);
-    return res.json({ token: signToken(acc.id), username: acc.username, balance: acc.balance });
+    return res.json({ token: signToken(acc.user_id), username: acc.username });
   }),
 );
 
 router.get("/reseller/me", requireReseller, (req, res) => {
   const a = (req as any).reseller;
-  res.json({ username: a.username, balance: a.balance });
+  res.json({ username: a.username, balance: a.balance, plan: a.plan, expiresAt: a.expiresAt });
 });
 
 router.get(
@@ -186,8 +353,6 @@ router.get(
   h(async (_req, res) => {
     const products = await db.select().from(productsTable);
     const options = await db.select().from(productOptionsTable);
-    const prices = rowsOf(await db.execute(sql`SELECT option_id, price FROM reseller_prices`));
-    const map = new Map<number, number>(prices.map((p) => [Number(p.option_id), Number(p.price)]));
 
     return res.json(
       products.map((p: any) => {
@@ -196,11 +361,11 @@ router.get(
           ...safe,
           options: options
             .filter((o) => o.productId === p.id)
-            .map((o) => ({
+            .map(({ resellerPrice, ...o }) => ({
               ...o,
               normalPrice: o.price,
-              price: map.get(o.id) ?? o.price,
-              hasResellerPrice: map.has(o.id),
+              price: resellerPrice ?? o.price,
+              hasResellerPrice: resellerPrice != null,
             })),
         };
       }),
@@ -215,7 +380,6 @@ router.post(
     const acc = (req as any).reseller;
     const productId = Number(req.body.productId);
     const optionId = Number(req.body.optionId);
-    const wa = req.body.whatsapp ? String(req.body.whatsapp).slice(0, 30) : "";
 
     const result = await db.transaction(async (tx) => {
       const [product] = await tx.select().from(productsTable).where(eq(productsTable.id, productId));
@@ -227,15 +391,9 @@ router.post(
       if (!product || !option || option.productId !== product.id) {
         throw new HttpError(400, "Produk atau durasi tidak valid");
       }
-      if (product.deliveryType === "RESELLER") {
-        throw new HttpError(400, "Produk ini tidak tersedia untuk reseller");
-      }
       if (option.stock <= 0) throw new HttpError(400, "Stok habis");
 
-      const pr = rowsOf(
-        await tx.execute(sql`SELECT price FROM reseller_prices WHERE option_id = ${option.id}`),
-      )[0];
-      const price = pr ? Number(pr.price) : option.price;
+      const price = option.resellerPrice ?? option.price;
 
       let deliveryKey: string | null = null;
       let deliveryLink: string | null = null;
@@ -263,12 +421,12 @@ router.post(
 
       const debit = rowsOf(
         await tx.execute(sql`
-          UPDATE reseller_accounts SET balance = balance - ${price}
-          WHERE id = ${acc.id} AND active = TRUE AND balance >= ${price}
+          UPDATE wallets SET balance = balance - ${price}, updated_at = NOW()
+          WHERE user_id = ${acc.userId} AND balance >= ${price}
           RETURNING balance
         `),
       )[0];
-      if (!debit) throw new HttpError(400, "Saldo reseller tidak cukup");
+      if (!debit) throw new HttpError(400, "Saldo tidak cukup. Top up di halaman Member.");
 
       const stockRow = rowsOf(
         await tx.execute(sql`
@@ -291,11 +449,17 @@ router.post(
           productName: product.name,
           duration: option.duration,
           amount: price,
-          whatsapp: `reseller:${acc.username}` + (wa ? ` | ${wa}` : ""),
+          whatsapp: `reseller:${acc.username}`,
           status: "PAID",
           paymentRef: deliveryKey || deliveryLink || null,
         })
         .returning();
+
+      await tx.execute(sql`
+        INSERT INTO wallet_transactions (user_id, type, amount, reference, description, status)
+        VALUES (${acc.userId}, 'PURCHASE', ${-price}, ${invoice},
+                ${`[Reseller] ${product.name} - ${option.duration}`}, 'PAID')
+      `);
 
       return { order, deliveryKey, deliveryLink, balance: Number(debit.balance) };
     });
@@ -317,7 +481,7 @@ router.get(
     const rows = await db
       .select()
       .from(ordersTable)
-      .where(sql`(${ordersTable.whatsapp} = ${tag} OR ${ordersTable.whatsapp} LIKE ${tag + " |%"})`)
+      .where(eq(ordersTable.whatsapp, tag))
       .orderBy(desc(ordersTable.createdAt));
     return res.json(rows);
   }),
@@ -325,38 +489,44 @@ router.get(
 
 /* ================= ADMIN ================= */
 router.get(
+  "/admin/reseller-settings",
+  requireAdmin,
+  h(async (_req, res) => res.json(await getPlanPrices())),
+);
+
+router.put(
+  "/admin/reseller-settings",
+  requireAdmin,
+  h(async (req, res) => {
+    const monthly = Math.trunc(Number(req.body.monthly));
+    const lifetime = Math.trunc(Number(req.body.lifetime));
+    if (![monthly, lifetime].every((n) => Number.isFinite(n) && n >= 0)) {
+      throw new HttpError(400, "Harga paket tidak valid");
+    }
+    for (const [k, v] of [
+      ["price_monthly", monthly],
+      ["price_lifetime", lifetime],
+    ] as const) {
+      await db.execute(sql`
+        INSERT INTO reseller_settings (key, value) VALUES (${k}, ${String(v)})
+        ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value
+      `);
+    }
+    return res.json({ ok: true, monthly, lifetime });
+  }),
+);
+
+router.get(
   "/admin/resellers",
   requireAdmin,
   h(async (_req, res) => {
     const rows = rowsOf(
       await db.execute(sql`
-        SELECT id, username, balance, active, note, created_at
-        FROM reseller_accounts ORDER BY id DESC
+        SELECT id, user_id, plan, expires_at, username, active, created_at
+        FROM reseller_members ORDER BY id DESC
       `),
     );
-    return res.json(rows);
-  }),
-);
-
-router.post(
-  "/admin/resellers",
-  requireAdmin,
-  h(async (req, res) => {
-    const username = req.body.username ? String(req.body.username).trim().toLowerCase() : undefined;
-    const password = req.body.password ? String(req.body.password) : undefined;
-    if (username && !/^[a-z0-9]{3,24}$/.test(username)) {
-      throw new HttpError(400, "Username hanya huruf kecil/angka, 3-24 karakter");
-    }
-    if (password && password.length < 6) throw new HttpError(400, "Password minimal 6 karakter");
-
-    const acc = await createResellerAccount(db, {
-      username,
-      password,
-      balance: Math.max(0, Math.trunc(Number(req.body.balance) || 0)),
-      note: req.body.note ? String(req.body.note) : undefined,
-    });
-    // password hanya ditampilkan SEKALI di response ini
-    return res.json({ id: acc.id, username: acc.username, password: acc.password });
+    return res.json(rows.map((r) => ({ ...r, valid: isActiveMember(r) })));
   }),
 );
 
@@ -364,32 +534,10 @@ router.patch(
   "/admin/resellers/:id",
   requireAdmin,
   h(async (req, res) => {
-    const id = Number(req.params.id);
-    const b = req.body;
-
-    if (typeof b.active === "boolean") {
-      await db.execute(sql`UPDATE reseller_accounts SET active = ${b.active} WHERE id = ${id}`);
-    }
-    if (b.note !== undefined) {
-      await db.execute(sql`UPDATE reseller_accounts SET note = ${String(b.note)} WHERE id = ${id}`);
-    }
-    if (b.password) {
-      if (String(b.password).length < 6) throw new HttpError(400, "Password minimal 6 karakter");
-      await db.execute(
-        sql`UPDATE reseller_accounts SET password_hash = ${hashPassword(String(b.password))} WHERE id = ${id}`,
-      );
-    }
-    if (b.addBalance !== undefined) {
-      const n = Math.trunc(Number(b.addBalance));
-      if (!Number.isFinite(n)) throw new HttpError(400, "Nominal saldo tidak valid");
-      const r = rowsOf(
-        await db.execute(sql`
-          UPDATE reseller_accounts SET balance = balance + ${n}
-          WHERE id = ${id} AND balance + ${n} >= 0 RETURNING id
-        `),
-      );
-      if (!r[0]) throw new HttpError(400, "Saldo tidak boleh minus");
-    }
+    if (typeof req.body.active !== "boolean") throw new HttpError(400, "active harus true/false");
+    await db.execute(
+      sql`UPDATE reseller_members SET active = ${req.body.active} WHERE id = ${Number(req.params.id)}`,
+    );
     return res.json({ ok: true });
   }),
 );
@@ -398,7 +546,7 @@ router.delete(
   "/admin/resellers/:id",
   requireAdmin,
   h(async (req, res) => {
-    await db.execute(sql`DELETE FROM reseller_accounts WHERE id = ${Number(req.params.id)}`);
+    await db.execute(sql`DELETE FROM reseller_members WHERE id = ${Number(req.params.id)}`);
     return res.json({ ok: true });
   }),
 );
@@ -407,27 +555,32 @@ router.get(
   "/admin/reseller-prices",
   requireAdmin,
   h(async (_req, res) => {
-    return res.json(rowsOf(await db.execute(sql`SELECT option_id, price FROM reseller_prices`)));
+    return res.json(
+      rowsOf(
+        await db.execute(sql`
+          SELECT id AS option_id, reseller_price AS price
+          FROM product_options WHERE reseller_price IS NOT NULL
+        `),
+      ),
+    );
   }),
 );
 
-// kirim price kosong/null untuk menghapus harga reseller (kembali ke harga normal)
+// price kosong/null = hapus harga reseller (kembali ke harga normal)
 router.put(
   "/admin/reseller-prices/:optionId",
   requireAdmin,
   h(async (req, res) => {
     const optionId = Number(req.params.optionId);
     const raw = req.body.price;
-    if (raw === null || raw === "" || raw === undefined) {
-      await db.execute(sql`DELETE FROM reseller_prices WHERE option_id = ${optionId}`);
-      return res.json({ ok: true, price: null });
+    let price: number | null = null;
+    if (raw !== null && raw !== "" && raw !== undefined) {
+      price = Math.trunc(Number(raw));
+      if (!Number.isFinite(price) || price < 0) throw new HttpError(400, "Harga tidak valid");
     }
-    const price = Math.trunc(Number(raw));
-    if (!Number.isFinite(price) || price < 0) throw new HttpError(400, "Harga tidak valid");
-    await db.execute(sql`
-      INSERT INTO reseller_prices (option_id, price) VALUES (${optionId}, ${price})
-      ON CONFLICT (option_id) DO UPDATE SET price = EXCLUDED.price
-    `);
+    await db.execute(
+      sql`UPDATE product_options SET reseller_price = ${price}::integer WHERE id = ${optionId}`,
+    );
     return res.json({ ok: true, price });
   }),
 );

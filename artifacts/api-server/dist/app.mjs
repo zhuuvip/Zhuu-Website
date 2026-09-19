@@ -44151,7 +44151,7 @@ var require_lib5 = __commonJS({
 });
 
 // src/app.ts
-var import_express26 = __toESM(require_express2(), 1);
+var import_express27 = __toESM(require_express2(), 1);
 var import_cors = __toESM(require_lib3(), 1);
 var import_pino_http = __toESM(require_logger(), 1);
 
@@ -78628,7 +78628,7 @@ router2.post("/admin/wallet/adjust", requireAdmin, async (req, res) => {
 var wallet_default = router2;
 
 // src/routes/index.ts
-var import_express25 = __toESM(require_express2(), 1);
+var import_express26 = __toESM(require_express2(), 1);
 
 // src/routes/health.ts
 var import_express5 = __toESM(require_express2(), 1);
@@ -78690,7 +78690,7 @@ router4.get("/products", async (_req, res) => {
   return res.json(
     products.map((p) => ({
       ...p,
-      options: options.filter((o) => o.productId === p.id)
+      options: options.filter((o) => o.productId === p.id).map((o) => ({ ...o, resellerPrice: void 0 }))
     }))
   );
 });
@@ -83633,381 +83633,9 @@ router10.delete("/announcements", requireAdmin, async (req, res) => {
 });
 
 // src/routes/orders.ts
-var import_express15 = __toESM(require_express2(), 1);
-
-// src/routes/reseller.ts
 var import_express14 = __toESM(require_express2(), 1);
-import crypto3 from "node:crypto";
 var router11 = (0, import_express14.Router)();
-var rowsOf = (r) => r?.rows ?? r ?? [];
-var HttpError = class extends Error {
-  constructor(status, message) {
-    super(message);
-    this.status = status;
-  }
-};
-var tablesReady = null;
-function ensureResellerTables() {
-  if (!tablesReady) {
-    tablesReady = (async () => {
-      await db.execute(sql`
-        CREATE TABLE IF NOT EXISTS reseller_accounts (
-          id SERIAL PRIMARY KEY,
-          username TEXT NOT NULL UNIQUE,
-          password_hash TEXT NOT NULL,
-          balance INTEGER NOT NULL DEFAULT 0,
-          active BOOLEAN NOT NULL DEFAULT TRUE,
-          note TEXT,
-          created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
-        )
-      `);
-      await db.execute(sql`
-        CREATE TABLE IF NOT EXISTS reseller_prices (
-          option_id INTEGER PRIMARY KEY,
-          price INTEGER NOT NULL
-        )
-      `);
-    })().catch((e) => {
-      tablesReady = null;
-      throw e;
-    });
-  }
-  return tablesReady;
-}
-function hashPassword(pw) {
-  const salt = crypto3.randomBytes(16).toString("hex");
-  const hash = crypto3.scryptSync(pw, salt, 64).toString("hex");
-  return `${salt}:${hash}`;
-}
-function verifyPassword(pw, stored) {
-  const [salt, hash] = String(stored).split(":");
-  if (!salt || !hash) return false;
-  const test2 = crypto3.scryptSync(pw, salt, 64);
-  const known = Buffer.from(hash, "hex");
-  return known.length === test2.length && crypto3.timingSafeEqual(known, test2);
-}
-function secret() {
-  const s2 = process.env.RESELLER_SECRET;
-  if (!s2 || s2.length < 16) throw new Error("RESELLER_SECRET belum diatur");
-  return s2;
-}
-function sign(body) {
-  return crypto3.createHmac("sha256", secret()).update(body).digest("base64url");
-}
-function signToken(id) {
-  const body = Buffer.from(
-    JSON.stringify({ id, exp: Date.now() + 7 * 24 * 3600 * 1e3 })
-  ).toString("base64url");
-  return `${body}.${sign(body)}`;
-}
-function readToken(token) {
-  const [body, sig] = token.split(".");
-  if (!body || !sig) return null;
-  const a = Buffer.from(sig);
-  const b = Buffer.from(sign(body));
-  if (a.length !== b.length || !crypto3.timingSafeEqual(a, b)) return null;
-  try {
-    const p = JSON.parse(Buffer.from(body, "base64url").toString());
-    if (typeof p.id !== "number" || p.exp < Date.now()) return null;
-    return p.id;
-  } catch {
-    return null;
-  }
-}
-async function createResellerAccount(ex = db, opts = {}) {
-  await ensureResellerTables();
-  const password = opts.password || crypto3.randomBytes(8).toString("base64url");
-  for (let i = 0; i < 5; i++) {
-    const username = (opts.username || `rs${crypto3.randomBytes(3).toString("hex")}`).toLowerCase();
-    const r = await ex.execute(sql`
-      INSERT INTO reseller_accounts (username, password_hash, balance, note)
-      VALUES (${username}, ${hashPassword(password)}, ${opts.balance ?? 0}, ${opts.note ?? null})
-      ON CONFLICT (username) DO NOTHING
-      RETURNING id, username
-    `);
-    const row = rowsOf(r)[0];
-    if (row) return { id: row.id, username: row.username, password };
-    if (opts.username) throw new HttpError(400, "Username sudah dipakai");
-  }
-  throw new Error("Gagal membuat username unik");
-}
-var h = (fn) => async (req, res) => {
-  try {
-    await ensureResellerTables();
-    await fn(req, res);
-  } catch (e) {
-    if (e instanceof HttpError) return res.status(e.status).json({ error: e.message });
-    console.error(e);
-    return res.status(500).json({ error: "Terjadi kesalahan server" });
-  }
-};
-var attempts = /* @__PURE__ */ new Map();
-function tooMany(ip) {
-  const now = Date.now();
-  const a = attempts.get(ip);
-  if (!a || now - a.t > 15 * 60 * 1e3) {
-    attempts.set(ip, { n: 1, t: now });
-    return false;
-  }
-  a.n++;
-  return a.n > 10;
-}
-async function requireReseller(req, res, next) {
-  try {
-    await ensureResellerTables();
-    const token = String(req.headers.authorization || "").replace(/^Bearer\s+/i, "");
-    const id = token ? readToken(token) : null;
-    if (!id) return res.status(401).json({ error: "Login reseller diperlukan" });
-    const rows = rowsOf(
-      await db.execute(sql`SELECT id, username, balance, active FROM reseller_accounts WHERE id = ${id}`)
-    );
-    if (!rows[0] || !rows[0].active) {
-      return res.status(401).json({ error: "Akun reseller tidak aktif" });
-    }
-    req.reseller = rows[0];
-    next();
-  } catch (e) {
-    console.error(e);
-    res.status(500).json({ error: "Terjadi kesalahan server" });
-  }
-}
-router11.post(
-  "/reseller/login",
-  h(async (req, res) => {
-    const ip = String(req.headers["x-forwarded-for"] || req.ip || "x").split(",")[0].trim();
-    if (tooMany(ip)) throw new HttpError(429, "Terlalu banyak percobaan, coba lagi 15 menit lagi");
-    const username = String(req.body.username || "").trim().toLowerCase();
-    const password = String(req.body.password || "");
-    const acc = rowsOf(
-      await db.execute(sql`SELECT * FROM reseller_accounts WHERE username = ${username}`)
-    )[0];
-    if (!acc || !acc.active || !verifyPassword(password, acc.password_hash)) {
-      throw new HttpError(401, "Username atau password salah");
-    }
-    attempts.delete(ip);
-    return res.json({ token: signToken(acc.id), username: acc.username, balance: acc.balance });
-  })
-);
-router11.get("/reseller/me", requireReseller, (req, res) => {
-  const a = req.reseller;
-  res.json({ username: a.username, balance: a.balance });
-});
-router11.get(
-  "/reseller/products",
-  requireReseller,
-  h(async (_req, res) => {
-    const products = await db.select().from(productsTable);
-    const options = await db.select().from(productOptionsTable);
-    const prices = rowsOf(await db.execute(sql`SELECT option_id, price FROM reseller_prices`));
-    const map2 = new Map(prices.map((p) => [Number(p.option_id), Number(p.price)]));
-    return res.json(
-      products.map((p) => {
-        const { deliveryValue, ...safe } = p;
-        return {
-          ...safe,
-          options: options.filter((o) => o.productId === p.id).map((o) => ({
-            ...o,
-            normalPrice: o.price,
-            price: map2.get(o.id) ?? o.price,
-            hasResellerPrice: map2.has(o.id)
-          }))
-        };
-      })
-    );
-  })
-);
-router11.post(
-  "/reseller/orders",
-  requireReseller,
-  h(async (req, res) => {
-    const acc = req.reseller;
-    const productId = Number(req.body.productId);
-    const optionId = Number(req.body.optionId);
-    const wa = req.body.whatsapp ? String(req.body.whatsapp).slice(0, 30) : "";
-    const result = await db.transaction(async (tx) => {
-      const [product] = await tx.select().from(productsTable).where(eq(productsTable.id, productId));
-      const [option] = await tx.select().from(productOptionsTable).where(eq(productOptionsTable.id, optionId));
-      if (!product || !option || option.productId !== product.id) {
-        throw new HttpError(400, "Produk atau durasi tidak valid");
-      }
-      if (product.deliveryType === "RESELLER") {
-        throw new HttpError(400, "Produk ini tidak tersedia untuk reseller");
-      }
-      if (option.stock <= 0) throw new HttpError(400, "Stok habis");
-      const pr = rowsOf(
-        await tx.execute(sql`SELECT price FROM reseller_prices WHERE option_id = ${option.id}`)
-      )[0];
-      const price = pr ? Number(pr.price) : option.price;
-      let deliveryKey = null;
-      let deliveryLink = null;
-      if (product.deliveryType === "KEY") {
-        const claimed = rowsOf(
-          await tx.execute(sql`
-            UPDATE product_keys SET status = 'SOLD'
-            WHERE id = (
-              SELECT id FROM product_keys
-              WHERE product_id = ${product.id} AND option_id = ${option.id} AND status = 'READY'
-              ORDER BY id ASC LIMIT 1 FOR UPDATE SKIP LOCKED
-            )
-            RETURNING id, key
-          `)
-        );
-        if (!claimed[0]) throw new HttpError(400, "Key untuk durasi ini habis");
-        deliveryKey = claimed[0].key;
-      }
-      if (product.deliveryType === "LINK") {
-        deliveryLink = product.deliveryValue || null;
-        if (!deliveryLink) throw new HttpError(400, "Link delivery belum diatur oleh admin");
-      }
-      const debit = rowsOf(
-        await tx.execute(sql`
-          UPDATE reseller_accounts SET balance = balance - ${price}
-          WHERE id = ${acc.id} AND active = TRUE AND balance >= ${price}
-          RETURNING balance
-        `)
-      )[0];
-      if (!debit) throw new HttpError(400, "Saldo reseller tidak cukup");
-      const stockRow = rowsOf(
-        await tx.execute(sql`
-          UPDATE product_options SET stock = stock - 1
-          WHERE id = ${option.id} AND stock > 0 RETURNING id
-        `)
-      )[0];
-      if (!stockRow) throw new HttpError(400, "Stok habis, coba lagi");
-      const invoice = `RSL-${(/* @__PURE__ */ new Date()).toISOString().slice(0, 10).replace(/-/g, "")}-` + Math.random().toString(36).slice(2, 7).toUpperCase();
-      const [order] = await tx.insert(ordersTable).values({
-        invoice,
-        productId: product.id,
-        optionId: option.id,
-        productName: product.name,
-        duration: option.duration,
-        amount: price,
-        whatsapp: `reseller:${acc.username}` + (wa ? ` | ${wa}` : ""),
-        status: "PAID",
-        paymentRef: deliveryKey || deliveryLink || null
-      }).returning();
-      return { order, deliveryKey, deliveryLink, balance: Number(debit.balance) };
-    });
-    return res.json({
-      ...result.order,
-      deliveryKey: result.deliveryKey,
-      deliveryLink: result.deliveryLink,
-      balance: result.balance
-    });
-  })
-);
-router11.get(
-  "/reseller/orders",
-  requireReseller,
-  h(async (req, res) => {
-    const tag = `reseller:${req.reseller.username}`;
-    const rows = await db.select().from(ordersTable).where(sql`(${ordersTable.whatsapp} = ${tag} OR ${ordersTable.whatsapp} LIKE ${tag + " |%"})`).orderBy(desc(ordersTable.createdAt));
-    return res.json(rows);
-  })
-);
-router11.get(
-  "/admin/resellers",
-  requireAdmin,
-  h(async (_req, res) => {
-    const rows = rowsOf(
-      await db.execute(sql`
-        SELECT id, username, balance, active, note, created_at
-        FROM reseller_accounts ORDER BY id DESC
-      `)
-    );
-    return res.json(rows);
-  })
-);
-router11.post(
-  "/admin/resellers",
-  requireAdmin,
-  h(async (req, res) => {
-    const username = req.body.username ? String(req.body.username).trim().toLowerCase() : void 0;
-    const password = req.body.password ? String(req.body.password) : void 0;
-    if (username && !/^[a-z0-9]{3,24}$/.test(username)) {
-      throw new HttpError(400, "Username hanya huruf kecil/angka, 3-24 karakter");
-    }
-    if (password && password.length < 6) throw new HttpError(400, "Password minimal 6 karakter");
-    const acc = await createResellerAccount(db, {
-      username,
-      password,
-      balance: Math.max(0, Math.trunc(Number(req.body.balance) || 0)),
-      note: req.body.note ? String(req.body.note) : void 0
-    });
-    return res.json({ id: acc.id, username: acc.username, password: acc.password });
-  })
-);
-router11.patch(
-  "/admin/resellers/:id",
-  requireAdmin,
-  h(async (req, res) => {
-    const id = Number(req.params.id);
-    const b = req.body;
-    if (typeof b.active === "boolean") {
-      await db.execute(sql`UPDATE reseller_accounts SET active = ${b.active} WHERE id = ${id}`);
-    }
-    if (b.note !== void 0) {
-      await db.execute(sql`UPDATE reseller_accounts SET note = ${String(b.note)} WHERE id = ${id}`);
-    }
-    if (b.password) {
-      if (String(b.password).length < 6) throw new HttpError(400, "Password minimal 6 karakter");
-      await db.execute(
-        sql`UPDATE reseller_accounts SET password_hash = ${hashPassword(String(b.password))} WHERE id = ${id}`
-      );
-    }
-    if (b.addBalance !== void 0) {
-      const n = Math.trunc(Number(b.addBalance));
-      if (!Number.isFinite(n)) throw new HttpError(400, "Nominal saldo tidak valid");
-      const r = rowsOf(
-        await db.execute(sql`
-          UPDATE reseller_accounts SET balance = balance + ${n}
-          WHERE id = ${id} AND balance + ${n} >= 0 RETURNING id
-        `)
-      );
-      if (!r[0]) throw new HttpError(400, "Saldo tidak boleh minus");
-    }
-    return res.json({ ok: true });
-  })
-);
-router11.delete(
-  "/admin/resellers/:id",
-  requireAdmin,
-  h(async (req, res) => {
-    await db.execute(sql`DELETE FROM reseller_accounts WHERE id = ${Number(req.params.id)}`);
-    return res.json({ ok: true });
-  })
-);
-router11.get(
-  "/admin/reseller-prices",
-  requireAdmin,
-  h(async (_req, res) => {
-    return res.json(rowsOf(await db.execute(sql`SELECT option_id, price FROM reseller_prices`)));
-  })
-);
-router11.put(
-  "/admin/reseller-prices/:optionId",
-  requireAdmin,
-  h(async (req, res) => {
-    const optionId = Number(req.params.optionId);
-    const raw = req.body.price;
-    if (raw === null || raw === "" || raw === void 0) {
-      await db.execute(sql`DELETE FROM reseller_prices WHERE option_id = ${optionId}`);
-      return res.json({ ok: true, price: null });
-    }
-    const price = Math.trunc(Number(raw));
-    if (!Number.isFinite(price) || price < 0) throw new HttpError(400, "Harga tidak valid");
-    await db.execute(sql`
-      INSERT INTO reseller_prices (option_id, price) VALUES (${optionId}, ${price})
-      ON CONFLICT (option_id) DO UPDATE SET price = EXCLUDED.price
-    `);
-    return res.json({ ok: true, price });
-  })
-);
-var reseller_default = router11;
-
-// src/routes/orders.ts
-var router12 = (0, import_express15.Router)();
-router12.post("/orders", async (req, res) => {
+router11.post("/orders", async (req, res) => {
   try {
     const userId = getAuth(req)?.userId;
     if (!userId) {
@@ -84025,10 +83653,6 @@ router12.post("/orders", async (req, res) => {
       }
       let deliveryKey = null;
       let deliveryLink = null;
-      if (product.deliveryType === "RESELLER") {
-        const resAcc = await createResellerAccount(tx);
-        deliveryKey = "Username: " + resAcc.username + " | Password: " + resAcc.password;
-      }
       if (product.deliveryType === "KEY") {
         const claimed = await tx.execute(sql`
           UPDATE product_keys
@@ -84166,7 +83790,7 @@ router12.post("/orders", async (req, res) => {
     });
   }
 });
-router12.get("/orders", async (req, res) => {
+router11.get("/orders", async (req, res) => {
   try {
     const userId = getAuth(req)?.userId;
     if (!userId) {
@@ -84183,7 +83807,7 @@ router12.get("/orders", async (req, res) => {
     });
   }
 });
-router12.get("/admin/orders", requireAdmin, async (_req, res) => {
+router11.get("/admin/orders", requireAdmin, async (_req, res) => {
   try {
     const orders = await db.select().from(ordersTable).orderBy(sql`${ordersTable.createdAt} DESC`);
     return res.json(orders);
@@ -84194,11 +83818,11 @@ router12.get("/admin/orders", requireAdmin, async (_req, res) => {
     });
   }
 });
-var orders_default = router12;
+var orders_default = router11;
 
 // src/routes/usage.ts
-var import_express17 = __toESM(require_express2(), 1);
-var router13 = (0, import_express17.Router)();
+var import_express16 = __toESM(require_express2(), 1);
+var router12 = (0, import_express16.Router)();
 async function requireAuth2(req, res) {
   const userId = getAuth(req)?.userId;
   if (!userId) {
@@ -84207,7 +83831,7 @@ async function requireAuth2(req, res) {
   }
   return userId;
 }
-router13.get("/usage", async (req, res) => {
+router12.get("/usage", async (req, res) => {
   try {
     const userId = await requireAuth2(req, res);
     if (!userId) return;
@@ -84218,7 +83842,7 @@ router13.get("/usage", async (req, res) => {
     return res.status(500).json({ error: "Gagal mengambil limit harian" });
   }
 });
-router13.post("/usage/consume", async (req, res) => {
+router12.post("/usage/consume", async (req, res) => {
   try {
     const userId = await requireAuth2(req, res);
     if (!userId) return;
@@ -84243,12 +83867,12 @@ router13.post("/usage/consume", async (req, res) => {
     });
   }
 });
-var usage_default = router13;
+var usage_default = router12;
 
 // src/routes/move2link.ts
-var import_express19 = __toESM(require_express2(), 1);
+var import_express18 = __toESM(require_express2(), 1);
 import { randomUUID } from "node:crypto";
-var router14 = (0, import_express19.Router)();
+var router13 = (0, import_express18.Router)();
 var AI_REWARD = 5;
 var TOOLS_REWARD = 10;
 var MAX_AD_REWARDS_PER_DAY = 3;
@@ -84283,7 +83907,7 @@ async function requireAuth3(req, res) {
   }
   return userId;
 }
-router14.post("/ads/move2link", async (req, res) => {
+router13.post("/ads/move2link", async (req, res) => {
   try {
     const userId = await requireAuth3(req, res);
     if (!userId) return;
@@ -84356,7 +83980,7 @@ router14.post("/ads/move2link", async (req, res) => {
     });
   }
 });
-router14.get("/move2link/redeem", async (req, res) => {
+router13.get("/move2link/redeem", async (req, res) => {
   try {
     await ensureMove2LinkTables();
     const claimId = typeof req.query?.token === "string" ? req.query.token : "";
@@ -84403,12 +84027,12 @@ router14.get("/move2link/redeem", async (req, res) => {
     return res.redirect(`${FRONTEND_URL}/tools?bonus=error`);
   }
 });
-var move2link_default = router14;
+var move2link_default = router13;
 
 // src/routes/lootlabs.ts
-var import_express21 = __toESM(require_express2(), 1);
+var import_express20 = __toESM(require_express2(), 1);
 import { randomUUID as randomUUID2 } from "node:crypto";
-var router15 = (0, import_express21.Router)();
+var router14 = (0, import_express20.Router)();
 var LOOTLABS_API_URL = "https://creators.lootlabs.gg/api/public/content_locker";
 var AI_REWARD2 = 5;
 var TOOLS_REWARD2 = 10;
@@ -84443,7 +84067,7 @@ async function requireAuth4(req, res) {
   }
   return userId;
 }
-router15.post("/ads/lootlabs", async (req, res) => {
+router14.post("/ads/lootlabs", async (req, res) => {
   try {
     const userId = await requireAuth4(req, res);
     if (!userId) return;
@@ -84520,7 +84144,7 @@ router15.post("/ads/lootlabs", async (req, res) => {
     });
   }
 });
-router15.get("/lootlabs/postback", async (req, res) => {
+router14.get("/lootlabs/postback", async (req, res) => {
   try {
     await ensureLootLabsTables();
     const clickId = typeof req.query?.click_id === "string" ? req.query.click_id : "";
@@ -84598,11 +84222,11 @@ router15.get("/lootlabs/postback", async (req, res) => {
     });
   }
 });
-var lootlabs_default = router15;
+var lootlabs_default = router14;
 
 // src/routes/premium.ts
-var import_express23 = __toESM(require_express2(), 1);
-var router16 = (0, import_express23.Router)();
+var import_express22 = __toESM(require_express2(), 1);
+var router15 = (0, import_express22.Router)();
 async function ensurePremiumTables() {
   await db.execute(sql`
     CREATE TABLE IF NOT EXISTS premium_members (
@@ -84630,7 +84254,7 @@ function requireAuth5(req, res) {
   }
   return userId;
 }
-router16.get("/premium/status", async (req, res) => {
+router15.get("/premium/status", async (req, res) => {
   const userId = requireAuth5(req, res);
   if (!userId) return;
   try {
@@ -84642,7 +84266,7 @@ router16.get("/premium/status", async (req, res) => {
     res.status(500).json({ error: "Gagal mengambil status membership" });
   }
 });
-router16.post("/premium/purchase", async (req, res) => {
+router15.post("/premium/purchase", async (req, res) => {
   const userId = requireAuth5(req, res);
   if (!userId) return;
   await ensurePremiumTables();
@@ -84696,10 +84320,518 @@ router16.post("/premium/purchase", async (req, res) => {
     res.status(500).json({ error: err?.message || "Gagal upgrade premium" });
   }
 });
-var premium_default = router16;
+var premium_default = router15;
+
+// src/routes/reseller.ts
+var import_express24 = __toESM(require_express2(), 1);
+import crypto3 from "node:crypto";
+var router16 = (0, import_express24.Router)();
+var rowsOf = (r) => r?.rows ?? r ?? [];
+var PLAN_DAYS = 30;
+var HttpError = class extends Error {
+  constructor(status, message) {
+    super(message);
+    this.status = status;
+  }
+};
+var tablesReady = null;
+function ensureResellerTables() {
+  if (!tablesReady) {
+    tablesReady = (async () => {
+      await db.execute(sql`
+        CREATE TABLE IF NOT EXISTS reseller_members (
+          id SERIAL PRIMARY KEY,
+          user_id TEXT NOT NULL UNIQUE,
+          plan TEXT NOT NULL,
+          expires_at TIMESTAMPTZ,
+          username TEXT UNIQUE,
+          password_hash TEXT,
+          active BOOLEAN NOT NULL DEFAULT TRUE,
+          created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+        )
+      `);
+      await db.execute(sql`
+        CREATE TABLE IF NOT EXISTS reseller_settings (
+          key TEXT PRIMARY KEY,
+          value TEXT NOT NULL
+        )
+      `);
+      await db.execute(sql`ALTER TABLE product_options ADD COLUMN IF NOT EXISTS reseller_price INTEGER`);
+      await db.execute(sql`
+        CREATE TABLE IF NOT EXISTS wallets (
+          id SERIAL PRIMARY KEY,
+          user_id TEXT NOT NULL UNIQUE,
+          balance INTEGER NOT NULL DEFAULT 0,
+          created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+          updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+        )
+      `);
+      await db.execute(sql`
+        CREATE TABLE IF NOT EXISTS wallet_transactions (
+          id SERIAL PRIMARY KEY,
+          user_id TEXT NOT NULL,
+          type TEXT NOT NULL,
+          amount INTEGER NOT NULL,
+          reference TEXT UNIQUE,
+          description TEXT,
+          status TEXT NOT NULL DEFAULT 'PENDING',
+          created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+        )
+      `);
+    })().catch((e) => {
+      tablesReady = null;
+      throw e;
+    });
+  }
+  return tablesReady;
+}
+function hashPassword(pw) {
+  const salt = crypto3.randomBytes(16).toString("hex");
+  const hash = crypto3.scryptSync(pw, salt, 64).toString("hex");
+  return `${salt}:${hash}`;
+}
+function verifyPassword(pw, stored) {
+  const [salt, hash] = String(stored).split(":");
+  if (!salt || !hash) return false;
+  const test2 = crypto3.scryptSync(pw, salt, 64);
+  const known = Buffer.from(hash, "hex");
+  return known.length === test2.length && crypto3.timingSafeEqual(known, test2);
+}
+function secret() {
+  const s2 = process.env.RESELLER_SECRET;
+  if (!s2 || s2.length < 16) throw new Error("RESELLER_SECRET belum diatur");
+  return s2;
+}
+function sign(body) {
+  return crypto3.createHmac("sha256", secret()).update(body).digest("base64url");
+}
+function signToken(userId) {
+  const body = Buffer.from(
+    JSON.stringify({ u: userId, exp: Date.now() + 7 * 24 * 3600 * 1e3 })
+  ).toString("base64url");
+  return `${body}.${sign(body)}`;
+}
+function readToken(token) {
+  const [body, sig] = token.split(".");
+  if (!body || !sig) return null;
+  const a = Buffer.from(sig);
+  const b = Buffer.from(sign(body));
+  if (a.length !== b.length || !crypto3.timingSafeEqual(a, b)) return null;
+  try {
+    const p = JSON.parse(Buffer.from(body, "base64url").toString());
+    if (typeof p.u !== "string" || p.exp < Date.now()) return null;
+    return p.u;
+  } catch {
+    return null;
+  }
+}
+var h = (fn) => async (req, res) => {
+  try {
+    await ensureResellerTables();
+    await fn(req, res);
+  } catch (e) {
+    if (e instanceof HttpError) return res.status(e.status).json({ error: e.message });
+    console.error(e);
+    return res.status(500).json({ error: "Terjadi kesalahan server" });
+  }
+};
+function isActiveMember(row) {
+  if (!row || !row.active) return false;
+  if (row.plan === "lifetime") return true;
+  return !!row.expires_at && new Date(row.expires_at).getTime() > Date.now();
+}
+async function getPlanPrices() {
+  const rows = rowsOf(await db.execute(sql`SELECT key, value FROM reseller_settings`));
+  const m = new Map(rows.map((r) => [String(r.key), Number(r.value)]));
+  const pick2 = (k, d) => {
+    const v = m.get(k);
+    return v !== void 0 && Number.isFinite(v) ? v : d;
+  };
+  return { monthly: pick2("price_monthly", 1e4), lifetime: pick2("price_lifetime", 5e4) };
+}
+async function walletBalance(ex, userId) {
+  const r = rowsOf(await ex.execute(sql`SELECT balance FROM wallets WHERE user_id = ${userId}`))[0];
+  return r ? Number(r.balance) : 0;
+}
+function clerkUser(req) {
+  const id = getAuth(req)?.userId;
+  if (!id) throw new HttpError(401, "Login diperlukan");
+  return id;
+}
+var attempts = /* @__PURE__ */ new Map();
+function tooMany(ip) {
+  const now = Date.now();
+  const a = attempts.get(ip);
+  if (!a || now - a.t > 15 * 60 * 1e3) {
+    attempts.set(ip, { n: 1, t: now });
+    return false;
+  }
+  a.n++;
+  return a.n > 10;
+}
+async function requireReseller(req, res, next) {
+  try {
+    await ensureResellerTables();
+    const token = String(req.headers.authorization || "").replace(/^Bearer\s+/i, "");
+    const userId = token ? readToken(token) : null;
+    if (!userId) return res.status(401).json({ error: "Login reseller diperlukan" });
+    const row = rowsOf(
+      await db.execute(sql`SELECT * FROM reseller_members WHERE user_id = ${userId}`)
+    )[0];
+    if (!isActiveMember(row) || !row.username) {
+      return res.status(401).json({ error: "Paket reseller tidak aktif atau sudah habis" });
+    }
+    req.reseller = {
+      userId,
+      username: row.username,
+      plan: row.plan,
+      expiresAt: row.expires_at,
+      balance: await walletBalance(db, userId)
+    };
+    next();
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ error: "Terjadi kesalahan server" });
+  }
+}
+router16.get(
+  "/reseller/plans",
+  h(async (req, res) => {
+    const prices = await getPlanPrices();
+    const userId = getAuth(req)?.userId;
+    let member = null;
+    if (userId) {
+      const row = rowsOf(
+        await db.execute(sql`SELECT * FROM reseller_members WHERE user_id = ${userId}`)
+      )[0];
+      if (row) {
+        member = {
+          plan: row.plan,
+          expiresAt: row.expires_at,
+          active: isActiveMember(row),
+          username: row.username
+        };
+      }
+    }
+    return res.json({ prices, member });
+  })
+);
+router16.post(
+  "/reseller/plans/purchase",
+  h(async (req, res) => {
+    const userId = clerkUser(req);
+    const plan = String(req.body.plan);
+    if (plan !== "monthly" && plan !== "lifetime") throw new HttpError(400, "Paket tidak valid");
+    const price = (await getPlanPrices())[plan];
+    const result = await db.transaction(async (tx) => {
+      const existing = rowsOf(
+        await tx.execute(sql`SELECT * FROM reseller_members WHERE user_id = ${userId} FOR UPDATE`)
+      )[0];
+      if (existing && !existing.active) {
+        throw new HttpError(403, "Akun reseller kamu dinonaktifkan admin");
+      }
+      if (existing && existing.plan === "lifetime") {
+        throw new HttpError(409, "Kamu sudah reseller lifetime");
+      }
+      await tx.execute(
+        sql`INSERT INTO wallets (user_id, balance) VALUES (${userId}, 0) ON CONFLICT (user_id) DO NOTHING`
+      );
+      const debit = rowsOf(
+        await tx.execute(sql`
+          UPDATE wallets SET balance = balance - ${price}, updated_at = NOW()
+          WHERE user_id = ${userId} AND balance >= ${price}
+          RETURNING balance
+        `)
+      )[0];
+      if (!debit) throw new HttpError(400, "Saldo tidak cukup. Top up dulu di tab Top Up Saldo.");
+      let expiresIso = null;
+      if (plan === "monthly") {
+        const now = Date.now();
+        const cur = existing?.expires_at ? new Date(existing.expires_at).getTime() : 0;
+        expiresIso = new Date(Math.max(now, cur) + PLAN_DAYS * 864e5).toISOString();
+      }
+      await tx.execute(sql`
+        INSERT INTO reseller_members (user_id, plan, expires_at)
+        VALUES (${userId}, ${plan}, ${expiresIso}::timestamptz)
+        ON CONFLICT (user_id) DO UPDATE
+        SET plan = EXCLUDED.plan, expires_at = EXCLUDED.expires_at
+      `);
+      await tx.execute(sql`
+        INSERT INTO wallet_transactions (user_id, type, amount, reference, description, status)
+        VALUES (${userId}, 'PURCHASE', ${-price},
+                ${`RESELLER-${plan.toUpperCase()}-${Date.now()}`},
+                ${`Rank Reseller Products (${plan === "monthly" ? "Bulanan" : "Lifetime"})`}, 'PAID')
+      `);
+      return { plan, expiresAt: expiresIso, balance: Number(debit.balance) };
+    });
+    return res.json(result);
+  })
+);
+router16.post(
+  "/reseller/credentials",
+  h(async (req, res) => {
+    const userId = clerkUser(req);
+    const username = String(req.body.username || "").trim().toLowerCase();
+    const password = String(req.body.password || "");
+    if (!/^[a-z0-9_]{3,24}$/.test(username)) {
+      throw new HttpError(400, "Username 3-24 karakter: huruf kecil, angka, atau _");
+    }
+    if (password.length < 6 || password.length > 72) {
+      throw new HttpError(400, "Password 6-72 karakter");
+    }
+    const member = rowsOf(
+      await db.execute(sql`SELECT * FROM reseller_members WHERE user_id = ${userId}`)
+    )[0];
+    if (!isActiveMember(member)) {
+      throw new HttpError(403, "Kamu belum punya paket reseller aktif");
+    }
+    const taken = rowsOf(
+      await db.execute(
+        sql`SELECT 1 FROM reseller_members WHERE username = ${username} AND user_id <> ${userId}`
+      )
+    )[0];
+    if (taken) throw new HttpError(400, "Username sudah dipakai, pilih yang lain");
+    try {
+      await db.execute(sql`
+        UPDATE reseller_members
+        SET username = ${username}, password_hash = ${hashPassword(password)}
+        WHERE user_id = ${userId}
+      `);
+    } catch (e) {
+      if (e?.code === "23505" || e?.cause?.code === "23505") {
+        throw new HttpError(400, "Username sudah dipakai, pilih yang lain");
+      }
+      throw e;
+    }
+    return res.json({ ok: true, username });
+  })
+);
+router16.post(
+  "/reseller/login",
+  h(async (req, res) => {
+    const ip = String(req.headers["x-forwarded-for"] || req.ip || "x").split(",")[0].trim();
+    if (tooMany(ip)) throw new HttpError(429, "Terlalu banyak percobaan, coba lagi 15 menit lagi");
+    const username = String(req.body.username || "").trim().toLowerCase();
+    const password = String(req.body.password || "");
+    const acc = rowsOf(
+      await db.execute(sql`SELECT * FROM reseller_members WHERE username = ${username}`)
+    )[0];
+    if (!acc || !acc.password_hash || !verifyPassword(password, acc.password_hash)) {
+      throw new HttpError(401, "Username atau password salah");
+    }
+    if (!isActiveMember(acc)) {
+      throw new HttpError(403, "Paket reseller kamu habis atau dinonaktifkan. Perpanjang di halaman Member.");
+    }
+    attempts.delete(ip);
+    return res.json({ token: signToken(acc.user_id), username: acc.username });
+  })
+);
+router16.get("/reseller/me", requireReseller, (req, res) => {
+  const a = req.reseller;
+  res.json({ username: a.username, balance: a.balance, plan: a.plan, expiresAt: a.expiresAt });
+});
+router16.get(
+  "/reseller/products",
+  requireReseller,
+  h(async (_req, res) => {
+    const products = await db.select().from(productsTable);
+    const options = await db.select().from(productOptionsTable);
+    return res.json(
+      products.map((p) => {
+        const { deliveryValue, ...safe } = p;
+        return {
+          ...safe,
+          options: options.filter((o) => o.productId === p.id).map(({ resellerPrice, ...o }) => ({
+            ...o,
+            normalPrice: o.price,
+            price: resellerPrice ?? o.price,
+            hasResellerPrice: resellerPrice != null
+          }))
+        };
+      })
+    );
+  })
+);
+router16.post(
+  "/reseller/orders",
+  requireReseller,
+  h(async (req, res) => {
+    const acc = req.reseller;
+    const productId = Number(req.body.productId);
+    const optionId = Number(req.body.optionId);
+    const result = await db.transaction(async (tx) => {
+      const [product] = await tx.select().from(productsTable).where(eq(productsTable.id, productId));
+      const [option] = await tx.select().from(productOptionsTable).where(eq(productOptionsTable.id, optionId));
+      if (!product || !option || option.productId !== product.id) {
+        throw new HttpError(400, "Produk atau durasi tidak valid");
+      }
+      if (option.stock <= 0) throw new HttpError(400, "Stok habis");
+      const price = option.resellerPrice ?? option.price;
+      let deliveryKey = null;
+      let deliveryLink = null;
+      if (product.deliveryType === "KEY") {
+        const claimed = rowsOf(
+          await tx.execute(sql`
+            UPDATE product_keys SET status = 'SOLD'
+            WHERE id = (
+              SELECT id FROM product_keys
+              WHERE product_id = ${product.id} AND option_id = ${option.id} AND status = 'READY'
+              ORDER BY id ASC LIMIT 1 FOR UPDATE SKIP LOCKED
+            )
+            RETURNING id, key
+          `)
+        );
+        if (!claimed[0]) throw new HttpError(400, "Key untuk durasi ini habis");
+        deliveryKey = claimed[0].key;
+      }
+      if (product.deliveryType === "LINK") {
+        deliveryLink = product.deliveryValue || null;
+        if (!deliveryLink) throw new HttpError(400, "Link delivery belum diatur oleh admin");
+      }
+      const debit = rowsOf(
+        await tx.execute(sql`
+          UPDATE wallets SET balance = balance - ${price}, updated_at = NOW()
+          WHERE user_id = ${acc.userId} AND balance >= ${price}
+          RETURNING balance
+        `)
+      )[0];
+      if (!debit) throw new HttpError(400, "Saldo tidak cukup. Top up di halaman Member.");
+      const stockRow = rowsOf(
+        await tx.execute(sql`
+          UPDATE product_options SET stock = stock - 1
+          WHERE id = ${option.id} AND stock > 0 RETURNING id
+        `)
+      )[0];
+      if (!stockRow) throw new HttpError(400, "Stok habis, coba lagi");
+      const invoice = `RSL-${(/* @__PURE__ */ new Date()).toISOString().slice(0, 10).replace(/-/g, "")}-` + Math.random().toString(36).slice(2, 7).toUpperCase();
+      const [order] = await tx.insert(ordersTable).values({
+        invoice,
+        productId: product.id,
+        optionId: option.id,
+        productName: product.name,
+        duration: option.duration,
+        amount: price,
+        whatsapp: `reseller:${acc.username}`,
+        status: "PAID",
+        paymentRef: deliveryKey || deliveryLink || null
+      }).returning();
+      await tx.execute(sql`
+        INSERT INTO wallet_transactions (user_id, type, amount, reference, description, status)
+        VALUES (${acc.userId}, 'PURCHASE', ${-price}, ${invoice},
+                ${`[Reseller] ${product.name} - ${option.duration}`}, 'PAID')
+      `);
+      return { order, deliveryKey, deliveryLink, balance: Number(debit.balance) };
+    });
+    return res.json({
+      ...result.order,
+      deliveryKey: result.deliveryKey,
+      deliveryLink: result.deliveryLink,
+      balance: result.balance
+    });
+  })
+);
+router16.get(
+  "/reseller/orders",
+  requireReseller,
+  h(async (req, res) => {
+    const tag = `reseller:${req.reseller.username}`;
+    const rows = await db.select().from(ordersTable).where(eq(ordersTable.whatsapp, tag)).orderBy(desc(ordersTable.createdAt));
+    return res.json(rows);
+  })
+);
+router16.get(
+  "/admin/reseller-settings",
+  requireAdmin,
+  h(async (_req, res) => res.json(await getPlanPrices()))
+);
+router16.put(
+  "/admin/reseller-settings",
+  requireAdmin,
+  h(async (req, res) => {
+    const monthly = Math.trunc(Number(req.body.monthly));
+    const lifetime = Math.trunc(Number(req.body.lifetime));
+    if (![monthly, lifetime].every((n) => Number.isFinite(n) && n >= 0)) {
+      throw new HttpError(400, "Harga paket tidak valid");
+    }
+    for (const [k, v] of [
+      ["price_monthly", monthly],
+      ["price_lifetime", lifetime]
+    ]) {
+      await db.execute(sql`
+        INSERT INTO reseller_settings (key, value) VALUES (${k}, ${String(v)})
+        ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value
+      `);
+    }
+    return res.json({ ok: true, monthly, lifetime });
+  })
+);
+router16.get(
+  "/admin/resellers",
+  requireAdmin,
+  h(async (_req, res) => {
+    const rows = rowsOf(
+      await db.execute(sql`
+        SELECT id, user_id, plan, expires_at, username, active, created_at
+        FROM reseller_members ORDER BY id DESC
+      `)
+    );
+    return res.json(rows.map((r) => ({ ...r, valid: isActiveMember(r) })));
+  })
+);
+router16.patch(
+  "/admin/resellers/:id",
+  requireAdmin,
+  h(async (req, res) => {
+    if (typeof req.body.active !== "boolean") throw new HttpError(400, "active harus true/false");
+    await db.execute(
+      sql`UPDATE reseller_members SET active = ${req.body.active} WHERE id = ${Number(req.params.id)}`
+    );
+    return res.json({ ok: true });
+  })
+);
+router16.delete(
+  "/admin/resellers/:id",
+  requireAdmin,
+  h(async (req, res) => {
+    await db.execute(sql`DELETE FROM reseller_members WHERE id = ${Number(req.params.id)}`);
+    return res.json({ ok: true });
+  })
+);
+router16.get(
+  "/admin/reseller-prices",
+  requireAdmin,
+  h(async (_req, res) => {
+    return res.json(
+      rowsOf(
+        await db.execute(sql`
+          SELECT id AS option_id, reseller_price AS price
+          FROM product_options WHERE reseller_price IS NOT NULL
+        `)
+      )
+    );
+  })
+);
+router16.put(
+  "/admin/reseller-prices/:optionId",
+  requireAdmin,
+  h(async (req, res) => {
+    const optionId = Number(req.params.optionId);
+    const raw = req.body.price;
+    let price = null;
+    if (raw !== null && raw !== "" && raw !== void 0) {
+      price = Math.trunc(Number(raw));
+      if (!Number.isFinite(price) || price < 0) throw new HttpError(400, "Harga tidak valid");
+    }
+    await db.execute(
+      sql`UPDATE product_options SET reseller_price = ${price}::integer WHERE id = ${optionId}`
+    );
+    return res.json({ ok: true, price });
+  })
+);
+var reseller_default = router16;
 
 // src/routes/index.ts
-var router17 = (0, import_express25.Router)();
+var router17 = (0, import_express26.Router)();
 router17.use(health_default);
 router17.use(products_default);
 router17.use(links_default);
@@ -84737,7 +84869,7 @@ var logger2 = (0, import_pino.default)({
 });
 
 // src/app.ts
-var app = (0, import_express26.default)();
+var app = (0, import_express27.default)();
 app.use(
   (0, import_pino_http.default)({
     logger: logger2,
@@ -84751,7 +84883,7 @@ app.use(
     allowedHeaders: ["Content-Type", "Authorization"]
   })
 );
-app.use(import_express26.default.json());
+app.use(import_express27.default.json());
 app.use(clerkMiddleware());
 app.use("/api", routes_default);
 var app_default = app;
