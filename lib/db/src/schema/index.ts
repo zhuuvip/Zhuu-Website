@@ -13,3 +13,4 @@ export * from "./orders.js";
 export * from "./wallet.js";
 
 export * from "./dailyLimits.js";
+export * from "./premium.js";

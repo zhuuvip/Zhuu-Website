@@ -20650,27 +20650,27 @@ var require_router = __commonJS({
     var slice = Array.prototype.slice;
     var flatten = Array.prototype.flat;
     var methods = METHODS.map((method) => method.toLowerCase());
-    module.exports = Router16;
+    module.exports = Router17;
     module.exports.Route = Route;
-    function Router16(options) {
-      if (!(this instanceof Router16)) {
-        return new Router16(options);
+    function Router17(options) {
+      if (!(this instanceof Router17)) {
+        return new Router17(options);
       }
       const opts = options || {};
-      function router16(req, res, next) {
-        router16.handle(req, res, next);
+      function router17(req, res, next) {
+        router17.handle(req, res, next);
       }
-      Object.setPrototypeOf(router16, this);
-      router16.caseSensitive = opts.caseSensitive;
-      router16.mergeParams = opts.mergeParams;
-      router16.params = {};
-      router16.strict = opts.strict;
-      router16.stack = [];
-      return router16;
+      Object.setPrototypeOf(router17, this);
+      router17.caseSensitive = opts.caseSensitive;
+      router17.mergeParams = opts.mergeParams;
+      router17.params = {};
+      router17.strict = opts.strict;
+      router17.stack = [];
+      return router17;
     }
-    Router16.prototype = function() {
+    Router17.prototype = function() {
     };
-    Router16.prototype.param = function param(name, fn) {
+    Router17.prototype.param = function param(name, fn) {
       if (!name) {
         throw new TypeError("argument name is required");
       }
@@ -20690,7 +20690,7 @@ var require_router = __commonJS({
       params.push(fn);
       return this;
     };
-    Router16.prototype.handle = function handle(req, res, callback) {
+    Router17.prototype.handle = function handle(req, res, callback) {
       if (!callback) {
         throw new TypeError("argument callback is required");
       }
@@ -20817,7 +20817,7 @@ var require_router = __commonJS({
         }
       }
     };
-    Router16.prototype.use = function use(handler) {
+    Router17.prototype.use = function use(handler) {
       let offset = 0;
       let path = "/";
       if (typeof handler !== "function") {
@@ -20850,7 +20850,7 @@ var require_router = __commonJS({
       }
       return this;
     };
-    Router16.prototype.route = function route(path) {
+    Router17.prototype.route = function route(path) {
       const route2 = new Route(path);
       const layer = new Layer(path, {
         sensitive: this.caseSensitive,
@@ -20865,7 +20865,7 @@ var require_router = __commonJS({
       return route2;
     };
     methods.concat("all").forEach(function(method) {
-      Router16.prototype[method] = function(path) {
+      Router17.prototype[method] = function(path) {
         const route = this.route(path);
         route[method].apply(route, slice.call(arguments, 1));
         return this;
@@ -21048,13 +21048,13 @@ var require_application = __commonJS({
     var compileTrust = require_utils3().compileTrust;
     var resolve = __require("node:path").resolve;
     var once = require_once();
-    var Router16 = require_router();
+    var Router17 = require_router();
     var slice = Array.prototype.slice;
     var flatten = Array.prototype.flat;
     var app2 = exports = module.exports = {};
     var trustProxyDefaultSymbol = "@@symbol:trust_proxy_default";
     app2.init = function init() {
-      var router16 = null;
+      var router17 = null;
       this.cache = /* @__PURE__ */ Object.create(null);
       this.engines = /* @__PURE__ */ Object.create(null);
       this.settings = /* @__PURE__ */ Object.create(null);
@@ -21063,13 +21063,13 @@ var require_application = __commonJS({
         configurable: true,
         enumerable: true,
         get: function getrouter() {
-          if (router16 === null) {
-            router16 = new Router16({
+          if (router17 === null) {
+            router17 = new Router17({
               caseSensitive: this.enabled("case sensitive routing"),
               strict: this.enabled("strict routing")
             });
           }
-          return router16;
+          return router17;
         }
       });
     };
@@ -21140,15 +21140,15 @@ var require_application = __commonJS({
       if (fns.length === 0) {
         throw new TypeError("app.use() requires a middleware function");
       }
-      var router16 = this.router;
+      var router17 = this.router;
       fns.forEach(function(fn2) {
         if (!fn2 || !fn2.handle || !fn2.set) {
-          return router16.use(path, fn2);
+          return router17.use(path, fn2);
         }
         debug(".use app under %s", path);
         fn2.mountpath = path;
         fn2.parent = this;
-        router16.use(path, function mounted_app(req, res, next) {
+        router17.use(path, function mounted_app(req, res, next) {
           var orig = req.app;
           fn2.handle(req, res, function(err) {
             Object.setPrototypeOf(req, orig.request);
@@ -23721,7 +23721,7 @@ var require_express = __commonJS({
     var EventEmitter2 = __require("node:events").EventEmitter;
     var mixin = require_merge_descriptors();
     var proto = require_application();
-    var Router16 = require_router();
+    var Router17 = require_router();
     var req = require_request();
     var res = require_response();
     exports = module.exports = createApplication;
@@ -23743,8 +23743,8 @@ var require_express = __commonJS({
     exports.application = proto;
     exports.request = req;
     exports.response = res;
-    exports.Route = Router16.Route;
-    exports.Router = Router16;
+    exports.Route = Router17.Route;
+    exports.Router = Router17;
     exports.json = bodyParser.json;
     exports.raw = bodyParser.raw;
     exports.static = require_serve_static();
@@ -44151,7 +44151,7 @@ var require_lib5 = __commonJS({
 });
 
 // src/app.ts
-var import_express23 = __toESM(require_express2(), 1);
+var import_express25 = __toESM(require_express2(), 1);
 var import_cors = __toESM(require_lib3(), 1);
 var import_pino_http = __toESM(require_logger(), 1);
 
@@ -66696,6 +66696,7 @@ __export(schema_exports, {
   linksTable: () => linksTable,
   messages: () => messages,
   ordersTable: () => ordersTable,
+  premiumMembersTable: () => premiumMembersTable,
   productKeysTable: () => productKeysTable,
   productOptionsTable: () => productOptionsTable,
   productsTable: () => productsTable,
@@ -78251,6 +78252,18 @@ var userDailyLimitsTable = pgTable(
   })
 );
 
+// ../../lib/db/src/schema/premium.ts
+var premiumMembersTable = pgTable("premium_members", {
+  id: serial("id").primaryKey(),
+  userId: text("user_id").notNull().unique(),
+  tier: text("tier").notNull(),
+  // "silver" | "gold" (extend as needed)
+  aiBonus: integer("ai_bonus").notNull().default(0),
+  toolsBonus: integer("tools_bonus").notNull().default(0),
+  amountPaid: integer("amount_paid").notNull(),
+  purchasedAt: timestamp("purchased_at", { withTimezone: true }).defaultNow().notNull()
+});
+
 // ../../lib/db/src/index.ts
 var { Pool: Pool3 } = esm_default;
 if (!process.env.DATABASE_URL) {
@@ -78614,7 +78627,7 @@ router2.post("/admin/wallet/adjust", requireAdmin, async (req, res) => {
 var wallet_default = router2;
 
 // src/routes/index.ts
-var import_express22 = __toESM(require_express2(), 1);
+var import_express24 = __toESM(require_express2(), 1);
 
 // src/routes/health.ts
 var import_express5 = __toESM(require_express2(), 1);
@@ -82970,6 +82983,10 @@ async function ensureDailyLimitTables() {
     )
   `);
 }
+async function getPremiumBonus(userId) {
+  const [row] = await db.select({ aiBonus: premiumMembersTable.aiBonus, toolsBonus: premiumMembersTable.toolsBonus }).from(premiumMembersTable).where(eq(premiumMembersTable.userId, userId)).limit(1);
+  return { ai: row?.aiBonus ?? 0, tools: row?.toolsBonus ?? 0 };
+}
 async function getDailyLimit(userId) {
   await ensureDailyLimitTables();
   const date6 = getJakartaDate();
@@ -82981,19 +82998,20 @@ async function getDailyLimit(userId) {
     )
   ).limit(1);
   if (!row) throw new Error("Gagal mengambil limit harian");
+  const premium = await getPremiumBonus(userId);
   return {
     date: date6,
     ai: {
       used: row.aiUsed,
-      bonus: row.aiBonus,
-      limit: AI_DAILY_LIMIT + row.aiBonus,
-      remaining: Math.max(0, AI_DAILY_LIMIT + row.aiBonus - row.aiUsed)
+      bonus: row.aiBonus + premium.ai,
+      limit: AI_DAILY_LIMIT + row.aiBonus + premium.ai,
+      remaining: Math.max(0, AI_DAILY_LIMIT + row.aiBonus + premium.ai - row.aiUsed)
     },
     tools: {
       used: row.toolsUsed,
-      bonus: row.toolsBonus,
-      limit: TOOLS_DAILY_LIMIT + row.toolsBonus,
-      remaining: Math.max(0, TOOLS_DAILY_LIMIT + row.toolsBonus - row.toolsUsed)
+      bonus: row.toolsBonus + premium.tools,
+      limit: TOOLS_DAILY_LIMIT + row.toolsBonus + premium.tools,
+      remaining: Math.max(0, TOOLS_DAILY_LIMIT + row.toolsBonus + premium.tools - row.toolsUsed)
     },
     adRewards: row.adRewards
   };
@@ -83005,6 +83023,8 @@ async function consumeDailyLimit(userId, type) {
   const column = type === "ai" ? userDailyLimitsTable.aiUsed : userDailyLimitsTable.toolsUsed;
   const bonusColumn = type === "ai" ? userDailyLimitsTable.aiBonus : userDailyLimitsTable.toolsBonus;
   const baseLimit = type === "ai" ? AI_DAILY_LIMIT : TOOLS_DAILY_LIMIT;
+  const premium = await getPremiumBonus(userId);
+  const premiumBonus = type === "ai" ? premium.ai : premium.tools;
   const result = await db.update(userDailyLimitsTable).set({
     ...type === "ai" ? { aiUsed: sql`${column} + 1` } : { toolsUsed: sql`${column} + 1` },
     updatedAt: /* @__PURE__ */ new Date()
@@ -83012,7 +83032,7 @@ async function consumeDailyLimit(userId, type) {
     and(
       eq(userDailyLimitsTable.userId, userId),
       eq(userDailyLimitsTable.date, date6),
-      sql`${column} < ${baseLimit} + ${bonusColumn}`
+      sql`${column} < ${baseLimit} + ${bonusColumn} + ${premiumBonus}`
     )
   ).returning();
   if (result.length === 0) {
@@ -84084,23 +84104,107 @@ router14.get("/lootlabs/postback", async (req, res) => {
 });
 var lootlabs_default = router14;
 
-// src/routes/index.ts
+// src/routes/premium.ts
+var import_express22 = __toESM(require_express2(), 1);
 var router15 = (0, import_express22.Router)();
-router15.use(health_default);
-router15.use(products_default);
-router15.use(links_default);
-router15.use(songs_default);
-router15.use(anthropic_default);
-router15.use(feedback_default);
-router15.use(stats_default);
-router15.use(settings_default);
-router15.use(orders_default);
-router15.use(usage_default);
-router15.use(move2link_default);
-router15.use(lootlabs_default);
-router15.use(wallet_default);
-router15.use(wablas_default);
-var routes_default = router15;
+var TIERS = {
+  silver: { price: 5e3, aiBonus: 60, toolsBonus: 25, label: "Silver" },
+  // doubles the free limit
+  gold: { price: 1e4, aiBonus: 200, toolsBonus: 100, label: "Gold" }
+  // effectively unlimited for most usage
+};
+function requireAuth4(req, res) {
+  const userId = getAuth(req)?.userId;
+  if (!userId) {
+    res.status(401).json({ error: "Unauthorized" });
+    return null;
+  }
+  return userId;
+}
+router15.get("/premium/status", async (req, res) => {
+  const userId = requireAuth4(req, res);
+  if (!userId) return;
+  try {
+    const [row] = await db.select().from(premiumMembersTable).where(eq(premiumMembersTable.userId, userId)).limit(1);
+    res.json({ member: row ?? null, tiers: TIERS });
+  } catch (err) {
+    console.error("GET /premium/status error:", err);
+    res.status(500).json({ error: "Gagal mengambil status membership" });
+  }
+});
+router15.post("/premium/purchase", async (req, res) => {
+  const userId = requireAuth4(req, res);
+  if (!userId) return;
+  const tierKey = req.body?.tier;
+  const tier = TIERS[tierKey];
+  if (!tier) {
+    return res.status(400).json({ error: "Tier tidak valid" });
+  }
+  try {
+    const [existing] = await db.select().from(premiumMembersTable).where(eq(premiumMembersTable.userId, userId)).limit(1);
+    if (existing && existing.tier === tierKey) {
+      return res.status(409).json({ error: `Kamu sudah punya tier ${tier.label}` });
+    }
+    if (existing && tier.aiBonus <= existing.aiBonus) {
+      return res.status(409).json({ error: "Kamu sudah punya tier yang lebih tinggi atau setara" });
+    }
+    const amountDue = existing ? Math.max(0, tier.price - Math.floor(existing.amountPaid)) : tier.price;
+    const result = await db.transaction(async (tx) => {
+      let [wallet] = await tx.select().from(walletsTable).where(eq(walletsTable.userId, userId)).limit(1);
+      if (!wallet) {
+        [wallet] = await tx.insert(walletsTable).values({ userId, balance: 0 }).returning();
+      }
+      if (wallet.balance < amountDue) {
+        throw new Error(`Saldo tidak cukup|${wallet.balance}|${amountDue}`);
+      }
+      const [updatedWallet] = await tx.update(walletsTable).set({ balance: sql`${walletsTable.balance} - ${amountDue}`, updatedAt: /* @__PURE__ */ new Date() }).where(and(eq(walletsTable.id, wallet.id), sql`${walletsTable.balance} >= ${amountDue}`)).returning();
+      if (!updatedWallet) {
+        throw new Error("Saldo tidak cukup atau saldo berubah, silakan coba lagi");
+      }
+      const [member] = await tx.insert(premiumMembersTable).values({ userId, tier: tierKey, aiBonus: tier.aiBonus, toolsBonus: tier.toolsBonus, amountPaid: tier.price }).onConflictDoUpdate({
+        target: premiumMembersTable.userId,
+        set: { tier: tierKey, aiBonus: tier.aiBonus, toolsBonus: tier.toolsBonus, amountPaid: tier.price, purchasedAt: /* @__PURE__ */ new Date() }
+      }).returning();
+      await tx.insert(walletTransactionsTable).values({
+        userId,
+        type: "PURCHASE",
+        amount: -amountDue,
+        reference: `PREMIUM-${tierKey.toUpperCase()}-${Date.now()}`,
+        description: `Upgrade ke Premium ${tier.label}`,
+        status: "PAID"
+      });
+      return { member, balance: updatedWallet.balance };
+    });
+    res.json(result);
+  } catch (err) {
+    if (typeof err?.message === "string" && err.message.startsWith("Saldo tidak cukup|")) {
+      const [, balance, required2] = err.message.split("|");
+      return res.status(400).json({ error: "Saldo tidak cukup", balance: Number(balance), required: Number(required2) });
+    }
+    console.error("POST /premium/purchase error:", err);
+    res.status(500).json({ error: err?.message || "Gagal upgrade premium" });
+  }
+});
+var premium_default = router15;
+
+// src/routes/index.ts
+var router16 = (0, import_express24.Router)();
+router16.use(health_default);
+router16.use(products_default);
+router16.use(links_default);
+router16.use(songs_default);
+router16.use(anthropic_default);
+router16.use(feedback_default);
+router16.use(stats_default);
+router16.use(settings_default);
+router16.use(orders_default);
+router16.use(usage_default);
+router16.use(move2link_default);
+router16.use(lootlabs_default);
+router16.use(premium_default);
+router16.use(wallet_default);
+router16.use(wablas_default);
+var routes_default = router16;
 
 // src/lib/logger.ts
 var import_pino = __toESM(require_pino(), 1);
@@ -84121,7 +84225,7 @@ var logger2 = (0, import_pino.default)({
 });
 
 // src/app.ts
-var app = (0, import_express23.default)();
+var app = (0, import_express25.default)();
 app.use(
   (0, import_pino_http.default)({
     logger: logger2,
@@ -84135,7 +84239,7 @@ app.use(
     allowedHeaders: ["Content-Type", "Authorization"]
   })
 );
-app.use(import_express23.default.json());
+app.use(import_express25.default.json());
 app.use(clerkMiddleware());
 app.use("/api", routes_default);
 var app_default = app;

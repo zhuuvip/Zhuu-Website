@@ -23,8 +23,10 @@ interface Message {
 
 const BASE = (import.meta.env.VITE_API_URL || import.meta.env.BASE_URL).replace(/\/$/, "");
 
-async function createLootLabsLink(
+async function createAdLink(
   getToken: () => Promise<string | null>,
+  usageType: "ai" | "tools",
+  provider: "lootlabs" | "move2link" = "lootlabs",
 ) {
   const token = await getToken();
 
@@ -33,21 +35,21 @@ async function createLootLabsLink(
     return null;
   }
 
-  const response = await fetch(`${BASE}/api/ads/lootlabs`, {
+  const response = await fetch(`${BASE}/api/ads/${provider}`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${token}`,
     },
     body: JSON.stringify({
-      type: "ai",
+      type: usageType,
     }),
   });
 
   const data = await response.json().catch(() => null);
 
   if (!response.ok || !data?.shortLink) {
-    alert(data?.error || "Gagal membuat link LootLabs.");
+    alert(data?.error || `Gagal membuat link ${provider === "lootlabs" ? "LootLabs" : "Move2link"}.`);
     return null;
   }
 
@@ -77,7 +79,7 @@ function DailyLimitCard({
 }: {
   type: "ai" | "tools";
   limit: DailyLimit;
-  onWatchAd?: () => void;
+  onWatchAd?: (provider: "lootlabs" | "move2link") => void;
   onUpgrade?: () => void;
 }) {
   const isAI = type === "ai";
@@ -128,20 +130,28 @@ function DailyLimitCard({
       <div className="mt-3 grid grid-cols-2 gap-2">
         <button
           type="button"
-          onClick={onWatchAd}
+          onClick={() => onWatchAd?.("lootlabs")}
           className="rounded-xl border border-cyan-400/20 bg-cyan-400/10 px-3 py-2 text-xs font-medium text-cyan-300 transition hover:bg-cyan-400/20"
         >
-          🎬 Tonton Iklan
+          🎬 LootLabs
         </button>
 
         <button
           type="button"
-          onClick={onUpgrade}
-          className="rounded-xl border border-purple-400/20 bg-purple-400/10 px-3 py-2 text-xs font-medium text-purple-300 transition hover:bg-purple-400/20"
+          onClick={() => onWatchAd?.("move2link")}
+          className="rounded-xl border border-cyan-400/20 bg-cyan-400/10 px-3 py-2 text-xs font-medium text-cyan-300 transition hover:bg-cyan-400/20"
         >
-          ⭐ Upgrade Premium
+          🎬 Move2link
         </button>
       </div>
+
+      <button
+        type="button"
+        onClick={onUpgrade}
+        className="mt-2 w-full rounded-xl border border-purple-400/20 bg-purple-400/10 px-3 py-2 text-xs font-medium text-purple-300 transition hover:bg-purple-400/20"
+      >
+        ⭐ Upgrade Premium
+      </button>
     </div>
   );
 }
@@ -260,12 +270,22 @@ function AIChat() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  const watchAd = async () => {
-    const shortLink = await createLootLabsLink(getToken);
+  const watchAd = async (provider: "lootlabs" | "move2link" = "lootlabs") => {
+    // Open the tab synchronously so it's still inside the click's trusted
+    // gesture — opening it after the await gets silently blocked on mobile.
+    const adTab = window.open("", "_blank", "noopener,noreferrer");
+    const shortLink = await createAdLink(getToken, "ai", provider);
 
-    if (!shortLink) return;
+    if (!shortLink) {
+      adTab?.close();
+      return;
+    }
 
-    window.open(shortLink, "_blank", "noopener,noreferrer");
+    if (adTab) {
+      adTab.location.href = shortLink;
+    } else {
+      window.location.href = shortLink;
+    }
   };
 
   useEffect(() => {
@@ -561,7 +581,7 @@ function AIChat() {
   type="ai"
   limit={usage.ai}
   onWatchAd={watchAd}
-  onUpgrade={() => window.location.href = "/products"}
+  onUpgrade={() => window.location.href = "/member"}
  />
           </div>
         )}

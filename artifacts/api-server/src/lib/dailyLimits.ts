@@ -1,5 +1,5 @@
 import { db } from "@workspace/db";
-import { userDailyLimitsTable } from "@workspace/db";
+import { userDailyLimitsTable, premiumMembersTable } from "@workspace/db";
 import { eq, and } from "drizzle-orm";
 import { sql } from "drizzle-orm";
 
@@ -33,6 +33,17 @@ async function ensureDailyLimitTables() {
   `);
 }
 
+// Premium membership is permanent (doesn't reset daily) — its bonus stacks
+// on top of whatever the user earned today from ads.
+async function getPremiumBonus(userId: string): Promise<{ ai: number; tools: number }> {
+  const [row] = await db
+    .select({ aiBonus: premiumMembersTable.aiBonus, toolsBonus: premiumMembersTable.toolsBonus })
+    .from(premiumMembersTable)
+    .where(eq(premiumMembersTable.userId, userId))
+    .limit(1);
+  return { ai: row?.aiBonus ?? 0, tools: row?.toolsBonus ?? 0 };
+}
+
 export async function getDailyLimit(userId: string) {
   await ensureDailyLimitTables();
 
@@ -56,19 +67,21 @@ export async function getDailyLimit(userId: string) {
 
   if (!row) throw new Error("Gagal mengambil limit harian");
 
+  const premium = await getPremiumBonus(userId);
+
   return {
     date,
     ai: {
       used: row.aiUsed,
-      bonus: row.aiBonus,
-      limit: AI_DAILY_LIMIT + row.aiBonus,
-      remaining: Math.max(0, AI_DAILY_LIMIT + row.aiBonus - row.aiUsed),
+      bonus: row.aiBonus + premium.ai,
+      limit: AI_DAILY_LIMIT + row.aiBonus + premium.ai,
+      remaining: Math.max(0, AI_DAILY_LIMIT + row.aiBonus + premium.ai - row.aiUsed),
     },
     tools: {
       used: row.toolsUsed,
-      bonus: row.toolsBonus,
-      limit: TOOLS_DAILY_LIMIT + row.toolsBonus,
-      remaining: Math.max(0, TOOLS_DAILY_LIMIT + row.toolsBonus - row.toolsUsed),
+      bonus: row.toolsBonus + premium.tools,
+      limit: TOOLS_DAILY_LIMIT + row.toolsBonus + premium.tools,
+      remaining: Math.max(0, TOOLS_DAILY_LIMIT + row.toolsBonus + premium.tools - row.toolsUsed),
     },
     adRewards: row.adRewards,
   };
@@ -96,6 +109,8 @@ export async function consumeDailyLimit(
     : userDailyLimitsTable.toolsBonus;
 
   const baseLimit = type === "ai" ? AI_DAILY_LIMIT : TOOLS_DAILY_LIMIT;
+  const premium = await getPremiumBonus(userId);
+  const premiumBonus = type === "ai" ? premium.ai : premium.tools;
 
   const result = await db
     .update(userDailyLimitsTable)
@@ -109,7 +124,7 @@ export async function consumeDailyLimit(
       and(
         eq(userDailyLimitsTable.userId, userId),
         eq(userDailyLimitsTable.date, date),
-        sql`${column} < ${baseLimit} + ${bonusColumn}`,
+        sql`${column} < ${baseLimit} + ${bonusColumn} + ${premiumBonus}`,
       ),
     )
     .returning();

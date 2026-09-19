@@ -1193,16 +1193,22 @@ export default function DevToolsPage() {
   } | null>(null);
   const { getToken, isLoaded, isSignedIn } = useAuth();
 
-  const watchAd = async () => {
+  const watchAd = async (provider: "lootlabs" | "move2link" = "lootlabs") => {
+    // Open the tab synchronously, still inside the click's trusted-gesture
+    // context — mobile browsers silently block window.open() called after
+    // an await, which is why the button used to look like it "did nothing".
+    const adTab = window.open("", "_blank", "noopener,noreferrer");
+
     const token = await getToken();
 
     if (!token) {
+      adTab?.close();
       alert("Silakan login terlebih dahulu.");
       return;
     }
 
     try {
-      const response = await fetch(`${API_BASE}/api/ads/lootlabs`, {
+      const response = await fetch(`${API_BASE}/api/ads/${provider}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -1216,13 +1222,21 @@ export default function DevToolsPage() {
       const data = await response.json().catch(() => null);
 
       if (!response.ok || !data?.shortLink) {
-        alert(data?.error || "Gagal membuat link LootLabs.");
+        adTab?.close();
+        alert(data?.error || `Gagal membuat link ${provider === "lootlabs" ? "LootLabs" : "Move2link"}.`);
         return;
       }
 
-      window.open(data.shortLink, "_blank", "noopener,noreferrer");
+      if (adTab) {
+        adTab.location.href = data.shortLink;
+      } else {
+        // Popup got blocked anyway (e.g. browser setting) — fall back to a
+        // same-tab navigation offer instead of silently failing.
+        window.location.href = data.shortLink;
+      }
     } catch {
-      alert("Gagal menghubungi server LootLabs.");
+      adTab?.close();
+      alert(`Gagal menghubungi server ${provider === "lootlabs" ? "LootLabs" : "Move2link"}.`);
     }
   };
 
@@ -1392,20 +1406,28 @@ export default function DevToolsPage() {
             <div className="mt-3 grid grid-cols-2 gap-2">
               <button
                 type="button"
-                onClick={watchAd}
+                onClick={() => watchAd("lootlabs")}
                 className="rounded-xl border border-cyan-400/20 bg-cyan-400/10 px-3 py-2 text-xs font-medium text-cyan-300 transition hover:bg-cyan-400/20"
               >
-                🎬 Tonton Iklan
+                🎬 LootLabs
               </button>
 
               <button
                 type="button"
-                onClick={() => window.location.href = "/products"}
-                className="rounded-xl border border-purple-400/20 bg-purple-400/10 px-3 py-2 text-xs font-medium text-purple-300 transition hover:bg-purple-400/20"
+                onClick={() => watchAd("move2link")}
+                className="rounded-xl border border-cyan-400/20 bg-cyan-400/10 px-3 py-2 text-xs font-medium text-cyan-300 transition hover:bg-cyan-400/20"
               >
-                ⭐ Upgrade Premium
+                🎬 Move2link
               </button>
             </div>
+
+            <button
+              type="button"
+              onClick={() => window.location.href = "/member"}
+              className="mt-2 w-full rounded-xl border border-purple-400/20 bg-purple-400/10 px-3 py-2 text-xs font-medium text-purple-300 transition hover:bg-purple-400/20"
+            >
+              ⭐ Upgrade Premium
+            </button>
           </div>
         )}
 

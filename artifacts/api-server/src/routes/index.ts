@@ -13,6 +13,7 @@ import ordersRouter from "./orders.js";
 import usageRouter from "./usage.js";
 import move2linkRouter from "./move2link.js";
 import lootlabsRouter from "./lootlabs.js";
+import premiumRouter from "./premium.js";
 
 const router = Router();
 
@@ -28,6 +29,7 @@ router.use(ordersRouter);
 router.use(usageRouter);
 router.use(move2linkRouter);
 router.use(lootlabsRouter);
+router.use(premiumRouter);
 
 router.use(walletRouter);
 router.use(wablasRouter);

@@ -386,10 +386,112 @@ function TopUpFlow() {
             }} disabled={selectedAmount < 1000} className="neon-btn-solid mt-5 flex w-full items-center justify-center gap-2 rounded-xl py-3.5 font-bold disabled:cursor-not-allowed disabled:opacity-40">Top Up {formatRupiah(selectedAmount)} <ChevronRight className="size-4" /></button><p className="mt-3 text-center text-[11px] text-cyan-100/35">Minimal Rp1.000 · via QRIS (semua e-wallet & bank)</p></div></div>;
 }
 
+function PremiumUpgradeCard() {
+  const { getToken, isSignedIn } = useAuth();
+  const [member, setMember] = useState<{ tier: string; aiBonus: number; toolsBonus: number } | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [buyingTier, setBuyingTier] = useState<string | null>(null);
+  const [error, setError] = useState("");
+
+  const TIERS = [
+    { key: "silver", label: "Silver", price: 5000, aiBonus: 60, toolsBonus: 25 },
+    { key: "gold", label: "Gold", price: 10000, aiBonus: 200, toolsBonus: 100 },
+  ];
+
+  useEffect(() => {
+    if (!isSignedIn) return;
+    (async () => {
+      setLoading(true);
+      try {
+        const token = await getToken();
+        const res = await fetch(`${API_BASE}/api/premium/status`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const data = await res.json().catch(() => null);
+        if (res.ok) setMember(data?.member ?? null);
+      } finally {
+        setLoading(false);
+      }
+    })();
+  }, [isSignedIn, getToken]);
+
+  const purchase = async (tierKey: string) => {
+    setError("");
+    setBuyingTier(tierKey);
+    try {
+      const token = await getToken();
+      const res = await fetch(`${API_BASE}/api/premium/purchase`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ tier: tierKey }),
+      });
+      const data = await res.json().catch(() => null);
+      if (!res.ok) {
+        setError(data?.error || "Gagal upgrade premium");
+        return;
+      }
+      setMember(data.member);
+    } catch {
+      setError("Gagal menghubungi server");
+    } finally {
+      setBuyingTier(null);
+    }
+  };
+
+  return (
+    <div className="glass-card rounded-[24px] p-5 sm:p-7">
+      <div className="mb-5 flex items-center justify-between">
+        <div>
+          <p className="text-xs uppercase tracking-[.2em] text-cyan-300/45">Boost limit harian</p>
+          <h3 className="mt-1 text-xl font-bold text-cyan-50">Upgrade Premium</h3>
+        </div>
+        <Sparkles className="size-5 text-purple-300" />
+      </div>
+
+      {member && (
+        <div className="mb-4 rounded-2xl border border-emerald-400/25 bg-emerald-400/5 px-4 py-3 text-xs text-emerald-300">
+          ✓ Kamu member <b className="uppercase">{member.tier}</b> — +{member.aiBonus} AI & +{member.toolsBonus} Tools limit/hari, selamanya.
+        </div>
+      )}
+
+      {error && <p className="mb-4 text-xs text-rose-400">{error}</p>}
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        {TIERS.map((tier) => {
+          const isCurrent = member?.tier === tier.key;
+          const isLower = member && !isCurrent && tier.aiBonus <= (member.aiBonus ?? 0);
+          return (
+            <div key={tier.key} className="rounded-2xl border border-cyan-300/15 bg-cyan-300/[.03] p-4">
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-bold text-cyan-50">{tier.label}</span>
+                <span className="text-sm font-black text-cyan-200">{formatRupiah(tier.price)}</span>
+              </div>
+              <ul className="mt-2 space-y-1 text-[11px] text-cyan-100/55">
+                <li>+{tier.aiBonus} limit AI / hari</li>
+                <li>+{tier.toolsBonus} limit Tools / hari</li>
+                <li>Berlaku selamanya, sekali bayar</li>
+              </ul>
+              <button
+                type="button"
+                disabled={isCurrent || !!isLower || buyingTier !== null || loading}
+                onClick={() => purchase(tier.key)}
+                className="mt-3 w-full rounded-xl border border-purple-400/25 bg-purple-400/10 px-3 py-2 text-xs font-semibold text-purple-200 transition hover:bg-purple-400/20 disabled:opacity-40 disabled:cursor-not-allowed"
+              >
+                {isCurrent ? "✓ Aktif" : buyingTier === tier.key ? "Memproses…" : "Upgrade Sekarang"}
+              </button>
+            </div>
+          );
+        })}
+      </div>
+      <p className="mt-3 text-[11px] text-cyan-100/35">Dibayar langsung dari saldo wallet kamu (tab "Top Up Saldo" di atas).</p>
+    </div>
+  );
+}
+
 function RankSection() {
   const current = 6420;
   const next = 1000;
-  return <div className="flex flex-col gap-5"><div className="glass-card rounded-[24px] p-5 sm:p-7"><div className="flex items-center justify-between"><div><p className="text-xs uppercase tracking-[.2em] text-cyan-300/45">Member rank</p><h3 className="mt-1 text-xl font-bold text-cyan-50">Progress kamu</h3></div><RankBadge rank="deep-sea" size="large" /></div><div className="mt-6 flex items-center justify-between"><div><p className="text-xs text-cyan-100/45">Rank saat ini</p><RankBadge rank="deep-sea" showLabel size="medium" /></div><div className="text-right"><p className="text-xs text-cyan-100/45">Next rank</p><RankBadge rank="trench" showLabel size="small" /></div></div><div className="mt-6"><div className="mb-2 flex justify-between text-xs"><span className="text-cyan-200">{current.toLocaleString("id-ID")} XP</span><span className="text-cyan-100/40">10.000 XP</span></div><div className="h-2 overflow-hidden rounded-full bg-cyan-300/10"><div className="h-full rounded-full bg-gradient-to-r from-cyan-400 to-purple-400 shadow-[0_0_14px_rgba(0,229,255,.55)]" style={{ width: `${(current / next) * 100}%` }} /></div><p className="mt-3 flex items-center gap-2 text-xs text-cyan-100/45"><LockKeyhole className="size-3.5 text-purple-300" /> Butuh 3.580 XP lagi · aktifkan streak harian untuk naik rank</p></div></div><div className="glass-card rounded-[24px] p-5 sm:p-7"><div className="mb-5 flex items-center justify-between"><div><p className="text-xs uppercase tracking-[.2em] text-cyan-300/45">Community status</p><h3 className="mt-1 text-xl font-bold text-cyan-50">Deep Divers</h3></div><Trophy className="size-5 text-purple-300" /></div><div className="flex flex-col gap-2">{LEADERBOARD.map((member, index) => <div key={member.name} className={`flex items-center gap-3 rounded-2xl border px-3 py-3 transition-colors hover:bg-cyan-300/5 ${index === 0 ? "border-purple-300/30 bg-purple-300/5" : index === 1 ? "border-cyan-300/25 bg-cyan-300/5" : "border-cyan-300/10 bg-cyan-300/[.02]"}`}><div className="flex w-5 justify-center text-sm font-black text-cyan-100/35">{index === 0 ? <Crown className="size-4 text-yellow-300" /> : `0${index + 1}`}</div><div className="flex size-9 items-center justify-center rounded-full border text-xs font-bold" style={{ borderColor: `${member.color}66`, background: `${member.color}18`, color: member.color }}>{member.initials}</div><div className="min-w-0 flex-1"><p className="truncate text-sm font-semibold text-cyan-50">{member.name}</p><p className="text-[11px] text-cyan-100/35">{member.handle}</p></div><RankBadge rank={member.rank} size="small" /><span className="w-16 text-right font-mono text-xs font-bold text-cyan-200">{member.points}</span></div>)}</div><button className="mt-4 flex w-full items-center justify-center gap-1 text-xs font-semibold text-cyan-300/65 hover:text-cyan-200">Lihat leaderboard lengkap <ChevronRight className="size-3.5" /></button></div></div>;
+  return <div className="flex flex-col gap-5"><div className="glass-card rounded-[24px] p-5 sm:p-7"><div className="flex items-center justify-between"><div><p className="text-xs uppercase tracking-[.2em] text-cyan-300/45">Member rank</p><h3 className="mt-1 text-xl font-bold text-cyan-50">Progress kamu</h3></div><RankBadge rank="deep-sea" size="large" /></div><div className="mt-6 flex items-center justify-between"><div><p className="text-xs text-cyan-100/45">Rank saat ini</p><RankBadge rank="deep-sea" showLabel size="medium" /></div><div className="text-right"><p className="text-xs text-cyan-100/45">Next rank</p><RankBadge rank="trench" showLabel size="small" /></div></div><div className="mt-6"><div className="mb-2 flex justify-between text-xs"><span className="text-cyan-200">{current.toLocaleString("id-ID")} XP</span><span className="text-cyan-100/40">10.000 XP</span></div><div className="h-2 overflow-hidden rounded-full bg-cyan-300/10"><div className="h-full rounded-full bg-gradient-to-r from-cyan-400 to-purple-400 shadow-[0_0_14px_rgba(0,229,255,.55)]" style={{ width: `${(current / next) * 100}%` }} /></div><p className="mt-3 flex items-center gap-2 text-xs text-cyan-100/45"><LockKeyhole className="size-3.5 text-purple-300" /> Butuh 3.580 XP lagi · aktifkan streak harian untuk naik rank</p></div></div><PremiumUpgradeCard /><div className="glass-card rounded-[24px] p-5 sm:p-7"><div className="mb-5 flex items-center justify-between"><div><p className="text-xs uppercase tracking-[.2em] text-cyan-300/45">Community status</p><h3 className="mt-1 text-xl font-bold text-cyan-50">Deep Divers</h3></div><Trophy className="size-5 text-purple-300" /></div><div className="flex flex-col gap-2">{LEADERBOARD.map((member, index) => <div key={member.name} className={`flex items-center gap-3 rounded-2xl border px-3 py-3 transition-colors hover:bg-cyan-300/5 ${index === 0 ? "border-purple-300/30 bg-purple-300/5" : index === 1 ? "border-cyan-300/25 bg-cyan-300/5" : "border-cyan-300/10 bg-cyan-300/[.02]"}`}><div className="flex w-5 justify-center text-sm font-black text-cyan-100/35">{index === 0 ? <Crown className="size-4 text-yellow-300" /> : `0${index + 1}`}</div><div className="flex size-9 items-center justify-center rounded-full border text-xs font-bold" style={{ borderColor: `${member.color}66`, background: `${member.color}18`, color: member.color }}>{member.initials}</div><div className="min-w-0 flex-1"><p className="truncate text-sm font-semibold text-cyan-50">{member.name}</p><p className="text-[11px] text-cyan-100/35">{member.handle}</p></div><RankBadge rank={member.rank} size="small" /><span className="w-16 text-right font-mono text-xs font-bold text-cyan-200">{member.points}</span></div>)}</div><button className="mt-4 flex w-full items-center justify-center gap-1 text-xs font-semibold text-cyan-300/65 hover:text-cyan-200">Lihat leaderboard lengkap <ChevronRight className="size-3.5" /></button></div></div>;
 }
 
 export default function MemberPage() {
