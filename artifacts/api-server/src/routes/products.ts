@@ -55,6 +55,11 @@ router.get("/products", async (_req, res) => {
     )
   `);
 
+  await db.execute(sql`
+    ALTER TABLE product_options
+    ADD COLUMN IF NOT EXISTS reseller_price INTEGER
+  `);
+
   const products = await db.select().from(productsTable);
   const options = await db.select().from(productOptionsTable);
 
