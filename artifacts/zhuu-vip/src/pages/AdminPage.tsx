@@ -50,7 +50,9 @@ interface SiteSettings {
   bannerUrl?: string; themeColor?: string; statusText?: string;
 }
 
-type Tab = "stats" | "links" | "songs" | "settings" | "feedback" | "products" | "orders" | "deposits" | "wallet";
+import AdminResellerTab from "@/components/AdminResellerTab";
+
+type Tab = "reseller" | "stats" | "links" | "songs" | "settings" | "feedback" | "products" | "orders" | "deposits" | "wallet";
 
 const iconOptions = ["SiDiscord","SiYoutube","SiTiktok","SiInstagram","SiTwitch","SiX","SiGithub","SiSpotify","SiPatreon","SiReddit","SiWhatsapp"];
 
@@ -527,6 +529,7 @@ const saveSettings = async () => {
   };
 
   const TABS: { id: Tab; label: string; icon: React.ReactNode }[] = [
+    { id: "reseller", label: "Reseller", icon: <span>◈</span> },
     { id: "stats", label: "Overview", icon: <BarChart3 size={14} /> },
     { id: "links", label: "Links", icon: <Link2 size={14} /> },
     { id: "songs", label: "Songs", icon: <Music size={14} /> },
@@ -945,7 +948,7 @@ const saveSettings = async () => {
               />
             )}
           </div>
-            <select value={deliveryType} onChange={e => setDeliveryType(e.target.value)} className="px-3 py-2 rounded-lg bg-black/20 text-sm"><option value="WHATSAPP">WhatsApp</option><option value="DOWNLOAD">Download</option><option value="LINK">Link</option><option value="KEY">Key</option></select>
+            <select value={deliveryType} onChange={e => setDeliveryType(e.target.value)} className="px-3 py-2 rounded-lg bg-black/20 text-sm"><option value="WHATSAPP">WhatsApp</option><option value="DOWNLOAD">Download</option><option value="LINK">Link</option><option value="KEY">Key</option><option value="RESELLER">Reseller (auto akun)</option></select>
 {deliveryType === "LINK" && (
   <input
     value={deliveryValue}
@@ -1048,7 +1051,7 @@ const saveSettings = async () => {
                                 <option value="WHATSAPP">WhatsApp</option>
                                 <option value="DOWNLOAD">Download</option>
                                 <option value="LINK">Link</option>
-                                <option value="KEY">Key</option>
+                                <option value="KEY">Key</option><option value="RESELLER">Reseller (auto akun)</option>
                               </select>
 
                               <input
@@ -1213,6 +1216,8 @@ const saveSettings = async () => {
     ))}
   </div>
       )}
+      {tab === "reseller" && <AdminResellerTab />}
+
       {tab === "wallet" && (
         <div className="space-y-4">
           <div>

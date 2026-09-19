@@ -30,6 +30,8 @@ import ResourceLinksPage from "@/pages/ResourceLinksPage";
 import DevToolsPage from "@/pages/DevToolsPage";
 import MemberPage from "@/pages/MemberPage";
 import ProductsPage from "@/pages/ProductsPage";
+import ResellerLoginPage from "@/pages/ResellerLoginPage";
+import ResellerDashboardPage from "@/pages/ResellerDashboardPage";
 
 const apiUrl = import.meta.env.VITE_API_URL;
 if (apiUrl) {
@@ -165,6 +167,8 @@ function AppRouter() {
         <Route path="/tools" component={DevToolsPage} />
         <Route path="/member" component={MemberPage} />
         <Route path="/products" component={ProductsPage} />
+        <Route path="/reseller-login" component={ResellerLoginPage} />
+        <Route path="/reseller" component={ResellerDashboardPage} />
         <Route path="/admin" component={AdminPage} />
         <Route path="/sharecard" component={ShareCardPage} />
         <Route path="/sign-in/*?" component={SignInPage} />
