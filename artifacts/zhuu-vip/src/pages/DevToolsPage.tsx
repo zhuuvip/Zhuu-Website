@@ -1197,7 +1197,7 @@ export default function DevToolsPage() {
     // Open the tab synchronously, still inside the click's trusted-gesture
     // context — mobile browsers silently block window.open() called after
     // an await, which is why the button used to look like it "did nothing".
-    const adTab = window.open("", "_blank", "noopener,noreferrer");
+    const adTab = window.open("", "_blank"); if (adTab) adTab.opener = null;
 
     const token = await getToken();
 

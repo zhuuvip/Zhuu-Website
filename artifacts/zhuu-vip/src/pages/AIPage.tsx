@@ -273,7 +273,7 @@ function AIChat() {
   const watchAd = async (provider: "lootlabs" | "move2link" = "lootlabs") => {
     // Open the tab synchronously so it's still inside the click's trusted
     // gesture — opening it after the await gets silently blocked on mobile.
-    const adTab = window.open("", "_blank", "noopener,noreferrer");
+    const adTab = window.open("", "_blank"); if (adTab) adTab.opener = null;
     const shortLink = await createAdLink(getToken, "ai", provider);
 
     if (!shortLink) {
