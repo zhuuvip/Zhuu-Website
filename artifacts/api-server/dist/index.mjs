@@ -78282,7 +78282,6 @@ function isAdmin(req) {
   const auth = getAuth(req);
   const userId = auth?.userId;
   const email3 = auth?.sessionClaims?.email;
-  console.log("DEBUG auth:", { userId, email: email3, ADMIN_USER_ID, ADMIN_EMAIL });
   if (ADMIN_USER_ID && userId === ADMIN_USER_ID) return true;
   if (email3 && email3 === ADMIN_EMAIL) return true;
   return false;
@@ -78641,7 +78640,8 @@ var health_default = router3;
 // src/routes/products.ts
 var import_express6 = __toESM(require_express2(), 1);
 var router4 = (0, import_express6.Router)();
-router4.get("/products", async (_req, res) => {
+router4.get("/products", async (req, res) => {
+  const admin = isAdmin(req);
   await db.execute(sql`
     ALTER TABLE products
     ADD COLUMN IF NOT EXISTS image_url TEXT
@@ -78685,7 +78685,9 @@ router4.get("/products", async (_req, res) => {
     ALTER TABLE product_options
     ADD COLUMN IF NOT EXISTS reseller_price INTEGER
   `);
-  const products = await db.select().from(productsTable);
+  const products = (await db.select().from(productsTable)).map(
+    (p) => admin ? p : { ...p, deliveryValue: null }
+  );
   const options = await db.select().from(productOptionsTable);
   return res.json(
     products.map((p) => ({

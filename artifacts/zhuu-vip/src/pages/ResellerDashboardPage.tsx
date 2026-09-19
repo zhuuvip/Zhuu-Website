@@ -39,6 +39,7 @@ export default function ResellerDashboardPage() {
   const [buying, setBuying] = useState(false);
   const [result, setResult] = useState<Result | null>(null);
   const [copied, setCopied] = useState(false);
+  const [history, setHistory] = useState<any[]>([]);
 
   const logout = () => {
     localStorage.removeItem(TOKEN_KEY);
@@ -74,6 +75,12 @@ export default function ResellerDashboardPage() {
       const [me, list] = await Promise.all([api("/api/reseller/me"), api("/api/reseller/products")]);
       setUsername(me.username);
       setBalance(Number(me.balance || 0));
+      try {
+        const hist = await api("/api/reseller/orders");
+        setHistory(Array.isArray(hist) ? hist : []);
+      } catch {
+        /* riwayat gagal dimuat tidak boleh merusak halaman */
+      }
       const items: Product[] = Array.isArray(list)
         ? list.map((p: any) => ({ ...p, options: Array.isArray(p.options) ? p.options : [] }))
         : [];
@@ -312,6 +319,42 @@ export default function ResellerDashboardPage() {
               );
             })}
           </div>
+        )}
+
+        {history.length > 0 && (
+          <section className="mx-auto mt-10 max-w-3xl">
+            <h2 className="mb-3 text-xl font-bold">Riwayat Pembelian</h2>
+            <div className="space-y-2">
+              {history.slice(0, 20).map((o: any) => (
+                <div key={o.id} className="rounded-2xl border border-white/10 bg-white/[0.025] p-4">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <p className="truncate text-sm font-bold">
+                        {o.productName} · {o.duration}
+                      </p>
+                      <p className="mt-1 text-[11px] text-white/35">
+                        {o.invoice} · {new Date(o.createdAt).toLocaleString("id-ID")}
+                      </p>
+                    </div>
+                    <p className="shrink-0 text-sm font-black text-emerald-300">{rupiah(o.amount)}</p>
+                  </div>
+                  {o.paymentRef && (
+                    <div className="mt-3 flex items-center gap-2 rounded-xl bg-black/30 p-2">
+                      <p className="min-w-0 flex-1 break-all font-mono text-xs text-purple-100">
+                        {o.paymentRef}
+                      </p>
+                      <button
+                        onClick={() => copy(o.paymentRef)}
+                        className="shrink-0 rounded-lg bg-white px-3 py-1.5 text-xs font-black text-black"
+                      >
+                        Salin
+                      </button>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </section>
         )}
 
         {selProduct && selOption && (

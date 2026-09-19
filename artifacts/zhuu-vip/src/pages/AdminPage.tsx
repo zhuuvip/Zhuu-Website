@@ -289,7 +289,7 @@ const addKeys = async (productId: number, optionId: number) => {
   loadProducts();
 };
   const loadProducts = async () => {
-    const res = await fetch(`${API_BASE}/api/products`);
+    const res = await fetch(`${API_BASE}/api/products`, { headers: await authHeaders(), cache: "no-store" });
     if (res.ok) setProducts(await res.json());
   };
   const [productName, setProductName] = useState("");

@@ -6,11 +6,12 @@ import {
   productKeysTable,
 } from "@workspace/db";
 import { eq, sql } from "drizzle-orm";
-import { requireAdmin } from "../lib/auth.js";
+import { requireAdmin, isAdmin } from "../lib/auth.js";
 
 const router = Router();
 
-router.get("/products", async (_req, res) => {
+router.get("/products", async (req, res) => {
+  const admin = isAdmin(req);
   await db.execute(sql`
     ALTER TABLE products
     ADD COLUMN IF NOT EXISTS image_url TEXT
@@ -60,7 +61,9 @@ router.get("/products", async (_req, res) => {
     ADD COLUMN IF NOT EXISTS reseller_price INTEGER
   `);
 
-  const products = await db.select().from(productsTable);
+  const products = (await db.select().from(productsTable)).map((p) =>
+    admin ? p : { ...p, deliveryValue: null },
+  );
   const options = await db.select().from(productOptionsTable);
 
   return res.json(

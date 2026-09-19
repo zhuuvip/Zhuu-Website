@@ -235,6 +235,7 @@ export default function ProductsPage() {
         product: selectedProduct.name,
         duration: selectedOption.duration,
         deliveryKey: data.deliveryKey || undefined,
+        deliveryLink: data.deliveryLink || undefined,
       });
 
       setCopied(false);

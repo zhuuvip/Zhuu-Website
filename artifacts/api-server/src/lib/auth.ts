@@ -8,7 +8,6 @@ export function isAdmin(req: Request): boolean {
   const auth = getAuth(req);
   const userId = auth?.userId;
   const email = auth?.sessionClaims?.email as string | undefined;
-  console.log("DEBUG auth:", { userId, email, ADMIN_USER_ID, ADMIN_EMAIL });
   if (ADMIN_USER_ID && userId === ADMIN_USER_ID) return true;
   if (email && email === ADMIN_EMAIL) return true;
   return false;
