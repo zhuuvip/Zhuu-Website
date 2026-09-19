@@ -44,7 +44,7 @@ function ToolCard({
   return (
     <button
       onClick={onClick}
-      className="text-left p-4 rounded-xl transition-all duration-200 cursor-pointer"
+      className="relative z-50 text-left p-4 rounded-xl transition-all duration-200 cursor-pointer"
       style={{
         background: active ? "rgba(0,200,220,0.1)" : "rgba(0,20,40,0.45)",
         border: active ? "1.5px solid rgba(0,200,220,0.5)" : "1px solid rgba(0,200,220,0.12)",
