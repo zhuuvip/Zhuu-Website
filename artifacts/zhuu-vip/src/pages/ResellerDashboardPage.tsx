@@ -203,7 +203,7 @@ export default function ResellerDashboardPage() {
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <p className="text-xs font-semibold uppercase tracking-wider text-white/40">
-                Saldo Reseller · {username}
+                Saldo Wallet · {username}
               </p>
               <p className="mt-1 text-2xl font-black sm:text-3xl">{rupiah(balance)}</p>
             </div>
@@ -345,7 +345,7 @@ export default function ResellerDashboardPage() {
             </div>
             {balance < selOption.price && selOption.stock > 0 && (
               <p className="mt-3 rounded-xl bg-amber-400/[0.06] px-3 py-2 text-[11px] text-amber-200/70">
-                Saldo kurang {rupiah(selOption.price - balance)}. Hubungi admin untuk isi saldo.
+                Saldo kurang {rupiah(selOption.price - balance)}. Isi saldo lewat halaman{" "}<a href="/member" className="font-bold underline">Member</a>.
               </p>
             )}
           </section>

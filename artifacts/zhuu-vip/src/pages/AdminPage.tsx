@@ -948,7 +948,7 @@ const saveSettings = async () => {
               />
             )}
           </div>
-            <select value={deliveryType} onChange={e => setDeliveryType(e.target.value)} className="px-3 py-2 rounded-lg bg-black/20 text-sm"><option value="WHATSAPP">WhatsApp</option><option value="DOWNLOAD">Download</option><option value="LINK">Link</option><option value="KEY">Key</option><option value="RESELLER">Reseller (auto akun)</option></select>
+            <select value={deliveryType} onChange={e => setDeliveryType(e.target.value)} className="px-3 py-2 rounded-lg bg-black/20 text-sm"><option value="WHATSAPP">WhatsApp</option><option value="DOWNLOAD">Download</option><option value="LINK">Link</option><option value="KEY">Key</option></select>
 {deliveryType === "LINK" && (
   <input
     value={deliveryValue}
@@ -1051,7 +1051,7 @@ const saveSettings = async () => {
                                 <option value="WHATSAPP">WhatsApp</option>
                                 <option value="DOWNLOAD">Download</option>
                                 <option value="LINK">Link</option>
-                                <option value="KEY">Key</option><option value="RESELLER">Reseller (auto akun)</option>
+                                <option value="KEY">Key</option>
                               </select>
 
                               <input

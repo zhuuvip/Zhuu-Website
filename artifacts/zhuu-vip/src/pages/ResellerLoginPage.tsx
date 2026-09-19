@@ -71,6 +71,11 @@ export default function ResellerLoginPage() {
         >
           {loading ? "Memproses..." : "Masuk"}
         </button>
+
+        <p className="mt-4 text-center text-[11px] text-white/40">
+          Belum punya akun? Beli rank Reseller di halaman{" "}
+          <a href="/member" className="text-cyan-300 underline">Member</a>.
+        </p>
       </div>
     </main>
   );

@@ -4,14 +4,15 @@ import { useAuth } from "@clerk/react";
 const API_BASE = "https://zhuuapi.vercel.app";
 const rupiah = (v: number) => `Rp${Number(v || 0).toLocaleString("id-ID")}`;
 
-type Account = {
+type Member = {
   id: number;
-  username: string;
-  balance: number;
+  user_id: string;
+  plan: string;
+  expires_at: string | null;
+  username: string | null;
   active: boolean;
-  note: string | null;
+  valid: boolean;
 };
-
 type Opt = { id: number; duration: string; price: number };
 type Prod = { id: number; name: string; options: Opt[] };
 
@@ -20,22 +21,18 @@ const inputCls =
 
 export default function AdminResellerTab() {
   const { getToken } = useAuth();
-  const [accounts, setAccounts] = useState<Account[]>([]);
+  const [members, setMembers] = useState<Member[]>([]);
   const [products, setProducts] = useState<Prod[]>([]);
   const [prices, setPrices] = useState<Record<number, string>>({});
+  const [plan, setPlan] = useState({ monthly: "", lifetime: "" });
   const [msg, setMsg] = useState("");
-  const [created, setCreated] = useState<{ username: string; password: string } | null>(null);
-  const [f, setF] = useState({ username: "", password: "", balance: "", note: "" });
 
   const call = async (path: string, init: RequestInit = {}) => {
     const token = await getToken();
     const res = await fetch(`${API_BASE}${path}`, {
       ...init,
       cache: "no-store",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
     });
     const data = await res.json().catch(() => ({}));
     if (!res.ok) throw new Error(data.error || "Terjadi kesalahan");
@@ -44,16 +41,18 @@ export default function AdminResellerTab() {
 
   const load = async () => {
     try {
-      const [acc, prods, pr] = await Promise.all([
+      const [mem, prods, pr, set] = await Promise.all([
         call("/api/admin/resellers"),
         fetch(`${API_BASE}/api/products`, { cache: "no-store" }).then((r) => r.json()),
         call("/api/admin/reseller-prices"),
+        call("/api/admin/reseller-settings"),
       ]);
-      setAccounts(Array.isArray(acc) ? acc : []);
+      setMembers(Array.isArray(mem) ? mem : []);
       setProducts(Array.isArray(prods) ? prods : []);
       const map: Record<number, string> = {};
       if (Array.isArray(pr)) pr.forEach((x: any) => (map[Number(x.option_id)] = String(x.price)));
       setPrices(map);
+      setPlan({ monthly: String(set.monthly ?? ""), lifetime: String(set.lifetime ?? "") });
     } catch (e) {
       setMsg(e instanceof Error ? e.message : "Gagal memuat");
     }
@@ -64,7 +63,7 @@ export default function AdminResellerTab() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const run = async (fn: () => Promise<void>, ok?: string) => {
+  const run = async (fn: () => Promise<any>, ok?: string) => {
     try {
       setMsg("");
       await fn();
@@ -75,167 +74,107 @@ export default function AdminResellerTab() {
     }
   };
 
-  const createAccount = () =>
-    run(async () => {
-      const data = await call("/api/admin/resellers", {
-        method: "POST",
-        body: JSON.stringify({
-          username: f.username || undefined,
-          password: f.password || undefined,
-          balance: Number(f.balance) || 0,
-          note: f.note || undefined,
-        }),
-      });
-      setCreated({ username: data.username, password: data.password });
-      setF({ username: "", password: "", balance: "", note: "" });
-    });
+  const fmtDate = (s: string | null) =>
+    s ? new Date(s).toLocaleDateString("id-ID", { day: "numeric", month: "short", year: "numeric" }) : "";
 
   return (
     <div className="space-y-6">
-      {msg && (
-        <div className="rounded-xl bg-amber-400/10 px-4 py-2 text-sm text-amber-200">{msg}</div>
-      )}
+      {msg && <div className="rounded-xl bg-amber-400/10 px-4 py-2 text-sm text-amber-200">{msg}</div>}
 
-      {/* Buat akun */}
+      {/* Harga paket rank */}
       <section className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
-        <h3 className="mb-3 font-bold">Buat Akun Reseller</h3>
+        <h3 className="mb-1 font-bold">Harga Rank Reseller</h3>
+        <p className="mb-3 text-xs text-white/40">Yang tampil di halaman Member.</p>
         <div className="grid gap-2 sm:grid-cols-2">
-          <input
-            className={inputCls}
-            placeholder="Username (kosong = acak)"
-            value={f.username}
-            onChange={(e) => setF({ ...f, username: e.target.value })}
-          />
-          <input
-            className={inputCls}
-            placeholder="Password (kosong = acak)"
-            value={f.password}
-            onChange={(e) => setF({ ...f, password: e.target.value })}
-          />
-          <input
-            className={inputCls}
-            placeholder="Saldo awal (Rp)"
-            inputMode="numeric"
-            value={f.balance}
-            onChange={(e) => setF({ ...f, balance: e.target.value })}
-          />
-          <input
-            className={inputCls}
-            placeholder="Catatan (nama/WA)"
-            value={f.note}
-            onChange={(e) => setF({ ...f, note: e.target.value })}
-          />
+          <div>
+            <p className="mb-1 text-xs text-white/50">Bulanan (30 hari)</p>
+            <input
+              className={inputCls}
+              inputMode="numeric"
+              value={plan.monthly}
+              onChange={(e) => setPlan({ ...plan, monthly: e.target.value })}
+            />
+          </div>
+          <div>
+            <p className="mb-1 text-xs text-white/50">Lifetime</p>
+            <input
+              className={inputCls}
+              inputMode="numeric"
+              value={plan.lifetime}
+              onChange={(e) => setPlan({ ...plan, lifetime: e.target.value })}
+            />
+          </div>
         </div>
         <button
-          onClick={createAccount}
           className="mt-3 rounded-xl bg-cyan-400 px-4 py-2 text-sm font-bold text-black"
+          onClick={() =>
+            run(
+              () =>
+                call("/api/admin/reseller-settings", {
+                  method: "PUT",
+                  body: JSON.stringify({ monthly: Number(plan.monthly), lifetime: Number(plan.lifetime) }),
+                }),
+              "Harga rank disimpan",
+            )
+          }
         >
-          Buat Akun
+          Simpan Harga Rank
         </button>
-
-        {created && (
-          <div className="mt-3 rounded-xl border border-emerald-400/30 bg-emerald-400/10 p-3 text-sm">
-            <p className="font-bold text-emerald-300">Akun dibuat. Simpan sekarang, password tidak ditampilkan lagi.</p>
-            <p className="mt-1 break-all font-mono">
-              Username: {created.username} | Password: {created.password}
-            </p>
-            <button
-              onClick={() =>
-                navigator.clipboard.writeText(
-                  `Username: ${created.username} | Password: ${created.password}`,
-                )
-              }
-              className="mt-2 rounded-lg bg-white px-3 py-1.5 text-xs font-bold text-black"
-            >
-              Salin
-            </button>
-          </div>
-        )}
       </section>
 
-      {/* Daftar akun */}
+      {/* Member reseller */}
       <section className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
-        <h3 className="mb-3 font-bold">Akun Reseller ({accounts.length})</h3>
+        <h3 className="mb-3 font-bold">Member Reseller ({members.length})</h3>
         <div className="space-y-2">
-          {accounts.map((a) => (
-            <div key={a.id} className="rounded-xl border border-white/10 bg-black/20 p-3">
+          {members.map((m) => (
+            <div key={m.id} className="rounded-xl border border-white/10 bg-black/20 p-3">
               <div className="flex items-center justify-between gap-2">
                 <div className="min-w-0">
-                  <p className="truncate font-bold">
-                    {a.username}{" "}
-                    {!a.active && <span className="text-xs text-red-300">(nonaktif)</span>}
-                  </p>
-                  {a.note && <p className="truncate text-xs text-white/40">{a.note}</p>}
+                  <p className="truncate font-bold">{m.username || "(belum buat username)"}</p>
+                  <p className="truncate text-[11px] text-white/35">{m.user_id}</p>
                 </div>
-                <p className="shrink-0 font-black text-emerald-300">{rupiah(a.balance)}</p>
+                <div className="shrink-0 text-right text-xs">
+                  <p className={m.valid ? "font-bold text-emerald-300" : "font-bold text-red-300"}>
+                    {m.valid ? "Aktif" : m.active ? "Habis" : "Nonaktif"}
+                  </p>
+                  <p className="text-white/40">
+                    {m.plan === "lifetime" ? "Lifetime" : `s/d ${fmtDate(m.expires_at)}`}
+                  </p>
+                </div>
               </div>
-              <div className="mt-2 flex flex-wrap gap-2 text-xs">
-                <button
-                  className="rounded-lg border border-white/10 px-3 py-1.5"
-                  onClick={() => {
-                    const v = prompt("Tambah saldo (negatif untuk kurangi):");
-                    if (v)
-                      run(
-                        () =>
-                          call(`/api/admin/resellers/${a.id}`, {
-                            method: "PATCH",
-                            body: JSON.stringify({ addBalance: Number(v) }),
-                          }),
-                        "Saldo diperbarui",
-                      );
-                  }}
-                >
-                  + Saldo
-                </button>
-                <button
-                  className="rounded-lg border border-white/10 px-3 py-1.5"
-                  onClick={() => {
-                    const v = prompt("Password baru (min 6 karakter):");
-                    if (v)
-                      run(
-                        () =>
-                          call(`/api/admin/resellers/${a.id}`, {
-                            method: "PATCH",
-                            body: JSON.stringify({ password: v }),
-                          }),
-                        "Password diganti",
-                      );
-                  }}
-                >
-                  Reset Password
-                </button>
+              <div className="mt-2 flex gap-2 text-xs">
                 <button
                   className="rounded-lg border border-white/10 px-3 py-1.5"
                   onClick={() =>
                     run(() =>
-                      call(`/api/admin/resellers/${a.id}`, {
+                      call(`/api/admin/resellers/${m.id}`, {
                         method: "PATCH",
-                        body: JSON.stringify({ active: !a.active }),
+                        body: JSON.stringify({ active: !m.active }),
                       }),
                     )
                   }
                 >
-                  {a.active ? "Nonaktifkan" : "Aktifkan"}
+                  {m.active ? "Nonaktifkan" : "Aktifkan"}
                 </button>
                 <button
                   className="rounded-lg border border-red-400/30 px-3 py-1.5 text-red-300"
                   onClick={() => {
-                    if (confirm(`Hapus akun ${a.username}?`))
-                      run(() => call(`/api/admin/resellers/${a.id}`, { method: "DELETE" }));
+                    if (confirm(`Cabut akses reseller ${m.username || m.user_id}?`))
+                      run(() => call(`/api/admin/resellers/${m.id}`, { method: "DELETE" }));
                   }}
                 >
-                  Hapus
+                  Cabut Akses
                 </button>
               </div>
             </div>
           ))}
-          {accounts.length === 0 && <p className="text-sm text-white/40">Belum ada akun.</p>}
+          {members.length === 0 && <p className="text-sm text-white/40">Belum ada member reseller.</p>}
         </div>
       </section>
 
-      {/* Harga reseller */}
+      {/* Harga produk reseller */}
       <section className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
-        <h3 className="mb-1 font-bold">Harga Reseller</h3>
+        <h3 className="mb-1 font-bold">Harga Produk untuk Reseller</h3>
         <p className="mb-3 text-xs text-white/40">
           Kosongkan lalu Simpan untuk kembali ke harga normal.
         </p>
@@ -244,7 +183,7 @@ export default function AdminResellerTab() {
             <div key={p.id}>
               <p className="mb-2 text-sm font-bold">{p.name}</p>
               <div className="space-y-2">
-                {p.options.map((o) => (
+                {(p.options || []).map((o) => (
                   <div key={o.id} className="flex items-center gap-2">
                     <div className="min-w-0 flex-1">
                       <p className="truncate text-sm">{o.duration}</p>
