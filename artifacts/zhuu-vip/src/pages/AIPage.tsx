@@ -342,6 +342,14 @@ function AIChat() {
     }
   }, [getToken]);
 
+  // Re-check limit whenever the tab regains focus — covers coming back
+  // from a LootLabs/Move2link ad tab without needing a manual refresh.
+  useEffect(() => {
+    const onFocus = () => { refreshUsage(); };
+    window.addEventListener("focus", onFocus);
+    return () => window.removeEventListener("focus", onFocus);
+  }, [refreshUsage]);
+
   const { data: savedMessages = [] } = useListAnthropicMessages(activeConvId ?? 0, {
     query: {
       enabled: !!activeConvId,

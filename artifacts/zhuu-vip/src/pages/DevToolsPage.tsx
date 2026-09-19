@@ -1240,39 +1240,38 @@ export default function DevToolsPage() {
     }
   };
 
-  useEffect(() => {
-    let cancelled = false;
+  const loadToolsUsage = useCallback(async () => {
+    try {
+      if (!isLoaded || !isSignedIn) return;
+      const token = await getToken();
+      if (!token) return;
 
-    const loadToolsUsage = async () => {
-      try {
-        if (!isLoaded || !isSignedIn || cancelled) return;
-        const token = await getToken();
-        if (!token || cancelled) return;
+      const res = await fetch(`${API_BASE}/api/usage`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
-        const res = await fetch(`${API_BASE}/api/usage`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+      if (!res.ok) { console.error("Usage API error:", res.status, await res.text()); return; }
 
-        if (!res.ok) { console.error("Usage API error:", res.status, await res.text()); return; }
-
-        const data = await res.json();
-
-        if (!cancelled) {
-          setToolsUsage(data.tools);
-        }
-      } catch (err) {
-        console.error("Gagal mengambil limit Tools:", err);
-      }
-    };
-
-    loadToolsUsage();
-
-    return () => {
-      cancelled = true;
-    };
+      const data = await res.json();
+      setToolsUsage(data.tools);
+    } catch (err) {
+      console.error("Gagal mengambil limit Tools:", err);
+    }
   }, [getToken, isLoaded, isSignedIn]);
+
+  useEffect(() => {
+    loadToolsUsage();
+  }, [loadToolsUsage]);
+
+  // Re-check limit whenever the tab regains focus — covers coming back
+  // from a LootLabs/Move2link ad tab without needing a manual refresh.
+  useEffect(() => {
+    const onFocus = () => { loadToolsUsage(); };
+    window.addEventListener("focus", onFocus);
+    return () => window.removeEventListener("focus", onFocus);
+  }, [loadToolsUsage]);
 
   const trackToolUse = useCallback(async (toolId: string): Promise<boolean> => {
     try {
