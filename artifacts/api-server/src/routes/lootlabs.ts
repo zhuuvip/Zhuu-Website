@@ -122,6 +122,7 @@ router.post("/ads/lootlabs", async (req: any, res: any) => {
       });
     }
 
+    console.log("LootLabs response:", JSON.stringify(data));
     const lootUrl = data?.message?.loot_url;
 
     if (!lootUrl) {
