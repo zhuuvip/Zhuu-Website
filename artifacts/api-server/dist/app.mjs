@@ -1210,8 +1210,8 @@ var require_toidentifier = __commonJS({
     "use strict";
     module.exports = toIdentifier;
     function toIdentifier(str) {
-      return str.split(" ").map(function(token) {
-        return token.slice(0, 1).toUpperCase() + token.slice(1);
+      return str.split(" ").map(function(token2) {
+        return token2.slice(0, 1).toUpperCase() + token2.slice(1);
       }).join("").replace(/[^ _0-9a-z]/gi, "");
     }
   }
@@ -20131,7 +20131,7 @@ var require_dist2 = __commonJS({
       };
     }
     function tokensToFunction(tokens, delimiter, encode3) {
-      const encoders = tokens.map((token) => tokenToFunction(token, delimiter, encode3));
+      const encoders = tokens.map((token2) => tokenToFunction(token2, delimiter, encode3));
       return (data, missing) => {
         let result = "";
         for (const encoder of encoders) {
@@ -20140,11 +20140,11 @@ var require_dist2 = __commonJS({
         return result;
       };
     }
-    function tokenToFunction(token, delimiter, encode3) {
-      if (token.type === "text")
-        return () => token.value;
-      if (token.type === "group") {
-        const fn = tokensToFunction(token.tokens, delimiter, encode3);
+    function tokenToFunction(token2, delimiter, encode3) {
+      if (token2.type === "text")
+        return () => token2.value;
+      if (token2.type === "group") {
+        const fn = tokensToFunction(token2.tokens, delimiter, encode3);
         return (data, missing) => {
           const len = missing.length;
           const value = fn(data, missing);
@@ -20155,20 +20155,20 @@ var require_dist2 = __commonJS({
         };
       }
       const encodeValue = encode3 || NOOP_VALUE;
-      if (token.type === "wildcard" && encode3 !== false) {
+      if (token2.type === "wildcard" && encode3 !== false) {
         return (data, missing) => {
-          const value = data[token.name];
+          const value = data[token2.name];
           if (value == null) {
-            missing.push(token.name);
+            missing.push(token2.name);
             return "";
           }
           if (!Array.isArray(value) || value.length === 0) {
-            throw new TypeError(`Expected "${token.name}" to be a non-empty array`);
+            throw new TypeError(`Expected "${token2.name}" to be a non-empty array`);
           }
           let result = "";
           for (let i = 0; i < value.length; i++) {
             if (typeof value[i] !== "string") {
-              throw new TypeError(`Expected "${token.name}/${i}" to be a string`);
+              throw new TypeError(`Expected "${token2.name}/${i}" to be a string`);
             }
             if (i > 0)
               result += delimiter;
@@ -20178,13 +20178,13 @@ var require_dist2 = __commonJS({
         };
       }
       return (data, missing) => {
-        const value = data[token.name];
+        const value = data[token2.name];
         if (value == null) {
-          missing.push(token.name);
+          missing.push(token2.name);
           return "";
         }
         if (typeof value !== "string") {
-          throw new TypeError(`Expected "${token.name}" to be a string`);
+          throw new TypeError(`Expected "${token2.name}" to be a string`);
         }
         return encodeValue(value);
       };
@@ -20246,14 +20246,14 @@ var require_dist2 = __commonJS({
     }
     function flatten(tokens, index, result, callback) {
       while (index < tokens.length) {
-        const token = tokens[index++];
-        if (token.type === "group") {
+        const token2 = tokens[index++];
+        if (token2.type === "group") {
           const len = result.length;
-          flatten(token.tokens, 0, result, (seq) => flatten(tokens, index, seq, callback));
+          flatten(token2.tokens, 0, result, (seq) => flatten(tokens, index, seq, callback));
           result.length = len;
           continue;
         }
-        result.push(token);
+        result.push(token2);
       }
       callback(result);
     }
@@ -20266,11 +20266,11 @@ var require_dist2 = __commonJS({
       let index = 0;
       function hasInSegment(index2, type) {
         while (index2 < tokens.length) {
-          const token = tokens[index2++];
-          if (token.type === type)
+          const token2 = tokens[index2++];
+          if (token2.type === type)
             return true;
-          if (token.type === "text") {
-            if (token.value.includes(delimiter))
+          if (token2.type === "text") {
+            if (token2.value.includes(delimiter))
               break;
           }
         }
@@ -20279,29 +20279,29 @@ var require_dist2 = __commonJS({
       function peekText(index2) {
         let result2 = "";
         while (index2 < tokens.length) {
-          const token = tokens[index2++];
-          if (token.type !== "text")
+          const token2 = tokens[index2++];
+          if (token2.type !== "text")
             break;
-          result2 += token.value;
+          result2 += token2.value;
         }
         return result2;
       }
       while (index < tokens.length) {
-        const token = tokens[index++];
-        if (token.type === "text") {
-          result += escape2(token.value);
-          backtrack += token.value;
+        const token2 = tokens[index++];
+        if (token2.type === "text") {
+          result += escape2(token2.value);
+          backtrack += token2.value;
           if (prevCaptureType === 2)
-            wildcardBacktrack += token.value;
-          if (token.value.includes(delimiter))
+            wildcardBacktrack += token2.value;
+          if (token2.value.includes(delimiter))
             hasSegmentCapture = 0;
           continue;
         }
-        if (token.type === "param" || token.type === "wildcard") {
+        if (token2.type === "param" || token2.type === "wildcard") {
           if (prevCaptureType && !backtrack) {
-            throw new PathError(`Missing text before "${token.name}" ${token.type}`, originalPath);
+            throw new PathError(`Missing text before "${token2.name}" ${token2.type}`, originalPath);
           }
-          if (token.type === "param") {
+          if (token2.type === "param") {
             result += hasSegmentCapture & 2 ? `(${negate(delimiter, backtrack)}+)` : hasInSegment(index, "wildcard") ? `(${negate(delimiter, peekText(index))}+)` : hasSegmentCapture & 1 ? `(${negate(delimiter, backtrack)}+|${escape2(backtrack)})` : `(${negate(delimiter, "")}+)`;
             hasSegmentCapture |= prevCaptureType = 1;
           } else {
@@ -20309,11 +20309,11 @@ var require_dist2 = __commonJS({
             wildcardBacktrack = "";
             hasSegmentCapture |= prevCaptureType = 2;
           }
-          keys.push(token);
+          keys.push(token2);
           backtrack = "";
           continue;
         }
-        throw new TypeError(`Unknown token type: ${token.type}`);
+        throw new TypeError(`Unknown token type: ${token2.type}`);
       }
       return result;
     }
@@ -20331,24 +20331,24 @@ var require_dist2 = __commonJS({
     function stringifyTokens(tokens, index) {
       let value = "";
       while (index < tokens.length) {
-        const token = tokens[index++];
-        if (token.type === "text") {
-          value += escapeText(token.value);
+        const token2 = tokens[index++];
+        if (token2.type === "text") {
+          value += escapeText(token2.value);
           continue;
         }
-        if (token.type === "group") {
-          value += "{" + stringifyTokens(token.tokens, 0) + "}";
+        if (token2.type === "group") {
+          value += "{" + stringifyTokens(token2.tokens, 0) + "}";
           continue;
         }
-        if (token.type === "param") {
-          value += ":" + stringifyName(token.name, tokens[index]);
+        if (token2.type === "param") {
+          value += ":" + stringifyName(token2.name, tokens[index]);
           continue;
         }
-        if (token.type === "wildcard") {
-          value += "*" + stringifyName(token.name, tokens[index]);
+        if (token2.type === "wildcard") {
+          value += "*" + stringifyName(token2.name, tokens[index]);
           continue;
         }
-        throw new TypeError(`Unknown token type: ${token.type}`);
+        throw new TypeError(`Unknown token type: ${token2.type}`);
       }
       return value;
     }
@@ -20650,27 +20650,27 @@ var require_router = __commonJS({
     var slice = Array.prototype.slice;
     var flatten = Array.prototype.flat;
     var methods = METHODS.map((method) => method.toLowerCase());
-    module.exports = Router18;
+    module.exports = Router19;
     module.exports.Route = Route;
-    function Router18(options) {
-      if (!(this instanceof Router18)) {
-        return new Router18(options);
+    function Router19(options) {
+      if (!(this instanceof Router19)) {
+        return new Router19(options);
       }
       const opts = options || {};
-      function router18(req, res, next) {
-        router18.handle(req, res, next);
+      function router19(req, res, next) {
+        router19.handle(req, res, next);
       }
-      Object.setPrototypeOf(router18, this);
-      router18.caseSensitive = opts.caseSensitive;
-      router18.mergeParams = opts.mergeParams;
-      router18.params = {};
-      router18.strict = opts.strict;
-      router18.stack = [];
-      return router18;
+      Object.setPrototypeOf(router19, this);
+      router19.caseSensitive = opts.caseSensitive;
+      router19.mergeParams = opts.mergeParams;
+      router19.params = {};
+      router19.strict = opts.strict;
+      router19.stack = [];
+      return router19;
     }
-    Router18.prototype = function() {
+    Router19.prototype = function() {
     };
-    Router18.prototype.param = function param(name, fn) {
+    Router19.prototype.param = function param(name, fn) {
       if (!name) {
         throw new TypeError("argument name is required");
       }
@@ -20690,7 +20690,7 @@ var require_router = __commonJS({
       params.push(fn);
       return this;
     };
-    Router18.prototype.handle = function handle(req, res, callback) {
+    Router19.prototype.handle = function handle(req, res, callback) {
       if (!callback) {
         throw new TypeError("argument callback is required");
       }
@@ -20817,7 +20817,7 @@ var require_router = __commonJS({
         }
       }
     };
-    Router18.prototype.use = function use(handler) {
+    Router19.prototype.use = function use(handler) {
       let offset = 0;
       let path = "/";
       if (typeof handler !== "function") {
@@ -20850,7 +20850,7 @@ var require_router = __commonJS({
       }
       return this;
     };
-    Router18.prototype.route = function route(path) {
+    Router19.prototype.route = function route(path) {
       const route2 = new Route(path);
       const layer = new Layer(path, {
         sensitive: this.caseSensitive,
@@ -20865,7 +20865,7 @@ var require_router = __commonJS({
       return route2;
     };
     methods.concat("all").forEach(function(method) {
-      Router18.prototype[method] = function(path) {
+      Router19.prototype[method] = function(path) {
         const route = this.route(path);
         route[method].apply(route, slice.call(arguments, 1));
         return this;
@@ -21048,13 +21048,13 @@ var require_application = __commonJS({
     var compileTrust = require_utils3().compileTrust;
     var resolve = __require("node:path").resolve;
     var once = require_once();
-    var Router18 = require_router();
+    var Router19 = require_router();
     var slice = Array.prototype.slice;
     var flatten = Array.prototype.flat;
     var app2 = exports = module.exports = {};
     var trustProxyDefaultSymbol = "@@symbol:trust_proxy_default";
     app2.init = function init() {
-      var router18 = null;
+      var router19 = null;
       this.cache = /* @__PURE__ */ Object.create(null);
       this.engines = /* @__PURE__ */ Object.create(null);
       this.settings = /* @__PURE__ */ Object.create(null);
@@ -21063,13 +21063,13 @@ var require_application = __commonJS({
         configurable: true,
         enumerable: true,
         get: function getrouter() {
-          if (router18 === null) {
-            router18 = new Router18({
+          if (router19 === null) {
+            router19 = new Router19({
               caseSensitive: this.enabled("case sensitive routing"),
               strict: this.enabled("strict routing")
             });
           }
-          return router18;
+          return router19;
         }
       });
     };
@@ -21140,15 +21140,15 @@ var require_application = __commonJS({
       if (fns.length === 0) {
         throw new TypeError("app.use() requires a middleware function");
       }
-      var router18 = this.router;
+      var router19 = this.router;
       fns.forEach(function(fn2) {
         if (!fn2 || !fn2.handle || !fn2.set) {
-          return router18.use(path, fn2);
+          return router19.use(path, fn2);
         }
         debug(".use app under %s", path);
         fn2.mountpath = path;
         fn2.parent = this;
-        router18.use(path, function mounted_app(req, res, next) {
+        router19.use(path, function mounted_app(req, res, next) {
           var orig = req.app;
           fn2.handle(req, res, function(err) {
             Object.setPrototypeOf(req, orig.request);
@@ -23721,7 +23721,7 @@ var require_express = __commonJS({
     var EventEmitter2 = __require("node:events").EventEmitter;
     var mixin = require_merge_descriptors();
     var proto = require_application();
-    var Router18 = require_router();
+    var Router19 = require_router();
     var req = require_request();
     var res = require_response();
     exports = module.exports = createApplication;
@@ -23743,8 +23743,8 @@ var require_express = __commonJS({
     exports.application = proto;
     exports.request = req;
     exports.response = res;
-    exports.Route = Router18.Route;
-    exports.Router = Router18;
+    exports.Route = Router19.Route;
+    exports.Router = Router19;
     exports.json = bodyParser.json;
     exports.raw = bodyParser.raw;
     exports.static = require_serve_static();
@@ -44151,7 +44151,7 @@ var require_lib5 = __commonJS({
 });
 
 // src/app.ts
-var import_express27 = __toESM(require_express2(), 1);
+var import_express28 = __toESM(require_express2(), 1);
 var import_cors = __toESM(require_lib3(), 1);
 var import_pino_http = __toESM(require_logger(), 1);
 
@@ -45087,8 +45087,8 @@ async function hasValidSignature(jwt2, key) {
     };
   }
 }
-function decodeJwt(token) {
-  const tokenParts = (token || "").toString().split(".");
+function decodeJwt(token2) {
+  const tokenParts = (token2 || "").toString().split(".");
   if (tokenParts.length !== 3) {
     return {
       errors: [
@@ -45124,15 +45124,15 @@ function decodeJwt(token) {
       header: rawHeader,
       payload: rawPayload,
       signature: rawSignature,
-      text: token
+      text: token2
     }
   };
   return { data };
 }
-async function verifyJwt(token, options) {
+async function verifyJwt(token2, options) {
   const { audience, authorizedParties, clockSkewInMs, key, headerType } = options;
   const clockSkew = typeof clockSkewInMs === "number" && Number.isFinite(clockSkewInMs) ? clockSkewInMs : DEFAULT_CLOCK_SKEW_IN_MS;
-  const { data: decoded, errors } = decodeJwt(token);
+  const { data: decoded, errors } = decodeJwt(token2);
   if (errors) {
     return { errors };
   }
@@ -46351,27 +46351,27 @@ var AuthenticateContext = class {
     if (!authorizationHeader) {
       return void 0;
     }
-    const [scheme, token] = authorizationHeader.split(" ", 2);
-    if (!token) {
+    const [scheme, token2] = authorizationHeader.split(" ", 2);
+    if (!token2) {
       return scheme;
     }
     if (scheme === "Bearer") {
-      return token;
+      return token2;
     }
     return void 0;
   }
-  tokenHasIssuer(token) {
-    const { data, errors } = decodeJwt(token);
+  tokenHasIssuer(token2) {
+    const { data, errors } = decodeJwt(token2);
     if (errors) {
       return false;
     }
     return !!data.payload.iss;
   }
-  tokenBelongsToInstance(token) {
-    if (!token) {
+  tokenBelongsToInstance(token2) {
+    if (!token2) {
       return false;
     }
-    const { data, errors } = decodeJwt(token);
+    const { data, errors } = decodeJwt(token2);
     if (errors) {
       return false;
     }
@@ -46711,11 +46711,11 @@ var ClientAPI = class extends AbstractAPI {
    * @param token - The token to verify.
    * @returns The verified [`Client`](https://clerk.com/docs/reference/backend/types/backend-client).
    */
-  verifyClient(token) {
+  verifyClient(token2) {
     return this.request({
       method: "POST",
       path: joinPaths(basePath8, "verify"),
-      bodyParams: { token }
+      bodyParams: { token: token2 }
     });
   }
   /**
@@ -47380,7 +47380,7 @@ function extractCustomClaims(payload) {
   return Object.keys(claims).length > 0 ? claims : null;
 }
 var M2MToken = class _M2MToken {
-  constructor(id, subject, scopes, claims, revoked, revocationReason, expired, expiration, createdAt, updatedAt, token) {
+  constructor(id, subject, scopes, claims, revoked, revocationReason, expired, expiration, createdAt, updatedAt, token2) {
     this.id = id;
     this.subject = subject;
     this.scopes = scopes;
@@ -47391,7 +47391,7 @@ var M2MToken = class _M2MToken {
     this.expiration = expiration;
     this.createdAt = createdAt;
     this.updatedAt = updatedAt;
-    this.token = token;
+    this.token = token2;
   }
   static fromJSON(data) {
     return new _M2MToken(
@@ -47433,8 +47433,8 @@ var JWT_CATEGORY_IGNORE = "cl_I7d4PD111III";
 function isNonSessionJwtCategory(cat) {
   return cat !== void 0 && cat !== JWT_CATEGORY_SESSION_TOKEN && cat !== JWT_CATEGORY_IGNORE;
 }
-function hasNonSessionJwtCategory(token) {
-  const { data, errors } = decodeJwt(token);
+function hasNonSessionJwtCategory(token2) {
+  const { data, errors } = decodeJwt(token2);
   return !errors && isNonSessionJwtCategory(data?.header?.cat);
 }
 var remoteCaches = /* @__PURE__ */ new Map();
@@ -47559,49 +47559,49 @@ var OAUTH_TOKEN_PREFIX = "oat_";
 var API_KEY_PREFIX = "ak_";
 var MACHINE_TOKEN_PREFIXES = [M2M_TOKEN_PREFIX, OAUTH_TOKEN_PREFIX, API_KEY_PREFIX];
 var JwtFormatRegExp = /^[a-zA-Z0-9\-_]+\.[a-zA-Z0-9\-_]+\.[a-zA-Z0-9\-_]+$/;
-function isJwtFormat(token) {
-  return JwtFormatRegExp.test(token);
+function isJwtFormat(token2) {
+  return JwtFormatRegExp.test(token2);
 }
 var OAUTH_ACCESS_TOKEN_TYPES = ["at+jwt", "application/at+jwt"];
-function isOAuthJwt(token) {
-  if (!isJwtFormat(token)) {
+function isOAuthJwt(token2) {
+  if (!isJwtFormat(token2)) {
     return false;
   }
   try {
-    const { data, errors } = decodeJwt(token);
+    const { data, errors } = decodeJwt(token2);
     return !errors && !!data && OAUTH_ACCESS_TOKEN_TYPES.includes(data.header.typ);
   } catch {
     return false;
   }
 }
-function isM2MJwt(token) {
-  if (!isJwtFormat(token)) {
+function isM2MJwt(token2) {
+  if (!isJwtFormat(token2)) {
     return false;
   }
   try {
-    const { data, errors } = decodeJwt(token);
+    const { data, errors } = decodeJwt(token2);
     return !errors && !!data && typeof data.payload.sub === "string" && data.payload.sub.startsWith(M2M_SUBJECT_PREFIX);
   } catch {
     return false;
   }
 }
-function isMachineJwt(token) {
-  return isOAuthJwt(token) || isM2MJwt(token);
+function isMachineJwt(token2) {
+  return isOAuthJwt(token2) || isM2MJwt(token2);
 }
-function isMachineTokenByPrefix(token) {
-  return MACHINE_TOKEN_PREFIXES.some((prefix) => token.startsWith(prefix));
+function isMachineTokenByPrefix(token2) {
+  return MACHINE_TOKEN_PREFIXES.some((prefix) => token2.startsWith(prefix));
 }
-function isMachineToken(token) {
-  return isMachineTokenByPrefix(token) || isOAuthJwt(token) || isM2MJwt(token);
+function isMachineToken(token2) {
+  return isMachineTokenByPrefix(token2) || isOAuthJwt(token2) || isM2MJwt(token2);
 }
-function getMachineTokenType(token) {
-  if (token.startsWith(M2M_TOKEN_PREFIX) || isM2MJwt(token)) {
+function getMachineTokenType(token2) {
+  if (token2.startsWith(M2M_TOKEN_PREFIX) || isM2MJwt(token2)) {
     return TokenType.M2MToken;
   }
-  if (token.startsWith(OAUTH_TOKEN_PREFIX) || isOAuthJwt(token)) {
+  if (token2.startsWith(OAUTH_TOKEN_PREFIX) || isOAuthJwt(token2)) {
     return TokenType.OAuthToken;
   }
-  if (token.startsWith(API_KEY_PREFIX)) {
+  if (token2.startsWith(API_KEY_PREFIX)) {
     return TokenType.ApiKey;
   }
   throw new Error("Unknown machine token type");
@@ -47620,7 +47620,7 @@ var MACHINE_TOKEN_TYPES = /* @__PURE__ */ new Set([TokenType.ApiKey, TokenType.M
 function isMachineTokenType(type) {
   return MACHINE_TOKEN_TYPES.has(type);
 }
-async function resolveKeyAndVerifyJwt(token, kid, options, headerType) {
+async function resolveKeyAndVerifyJwt(token2, kid, options, headerType) {
   try {
     let key;
     if (options.jwtKey) {
@@ -47636,7 +47636,7 @@ async function resolveKeyAndVerifyJwt(token, kid, options, headerType) {
         })
       };
     }
-    const { data: payload, errors: verifyErrors } = await verifyJwt(token, {
+    const { data: payload, errors: verifyErrors } = await verifyJwt(token2, {
       ...options,
       key,
       ...headerType ? { headerType } : {}
@@ -47659,7 +47659,7 @@ async function resolveKeyAndVerifyJwt(token, kid, options, headerType) {
     };
   }
 }
-async function verifyM2MJwt(token, decoded, options) {
+async function verifyM2MJwt(token2, decoded, options) {
   const cat = decoded.header.cat;
   if (cat !== void 0 && cat !== JWT_CATEGORY_M2M_TOKEN) {
     return {
@@ -47673,7 +47673,7 @@ async function verifyM2MJwt(token, decoded, options) {
       ]
     };
   }
-  const result = await resolveKeyAndVerifyJwt(token, decoded.header.kid, options);
+  const result = await resolveKeyAndVerifyJwt(token2, decoded.header.kid, options);
   if ("error" in result) {
     return { data: void 0, tokenType: TokenType.M2MToken, errors: [result.error] };
   }
@@ -47683,8 +47683,8 @@ async function verifyM2MJwt(token, decoded, options) {
     errors: void 0
   };
 }
-async function verifyOAuthJwt(token, decoded, options) {
-  const result = await resolveKeyAndVerifyJwt(token, decoded.header.kid, options, OAUTH_ACCESS_TOKEN_TYPES);
+async function verifyOAuthJwt(token2, decoded, options) {
+  const result = await resolveKeyAndVerifyJwt(token2, decoded.header.kid, options, OAUTH_ACCESS_TOKEN_TYPES);
   if ("error" in result) {
     return { data: void 0, tokenType: TokenType.OAuthToken, errors: [result.error] };
   }
@@ -47773,14 +47773,14 @@ var M2MTokenApi = class extends AbstractAPI {
    * @returns The verified [`M2MToken`](https://clerk.com/docs/reference/backend/types/backend-m2m-token) object.
    */
   async verify(params) {
-    const { token, machineSecretKey } = params;
-    if (isM2MJwt(token)) {
-      return __privateMethod(this, _M2MTokenApi_instances, verifyJwtFormat_fn).call(this, token);
+    const { token: token2, machineSecretKey } = params;
+    if (isM2MJwt(token2)) {
+      return __privateMethod(this, _M2MTokenApi_instances, verifyJwtFormat_fn).call(this, token2);
     }
     const requestOptions = __privateMethod(this, _M2MTokenApi_instances, createRequestOptions_fn).call(this, {
       method: "POST",
       path: joinPaths(basePath17, "verify"),
-      bodyParams: { token }
+      bodyParams: { token: token2 }
     }, machineSecretKey);
     return this.request(requestOptions);
   }
@@ -47799,10 +47799,10 @@ createRequestOptions_fn = function(options, machineSecretKey) {
   }
   return options;
 };
-verifyJwtFormat_fn = async function(token) {
+verifyJwtFormat_fn = async function(token2) {
   let decoded;
   try {
-    const { data, errors } = decodeJwt(token);
+    const { data, errors } = decodeJwt(token2);
     if (errors) {
       throw errors[0];
     }
@@ -47813,7 +47813,7 @@ verifyJwtFormat_fn = async function(token) {
       message: e.message
     });
   }
-  const result = await verifyM2MJwt(token, decoded, __privateGet(this, _verifyOptions));
+  const result = await verifyM2MJwt(token2, decoded, __privateGet(this, _verifyOptions));
   if (result.errors) {
     throw result.errors[0];
   }
@@ -48677,12 +48677,12 @@ var SessionAPI = class extends AbstractAPI {
       path: joinPaths(basePath29, sessionId, "revoke")
     });
   }
-  async verifySession(sessionId, token) {
+  async verifySession(sessionId, token2) {
     this.requireId(sessionId);
     return this.request({
       method: "POST",
       path: joinPaths(basePath29, sessionId, "verify"),
-      bodyParams: { token }
+      bodyParams: { token: token2 }
     });
   }
   /**
@@ -49545,12 +49545,12 @@ var AgentTask = class _AgentTask {
   }
 };
 var ActorToken = class _ActorToken {
-  constructor(id, status, userId, actor, token, url3, createdAt, updatedAt) {
+  constructor(id, status, userId, actor, token2, url3, createdAt, updatedAt) {
     this.id = id;
     this.status = status;
     this.userId = userId;
     this.actor = actor;
-    this.token = token;
+    this.token = token2;
     this.url = url3;
     this.createdAt = createdAt;
     this.updatedAt = updatedAt;
@@ -50533,10 +50533,10 @@ var MachineSecretKey = class _MachineSecretKey {
   }
 };
 var OauthAccessToken = class _OauthAccessToken {
-  constructor(externalAccountId, provider, token, publicMetadata = {}, label, scopes, tokenSecret, expiresAt, idToken) {
+  constructor(externalAccountId, provider, token2, publicMetadata = {}, label, scopes, tokenSecret, expiresAt, idToken) {
     this.externalAccountId = externalAccountId;
     this.provider = provider;
-    this.token = token;
+    this.token = token2;
     this.publicMetadata = publicMetadata;
     this.label = label;
     this.scopes = scopes;
@@ -51010,10 +51010,10 @@ var AttributeMapping = class _AttributeMapping {
   }
 };
 var SignInToken = class _SignInToken {
-  constructor(id, userId, token, status, url3, createdAt, updatedAt) {
+  constructor(id, userId, token2, status, url3, createdAt, updatedAt) {
     this.id = id;
     this.userId = userId;
-    this.token = token;
+    this.token = token2;
     this.status = status;
     this.url = url3;
     this.createdAt = createdAt;
@@ -51706,11 +51706,11 @@ function signedOutAuthObject(debugData, initialSessionStatus) {
     isAuthenticated: false
   };
 }
-function authenticatedMachineObject(tokenType, token, verificationResult, debugData) {
+function authenticatedMachineObject(tokenType, token2, verificationResult, debugData) {
   const baseObject = {
     id: verificationResult.id,
     subject: verificationResult.subject,
-    getToken: () => Promise.resolve(token),
+    getToken: () => Promise.resolve(token2),
     has: () => false,
     debug: createDebug(debugData),
     isAuthenticated: true
@@ -51862,18 +51862,18 @@ var AuthErrorReason = {
   UnexpectedError: "unexpected-error"
 };
 function signedIn(params) {
-  const { authenticateContext, headers = new Headers(), token } = params;
+  const { authenticateContext, headers = new Headers(), token: token2 } = params;
   const toAuth = (({ treatPendingAsSignedOut = true } = {}) => {
     if (params.tokenType === TokenType.SessionToken) {
       const { sessionClaims } = params;
-      const authObject = signedInAuthObject(authenticateContext, token, sessionClaims);
+      const authObject = signedInAuthObject(authenticateContext, token2, sessionClaims);
       if (treatPendingAsSignedOut && authObject.sessionStatus === "pending") {
         return signedOutAuthObject(void 0, authObject.sessionStatus);
       }
       return authObject;
     }
     const { machineData } = params;
-    return authenticatedMachineObject(params.tokenType, token, machineData, authenticateContext);
+    return authenticatedMachineObject(params.tokenType, token2, machineData, authenticateContext);
   });
   return {
     status: AuthStatus.SignedIn,
@@ -51892,7 +51892,7 @@ function signedIn(params) {
     tokenType: params.tokenType,
     toAuth,
     headers,
-    token
+    token: token2
   };
 }
 function signedOut(params) {
@@ -52067,8 +52067,8 @@ var getCookieName = (cookieDirective) => {
 var getCookieValue = (cookieDirective) => {
   return cookieDirective.split(";")[0]?.split("=")[1];
 };
-async function verifyToken(token, options) {
-  const { data: decodedResult, errors } = decodeJwt(token);
+async function verifyToken(token2, options) {
+  const { data: decodedResult, errors } = decodeJwt(token2);
   if (errors) {
     return { errors };
   }
@@ -52102,7 +52102,7 @@ async function verifyToken(token, options) {
         ]
       };
     }
-    return await verifyJwt(token, { ...options, key });
+    return await verifyJwt(token2, { ...options, key });
   } catch (error40) {
     return { errors: [error40] };
   }
@@ -52148,10 +52148,10 @@ function handleClerkAPIError(tokenType, err, notFoundMessage) {
     ]
   };
 }
-async function verifyM2MToken(token, options) {
+async function verifyM2MToken(token2, options) {
   try {
     const client = createBackendApiClient(options);
-    const verifiedToken = await client.m2m.verify({ token });
+    const verifiedToken = await client.m2m.verify({ token: token2 });
     return { data: verifiedToken, tokenType: TokenType.M2MToken, errors: void 0 };
   } catch (err) {
     return handleClerkAPIError(TokenType.M2MToken, err, "Machine token not found");
@@ -52175,11 +52175,11 @@ async function verifyAPIKey(secret2, options) {
     return handleClerkAPIError(TokenType.ApiKey, err, "API key not found");
   }
 }
-async function verifyMachineAuthToken(token, options) {
-  if (isJwtFormat(token)) {
+async function verifyMachineAuthToken(token2, options) {
+  if (isJwtFormat(token2)) {
     let decodedResult;
     try {
-      const { data, errors: decodeErrors } = decodeJwt(token);
+      const { data, errors: decodeErrors } = decodeJwt(token2);
       if (decodeErrors) {
         throw decodeErrors[0];
       }
@@ -52197,10 +52197,10 @@ async function verifyMachineAuthToken(token, options) {
       };
     }
     if (typeof decodedResult.payload.sub === "string" && decodedResult.payload.sub.startsWith(M2M_SUBJECT_PREFIX)) {
-      return verifyM2MJwt(token, decodedResult, options);
+      return verifyM2MJwt(token2, decodedResult, options);
     }
     if (OAUTH_ACCESS_TOKEN_TYPES.includes(decodedResult.header.typ)) {
-      return verifyOAuthJwt(token, decodedResult, options);
+      return verifyOAuthJwt(token2, decodedResult, options);
     }
     return {
       data: void 0,
@@ -52213,19 +52213,19 @@ async function verifyMachineAuthToken(token, options) {
       ]
     };
   }
-  if (token.startsWith(M2M_TOKEN_PREFIX)) {
-    return verifyM2MToken(token, options);
+  if (token2.startsWith(M2M_TOKEN_PREFIX)) {
+    return verifyM2MToken(token2, options);
   }
-  if (token.startsWith(OAUTH_TOKEN_PREFIX)) {
-    return verifyOAuthToken(token, options);
+  if (token2.startsWith(OAUTH_TOKEN_PREFIX)) {
+    return verifyOAuthToken(token2, options);
   }
-  if (token.startsWith(API_KEY_PREFIX)) {
-    return verifyAPIKey(token, options);
+  if (token2.startsWith(API_KEY_PREFIX)) {
+    return verifyAPIKey(token2, options);
   }
   throw new Error("Unknown machine token type");
 }
-async function verifyHandshakeJwt(token, { key }) {
-  const { data: decoded, errors } = decodeJwt(token);
+async function verifyHandshakeJwt(token2, { key }) {
+  const { data: decoded, errors } = decodeJwt(token2);
   if (errors) {
     throw errors[0];
   }
@@ -52255,9 +52255,9 @@ async function verifyHandshakeJwt(token, { key }) {
   }
   return payload;
 }
-async function verifyHandshakeToken(token, options) {
+async function verifyHandshakeToken(token2, options) {
   const { secretKey, apiUrl, apiVersion, jwksCacheTtlInMs, jwtKey, skipJwksCache } = options;
-  const { data, errors } = decodeJwt(token);
+  const { data, errors } = decodeJwt(token2);
   if (errors) {
     throw errors[0];
   }
@@ -52274,7 +52274,7 @@ async function verifyHandshakeToken(token, options) {
       reason: TokenVerificationErrorReason.JWKFailedToResolve
     });
   }
-  return verifyHandshakeJwt(token, { key });
+  return verifyHandshakeJwt(token2, { key });
 }
 var HandshakeService = class {
   constructor(authenticateContext, options, organizationMatcher) {
@@ -54547,11 +54547,11 @@ var _setImmediate = ((setImmediateSupported, postMessageSupported) => {
   if (setImmediateSupported) {
     return setImmediate;
   }
-  return postMessageSupported ? ((token, callbacks) => {
+  return postMessageSupported ? ((token2, callbacks) => {
     _global.addEventListener(
       "message",
       ({ source, data }) => {
-        if (source === _global && data === token) {
+        if (source === _global && data === token2) {
           callbacks.length && callbacks.shift()();
         }
       },
@@ -54559,7 +54559,7 @@ var _setImmediate = ((setImmediateSupported, postMessageSupported) => {
     );
     return (cb) => {
       callbacks.push(cb);
-      _global.postMessage(token, "*");
+      _global.postMessage(token2, "*");
     };
   })(`axios@${Math.random()}`, []) : (cb) => setTimeout(cb);
 })(typeof setImmediate === "function", isFunction(_global.postMessage));
@@ -55236,9 +55236,9 @@ function removeBrackets(key) {
 }
 function renderKey(path, key, dots) {
   if (!path) return key;
-  return path.concat(key).map(function each(token, i) {
-    token = removeBrackets(token);
-    return !dots && i ? "[" + token + "]" : token;
+  return path.concat(key).map(function each(token2, i) {
+    token2 = removeBrackets(token2);
+    return !dots && i ? "[" + token2 + "]" : token2;
   }).join(dots ? "." : "");
 }
 function isFlatArray(arr) {
@@ -59458,32 +59458,32 @@ var CancelToken = class _CancelToken {
     this.promise = new Promise(function promiseExecutor(resolve) {
       resolvePromise = resolve;
     });
-    const token = this;
+    const token2 = this;
     this.promise.then((cancel) => {
-      if (!token._listeners) return;
-      let i = token._listeners.length;
+      if (!token2._listeners) return;
+      let i = token2._listeners.length;
       while (i-- > 0) {
-        token._listeners[i](cancel);
+        token2._listeners[i](cancel);
       }
-      token._listeners = null;
+      token2._listeners = null;
     });
     this.promise.then = (onfulfilled) => {
       let _resolve;
       const promise2 = new Promise((resolve) => {
-        token.subscribe(resolve);
+        token2.subscribe(resolve);
         _resolve = resolve;
       }).then(onfulfilled);
       promise2.cancel = function reject() {
-        token.unsubscribe(_resolve);
+        token2.unsubscribe(_resolve);
       };
       return promise2;
     };
     executor(function cancel(message, config2, request) {
-      if (token.reason) {
+      if (token2.reason) {
         return;
       }
-      token.reason = new CanceledError_default(message, config2, request);
-      resolvePromise(token.reason);
+      token2.reason = new CanceledError_default(message, config2, request);
+      resolvePromise(token2.reason);
     });
   }
   /**
@@ -59535,11 +59535,11 @@ var CancelToken = class _CancelToken {
    */
   static source() {
     let cancel;
-    const token = new _CancelToken(function executor(c) {
+    const token2 = new _CancelToken(function executor(c) {
       cancel = c;
     });
     return {
-      token,
+      token: token2,
       cancel
     };
   }
@@ -59708,10 +59708,10 @@ router.post("/wablas", async (req, res) => {
 });
 router.get("/wablas-test", async (_req, res) => {
   try {
-    const token = process.env.WABLAS_API_KEY;
+    const token2 = process.env.WABLAS_API_KEY;
     const secret2 = process.env.WABLAS_SECRET_KEY;
     const owner = process.env.WABLAS_OWNER;
-    if (!token || !secret2 || !owner) {
+    if (!token2 || !secret2 || !owner) {
       return res.status(500).json({ status: false, message: "Wablas env belum lengkap" });
     }
     const response = await axios_default.post(
@@ -59722,7 +59722,7 @@ router.get("/wablas-test", async (_req, res) => {
       }),
       {
         headers: {
-          Authorization: `${token}.${secret2}`,
+          Authorization: `${token2}.${secret2}`,
           "Content-Type": "application/x-www-form-urlencoded"
         }
       }
@@ -64282,8 +64282,8 @@ var PgSelectBuilder = class {
   }
   authToken;
   /** @internal */
-  setToken(token) {
-    this.authToken = token;
+  setToken(token2) {
+    this.authToken = token2;
     return this;
   }
   /**
@@ -65036,8 +65036,8 @@ var PgSelectBase = class extends PgSelectQueryBuilderBase {
   }
   authToken;
   /** @internal */
-  setToken(token) {
-    this.authToken = token;
+  setToken(token2) {
+    this.authToken = token2;
     return this;
   }
   execute = (placeholderValues) => {
@@ -65251,8 +65251,8 @@ var PgDeleteBase = class extends QueryPromise {
   }
   authToken;
   /** @internal */
-  setToken(token) {
-    this.authToken = token;
+  setToken(token2) {
+    this.authToken = token2;
     return this;
   }
   execute = (placeholderValues) => {
@@ -65288,8 +65288,8 @@ var PgInsertBuilder = class {
   static [entityKind] = "PgInsertBuilder";
   authToken;
   /** @internal */
-  setToken(token) {
-    this.authToken = token;
+  setToken(token2) {
+    this.authToken = token2;
     return this;
   }
   overridingSystemValue() {
@@ -65444,8 +65444,8 @@ var PgInsertBase = class extends QueryPromise {
   }
   authToken;
   /** @internal */
-  setToken(token) {
-    this.authToken = token;
+  setToken(token2) {
+    this.authToken = token2;
     return this;
   }
   execute = (placeholderValues) => {
@@ -65512,8 +65512,8 @@ var PgRefreshMaterializedView = class extends QueryPromise {
   }
   authToken;
   /** @internal */
-  setToken(token) {
-    this.authToken = token;
+  setToken(token2) {
+    this.authToken = token2;
     return this;
   }
   execute = (placeholderValues) => {
@@ -65533,8 +65533,8 @@ var PgUpdateBuilder = class {
   }
   static [entityKind] = "PgUpdateBuilder";
   authToken;
-  setToken(token) {
-    this.authToken = token;
+  setToken(token2) {
+    this.authToken = token2;
     return this;
   }
   set(values) {
@@ -65712,8 +65712,8 @@ var PgUpdateBase = class extends QueryPromise {
   }
   authToken;
   /** @internal */
-  setToken(token) {
-    this.authToken = token;
+  setToken(token2) {
+    this.authToken = token2;
     return this;
   }
   execute = (placeholderValues) => {
@@ -65759,8 +65759,8 @@ var PgCountBuilder = class _PgCountBuilder extends SQL {
     return sql`select count(*) as count from ${source}${sql.raw(" where ").if(filters)}${filters};`;
   }
   /** @intrnal */
-  setToken(token) {
-    this.token = token;
+  setToken(token2) {
+    this.token = token2;
     return this;
   }
   then(onfulfilled, onrejected) {
@@ -65888,8 +65888,8 @@ var PgRelationalQuery = class extends QueryPromise {
   }
   authToken;
   /** @internal */
-  setToken(token) {
-    this.authToken = token;
+  setToken(token2) {
+    this.authToken = token2;
     return this;
   }
   execute() {
@@ -66256,8 +66256,8 @@ var PgPreparedQuery = class {
     return response;
   }
   /** @internal */
-  setToken(token) {
-    this.authToken = token;
+  setToken(token2) {
+    this.authToken = token2;
     return this;
   }
   static [entityKind] = "PgPreparedQuery";
@@ -66336,7 +66336,7 @@ var PgSession = class {
   }
   static [entityKind] = "PgSession";
   /** @internal */
-  execute(query, token) {
+  execute(query, token2) {
     return tracer.startActiveSpan("drizzle.operation", () => {
       const prepared = tracer.startActiveSpan("drizzle.prepareQuery", () => {
         return this.prepareQuery(
@@ -66346,7 +66346,7 @@ var PgSession = class {
           false
         );
       });
-      return prepared.setToken(token).execute(void 0, token);
+      return prepared.setToken(token2).execute(void 0, token2);
     });
   }
   all(query) {
@@ -66358,8 +66358,8 @@ var PgSession = class {
     ).all();
   }
   /** @internal */
-  async count(sql2, token) {
-    const res = await this.execute(sql2, token);
+  async count(sql2, token2) {
+    const res = await this.execute(sql2, token2);
     return Number(
       res[0]["count"]
     );
@@ -68988,9 +68988,9 @@ var $ZodE164 = /* @__PURE__ */ $constructor("$ZodE164", (inst, def) => {
   def.pattern ?? (def.pattern = e164);
   $ZodStringFormat.init(inst, def);
 });
-function isValidJWT(token, algorithm = null) {
+function isValidJWT(token2, algorithm = null) {
   try {
-    const tokensParts = token.split(".");
+    const tokensParts = token2.split(".");
     if (tokensParts.length !== 3)
       return false;
     const [header] = tokensParts;
@@ -78627,7 +78627,7 @@ router2.post("/admin/wallet/adjust", requireAdmin, async (req, res) => {
 var wallet_default = router2;
 
 // src/routes/index.ts
-var import_express26 = __toESM(require_express2(), 1);
+var import_express27 = __toESM(require_express2(), 1);
 
 // src/routes/health.ts
 var import_express5 = __toESM(require_express2(), 1);
@@ -83920,8 +83920,8 @@ router13.post("/ads/move2link", async (req, res) => {
         error: "Reward type tidak valid"
       });
     }
-    const token = process.env.MOVE2LINK_API_TOKEN;
-    if (!token) {
+    const token2 = process.env.MOVE2LINK_API_TOKEN;
+    if (!token2) {
       console.error("MOVE2LINK_API_TOKEN belum diset");
       return res.status(500).json({
         error: "Move2Link API belum dikonfigurasi"
@@ -83940,7 +83940,7 @@ router13.post("/ads/move2link", async (req, res) => {
       {
         method: "POST",
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${token2}`,
           "Content-Type": "application/json",
           Accept: "application/json"
         },
@@ -84413,8 +84413,8 @@ function signToken(userId) {
   ).toString("base64url");
   return `${body}.${sign(body)}`;
 }
-function readToken(token) {
-  const [body, sig] = token.split(".");
+function readToken(token2) {
+  const [body, sig] = token2.split(".");
   if (!body || !sig) return null;
   const a = Buffer.from(sig);
   const b = Buffer.from(sign(body));
@@ -84430,7 +84430,7 @@ function readToken(token) {
 var h = (fn) => async (req, res) => {
   try {
     await ensureResellerTables();
-    await fn(req, res);
+    return await fn(req, res);
   } catch (e) {
     if (e instanceof HttpError) return res.status(e.status).json({ error: e.message });
     console.error(e);
@@ -84474,8 +84474,8 @@ function tooMany(ip) {
 async function requireReseller(req, res, next) {
   try {
     await ensureResellerTables();
-    const token = String(req.headers.authorization || "").replace(/^Bearer\s+/i, "");
-    const userId = token ? readToken(token) : null;
+    const token2 = String(req.headers.authorization || "").replace(/^Bearer\s+/i, "");
+    const userId = token2 ? readToken(token2) : null;
     if (!userId) return res.status(401).json({ error: "Login reseller diperlukan" });
     const row = rowsOf(
       await db.execute(sql`SELECT * FROM reseller_members WHERE user_id = ${userId}`)
@@ -84490,10 +84490,10 @@ async function requireReseller(req, res, next) {
       expiresAt: row.expires_at,
       balance: await walletBalance(db, userId)
     };
-    next();
+    return next();
   } catch (e) {
     console.error(e);
-    res.status(500).json({ error: "Terjadi kesalahan server" });
+    return res.status(500).json({ error: "Terjadi kesalahan server" });
   }
 }
 router16.get(
@@ -84832,25 +84832,69 @@ router16.put(
 );
 var reseller_default = router16;
 
-// src/routes/index.ts
+// src/routes/drip.ts
+var import_express26 = __toESM(require_express2(), 1);
+
+// src/lib/dripApi.ts
+var BASE_URL = "https://dripclientstore.shop/api/v1";
+function token() {
+  const value = process.env.DRIP_API_TOKEN;
+  if (!value) throw new Error("DRIP_API_TOKEN belum diatur");
+  return value;
+}
+async function getDripProducts() {
+  const { data } = await axios_default.get(`${BASE_URL}/products.php`, {
+    headers: { "X-API-Token": token() }
+  });
+  return data;
+}
+async function getDripBalance() {
+  const { data } = await axios_default.get(`${BASE_URL}/balance.php`, {
+    headers: { "X-API-Token": token() }
+  });
+  return data;
+}
+
+// src/routes/drip.ts
 var router17 = (0, import_express26.Router)();
-router17.use(health_default);
-router17.use(products_default);
-router17.use(links_default);
-router17.use(songs_default);
-router17.use(anthropic_default);
-router17.use(feedback_default);
-router17.use(stats_default);
-router17.use(settings_default);
-router17.use(orders_default);
-router17.use(usage_default);
-router17.use(move2link_default);
-router17.use(lootlabs_default);
-router17.use(premium_default);
-router17.use(wallet_default);
-router17.use(wablas_default);
-router17.use(reseller_default);
-var routes_default = router17;
+router17.get("/admin/drip/products", requireAdmin, async (_req, res) => {
+  try {
+    return res.json(await getDripProducts());
+  } catch (error40) {
+    console.error(error40);
+    return res.status(502).json({ error: "Gagal mengambil produk DRIP" });
+  }
+});
+router17.get("/admin/drip/balance", requireAdmin, async (_req, res) => {
+  try {
+    return res.json(await getDripBalance());
+  } catch (error40) {
+    console.error(error40);
+    return res.status(502).json({ error: "Gagal mengambil saldo DRIP" });
+  }
+});
+var drip_default = router17;
+
+// src/routes/index.ts
+var router18 = (0, import_express27.Router)();
+router18.use(health_default);
+router18.use(products_default);
+router18.use(links_default);
+router18.use(songs_default);
+router18.use(anthropic_default);
+router18.use(feedback_default);
+router18.use(stats_default);
+router18.use(settings_default);
+router18.use(orders_default);
+router18.use(usage_default);
+router18.use(move2link_default);
+router18.use(lootlabs_default);
+router18.use(premium_default);
+router18.use(wallet_default);
+router18.use(wablas_default);
+router18.use(reseller_default);
+router18.use(drip_default);
+var routes_default = router18;
 
 // src/lib/logger.ts
 var import_pino = __toESM(require_pino(), 1);
@@ -84871,7 +84915,7 @@ var logger2 = (0, import_pino.default)({
 });
 
 // src/app.ts
-var app = (0, import_express27.default)();
+var app = (0, import_express28.default)();
 app.use(
   (0, import_pino_http.default)({
     logger: logger2,
@@ -84885,7 +84929,7 @@ app.use(
     allowedHeaders: ["Content-Type", "Authorization"]
   })
 );
-app.use(import_express27.default.json());
+app.use(import_express28.default.json());
 app.use(clerkMiddleware());
 app.use("/api", routes_default);
 var app_default = app;
