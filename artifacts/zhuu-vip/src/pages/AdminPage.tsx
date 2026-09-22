@@ -979,10 +979,36 @@ const saveSettings = async () => {
               <h3 className="text-sm font-semibold text-cyan-300">DRIP Supplier</h3>
               <p className="text-xs text-blue-300/50">{dripProducts.length} produk supplier tersedia</p>
             </div>
-            <button type="button" onClick={loadDrip} disabled={dripLoading}
-              className="px-3 py-2 rounded-lg bg-cyan-400/10 text-cyan-300 text-xs">
-              {dripLoading ? "Loading..." : "Refresh"}
-            </button>
+            <div className="flex gap-2">
+              <button type="button" onClick={loadDrip} disabled={dripLoading}
+                className="px-3 py-2 rounded-lg bg-cyan-400/10 text-cyan-300 text-xs">
+                {dripLoading ? "Loading..." : "Refresh"}
+              </button>
+              <button
+                type="button"
+                onClick={async () => {
+                  try {
+                    const r = await fetch(`${API_BASE}/api/admin/drip/sync-stock`, {
+                      method: "POST",
+                      headers: await authHeaders(),
+                    });
+                    const data = await r.json();
+                    if (!r.ok) {
+                      alert(data?.error || "Gagal sync stock DRIP");
+                      return;
+                    }
+                    alert(`Stock DRIP berhasil disync. ${data.updated} option diperbarui.`);
+                    loadProducts();
+                    loadDrip();
+                  } catch {
+                    alert("Gagal sync stock DRIP");
+                  }
+                }}
+                className="px-3 py-2 rounded-lg bg-green-400/10 text-green-300 text-xs"
+              >
+                Sync Stock
+              </button>
+            </div>
           </div>
 
           <div className="mb-3 px-3 py-2 rounded-lg bg-white/5 text-sm">
@@ -1239,6 +1265,16 @@ const saveSettings = async () => {
               type="number"
               className="px-3 py-2 rounded-lg bg-black/20 text-sm"
             />
+            <input
+              defaultValue={o.dripVariantId ?? ""}
+              id={`drip-variant-${o.id}`} disabled={editingOptionId !== o.id}
+              type="number"
+              placeholder="DRIP Variant ID"
+              className="px-3 py-2 rounded-lg bg-black/20 text-sm"
+            />
+            <div className="px-3 py-2 rounded-lg bg-black/20 text-sm text-cyan-300/70">
+              DRIP Stock: {o.dripStock ?? 0}
+            </div>
 
             <button type="button"
               onClick={async () => {
@@ -1246,11 +1282,18 @@ const saveSettings = async () => {
                   const d = document.getElementById(`duration-${o.id}`) as HTMLInputElement;
                   const pr = document.getElementById(`price-${o.id}`) as HTMLInputElement;
                   const st = document.getElementById(`stock-${o.id}`) as HTMLInputElement;
+                  const dv = document.getElementById(`drip-variant-${o.id}`) as HTMLInputElement;
                                                                                             const rp = document.getElementById(`reseller-price-${o.id}`) as HTMLInputElement;
                   const r = await fetch(`${API_BASE}/api/products/options/${o.id}`, {
                     method: "PATCH",
       headers: await authHeaders(),
-                    body: JSON.stringify({duration: d.value, price: pr.value, resellerPrice: rp.value || null, stock: st.value})
+                    body: JSON.stringify({
+                    duration: d.value,
+                    price: pr.value,
+                    resellerPrice: rp.value || null,
+                    stock: st.value,
+                    dripVariantId: dv.value || null
+                  })
                   });
                   if (!r.ok) { alert("Gagal menyimpan durasi"); return; }
                   setEditingOptionId(null);
