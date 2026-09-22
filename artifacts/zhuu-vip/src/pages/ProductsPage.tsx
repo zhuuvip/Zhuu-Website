@@ -9,6 +9,8 @@ type ProductOption = {
   duration: string;
   price: number;
   stock: number;
+  dripVariantId?: number | null;
+  dripStock?: number | null;
 };
 
 type Product = {
@@ -20,6 +22,11 @@ type Product = {
   logo?: string;
   options: ProductOption[];
 };
+
+const getAvailableStock = (option: ProductOption) =>
+  option.dripVariantId
+    ? Number(option.dripStock ?? 0)
+    : Number(option.stock ?? 0);
 
 export default function ProductsPage() {
   const { getToken } = useAuth();
@@ -77,7 +84,7 @@ export default function ProductsPage() {
           setSelectedOption((currentOption) => {
             const matching =
               next.options.find((item) => item.id === currentOption?.id) ??
-              next.options.find((item) => item.stock > 0) ??
+              next.options.find((item) => getAvailableStock(item) > 0) ??
               next.options[0] ??
               null;
 
@@ -136,7 +143,7 @@ export default function ProductsPage() {
   const canBuy = Boolean(
     selectedProduct &&
       selectedOption &&
-      selectedOption.stock > 0 &&
+      getAvailableStock(selectedOption) > 0 &&
       selectedPrice > 0 &&
       balance >= selectedPrice &&
       !buying
@@ -148,7 +155,7 @@ export default function ProductsPage() {
         (total, product) =>
           total +
           product.options.reduce(
-            (sum, option) => sum + Math.max(0, Number(option.stock || 0)),
+            (sum, option) => sum + Math.max(0, getAvailableStock(option)),
             0
           ),
         0
@@ -160,7 +167,7 @@ export default function ProductsPage() {
     setSelectedProduct(product);
 
     const available =
-      product.options.find((option) => option.stock > 0) ??
+      product.options.find((option) => getAvailableStock(option) > 0) ??
       product.options[0] ??
       null;
 
@@ -168,14 +175,14 @@ export default function ProductsPage() {
   };
 
   const selectOption = (option: ProductOption) => {
-    if (option.stock <= 0) return;
+    if (getAvailableStock(option) <= 0) return;
     setSelectedOption(option);
   };
 
   const buyProduct = async () => {
     if (!selectedProduct || !selectedOption || buying) return;
 
-    if (selectedOption.stock <= 0) {
+    if (getAvailableStock(selectedOption) <= 0) {
       alert("Stok produk ini sudah habis.");
       return;
     }
@@ -437,7 +444,7 @@ export default function ProductsPage() {
             {products.map((product) => {
               const isSelected = selectedProduct?.id === product.id;
               const availableStock = product.options.reduce(
-                (sum, option) => sum + Math.max(0, Number(option.stock || 0)),
+                (sum, option) => sum + Math.max(0, getAvailableStock(option)),
                 0
               );
               const logo =
@@ -520,7 +527,7 @@ export default function ProductsPage() {
                       return (
                         <button
                           key={option.id}
-                          disabled={option.stock <= 0}
+                          disabled={getAvailableStock(option) <= 0}
                           onClick={() => {
                             selectProduct(product);
                             selectOption(option);
@@ -530,7 +537,7 @@ export default function ProductsPage() {
                               ? "border-purple-400/40 bg-purple-500/10 shadow-lg shadow-purple-950/20"
                               : "border-white/8 bg-white/[0.025] hover:border-white/15 hover:bg-white/[0.05]"
                           } ${
-                            option.stock <= 0
+                            getAvailableStock(option) <= 0
                               ? "cursor-not-allowed opacity-35"
                               : ""
                           }`}
@@ -542,8 +549,8 @@ export default function ProductsPage() {
                               </p>
 
                               <p className="mt-1 text-[11px] text-white/35">
-                                {option.stock > 0
-                                  ? `${option.stock} tersedia`
+                                {getAvailableStock(option) > 0
+                                  ? `${getAvailableStock(option)} tersedia`
                                   : "Stok habis"}
                               </p>
                             </div>
@@ -593,7 +600,7 @@ export default function ProductsPage() {
               >
                 {buying
                   ? "Memproses..."
-                  : selectedOption.stock <= 0
+                  : getAvailableStock(selectedOption) <= 0
                     ? "Stok Habis"
                     : balance < selectedOption.price
                       ? "Saldo Tidak Cukup"
@@ -602,7 +609,7 @@ export default function ProductsPage() {
             </div>
 
             {balance < selectedOption.price &&
-              selectedOption.stock > 0 &&
+              getAvailableStock(selectedOption) > 0 &&
               !walletLoading && (
                 <div className="mt-3 flex items-center justify-between rounded-xl bg-amber-400/[0.06] px-3 py-2 text-[11px] text-amber-200/70">
                   <span>
