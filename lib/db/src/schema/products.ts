@@ -14,6 +14,7 @@ export const productOptionsTable = pgTable("product_options", {
   productId: integer("product_id").notNull(),
   duration: text("duration").notNull(),
   price: integer("price").notNull(),
+  resellerPrice: integer("reseller_price"),
   stock: integer("stock").notNull().default(0),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });

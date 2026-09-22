@@ -117,7 +117,7 @@ const h =
   async (req: Request, res: Response) => {
     try {
       await ensureResellerTables();
-      await fn(req, res);
+      return await fn(req, res);
     } catch (e) {
       if (e instanceof HttpError) return res.status(e.status).json({ error: e.message });
       console.error(e);
@@ -184,10 +184,10 @@ async function requireReseller(req: Request, res: Response, next: NextFunction) 
       expiresAt: row.expires_at,
       balance: await walletBalance(db, userId),
     };
-    next();
+    return next();
   } catch (e) {
     console.error(e);
-    res.status(500).json({ error: "Terjadi kesalahan server" });
+    return res.status(500).json({ error: "Terjadi kesalahan server" });
   }
 }
 
