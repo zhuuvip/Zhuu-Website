@@ -1158,10 +1158,11 @@ const saveSettings = async () => {
                   const d = document.getElementById(`duration-${o.id}`) as HTMLInputElement;
                   const pr = document.getElementById(`price-${o.id}`) as HTMLInputElement;
                   const st = document.getElementById(`stock-${o.id}`) as HTMLInputElement;
+                                                                                            const rp = document.getElementById(`reseller-price-${o.id}`) as HTMLInputElement;
                   const r = await fetch(`${API_BASE}/api/products/options/${o.id}`, {
                     method: "PATCH",
       headers: await authHeaders(),
-                    body: JSON.stringify({duration: d.value, price: pr.value, stock: st.value})
+                    body: JSON.stringify({duration: d.value, price: pr.value, resellerPrice: rp.value || null, stock: st.value})
                   });
                   if (!r.ok) { alert("Gagal menyimpan durasi"); return; }
                   setEditingOptionId(null);
