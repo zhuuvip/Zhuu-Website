@@ -1008,6 +1008,16 @@ const saveSettings = async () => {
               >
                 Sync Stock
               </button>
+          <button
+            type="button"
+            onClick={() => {
+              const item = dripProducts[0];
+              alert(item ? JSON.stringify(item, null, 2) : "Belum ada data DRIP");
+            }}
+            className="px-3 py-2 rounded-lg bg-purple-400/10 text-purple-300 text-xs"
+          >
+            Lihat Data
+          </button>
             </div>
           </div>
 
