@@ -1300,7 +1300,7 @@ const saveSettings = async () => {
                     body: JSON.stringify({
                     duration: d.value,
                     price: pr.value,
-                    resellerPrice: rp.value || null,
+                    resellerPrice: rp?.value || null,
                     stock: st.value,
                     dripVariantId: dv.value || null
                   })
