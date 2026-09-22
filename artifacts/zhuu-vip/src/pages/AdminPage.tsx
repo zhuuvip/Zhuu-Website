@@ -298,23 +298,34 @@ const addKeys = async (productId: number, optionId: number) => {
   const loadDrip = async () => {
     setDripLoading(true);
     try {
-      const [productsRes, balanceRes] = await Promise.all([
-        fetch(`${API_BASE}/api/admin/drip/products`, { headers: await authHeaders(), cache: "no-store" }),
-        fetch(`${API_BASE}/api/admin/drip/balance`, { headers: await authHeaders(), cache: "no-store" }),
-      ]);
+      const productsRes = await fetch(
+        `${API_BASE}/api/admin/drip/products`,
+        { headers: await authHeaders(), cache: "no-store" }
+      );
 
-      if (!productsRes.ok) throw new Error("Gagal mengambil produk DRIP");
-      if (!balanceRes.ok) throw new Error("Gagal mengambil saldo DRIP");
+      if (productsRes.ok) {
+        setDripProducts(await productsRes.json());
+      } else {
+        console.error("DRIP products:", productsRes.status);
+      }
 
-      setDripProducts(await productsRes.json());
-      setDripBalance(await balanceRes.json());
+      const balanceRes = await fetch(
+        `${API_BASE}/api/admin/drip/balance`,
+        { headers: await authHeaders(), cache: "no-store" }
+      );
+
+      if (balanceRes.ok) {
+        setDripBalance(await balanceRes.json());
+      } else {
+        console.error("DRIP balance:", balanceRes.status);
+      }
     } catch (error) {
       console.error("DRIP:", error);
-      alert("Gagal mengambil data DRIP");
     } finally {
       setDripLoading(false);
     }
   };
+
   const [productName, setProductName] = useState("");
 const [imageUrl, setImageUrl] = useState("");
   const [deliveryType, setDeliveryType] = useState("WHATSAPP");

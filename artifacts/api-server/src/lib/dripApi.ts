@@ -11,6 +11,7 @@ function token() {
 export async function getDripProducts() {
   const { data } = await axios.get(`${BASE_URL}/products.php`, {
     headers: { "X-API-Token": token() },
+    timeout: 10000,
   });
   return data;
 }
@@ -35,6 +36,7 @@ export async function generateDripKey(variantId: number, quantity = 1) {
 export async function getDripBalance() {
   const { data } = await axios.get(`${BASE_URL}/balance.php`, {
     headers: { "X-API-Token": token() },
+    timeout: 10000,
   });
   return data;
 }
