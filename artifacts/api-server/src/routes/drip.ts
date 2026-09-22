@@ -47,7 +47,7 @@ router.post("/admin/drip/sync-stock", requireAdmin, async (_req, res) => {
       await db
         .update(productOptionsTable)
         .set({
-          dripStock: Number(drip.stock ?? 0),
+          dripStock: Number(drip.in_stock ?? drip.local_stock ?? 0),
         })
         .where(eq(productOptionsTable.id, option.id));
 
