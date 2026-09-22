@@ -304,7 +304,15 @@ const addKeys = async (productId: number, optionId: number) => {
       );
 
       if (productsRes.ok) {
-        setDripProducts(await productsRes.json());
+        const data = await productsRes.json();
+        const list = Array.isArray(data)
+          ? data
+          : Array.isArray(data?.products)
+            ? data.products
+            : Array.isArray(data?.data)
+              ? data.data
+              : [];
+        setDripProducts(list);
       } else {
         console.error("DRIP products:", productsRes.status);
       }
