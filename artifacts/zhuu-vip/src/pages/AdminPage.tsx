@@ -89,6 +89,9 @@ export default function AdminPage() {
 
   const [tab, setTab] = useState<Tab>("stats");
   const [products, setProducts] = useState<any[]>([]);
+  const [dripProducts, setDripProducts] = useState<any[]>([]);
+  const [dripBalance, setDripBalance] = useState<any>(null);
+  const [dripLoading, setDripLoading] = useState(false);
   const [orders, setOrders] = useState<any[]>([]);
   const [ordersLoading, setOrdersLoading] = useState(false);
   const [deposits, setDeposits] = useState<any[]>([]);
@@ -292,6 +295,26 @@ const addKeys = async (productId: number, optionId: number) => {
     const res = await fetch(`${API_BASE}/api/products`, { headers: await authHeaders(), cache: "no-store" });
     if (res.ok) setProducts(await res.json());
   };
+  const loadDrip = async () => {
+    setDripLoading(true);
+    try {
+      const [productsRes, balanceRes] = await Promise.all([
+        fetch(`${API_BASE}/api/admin/drip/products`, { headers: await authHeaders(), cache: "no-store" }),
+        fetch(`${API_BASE}/api/admin/drip/balance`, { headers: await authHeaders(), cache: "no-store" }),
+      ]);
+
+      if (!productsRes.ok) throw new Error("Gagal mengambil produk DRIP");
+      if (!balanceRes.ok) throw new Error("Gagal mengambil saldo DRIP");
+
+      setDripProducts(await productsRes.json());
+      setDripBalance(await balanceRes.json());
+    } catch (error) {
+      console.error("DRIP:", error);
+      alert("Gagal mengambil data DRIP");
+    } finally {
+      setDripLoading(false);
+    }
+  };
   const [productName, setProductName] = useState("");
 const [imageUrl, setImageUrl] = useState("");
   const [deliveryType, setDeliveryType] = useState("WHATSAPP");
@@ -424,7 +447,10 @@ const saveSettings = async () => {
     if (tab === "stats") fetchStats();
     if (tab === "feedback") fetchFeedback();
     if (tab === "settings") { fetchSettings(); fetchAnnouncement(); }
-    if (tab === "products") loadProducts();
+    if (tab === "products") {
+      loadProducts();
+      loadDrip();
+    }
     if (tab === "orders") loadOrders();
     if (tab === "deposits") loadDeposits();
     if (tab === "wallet") loadWalletUsers();
@@ -927,6 +953,49 @@ const saveSettings = async () => {
       {tab === "products" && (
   <div className="glass-card rounded-2xl p-5">
     <h2 className="text-lg font-semibold text-blue-100 mb-4">Products</h2>
+
+        <div className="mb-5 p-4 rounded-xl bg-black/20 border border-cyan-400/10">
+          <div className="flex items-center justify-between gap-3 mb-3">
+            <div>
+              <h3 className="text-sm font-semibold text-cyan-300">DRIP Supplier</h3>
+              <p className="text-xs text-blue-300/50">{dripProducts.length} produk supplier tersedia</p>
+            </div>
+            <button type="button" onClick={loadDrip} disabled={dripLoading}
+              className="px-3 py-2 rounded-lg bg-cyan-400/10 text-cyan-300 text-xs">
+              {dripLoading ? "Loading..." : "Refresh"}
+            </button>
+          </div>
+
+          <div className="mb-3 px-3 py-2 rounded-lg bg-white/5 text-sm">
+            Saldo DRIP:{" "}
+            <span className="text-cyan-300 font-semibold">
+              {dripBalance?.balance ?? dripBalance?.data?.balance ?? "-"}
+            </span>
+          </div>
+
+          <div className="max-h-72 overflow-y-auto space-y-2">
+            {dripProducts.map((item: any) => (
+              <div key={item.variant_id}
+                className="flex items-center justify-between gap-3 px-3 py-2 rounded-lg bg-white/5">
+                <div className="min-w-0">
+                  <div className="text-sm text-blue-100 truncate">
+                    {item.product_name || item.name}
+                  </div>
+                  <div className="text-xs text-blue-300/50">
+                    {item.variant_name || item.duration || "-"} • ID {item.variant_id}
+                  </div>
+                </div>
+                <div className="text-right text-xs shrink-0">
+                  <div className="text-cyan-300">${item.price_usd ?? item.price ?? "-"}</div>
+                  <div className="text-blue-300/50">Stock: {item.stock ?? "-"}</div>
+                </div>
+              </div>
+            ))}
+            {!dripLoading && dripProducts.length === 0 && (
+              <div className="text-xs text-blue-300/40">Belum ada data produk DRIP.</div>
+            )}
+          </div>
+        </div>
 
     <div className="grid sm:grid-cols-4 gap-2">
       <input value={productName} onChange={e => setProductName(e.target.value)} placeholder="Nama produk" className="px-3 py-2 rounded-lg bg-black/20 text-sm" />
