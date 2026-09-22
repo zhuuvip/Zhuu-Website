@@ -61,6 +61,16 @@ router.get("/products", async (req, res) => {
     ADD COLUMN IF NOT EXISTS reseller_price INTEGER
   `);
 
+  await db.execute(sql`
+    ALTER TABLE product_options
+    ADD COLUMN IF NOT EXISTS drip_variant_id INTEGER
+  `);
+
+  await db.execute(sql`
+    ALTER TABLE product_options
+    ADD COLUMN IF NOT EXISTS drip_stock INTEGER NOT NULL DEFAULT 0
+  `);
+
   const products = (await db.select().from(productsTable)).map((p) =>
     admin ? p : { ...p, deliveryValue: null },
   );
@@ -129,6 +139,8 @@ router.post("/products/:id/options", requireAdmin, async (req, res) => {
       duration: req.body.duration,
       price: Number(req.body.price),
       stock: Number(req.body.stock ?? 0),
+      dripVariantId: req.body.dripVariantId ? Number(req.body.dripVariantId) : null,
+      dripStock: Number(req.body.dripStock ?? 0),
     })
     .returning();
 
@@ -142,6 +154,8 @@ router.patch("/products/options/:id", requireAdmin, async (req, res) => {
       duration: req.body.duration,
       price: Number(req.body.price),
       stock: Number(req.body.stock),
+      dripVariantId: req.body.dripVariantId ? Number(req.body.dripVariantId) : null,
+      dripStock: Number(req.body.dripStock ?? 0),
     })
     .where(eq(productOptionsTable.id, Number(req.params.id)))
     .returning();

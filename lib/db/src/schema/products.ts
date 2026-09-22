@@ -15,6 +15,8 @@ export const productOptionsTable = pgTable("product_options", {
   duration: text("duration").notNull(),
   price: integer("price").notNull(),
   resellerPrice: integer("reseller_price"),
+  dripVariantId: integer("drip_variant_id"),
+  dripStock: integer("drip_stock").notNull().default(0),
   stock: integer("stock").notNull().default(0),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
