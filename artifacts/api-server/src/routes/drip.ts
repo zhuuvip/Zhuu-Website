@@ -3,7 +3,7 @@ import { requireAdmin } from "../lib/auth.js";
 import { getDripProducts, getDripBalance } from "../lib/dripApi.js";
 import { db } from "@workspace/db";
 import { productOptionsTable } from "@workspace/db";
-import { eq } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 
 const router = Router();
 router.post("/admin/drip/sync-stock", requireAdmin, async (_req, res) => {
@@ -17,6 +17,16 @@ router.post("/admin/drip/sync-stock", requireAdmin, async (_req, res) => {
         : Array.isArray(data?.data)
           ? data.data
           : [];
+
+    await db.execute(sql`
+      ALTER TABLE product_options
+      ADD COLUMN IF NOT EXISTS drip_variant_id INTEGER
+    `);
+
+    await db.execute(sql`
+      ALTER TABLE product_options
+      ADD COLUMN IF NOT EXISTS drip_stock INTEGER NOT NULL DEFAULT 0
+    `);
 
     const options = await db.select().from(productOptionsTable);
 
