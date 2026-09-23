@@ -10,6 +10,8 @@ type Option = {
   normalPrice: number;
   hasResellerPrice: boolean;
   stock: number;
+  dripVariantId?: number | null;
+  dripStock?: number | null;
 };
 
 type Product = {
@@ -18,6 +20,11 @@ type Product = {
   imageUrl?: string | null;
   options: Option[];
 };
+
+const getAvailableStock = (option: Option) =>
+  option.dripVariantId
+    ? Number(option.dripStock ?? 0)
+    : Number(option.stock ?? 0);
 
 type Result = {
   product: string;
@@ -90,7 +97,7 @@ export default function ResellerDashboardPage() {
         setSelOption((curOpt) =>
           next
             ? (next.options.find((o) => o.id === curOpt?.id) ??
-              next.options.find((o) => o.stock > 0) ??
+              next.options.find((o) => getAvailableStock(o) > 0) ??
               next.options[0] ??
               null)
             : null,
@@ -115,10 +122,10 @@ export default function ResellerDashboardPage() {
 
   const pick = (p: Product, o?: Option) => {
     setSelProduct(p);
-    setSelOption(o ?? p.options.find((x) => x.stock > 0) ?? p.options[0] ?? null);
+    setSelOption(o ?? p.options.find((x) => getAvailableStock(x) > 0) ?? p.options[0] ?? null);
   };
 
-  const canBuy = !!selProduct && !!selOption && selOption.stock > 0 && balance >= selOption.price && !buying;
+  const canBuy = !!selProduct && !!selOption && getAvailableStock(selOption) > 0 && balance >= selOption.price && !buying;
 
   const buy = async () => {
     if (!selProduct || !selOption || buying) return;
@@ -239,7 +246,7 @@ export default function ResellerDashboardPage() {
           <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {products.map((p) => {
               const isSel = selProduct?.id === p.id;
-              const stock = p.options.reduce((s, o) => s + Math.max(0, Number(o.stock || 0)), 0);
+              const stock = p.options.reduce((s, o) => s + getAvailableStock(o), 0);
               const logo = p.imageUrl || "";
               return (
                 <article
@@ -287,19 +294,19 @@ export default function ResellerDashboardPage() {
                       return (
                         <button
                           key={o.id}
-                          disabled={o.stock <= 0}
+                          disabled={getAvailableStock(o) <= 0}
                           onClick={() => pick(p, o)}
                           className={`w-full rounded-2xl border p-3 text-left transition ${
                             active
                               ? "border-purple-400/40 bg-purple-500/10"
                               : "border-white/10 bg-white/[0.025] hover:border-white/20"
-                          } ${o.stock <= 0 ? "cursor-not-allowed opacity-35" : ""}`}
+                          } ${getAvailableStock(o) <= 0 ? "cursor-not-allowed opacity-35" : ""}`}
                         >
                           <div className="flex items-center justify-between gap-3">
                             <div>
                               <p className="text-sm font-bold">{o.duration}</p>
                               <p className="mt-1 text-[11px] text-white/35">
-                                {o.stock > 0 ? `${o.stock} tersedia` : "Stok habis"}
+                                {getAvailableStock(o) > 0 ? `${getAvailableStock(o)} tersedia` : "Stok habis"}
                               </p>
                             </div>
                             <div className="text-right">
@@ -379,14 +386,14 @@ export default function ResellerDashboardPage() {
               >
                 {buying
                   ? "Memproses..."
-                  : selOption.stock <= 0
+                  : getAvailableStock(selOption) <= 0
                     ? "Stok Habis"
                     : balance < selOption.price
                       ? "Saldo Tidak Cukup"
                       : "Beli Sekarang →"}
               </button>
             </div>
-            {balance < selOption.price && selOption.stock > 0 && (
+            {balance < selOption.price && getAvailableStock(selOption) > 0 && (
               <p className="mt-3 rounded-xl bg-amber-400/[0.06] px-3 py-2 text-[11px] text-amber-200/70">
                 Saldo kurang {rupiah(selOption.price - balance)}. Isi saldo lewat halaman{" "}<a href="/member" className="font-bold underline">Member</a>.
               </p>
