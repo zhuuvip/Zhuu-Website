@@ -1118,6 +1118,36 @@ const saveSettings = async () => {
         + Add Product
       </button>
 
+      <button
+        type="button"
+        onClick={async () => {
+          if (!confirm("Rapikan semua nomor urutan produk menjadi 1, 2, 3, ...?")) return;
+          try {
+            const r = await fetch(`${API_BASE}/api/products/normalize-order`, {
+              method: "POST",
+              headers: await authHeaders(),
+            });
+            const data = await r.json();
+            if (r.ok) {
+              alert(
+                "Urutan berhasil dirapikan:\n\n" +
+                data.updated
+                  .map((p: any) => `${p.name}: ${p.oldSortOrder} → ${p.newSortOrder}`)
+                  .join("\n")
+              );
+              loadProducts();
+            } else {
+              alert(data.error || "Gagal merapikan urutan");
+            }
+          } catch {
+            alert("Gagal menghubungi server");
+          }
+        }}
+        className="px-4 py-2 rounded-lg bg-yellow-400/10 text-yellow-300 text-sm"
+      >
+        ↕ Rapikan Urutan
+      </button>
+
       <select
         value={selectedProductId}
         onChange={e => setSelectedProductId(e.target.value)}
