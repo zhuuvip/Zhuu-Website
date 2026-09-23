@@ -1,11 +1,12 @@
 import { Router } from "express";
+import { DRIP_CATALOG } from "../data/dripCatalog.js";
 import { db } from "@workspace/db";
 import {
   productsTable,
   productOptionsTable,
   productKeysTable,
 } from "@workspace/db";
-import { eq, sql } from "drizzle-orm";
+import { and, eq, sql } from "drizzle-orm";
 import { requireAdmin, isAdmin } from "../lib/auth.js";
 
 const router = Router();
@@ -306,6 +307,131 @@ router.post(
       skipped: cleanKeys.length - inserted.length,
       stock: option.stock + inserted.length,
     });
+  },
+);
+
+
+router.post(
+  "/admin/products/import-drip-catalog",
+  requireAdmin,
+  async (_req, res) => {
+    try {
+      const expectedProducts = 41;
+      const expectedVariants = 165;
+
+      const actualVariants = DRIP_CATALOG.reduce(
+        (total, product) => total + product.variants.length,
+        0,
+      );
+
+      if (
+        DRIP_CATALOG.length !== expectedProducts ||
+        actualVariants !== expectedVariants
+      ) {
+        return res.status(500).json({
+          error: "DRIP catalog tidak lengkap",
+          products: DRIP_CATALOG.length,
+          variants: actualVariants,
+          expectedProducts,
+          expectedVariants,
+        });
+      }
+
+      let productsCreated = 0;
+      let productsUpdated = 0;
+      let variantsCreated = 0;
+      let variantsUpdated = 0;
+
+      for (let index = 0; index < DRIP_CATALOG.length; index++) {
+        const catalogProduct = DRIP_CATALOG[index];
+        const sortOrder = index + 1;
+
+        const [existingProduct] = await db
+          .select()
+          .from(productsTable)
+          .where(eq(productsTable.name, catalogProduct.name));
+
+        let productId: number;
+
+        if (existingProduct) {
+          productId = existingProduct.id;
+
+          await db
+            .update(productsTable)
+            .set({
+              sortOrder,
+            })
+            .where(eq(productsTable.id, productId));
+
+          productsUpdated++;
+        } else {
+          const [createdProduct] = await db
+            .insert(productsTable)
+            .values({
+              name: catalogProduct.name,
+              deliveryType: "WHATSAPP",
+              sortOrder,
+            })
+            .returning();
+
+          productId = createdProduct.id;
+          productsCreated++;
+        }
+
+        for (const variant of catalogProduct.variants) {
+          const [existingOption] = await db
+            .select()
+            .from(productOptionsTable)
+            .where(
+              and(
+                eq(productOptionsTable.productId, productId),
+                eq(productOptionsTable.dripVariantId, variant.id),
+              ),
+            );
+
+          if (existingOption) {
+            await db
+              .update(productOptionsTable)
+              .set({
+                duration: variant.duration,
+                price: variant.memberPrice,
+                resellerPrice: variant.resellerPrice,
+              })
+              .where(eq(productOptionsTable.id, existingOption.id));
+
+            variantsUpdated++;
+          } else {
+            await db.insert(productOptionsTable).values({
+              productId,
+              duration: variant.duration,
+              price: variant.memberPrice,
+              resellerPrice: variant.resellerPrice,
+              dripVariantId: variant.id,
+              dripStock: 0,
+              stock: 0,
+            });
+
+            variantsCreated++;
+          }
+        }
+      }
+
+      return res.json({
+        ok: true,
+        catalogProducts: DRIP_CATALOG.length,
+        catalogVariants: actualVariants,
+        productsCreated,
+        productsUpdated,
+        variantsCreated,
+        variantsUpdated,
+      });
+    } catch (error) {
+      console.error("DRIP catalog import error:", error);
+
+      return res.status(500).json({
+        error: "Gagal import DRIP catalog",
+      });
+    }
   },
 );
 

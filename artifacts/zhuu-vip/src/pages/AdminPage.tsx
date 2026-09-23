@@ -1017,6 +1017,45 @@ const saveSettings = async () => {
             }}
             className="px-3 py-2 rounded-lg bg-purple-400/10 text-purple-300 text-xs"
           >
+              <button
+                type="button"
+                onClick={async () => {
+                  try {
+                    const r = await fetch(
+                      `${API_BASE}/api/admin/products/import-drip-catalog`,
+                      {
+                        method: "POST",
+                        headers: await authHeaders(),
+                      },
+                    );
+
+                    const data = await r.json();
+
+                    if (!r.ok) {
+                      alert(data?.error || "Gagal import DRIP catalog");
+                      return;
+                    }
+
+                    alert(
+                      `Import DRIP selesai!\n\n` +
+                      `Produk: ${data.catalogProducts}\n` +
+                      `Varian: ${data.catalogVariants}\n` +
+                      `Produk baru: ${data.productsCreated}\n` +
+                      `Produk diperbarui: ${data.productsUpdated}\n` +
+                      `Varian baru: ${data.variantsCreated}\n` +
+                      `Varian diperbarui: ${data.variantsUpdated}`,
+                    );
+
+                    loadProducts();
+                    loadDrip();
+                  } catch {
+                    alert("Gagal import DRIP catalog");
+                  }
+                }}
+                className="px-3 py-2 rounded-lg bg-yellow-400/10 text-yellow-300 text-xs"
+              >
+                Import Catalog
+              </button>
             Lihat Data
           </button>
             </div>
