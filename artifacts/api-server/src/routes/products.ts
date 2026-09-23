@@ -108,6 +108,34 @@ router.get("/products", async (req, res) => {
   );
 });
 
+router.post("/products/normalize-order", requireAdmin, async (_req, res) => {
+  const products = await db
+    .select({
+      id: productsTable.id,
+      name: productsTable.name,
+      sortOrder: productsTable.sortOrder,
+    })
+    .from(productsTable)
+    .orderBy(sql`sort_order ASC`, sql`id ASC`);
+
+  for (let i = 0; i < products.length; i++) {
+    await db
+      .update(productsTable)
+      .set({ sortOrder: i + 1 })
+      .where(eq(productsTable.id, products[i].id));
+  }
+
+  return res.json({
+    success: true,
+    updated: products.map((p, i) => ({
+      id: p.id,
+      name: p.name,
+      oldSortOrder: p.sortOrder,
+      newSortOrder: i + 1,
+    })),
+  });
+});
+
 router.post("/products", requireAdmin, async (req, res) => {
   const rawSortOrder = String(req.body.sortOrder ?? "").trim();
 
