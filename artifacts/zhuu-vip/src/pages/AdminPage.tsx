@@ -1085,7 +1085,7 @@ const saveSettings = async () => {
       <input value={duration} onChange={e => setDuration(e.target.value)} placeholder="Durasi" className="px-3 py-2 rounded-lg bg-black/20 text-sm" />
       <input value={price} onChange={e => setPrice(e.target.value)} placeholder="Harga" type="number" className="px-3 py-2 rounded-lg bg-black/20 text-sm" />
       <input value={stock} onChange={e => setStock(e.target.value)} placeholder="Stock" type="number" className="px-3 py-2 rounded-lg bg-black/20 text-sm" />
-      <input value={sortOrder} onChange={e => setSortOrder(e.target.value)} placeholder="No. Urutan" type="number" min="0" className="px-3 py-2 rounded-lg bg-black/20 text-sm" />
+      <input value={sortOrder} onChange={e => setSortOrder(e.target.value)} placeholder="No. Urutan" type="number" min="1" className="px-3 py-2 rounded-lg bg-black/20 text-sm" />
     </div>
 
     <div className="flex gap-2 mt-3 flex-wrap">
@@ -1172,7 +1172,7 @@ const saveSettings = async () => {
                                 />
                               <input
                                 id={`product-sort-${p.id}`}
-                                defaultValue={p.sortOrder ?? 0}
+                                defaultValue={p.sortOrder ?? 1}
                                 placeholder="No. Urutan"
                                 type="number"
                                 min="0"

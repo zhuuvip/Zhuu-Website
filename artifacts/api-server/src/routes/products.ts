@@ -16,8 +16,14 @@ function ensureProductsSchema(): Promise<void> {
   if (!productsSchemaReady) {
     productsSchemaReady = db.execute(sql`
       ALTER TABLE products
-      ADD COLUMN IF NOT EXISTS sort_order INTEGER NOT NULL DEFAULT 0
-    `).then(() => undefined).catch((e) => {
+      ADD COLUMN IF NOT EXISTS sort_order INTEGER NOT NULL DEFAULT 1
+    `).then(async () => {
+      await db.execute(sql`
+        UPDATE products
+        SET sort_order = 1
+        WHERE sort_order < 1
+      `);
+    }).catch((e) => {
       productsSchemaReady = null;
       throw e;
     });
@@ -110,7 +116,7 @@ router.post("/products", requireAdmin, async (req, res) => {
       deliveryType: req.body.deliveryType || "WHATSAPP",
       deliveryValue: req.body.deliveryValue || null,
       imageUrl: req.body.imageUrl || null,
-      sortOrder: Number(req.body.sortOrder ?? 0),
+      sortOrder: Number(req.body.sortOrder ?? 1),
     })
     .returning();
 
@@ -125,7 +131,7 @@ router.patch("/products/:id", requireAdmin, async (req, res) => {
       deliveryType: req.body.deliveryType || "WHATSAPP",
       deliveryValue: req.body.deliveryValue || null,
       imageUrl: req.body.imageUrl || null,
-      sortOrder: Number(req.body.sortOrder ?? 0),
+      sortOrder: Number(req.body.sortOrder ?? 1),
     })
     .where(eq(productsTable.id, Number(req.params.id)))
     .returning();
