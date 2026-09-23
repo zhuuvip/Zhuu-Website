@@ -1101,7 +1101,7 @@ const saveSettings = async () => {
   imageUrl: imageUrl || null,
   deliveryType,
   deliveryValue: deliveryValue || null,
-  sortOrder: Number(sortOrder || 0),
+  sortOrder: sortOrder.trim() ? Number(sortOrder) : null,
 })
           });
           if (r.ok) {
@@ -1218,7 +1218,7 @@ const saveSettings = async () => {
                                       imageUrl: imageEl.value.trim() || null,
                                       deliveryType: typeEl.value,
                                       deliveryValue: valueEl?.value || null,
-                                                              sortOrder: Number(sortEl?.value || 0),
+                                                              sortOrder: Number(sortEl?.value || 1),
                                     }),
                                   });
 

@@ -109,6 +109,18 @@ router.get("/products", async (req, res) => {
 });
 
 router.post("/products", requireAdmin, async (req, res) => {
+  const rawSortOrder = String(req.body.sortOrder ?? "").trim();
+
+  const sortOrder = rawSortOrder
+    ? Number(rawSortOrder)
+    : Number(
+        (
+          await db
+            .select({ max: sql<number>`COALESCE(MAX(sort_order), 0)` })
+            .from(productsTable)
+        )[0]?.max ?? 0,
+      ) + 1;
+
   const [product] = await db
     .insert(productsTable)
     .values({
@@ -116,7 +128,7 @@ router.post("/products", requireAdmin, async (req, res) => {
       deliveryType: req.body.deliveryType || "WHATSAPP",
       deliveryValue: req.body.deliveryValue || null,
       imageUrl: req.body.imageUrl || null,
-      sortOrder: Number(req.body.sortOrder ?? 1),
+      sortOrder,
     })
     .returning();
 
