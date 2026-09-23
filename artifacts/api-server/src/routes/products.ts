@@ -10,7 +10,23 @@ import { requireAdmin, isAdmin } from "../lib/auth.js";
 
 const router = Router();
 
+let productsSchemaReady: Promise<void> | null = null;
+
+function ensureProductsSchema(): Promise<void> {
+  if (!productsSchemaReady) {
+    productsSchemaReady = db.execute(sql`
+      ALTER TABLE products
+      ADD COLUMN IF NOT EXISTS sort_order INTEGER NOT NULL DEFAULT 0
+    `).then(() => undefined).catch((e) => {
+      productsSchemaReady = null;
+      throw e;
+    });
+  }
+  return productsSchemaReady;
+}
+
 router.get("/products", async (req, res) => {
+  await ensureProductsSchema();
   const admin = isAdmin(req);
   await db.execute(sql`
     ALTER TABLE products
@@ -71,7 +87,7 @@ router.get("/products", async (req, res) => {
     ADD COLUMN IF NOT EXISTS drip_stock INTEGER NOT NULL DEFAULT 0
   `);
 
-  const products = (await db.select().from(productsTable)).map((p) =>
+  const products = (await db.select().from(productsTable).orderBy(sql`sort_order ASC`, sql`id ASC`)).map((p) =>
     admin ? p : { ...p, deliveryValue: null },
   );
   const options = await db.select().from(productOptionsTable);
@@ -94,6 +110,7 @@ router.post("/products", requireAdmin, async (req, res) => {
       deliveryType: req.body.deliveryType || "WHATSAPP",
       deliveryValue: req.body.deliveryValue || null,
       imageUrl: req.body.imageUrl || null,
+      sortOrder: Number(req.body.sortOrder ?? 0),
     })
     .returning();
 
@@ -108,6 +125,7 @@ router.patch("/products/:id", requireAdmin, async (req, res) => {
       deliveryType: req.body.deliveryType || "WHATSAPP",
       deliveryValue: req.body.deliveryValue || null,
       imageUrl: req.body.imageUrl || null,
+      sortOrder: Number(req.body.sortOrder ?? 0),
     })
     .where(eq(productsTable.id, Number(req.params.id)))
     .returning();

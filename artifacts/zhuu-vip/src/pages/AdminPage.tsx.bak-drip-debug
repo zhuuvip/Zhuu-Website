@@ -342,7 +342,6 @@ const [deliveryValue, setDeliveryValue] = useState("");
   const [duration, setDuration] = useState("");
   const [price, setPrice] = useState("");
   const [stock, setStock] = useState("");
-  const [sortOrder, setSortOrder] = useState("");
   const [editingProductId, setEditingProductId] = useState<number | null>(null);
   const [editingOptionId, setEditingOptionId] = useState<number | null>(null);
   const [keyInputs, setKeyInputs] = useState<Record<number, string>>({});
@@ -1009,16 +1008,6 @@ const saveSettings = async () => {
               >
                 Sync Stock
               </button>
-          <button
-            type="button"
-            onClick={() => {
-              const item = dripProducts[0];
-              alert(item ? JSON.stringify(item, null, 2) : "Belum ada data DRIP");
-            }}
-            className="px-3 py-2 rounded-lg bg-purple-400/10 text-purple-300 text-xs"
-          >
-            Lihat Data
-          </button>
             </div>
           </div>
 
@@ -1085,7 +1074,6 @@ const saveSettings = async () => {
       <input value={duration} onChange={e => setDuration(e.target.value)} placeholder="Durasi" className="px-3 py-2 rounded-lg bg-black/20 text-sm" />
       <input value={price} onChange={e => setPrice(e.target.value)} placeholder="Harga" type="number" className="px-3 py-2 rounded-lg bg-black/20 text-sm" />
       <input value={stock} onChange={e => setStock(e.target.value)} placeholder="Stock" type="number" className="px-3 py-2 rounded-lg bg-black/20 text-sm" />
-      <input value={sortOrder} onChange={e => setSortOrder(e.target.value)} placeholder="No. Urutan" type="number" min="0" className="px-3 py-2 rounded-lg bg-black/20 text-sm" />
     </div>
 
     <div className="flex gap-2 mt-3 flex-wrap">
@@ -1101,12 +1089,10 @@ const saveSettings = async () => {
   imageUrl: imageUrl || null,
   deliveryType,
   deliveryValue: deliveryValue || null,
-  sortOrder: Number(sortOrder || 0),
 })
           });
           if (r.ok) {
             setProductName("");
-            setSortOrder("");
             loadProducts();
           }
           } catch (e) {
@@ -1169,14 +1155,6 @@ const saveSettings = async () => {
                                 defaultValue={p.imageUrl || ""}
                                 placeholder="URL logo/gambar produk"
                                 className="flex-1 px-3 py-2 rounded-lg bg-black/20 text-sm"
-                                />
-                              <input
-                                id={`product-sort-${p.id}`}
-                                defaultValue={p.sortOrder ?? 0}
-                                placeholder="No. Urutan"
-                                type="number"
-                                min="0"
-                                className="w-28 px-3 py-2 rounded-lg bg-black/20 text-sm"
                               />
 
                               <select
@@ -1207,7 +1185,6 @@ const saveSettings = async () => {
                                 const imageEl = document.getElementById(`product-image-${p.id}`) as HTMLInputElement;
                                 const typeEl = document.getElementById(`delivery-type-${p.id}`) as HTMLSelectElement;
                                 const valueEl = document.getElementById(`delivery-value-${p.id}`) as HTMLInputElement;
-                                const sortEl = document.getElementById(`product-sort-${p.id}`) as HTMLInputElement;
 
                                 try {
                                   const r = await fetch(`${API_BASE}/api/products/${p.id}`, {
@@ -1218,7 +1195,6 @@ const saveSettings = async () => {
                                       imageUrl: imageEl.value.trim() || null,
                                       deliveryType: typeEl.value,
                                       deliveryValue: valueEl?.value || null,
-                                                              sortOrder: Number(sortEl?.value || 0),
                                     }),
                                   });
 
@@ -1314,7 +1290,7 @@ const saveSettings = async () => {
                     body: JSON.stringify({
                     duration: d.value,
                     price: pr.value,
-                    resellerPrice: rp?.value || null,
+                    resellerPrice: rp.value || null,
                     stock: st.value,
                     dripVariantId: dv.value || null
                   })

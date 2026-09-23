@@ -6,6 +6,7 @@ export const productsTable = pgTable("products", {
   imageUrl: text("image_url"),
   deliveryType: text("delivery_type").default("WHATSAPP"),
   deliveryValue: text("delivery_value"),
+  sortOrder: integer("sort_order").default(0),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 

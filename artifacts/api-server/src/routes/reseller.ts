@@ -6,6 +6,7 @@ import { db } from "@workspace/db";
 import { productsTable, productOptionsTable, ordersTable } from "@workspace/db";
 import { eq, sql, desc } from "drizzle-orm";
 import { requireAdmin } from "../lib/auth.js";
+import { generateDripKey } from "../lib/dripApi.js";
 
 const router = Router();
 const rowsOf = (r: any): any[] => r?.rows ?? r ?? [];
@@ -391,14 +392,19 @@ router.post(
       if (!product || !option || option.productId !== product.id) {
         throw new HttpError(400, "Produk atau durasi tidak valid");
       }
-      if (option.stock <= 0) throw new HttpError(400, "Stok habis");
+      const isDrip = Boolean(option.dripVariantId);
+    const availableStock = isDrip
+      ? Number(option.dripStock ?? 0)
+      : Number(option.stock ?? 0);
+
+    if (availableStock <= 0) throw new HttpError(400, "Stok habis");
 
       const price = option.resellerPrice ?? option.price;
 
       let deliveryKey: string | null = null;
       let deliveryLink: string | null = null;
 
-      if (product.deliveryType === "KEY") {
+      if (!isDrip && product.deliveryType === "KEY") {
         const claimed = rowsOf(
           await tx.execute(sql`
             UPDATE product_keys SET status = 'SOLD'
@@ -428,13 +434,18 @@ router.post(
       )[0];
       if (!debit) throw new HttpError(400, "Saldo tidak cukup. Top up di halaman Member.");
 
-      const stockRow = rowsOf(
-        await tx.execute(sql`
-          UPDATE product_options SET stock = stock - 1
-          WHERE id = ${option.id} AND stock > 0 RETURNING id
-        `),
-      )[0];
-      if (!stockRow) throw new HttpError(400, "Stok habis, coba lagi");
+      if (!isDrip) {
+        const stockRow = rowsOf(
+          await tx.execute(sql`
+            UPDATE product_options SET stock = stock - 1
+            WHERE id = ${option.id} AND stock > 0 RETURNING id
+          `),
+        )[0];
+
+        if (!stockRow) {
+          throw new HttpError(400, "Stok habis, coba lagi");
+        }
+      }
 
       const invoice =
         `RSL-${new Date().toISOString().slice(0, 10).replace(/-/g, "")}-` +
@@ -450,7 +461,7 @@ router.post(
           duration: option.duration,
           amount: price,
           whatsapp: `reseller:${acc.username}`,
-          status: "PAID",
+          status: isDrip ? "PENDING" : "PAID",
           paymentRef: deliveryKey || deliveryLink || null,
         })
         .returning();
@@ -458,11 +469,87 @@ router.post(
       await tx.execute(sql`
         INSERT INTO wallet_transactions (user_id, type, amount, reference, description, status)
         VALUES (${acc.userId}, 'PURCHASE', ${-price}, ${invoice},
-                ${`[Reseller] ${product.name} - ${option.duration}`}, 'PAID')
+                ${`[Reseller] ${product.name} - ${option.duration}`},
+          ${isDrip ? "PENDING" : "PAID"})
       `);
 
       return { order, deliveryKey, deliveryLink, balance: Number(debit.balance) };
     });
+
+    if (result.order.status === "PENDING" && result.order.optionId) {
+      try {
+        const drip = await generateDripKey(
+          Number(
+            (
+              await db
+                .select({ dripVariantId: productOptionsTable.dripVariantId })
+                .from(productOptionsTable)
+                .where(eq(productOptionsTable.id, result.order.optionId))
+                .limit(1)
+            )[0]?.dripVariantId,
+          ),
+          1,
+        );
+
+        if (
+          !drip?.success ||
+          !Array.isArray(drip?.keys) ||
+          !drip.keys[0]
+        ) {
+          throw new Error(drip?.error || drip?.message || "DRIP gagal membuat key");
+        }
+
+        const deliveryKey = String(drip.keys[0]);
+
+        const [completed] = await db
+          .update(ordersTable)
+          .set({
+            status: "PAID",
+            paymentRef: deliveryKey,
+          })
+          .where(eq(ordersTable.id, result.order.id))
+          .returning();
+
+        await db.execute(sql`
+          UPDATE wallet_transactions
+          SET status = 'PAID'
+          WHERE reference = ${result.order.invoice}
+        `);
+
+        return res.json({
+          ...completed,
+          deliveryKey,
+          deliveryLink: null,
+          balance: result.balance,
+          drip: true,
+          dripOrderId: drip.order_id ?? null,
+        });
+      } catch (error) {
+        console.error("Reseller DRIP generate error:", error);
+
+        await db.transaction(async (tx) => {
+          await tx.execute(sql`
+            UPDATE wallets
+            SET balance = balance + ${result.order.amount},
+                updated_at = NOW()
+            WHERE user_id = ${(req as any).reseller.userId}
+          `);
+
+          await tx.execute(sql`
+            UPDATE wallet_transactions
+            SET status = 'REFUNDED'
+            WHERE reference = ${result.order.invoice}
+          `);
+
+          await tx
+            .update(ordersTable)
+            .set({ status: "CANCELLED" })
+            .where(eq(ordersTable.id, result.order.id));
+        });
+
+        throw new HttpError(502, "Gagal generate key DRIP. Saldo sudah dikembalikan.");
+      }
+    }
 
     return res.json({
       ...result.order,
