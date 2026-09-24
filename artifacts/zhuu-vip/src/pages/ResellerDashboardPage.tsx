@@ -1,288 +1,393 @@
 import { useEffect, useMemo, useState } from "react";
 
 const API_BASE = "https://zhuuapi.vercel.app";
+const WA = "62882005730502";
 const TOKEN_KEY = "reseller_token";
 
-type Option = {
-  id: number;
+type ProductOption = {
+  id: number | string;
   duration: string;
   price: number;
-  normalPrice: number;
-  hasResellerPrice: boolean;
+  normalPrice?: number;
+  hasResellerPrice?: boolean;
   stock: number;
   dripVariantId?: number | null;
   dripStock?: number | null;
 };
 
 type Product = {
-  id: number;
+  id: number | string;
   name: string;
-  imageUrl?: string | null;
-  options: Option[];
+  description?: string;
+  imageUrl?: string;
+  image?: string;
+  logo?: string;
+  options: ProductOption[];
 };
 
-const getAvailableStock = (option: Option) =>
+const getAvailableStock = (option: ProductOption) =>
   option.dripVariantId
     ? Number(option.dripStock ?? 0)
     : Number(option.stock ?? 0);
 
-const rupiah = (v: number) =>
-  `Rp${Number(v || 0).toLocaleString("id-ID")}`;
-
-const getCategory = (name: string) => {
-  const upper = name.toUpperCase();
-
-  if (upper.includes("DRIP")) return "DRIP";
-  if (upper.includes("HG")) return "HG";
-  if (upper.includes("FLURIOTE")) return "FLURIOTE";
-  if (upper.includes("MIGUL")) return "MIGUL";
-  if (upper.includes("PATO")) return "PATO";
-  if (upper.includes("SILENT")) return "SILENT";
-  if (upper.includes("ROOT")) return "ROOT";
-  if (upper.includes("IOS")) return "IOS";
-  if (upper.includes("ANDROID")) return "ANDROID";
-  if (upper.includes("FF")) return "FF";
-
-  return "OTHER";
-};
-
-type Result = {
-  product: string;
-  duration: string;
-  deliveryKey?: string;
-  deliveryLink?: string;
-};
-
 export default function ResellerDashboardPage() {
+
   const [products, setProducts] = useState<Product[]>([]);
-  const [selProduct, setSelProduct] = useState<Product | null>(null);
-  const [selOption, setSelOption] = useState<Option | null>(null);
-
-  const [username, setUsername] = useState("");
-  const [balance, setBalance] = useState(0);
-
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-  const [buying, setBuying] = useState(false);
-
-  const [result, setResult] = useState<Result | null>(null);
-  const [copied, setCopied] = useState(false);
-  const [history, setHistory] = useState<any[]>([]);
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [selectedOption, setSelectedOption] = useState<ProductOption | null>(null);
 
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("ALL");
 
-  const logout = () => {
-    localStorage.removeItem(TOKEN_KEY);
-    window.location.href = "/reseller-login";
-  };
+  const [balance, setBalance] = useState(0);
+  const [username, setUsername] = useState("");
+  const [history, setHistory] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [walletLoading, setWalletLoading] = useState(true);
+  const [error, setError] = useState("");
 
-  const api = async (path: string, init: RequestInit = {}) => {
+  const [buying, setBuying] = useState(false);
+  const [purchaseResult, setPurchaseResult] = useState<{
+    product: string;
+    duration: string;
+    deliveryKey?: string;
+    deliveryLink?: string;
+  } | null>(null);
+
+  const [copied, setCopied] = useState(false);
+
+  const formatRupiah = (value: number) =>
+    `Rp${Number(value || 0).toLocaleString("id-ID")}`;
+
+  const resellerApi = async (endpoint: string, init: RequestInit = {}) => {
     const token = localStorage.getItem(TOKEN_KEY);
 
     if (!token) {
-      logout();
-      throw new Error("Belum login");
+      window.location.href = "/reseller-login";
+      throw new Error("Belum login.");
     }
 
-    const res = await fetch(`${API_BASE}${path}`, {
+    const res = await fetch(`${API_BASE}${endpoint}`, {
       ...init,
       cache: "no-store",
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
+        ...(init.headers || {}),
       },
     });
 
     const data = await res.json().catch(() => ({}));
 
     if (res.status === 401) {
-      logout();
-      throw new Error(data.error || "Sesi berakhir");
+      localStorage.removeItem(TOKEN_KEY);
+      window.location.href = "/reseller-login";
+      throw new Error("Sesi reseller berakhir.");
     }
 
     if (!res.ok) {
-      throw new Error(data.error || "Terjadi kesalahan");
+      throw new Error(data.error || "Terjadi kesalahan.");
     }
 
     return data;
   };
 
-  const load = async () => {
+  const loadProducts = async () => {
     try {
       setError("");
 
-      const [me, list] = await Promise.all([
-        api("/api/reseller/me"),
-        api("/api/reseller/products"),
-      ]);
+      const data = await resellerApi("/api/reseller/products");
 
-      setUsername(me.username);
-      setBalance(Number(me.balance || 0));
-
-      try {
-        const hist = await api("/api/reseller/orders");
-        setHistory(Array.isArray(hist) ? hist : []);
-      } catch {
-        // history gagal dimuat tidak merusak halaman
-      }
-
-      const items: Product[] = Array.isArray(list)
-        ? list.map((p: any) => ({
-            ...p,
-            options: Array.isArray(p.options) ? p.options : [],
+      const normalized: Product[] = Array.isArray(data)
+        ? data.map((product: any) => ({
+            ...product,
+            options: Array.isArray(product.options)
+              ? product.options
+              : [],
           }))
         : [];
 
-      setProducts(items);
+      setProducts(normalized);
 
-      setSelProduct((current) => {
+      setSelectedProduct((current) => {
         const next =
-          items.find((p) => p.id === current?.id) ??
+          normalized.find((item) => item.id === current?.id) ??
+          normalized[0] ??
           null;
 
         if (next) {
-          setSelOption((currentOption) =>
-            next.options.find((o) => o.id === currentOption?.id) ??
-            next.options.find((o) => getAvailableStock(o) > 0) ??
-            next.options[0] ??
-            null,
-          );
+          setSelectedOption((currentOption) => {
+            return (
+              next.options.find(
+                (item) => item.id === currentOption?.id
+              ) ??
+              next.options.find(
+                (item) => getAvailableStock(item) > 0
+              ) ??
+              next.options[0] ??
+              null
+            );
+          });
         } else {
-          setSelOption(null);
+          setSelectedOption(null);
         }
 
         return next;
       });
-    } catch (e) {
+    } catch (err) {
       setError(
-        e instanceof Error ? e.message : "Gagal memuat data",
+        err instanceof Error
+          ? err.message
+          : "Gagal memuat produk."
       );
     } finally {
       setLoading(false);
     }
   };
 
+  const loadWallet = async () => {
+    try {
+      setWalletLoading(true);
+
+      const me = await resellerApi("/api/reseller/me");
+
+      setUsername(String(me.username || ""));
+      setBalance(Number(me.balance || 0));
+    } catch {
+      setBalance(0);
+    } finally {
+      setWalletLoading(false);
+    }
+  };
+
+  const loadHistory = async () => {
+    try {
+      const data = await resellerApi("/api/reseller/orders");
+      setHistory(Array.isArray(data) ? data : []);
+    } catch {
+      setHistory([]);
+    }
+  };
+
   useEffect(() => {
-    if (!localStorage.getItem(TOKEN_KEY)) {
+    const token = localStorage.getItem(TOKEN_KEY);
+
+    if (!token) {
       window.location.href = "/reseller-login";
       return;
     }
 
-    load();
+    loadProducts();
+    loadWallet();
+    loadHistory();
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const categories = useMemo(() => {
-    const values = products.map((product) =>
-      getCategory(product.name),
-    );
+  const getProductLogo = (product: Product) =>
+    product.imageUrl || product.image || product.logo || "";
 
-    return [
-      "ALL",
-      ...Array.from(new Set(values)),
-    ];
+  const getCategory = (name: string) => {
+    const upper = name.toUpperCase();
+
+    if (upper.includes("DRIP")) return "DRIP";
+    if (upper.includes("HG")) return "HG";
+    if (upper.includes("FLURIOTE")) return "FLURIOTE";
+    if (upper.includes("MIGUL")) return "MIGUL";
+    if (upper.includes("PATO")) return "PATO";
+    if (upper.includes("SILENT")) return "SILENT";
+    if (upper.includes("ROOT")) return "ROOT";
+    if (upper.includes("IOS")) return "IOS";
+    if (upper.includes("ANDROID")) return "ANDROID";
+    if (upper.includes("FF")) return "FF";
+
+    return "OTHER";
+  };
+
+  const categories = useMemo(() => {
+    const values = products.map((product) => getCategory(product.name));
+    return ["ALL", ...Array.from(new Set(values))];
   }, [products]);
 
   const filteredProducts = useMemo(() => {
     const query = search.trim().toLowerCase();
 
     return products.filter((product) => {
-      const productCategory = getCategory(product.name);
-
       const matchesCategory =
-        category === "ALL" ||
-        productCategory === category;
+        category === "ALL" || getCategory(product.name) === category;
 
       const matchesSearch =
         !query ||
         product.name.toLowerCase().includes(query) ||
-        productCategory.toLowerCase().includes(query);
+        getCategory(product.name).toLowerCase().includes(query);
 
       return matchesCategory && matchesSearch;
     });
   }, [products, search, category]);
 
-  const pick = (product: Product) => {
-    setSelProduct(product);
+  const selectedPrice = Number(selectedOption?.price || 0);
 
-    setSelOption(
-      product.options.find(
-        (option) => getAvailableStock(option) > 0,
-      ) ??
-        product.options[0] ??
-        null,
-    );
+  const canBuy = Boolean(
+    selectedProduct &&
+      selectedOption &&
+      getAvailableStock(selectedOption) > 0 &&
+      selectedPrice > 0 &&
+      balance >= selectedPrice &&
+      !buying
+  );
+
+  const totalStock = useMemo(
+    () =>
+      products.reduce(
+        (total, product) =>
+          total +
+          product.options.reduce(
+            (sum, option) => sum + Math.max(0, getAvailableStock(option)),
+            0
+          ),
+        0
+      ),
+    [products]
+  );
+
+  const selectProduct = (product: Product) => {
+    setSelectedProduct(product);
+
+    const available =
+      product.options.find((option) => getAvailableStock(option) > 0) ??
+      product.options[0] ??
+      null;
+
+    setSelectedOption(available);
   };
 
-  const selectOption = (option: Option) => {
-    setSelOption(option);
+  const selectOption = (option: ProductOption) => {
+    if (getAvailableStock(option) <= 0) return;
+    setSelectedOption(option);
   };
 
-  const canBuy =
-    !!selProduct &&
-    !!selOption &&
-    getAvailableStock(selOption) > 0 &&
-    balance >= selOption.price &&
-    !buying;
+  const buyProduct = async () => {
+    if (!selectedProduct || !selectedOption || buying) return;
 
-  const buy = async () => {
-    if (!selProduct || !selOption || buying) return;
+    const stock = getAvailableStock(selectedOption);
+
+    if (stock <= 0) {
+      alert("Stok produk ini sudah habis.");
+      return;
+    }
+
+    if (balance < selectedOption.price) {
+      alert([
+        "Saldo tidak cukup.",
+        "",
+        `Saldo: ${formatRupiah(balance)}`,
+        `Harga: ${formatRupiah(selectedOption.price)}`,
+        `Kurang: ${formatRupiah(selectedOption.price - balance)}`,
+        "",
+        "Silakan isi saldo terlebih dahulu.",
+      ].join("\n"));
+      return;
+    }
 
     try {
       setBuying(true);
 
-      const data = await api("/api/reseller/orders", {
+      const data = await resellerApi("/api/reseller/orders", {
         method: "POST",
         body: JSON.stringify({
-          productId: selProduct.id,
-          optionId: selOption.id,
+          productId: selectedProduct.id,
+          optionId: selectedOption.id,
         }),
       });
 
-      if (Number.isFinite(Number(data.balance))) {
-        setBalance(Number(data.balance));
+      const newBalance = Number(data.balance);
+
+      if (Number.isFinite(newBalance)) {
+        setBalance(newBalance);
+      } else {
+        await loadWallet();
       }
 
-      setResult({
-        product: selProduct.name,
-        duration: selOption.duration,
+      setPurchaseResult({
+        product: selectedProduct.name,
+        duration: selectedOption.duration,
         deliveryKey: data.deliveryKey || undefined,
         deliveryLink: data.deliveryLink || undefined,
       });
 
       setCopied(false);
 
-      await load();
-    } catch (e) {
+      await Promise.all([
+        loadProducts(),
+        loadHistory(),
+      ]);
+    } catch (err) {
       alert(
-        e instanceof Error
-          ? e.message
-          : "Gagal membeli produk",
+        err instanceof Error
+          ? err.message
+          : "Gagal membeli produk."
       );
     } finally {
       setBuying(false);
     }
   };
 
-  const copy = async (text: string) => {
+  const logout = () => {
+    localStorage.removeItem(TOKEN_KEY);
+    window.location.href = "/reseller-login";
+  };
+
+  const copyKey = async () => {
+    if (!purchaseResult?.deliveryKey) return;
+
     try {
-      await navigator.clipboard.writeText(text);
+      await navigator.clipboard.writeText(purchaseResult.deliveryKey);
       setCopied(true);
 
       window.setTimeout(() => {
         setCopied(false);
       }, 1800);
     } catch {
-      alert("Gagal menyalin, salin manual.");
+      alert("Gagal menyalin key. Silakan salin secara manual.");
     }
+  };
+
+  const contactAdmin = () => {
+    const message = [
+      "Halo Admin Zhuu Shop 👋",
+      "",
+      "Saya ingin bertanya mengenai produk.",
+      "",
+      `Produk: ${selectedProduct?.name || "-"}`,
+      `Durasi: ${selectedOption?.duration || "-"}`,
+      "",
+      "Mohon bantuannya, Admin.",
+    ].join("\n");
+
+    window.open(
+      `https://wa.me/${WA}?text=${encodeURIComponent(message)}`,
+      "_blank"
+    );
   };
 
   if (loading) {
     return (
-      <main className="flex min-h-screen items-center justify-center bg-black text-sm text-white/50">
-        Memuat...
+      <main className="min-h-screen bg-black px-4 py-10 text-white">
+        <div className="mx-auto max-w-7xl">
+          <div className="mb-10 space-y-3">
+            <div className="mx-auto h-10 w-56 animate-pulse rounded-xl bg-white/10" />
+            <div className="mx-auto h-4 w-72 animate-pulse rounded bg-white/5" />
+          </div>
+
+          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {[1, 2, 3, 4, 5, 6].map((item) => (
+              <div
+                key={item}
+                className="h-80 animate-pulse rounded-3xl border border-white/10 bg-white/[0.03]"
+              />
+            ))}
+          </div>
+        </div>
       </main>
     );
   }
@@ -291,20 +396,20 @@ export default function ResellerDashboardPage() {
     return (
       <main className="min-h-screen bg-black px-4 py-16 text-white">
         <div className="mx-auto max-w-xl rounded-3xl border border-red-500/20 bg-red-500/[0.04] p-8 text-center">
-          <h1 className="text-xl font-bold">
-            Gagal dimuat
-          </h1>
+          <div className="mx-auto mb-5 flex size-16 items-center justify-center rounded-2xl bg-red-500/10 text-2xl">
+            !
+          </div>
 
-          <p className="mt-2 text-sm text-white/50">
-            {error}
-          </p>
+          <h1 className="text-xl font-bold">Produk gagal dimuat</h1>
+
+          <p className="mt-2 text-sm text-white/50">{error}</p>
 
           <button
             onClick={() => {
               setLoading(true);
-              load();
+              loadProducts();
             }}
-            className="mt-6 rounded-xl bg-white px-6 py-3 font-bold text-black"
+            className="mt-6 rounded-xl bg-white px-6 py-3 font-bold text-black transition hover:scale-[1.02] active:scale-[0.98]"
           >
             Coba Lagi
           </button>
@@ -315,254 +420,240 @@ export default function ResellerDashboardPage() {
 
   return (
     <main className="min-h-screen bg-black text-white">
+      {/* Ambient background */}
       <div className="pointer-events-none fixed inset-0 overflow-hidden">
         <div className="absolute left-1/2 top-0 h-[500px] w-[700px] -translate-x-1/2 rounded-full bg-purple-600/[0.08] blur-[140px]" />
-
         <div className="absolute bottom-0 right-0 h-[400px] w-[500px] rounded-full bg-blue-600/[0.05] blur-[140px]" />
       </div>
 
-      <div className="relative mx-auto max-w-7xl px-4 py-8 sm:px-6 sm:py-10 lg:px-8">
-        {/* HEADER */}
-        <section className="mb-7 text-center">
+      <div className="relative mx-auto max-w-7xl px-4 py-8 sm:px-6 sm:py-12 lg:px-8">
+        {/* Header */}
+        <section className="mb-8 text-center sm:mb-12">
           <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 text-xs font-semibold tracking-widest text-white/60">
             <span className="size-1.5 rounded-full bg-emerald-400 shadow-[0_0_10px_rgba(52,211,153,.8)]" />
-            RESELLER STORE
+            ZHUU STORE
           </div>
 
-          <h1 className="text-4xl font-black tracking-tight sm:text-5xl">
-            Reseller{" "}
+          <h1 className="text-4xl font-black tracking-tight sm:text-5xl lg:text-6xl">
+            Premium{" "}
             <span className="bg-gradient-to-r from-purple-400 via-fuchsia-300 to-blue-400 bg-clip-text text-transparent">
               Products
             </span>
           </h1>
 
-          <p className="mx-auto mt-3 max-w-xl text-sm text-white/45">
-            Pilih produk, tentukan durasi, lalu lakukan pembelian menggunakan saldo reseller kamu.
+          <p className="mx-auto mt-4 max-w-xl text-sm leading-6 text-white/45 sm:text-base">
+            Pilih produk, tentukan durasi, lalu lakukan pembelian langsung
+            menggunakan saldo reseller kamu.
           </p>
         </section>
 
-        {/* WALLET */}
-        <section className="mb-7 rounded-3xl border border-white/10 bg-white/[0.035] p-5 shadow-2xl shadow-black/30 backdrop-blur-xl sm:p-6">
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-            <div className="min-w-0">
-              <p className="text-xs font-semibold uppercase tracking-wider text-white/40">
-                Saldo Reseller · {username}
-              </p>
+        {/* Wallet */}
+        <section className="mb-8 overflow-hidden rounded-3xl border border-white/10 bg-white/[0.035] shadow-2xl shadow-black/30 backdrop-blur-xl">
+          <div className="flex flex-col gap-5 p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6">
+            <div className="flex items-center gap-4">
+              <div className="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-purple-500/20 to-blue-500/20 ring-1 ring-white/10">
+                <span className="text-xl">◈</span>
+              </div>
 
-              <p className="mt-1 text-2xl font-black sm:text-3xl">
-                {rupiah(balance)}
-              </p>
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-wider text-white/40">
+                  Saldo Reseller
+                </p>
+
+                <div className="mt-1 text-2xl font-black tracking-tight sm:text-3xl">
+                  {walletLoading ? (
+                    <span className="inline-block h-8 w-36 animate-pulse rounded-lg bg-white/10" />
+                  ) : (
+                    formatRupiah(balance)
+                  )}
+                </div>
+              </div>
             </div>
 
             <div className="flex gap-2">
-              <button
-                onClick={() => {
-                  setLoading(true);
-                  load();
-                }}
-                className="flex-1 rounded-xl border border-white/10 px-4 py-3 text-sm font-bold text-white/60 transition hover:bg-white/[0.06] sm:flex-none"
-              >
-                ↻ Refresh
-              </button>
+              <span className="hidden items-center px-2 text-xs font-semibold text-white/35 sm:flex">
+                {username || "Reseller"}
+              </span>
 
               <button
                 onClick={logout}
-                className="flex-1 rounded-xl border border-red-400/20 px-4 py-3 text-sm font-bold text-red-300 transition hover:bg-red-500/10 sm:flex-none"
+                className="rounded-xl border border-red-400/20 px-4 py-3 text-sm font-bold text-red-300 transition hover:bg-red-500/10"
               >
                 Keluar
+              </button>
+
+              <button
+                onClick={loadWallet}
+                disabled={walletLoading}
+                className="rounded-xl border border-white/10 px-4 py-3 text-sm font-bold text-white/60 transition hover:bg-white/[0.06] hover:text-white disabled:opacity-40"
+                title="Refresh saldo"
+              >
+                ↻
               </button>
             </div>
           </div>
         </section>
 
-        {/* PRODUCT CATALOG */}
+        {/* Catalog */}
         <section>
-          <div className="mb-4 flex items-end justify-between gap-3">
-            <div>
-              <h2 className="text-xl font-black sm:text-2xl">
-                Product Catalog
-              </h2>
+          <div className="mb-5 flex flex-col gap-4">
+            <div className="flex items-end justify-between gap-3">
+              <div>
+                <h2 className="text-xl font-black sm:text-2xl">
+                  Product Catalog
+                </h2>
+                <p className="mt-1 text-xs text-white/35">
+                  {filteredProducts.length} produk · {totalStock} stok tersedia
+                </p>
+              </div>
 
-              <p className="mt-1 text-xs text-white/35">
-                {filteredProducts.length} produk ·{" "}
-                {products.reduce(
-                  (total, product) =>
-                    total +
-                    product.options.reduce(
-                      (sum, option) =>
-                        sum + getAvailableStock(option),
-                      0,
-                    ),
-                  0,
-                )}{" "}
-                stok tersedia
-              </p>
+              <button
+                onClick={loadProducts}
+                className="rounded-xl border border-white/10 px-3 py-2 text-xs font-semibold text-white/50 transition hover:bg-white/[0.06] hover:text-white"
+              >
+                ↻ Refresh
+              </button>
             </div>
-          </div>
 
-          {/* SEARCH */}
-          <div className="mb-3">
-            <div className="flex items-center rounded-2xl border border-white/10 bg-white/[0.025] px-4 py-3 transition focus-within:border-purple-400/40">
-              <span className="mr-3 text-sm text-white/35">
-                ⌕
-              </span>
-
+            {/* Search */}
+            <div className="relative">
               <input
                 value={search}
-                onChange={(event) =>
-                  setSearch(event.target.value)
-                }
+                onChange={(e) => setSearch(e.target.value)}
                 placeholder="Cari produk..."
-                className="w-full bg-transparent text-sm text-white outline-none placeholder:text-white/25"
+                className="w-full rounded-2xl border border-white/10 bg-white/[0.035] px-4 py-3.5 pl-11 text-sm text-white outline-none transition placeholder:text-white/25 focus:border-purple-400/40 focus:bg-white/[0.05]"
               />
+
+              <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-white/35">
+                ⌕
+              </span>
 
               {search && (
                 <button
                   onClick={() => setSearch("")}
-                  className="text-xs text-white/35 hover:text-white/70"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 rounded-lg px-2 py-1 text-xs text-white/35 hover:bg-white/10 hover:text-white"
                 >
                   ✕
                 </button>
               )}
             </div>
-          </div>
 
-          {/* CATEGORIES */}
-          <div className="mb-5 flex gap-2 overflow-x-auto pb-2 [scrollbar-width:none]">
-            {categories.map((item) => {
-              const active = category === item;
-
-              return (
+            {/* Categories */}
+            <div className="flex gap-2 overflow-x-auto pb-1">
+              {categories.map((item) => (
                 <button
                   key={item}
                   onClick={() => setCategory(item)}
-                  className={`shrink-0 rounded-full border px-4 py-2 text-[11px] font-bold transition ${
-                    active
-                      ? "border-purple-400/40 bg-purple-500/20 text-purple-200"
-                      : "border-white/10 bg-white/[0.025] text-white/45 hover:border-white/20 hover:text-white/70"
+                  className={`shrink-0 rounded-xl border px-3.5 py-2 text-[11px] font-bold transition ${
+                    category === item
+                      ? "border-purple-400/30 bg-purple-500/15 text-purple-200"
+                      : "border-white/10 bg-white/[0.025] text-white/45 hover:bg-white/[0.06] hover:text-white"
                   }`}
                 >
                   {item === "ALL" ? "SEMUA" : item}
                 </button>
-              );
-            })}
+              ))}
+            </div>
           </div>
 
-          {/* PRODUCTS */}
           {filteredProducts.length === 0 ? (
-            <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-12 text-center">
-              <p className="text-sm font-bold text-white/50">
+            <div className="rounded-3xl border border-white/10 bg-white/[0.025] p-12 text-center">
+              <div className="text-4xl">⌕</div>
+              <h2 className="mt-4 text-lg font-bold">
                 Produk tidak ditemukan
+              </h2>
+              <p className="mt-2 text-sm text-white/35">
+                Coba gunakan kata pencarian atau kategori lain.
               </p>
-
-              <button
-                onClick={() => {
-                  setSearch("");
-                  setCategory("ALL");
-                }}
-                className="mt-4 rounded-xl border border-white/10 px-4 py-2 text-xs font-bold text-white/60 hover:bg-white/[0.06]"
-              >
-                Reset Filter
-              </button>
             </div>
           ) : (
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-4 xl:grid-cols-5">
               {filteredProducts.map((product) => {
-                const stock = product.options.reduce(
+                const availableStock = product.options.reduce(
                   (sum, option) =>
-                    sum + getAvailableStock(option),
-                  0,
+                    sum + Math.max(0, getAvailableStock(option)),
+                  0
                 );
 
-                const logo = product.imageUrl || "";
+                const logo = getProductLogo(product);
 
-                const availablePrices = product.options
-                  .filter(
-                    (option) =>
-                      getAvailableStock(option) > 0,
-                  )
-                  .map((option) => option.price);
+                const startingPrice = product.options.length
+                  ? Math.min(
+                      ...product.options.map((option) =>
+                        Number(option.price || 0)
+                      )
+                    )
+                  : 0;
 
-                const allPrices = product.options.map(
-                  (option) => option.price,
-                );
-
-                const prices =
-                  availablePrices.length > 0
-                    ? availablePrices
-                    : allPrices;
-
-                const startingPrice =
-                  prices.length > 0
-                    ? Math.min(...prices)
-                    : 0;
+                const productCategory = getCategory(product.name);
 
                 return (
-                  <article
+                  <button
                     key={product.id}
-                    className="group relative overflow-hidden rounded-2xl border border-white/10 bg-white/[0.025] p-2.5 transition hover:-translate-y-0.5 hover:border-purple-400/30 hover:bg-white/[0.04] sm:rounded-3xl sm:p-3"
+                    type="button"
+                    onClick={() => selectProduct(product)}
+                    className="group relative flex min-h-[250px] flex-col overflow-hidden rounded-2xl border border-white/10 bg-white/[0.025] p-3 text-left transition duration-300 hover:-translate-y-1 hover:border-purple-400/25 hover:bg-white/[0.045] active:scale-[0.98] sm:min-h-[280px] sm:rounded-3xl sm:p-4"
                   >
-                    <button
-                      onClick={() => pick(product)}
-                      className="block w-full text-left"
-                    >
-                      <div className="relative flex h-32 w-full items-center justify-center overflow-hidden rounded-xl border border-white/10 bg-black/30 sm:h-40 sm:rounded-2xl">
-                        {logo ? (
-                          <img
-                            src={logo.trim()}
-                            alt={product.name}
-                            className="h-full w-full object-contain p-3 transition duration-300 group-hover:scale-[1.03] sm:p-5"
-                            loading="lazy"
-                            referrerPolicy="no-referrer"
-                            onError={(event) => {
-                              event.currentTarget.style.display =
-                                "none";
-                            }}
-                          />
-                        ) : (
-                          <span className="text-3xl text-white/20">
-                            ◈
-                          </span>
-                        )}
-
-                        <span className="absolute left-2 top-2 rounded-md border border-white/10 bg-black/70 px-2 py-1 text-[8px] font-bold text-white/55 backdrop-blur">
-                          {getCategory(product.name)}
-                        </span>
-                      </div>
-
-                      <div className="px-1 pb-1 pt-3 sm:px-1.5 sm:pt-4">
-                        <h3 className="truncate text-sm font-black sm:text-base">
-                          {product.name}
-                        </h3>
-
-                        <p className="mt-2 text-[9px] font-medium uppercase tracking-wider text-white/30 sm:text-[10px]">
-                          Harga mulai dari
-                        </p>
-
-                        <p className="mt-0.5 text-sm font-black text-white sm:text-base">
-                          {rupiah(startingPrice)}
-                        </p>
-
-                        <div className="mt-3 flex items-center justify-between gap-2 border-t border-white/5 pt-3">
-                          <span
-                            className={`text-[9px] font-bold sm:text-[10px] ${
-                              stock > 0
-                                ? "text-emerald-300"
-                                : "text-red-300"
-                            }`}
-                          >
-                            {stock > 0
-                              ? `${stock} STOCK`
-                              : "SOLD OUT"}
-                          </span>
-
-                          <span className="text-[10px] font-bold text-white/35 transition group-hover:text-purple-300 sm:text-xs">
-                            Detail →
-                          </span>
+                    {/* Logo */}
+                    <div className="relative flex h-32 w-full items-center justify-center overflow-hidden rounded-xl border border-white/8 bg-black/30 sm:h-40 sm:rounded-2xl">
+                      {logo ? (
+                        <img
+                          src={logo.trim()}
+                          alt={product.name}
+                          className="h-full w-full object-contain p-5 transition duration-500 group-hover:scale-105 sm:p-7"
+                          loading="lazy"
+                          referrerPolicy="no-referrer"
+                          onError={(e) => {
+                            e.currentTarget.style.display = "none";
+                          }}
+                        />
+                      ) : (
+                        <div className="flex size-16 items-center justify-center rounded-2xl bg-gradient-to-br from-purple-500/15 to-blue-500/15 text-3xl ring-1 ring-white/10">
+                          ◈
                         </div>
+                      )}
+
+                      <div className="absolute left-2 top-2 rounded-lg border border-white/10 bg-black/60 px-2 py-1 text-[9px] font-bold tracking-wider text-white/60 backdrop-blur">
+                        {productCategory}
                       </div>
-                    </button>
-                  </article>
+                    </div>
+
+                    {/* Info */}
+                    <div className="mt-3 min-w-0 flex-1">
+                      <h3 className="line-clamp-2 text-sm font-black leading-5 sm:text-base">
+                        {product.name}
+                      </h3>
+
+                      <p className="mt-2 text-[10px] uppercase tracking-wider text-white/30">
+                        Harga mulai dari
+                      </p>
+
+                      <p className="mt-0.5 text-sm font-black text-white sm:text-base">
+                        {startingPrice > 0
+                          ? formatRupiah(startingPrice)
+                          : "Hubungi Admin"}
+                      </p>
+                    </div>
+
+                    {/* Bottom */}
+                    <div className="mt-3 flex items-center justify-between border-t border-white/8 pt-3">
+                      <span
+                        className={`text-[10px] font-bold ${
+                          availableStock > 0
+                            ? "text-emerald-300"
+                            : "text-red-300"
+                        }`}
+                      >
+                        {availableStock > 0
+                          ? `${availableStock} STOCK`
+                          : "SOLD OUT"}
+                      </span>
+
+                      <span className="text-xs font-bold text-white/35 transition group-hover:translate-x-0.5 group-hover:text-white">
+                        Detail →
+                      </span>
+                    </div>
+                  </button>
                 );
               })}
             </div>
@@ -570,13 +661,13 @@ export default function ResellerDashboardPage() {
         </section>
 
         {/* HISTORY */}
-        {history.length > 0 && (
-          <section className="mx-auto mt-10 max-w-4xl">
+      {history.length > 0 && (
+        <section className="relative mx-auto max-w-7xl px-4 pb-10 sm:px-6 lg:px-8">
+          <div className="mx-auto mt-10 max-w-4xl">
             <div className="mb-4">
-              <h2 className="text-xl font-black">
+              <h2 className="text-xl font-black sm:text-2xl">
                 Riwayat Pembelian
               </h2>
-
               <p className="mt-1 text-xs text-white/35">
                 20 transaksi terakhir
               </p>
@@ -591,20 +682,20 @@ export default function ResellerDashboardPage() {
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0">
                       <p className="truncate text-sm font-bold">
-                        {order.productName} ·{" "}
-                        {order.duration}
+                        {order.productName || order.product || "-"} ·{" "}
+                        {order.duration || "-"}
                       </p>
 
                       <p className="mt-1 text-[11px] text-white/35">
-                        {order.invoice} ·{" "}
-                        {new Date(
-                          order.createdAt,
-                        ).toLocaleString("id-ID")}
+                        {order.invoice || "-"} ·{" "}
+                        {order.createdAt
+                          ? new Date(order.createdAt).toLocaleString("id-ID")
+                          : "-"}
                       </p>
                     </div>
 
                     <p className="shrink-0 text-sm font-black text-emerald-300">
-                      {rupiah(order.amount)}
+                      {formatRupiah(Number(order.amount || 0))}
                     </p>
                   </div>
 
@@ -615,9 +706,20 @@ export default function ResellerDashboardPage() {
                       </p>
 
                       <button
-                        onClick={() =>
-                          copy(order.paymentRef)
-                        }
+                        onClick={async () => {
+                          try {
+                            await navigator.clipboard.writeText(
+                              String(order.paymentRef)
+                            );
+                            setCopied(true);
+                            window.setTimeout(
+                              () => setCopied(false),
+                              1800
+                            );
+                          } catch {
+                            alert("Gagal menyalin.");
+                          }
+                        }}
                         className="shrink-0 rounded-lg bg-white px-3 py-1.5 text-xs font-black text-black"
                       >
                         Salin
@@ -627,97 +729,94 @@ export default function ResellerDashboardPage() {
                 </div>
               ))}
             </div>
-          </section>
-        )}
-      </div>
+          </div>
+        </section>
+      )}
 
-      {/* PRODUCT DETAIL MODAL */}
-      {selProduct && !result && (
-        <div
-          className="fixed inset-0 z-40 flex items-center justify-center bg-black/80 p-3 backdrop-blur-md sm:p-5"
-          onClick={() => {
-            setSelProduct(null);
-            setSelOption(null);
-          }}
-        >
+      {/* Product Detail Modal */}
+        {selectedProduct && !purchaseResult && (
           <div
-            className="w-full max-w-2xl overflow-hidden rounded-3xl border border-white/10 bg-[#08080b] shadow-2xl shadow-black/70"
-            onClick={(event) => event.stopPropagation()}
+            className="fixed inset-0 z-40 flex items-center justify-center bg-black/75 p-4 backdrop-blur-md"
+            onMouseDown={(e) => {
+              if (e.target === e.currentTarget) {
+                setSelectedProduct(null);
+                setSelectedOption(null);
+              }
+            }}
           >
-            <div className="max-h-[90vh] overflow-y-auto">
-              {/* MODAL HEADER */}
-              <div className="sticky top-0 z-10 flex items-center justify-between border-b border-white/10 bg-[#08080b]/95 px-5 py-4 backdrop-blur-xl sm:px-6">
-                <div>
-                  <p className="text-[9px] font-bold uppercase tracking-[0.2em] text-purple-300/70">
-                    {getCategory(selProduct.name)}
-                  </p>
+            <div className="w-full max-w-lg overflow-hidden rounded-3xl border border-white/10 bg-[#09090b] shadow-2xl shadow-black/80">
+              <div className="max-h-[90vh] overflow-y-auto">
+                {/* Header */}
+                <div className="relative p-5 sm:p-6">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSelectedProduct(null);
+                      setSelectedOption(null);
+                    }}
+                    className="absolute right-4 top-4 z-10 flex size-9 items-center justify-center rounded-xl border border-white/10 bg-black/50 text-sm text-white/50 transition hover:bg-white/10 hover:text-white"
+                  >
+                    ✕
+                  </button>
 
-                  <h2 className="mt-1 text-xl font-black sm:text-2xl">
-                    {selProduct.name}
-                  </h2>
+                  <div className="flex gap-4 pr-10">
+                    <div className="flex size-20 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-white/10 bg-black/40 sm:size-24">
+                      {getProductLogo(selectedProduct) ? (
+                        <img
+                          src={getProductLogo(selectedProduct)}
+                          alt={selectedProduct.name}
+                          className="h-full w-full object-contain p-3"
+                          referrerPolicy="no-referrer"
+                        />
+                      ) : (
+                        <span className="text-3xl">◈</span>
+                      )}
+                    </div>
+
+                    <div className="min-w-0">
+                      <span className="inline-flex rounded-lg bg-purple-500/10 px-2 py-1 text-[9px] font-bold tracking-wider text-purple-200">
+                        {getCategory(selectedProduct.name)}
+                      </span>
+
+                      <h2 className="mt-2 text-lg font-black leading-6 sm:text-xl">
+                        {selectedProduct.name}
+                      </h2>
+
+                      {selectedProduct.description && (
+                        <p className="mt-1 text-xs leading-5 text-white/35">
+                          {selectedProduct.description}
+                        </p>
+                      )}
+                    </div>
+                  </div>
                 </div>
 
-                <button
-                  onClick={() => {
-                    setSelProduct(null);
-                    setSelOption(null);
-                  }}
-                  className="flex size-9 items-center justify-center rounded-xl border border-white/10 text-white/45 transition hover:bg-white/[0.06] hover:text-white"
-                >
-                  ✕
-                </button>
-              </div>
-
-              <div className="p-5 sm:p-6">
-                {/* PRODUCT IMAGE */}
-                <div className="mb-5 flex h-44 items-center justify-center overflow-hidden rounded-2xl border border-white/10 bg-black/30 sm:h-56">
-                  {selProduct.imageUrl ? (
-                    <img
-                      src={selProduct.imageUrl.trim()}
-                      alt={selProduct.name}
-                      className="h-full w-full object-contain p-6"
-                      referrerPolicy="no-referrer"
-                    />
-                  ) : (
-                    <span className="text-5xl text-white/20">
-                      ◈
-                    </span>
-                  )}
-                </div>
-
-                {/* OPTIONS */}
-                <div>
+                {/* Duration */}
+                <div className="border-t border-white/8 px-5 py-5 sm:px-6">
                   <div className="mb-3 flex items-center justify-between">
                     <div>
-                      <p className="text-xs font-bold uppercase tracking-wider text-white/35">
-                        Pilih Durasi
-                      </p>
-
-                      <p className="mt-1 text-sm text-white/50">
-                        Harga khusus reseller
+                      <p className="text-sm font-bold">Pilih Durasi</p>
+                      <p className="mt-1 text-[11px] text-white/30">
+                        Pilih paket yang ingin kamu beli.
                       </p>
                     </div>
                   </div>
 
-                  <div className="grid gap-2">
-                    {selProduct.options.map((option) => {
-                      const stock =
-                        getAvailableStock(option);
-
-                      const active =
-                        selOption?.id === option.id;
+                  <div className="space-y-2">
+                    {selectedProduct.options.map((option) => {
+                      const stock = getAvailableStock(option);
+                      const active = selectedOption?.id === option.id;
 
                       return (
                         <button
                           key={option.id}
+                          type="button"
                           disabled={stock <= 0}
-                          onClick={() =>
-                            selectOption(option)
-                          }
-                          className={`w-full rounded-2xl border p-4 text-left transition ${
+                          onClick={() => selectOption(option)}
+                          className={`w-full rounded-2xl border p-3.5 text-left transition ${
                             active
-                              ? "border-purple-400/50 bg-purple-500/10"
-                              : "border-white/10 bg-white/[0.025] hover:border-white/20"
+                              ? "border-purple-400/40 bg-purple-500/10 shadow-lg shadow-purple-950/20"
+                              : "border-white/8 bg-white/[0.025] hover:border-white/15 hover:bg-white/[0.05]"
                           } ${
                             stock <= 0
                               ? "cursor-not-allowed opacity-35"
@@ -725,32 +824,27 @@ export default function ResellerDashboardPage() {
                           }`}
                         >
                           <div className="flex items-center justify-between gap-4">
-                            <div className="min-w-0">
-                              <p className="text-sm font-black">
+                            <div>
+                              <p className="text-sm font-bold">
                                 {option.duration}
                               </p>
-
-                              <p className="mt-1 text-[11px] text-white/35">
+                              <p className="mt-1 text-[10px] text-white/30">
                                 {stock > 0
-                                  ? `${stock} tersedia`
+                                  ? `${stock} stok tersedia`
                                   : "Stok habis"}
                               </p>
                             </div>
 
                             <div className="text-right">
-                              {option.hasResellerPrice &&
-                                option.normalPrice >
-                                  option.price && (
-                                  <p className="text-[10px] text-white/25 line-through">
-                                    {rupiah(
-                                      option.normalPrice,
-                                    )}
-                                  </p>
-                                )}
-
-                              <p className="text-sm font-black text-emerald-300">
-                                {rupiah(option.price)}
+                              <p className="text-sm font-black">
+                                {formatRupiah(option.price)}
                               </p>
+
+                              {active && (
+                                <p className="mt-1 text-[9px] font-bold uppercase tracking-wider text-purple-300">
+                                  Dipilih ✓
+                                </p>
+                              )}
                             </div>
                           </div>
                         </button>
@@ -759,166 +853,192 @@ export default function ResellerDashboardPage() {
                   </div>
                 </div>
 
-                {/* PURCHASE */}
-                {selOption && (
-                  <div className="mt-5 rounded-2xl border border-white/10 bg-white/[0.025] p-4">
-                    <div className="flex items-center justify-between gap-4">
+                {/* Wallet + Checkout */}
+                {selectedOption && (
+                  <div className="border-t border-white/8 bg-white/[0.018] p-5 sm:p-6">
+                    <div className="mb-4 flex items-center justify-between rounded-2xl border border-white/8 bg-black/20 p-3.5">
                       <div>
                         <p className="text-[10px] uppercase tracking-wider text-white/30">
-                          Total
+                          Saldo Reseller
                         </p>
-
-                        <p className="mt-1 text-xl font-black">
-                          {rupiah(selOption.price)}
-                        </p>
-                      </div>
-
-                      <div className="text-right">
-                        <p className="text-[10px] uppercase tracking-wider text-white/30">
-                          Saldo
-                        </p>
-
-                        <p className="mt-1 text-sm font-bold text-white/70">
-                          {rupiah(balance)}
+                        <p className="mt-1 text-sm font-black">
+                          {walletLoading
+                            ? "Memuat..."
+                            : formatRupiah(balance)}
                         </p>
                       </div>
+
+                      <a
+                        href="/member"
+                        className="rounded-xl border border-white/10 px-3 py-2 text-xs font-bold text-white/60 transition hover:bg-white/10 hover:text-white"
+                      >
+                        + Deposit
+                      </a>
                     </div>
 
-                    {balance < selOption.price &&
-                      getAvailableStock(selOption) >
-                        0 && (
-                        <p className="mt-3 rounded-xl bg-amber-400/[0.06] px-3 py-2 text-[11px] text-amber-200/70">
+                    {balance < selectedOption.price &&
+                      getAvailableStock(selectedOption) > 0 &&
+                      !walletLoading && (
+                        <div className="mb-3 rounded-xl bg-amber-400/[0.06] px-3 py-2.5 text-[11px] text-amber-200/70">
                           Saldo kurang{" "}
-                          {rupiah(
-                            selOption.price -
-                              balance,
+                          {formatRupiah(
+                            selectedOption.price - balance
                           )}
-                          . Isi saldo lewat halaman{" "}
-                          <a
-                            href="/member"
-                            className="font-bold underline"
-                          >
-                            Member
-                          </a>
-                          .
-                        </p>
+                        </div>
                       )}
 
                     <button
-                      onClick={buy}
+                      type="button"
+                      onClick={buyProduct}
                       disabled={!canBuy}
-                      className="mt-4 w-full rounded-2xl bg-gradient-to-r from-purple-500 to-blue-500 px-6 py-4 text-sm font-black transition hover:brightness-110 active:scale-[0.99] disabled:cursor-not-allowed disabled:bg-white/10 disabled:bg-none disabled:text-white/30"
+                      className="w-full rounded-2xl bg-gradient-to-r from-purple-500 to-blue-500 px-5 py-4 text-sm font-black shadow-lg shadow-purple-950/30 transition hover:brightness-110 active:scale-[0.98] disabled:cursor-not-allowed disabled:bg-white/10 disabled:bg-none disabled:text-white/30 disabled:shadow-none"
                     >
                       {buying
                         ? "Memproses..."
-                        : getAvailableStock(
-                              selOption,
-                            ) <= 0
+                        : getAvailableStock(selectedOption) <= 0
                           ? "Stok Habis"
-                          : balance <
-                              selOption.price
+                          : balance < selectedOption.price
                             ? "Saldo Tidak Cukup"
                             : "Beli Sekarang →"}
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={contactAdmin}
+                      className="mt-2 w-full rounded-xl border border-white/10 px-4 py-3 text-xs font-bold text-white/50 transition hover:bg-white/[0.06] hover:text-white"
+                    >
+                      Tanya Admin via WhatsApp
                     </button>
                   </div>
                 )}
               </div>
             </div>
           </div>
+        )}
+
+        {/* Help */}
+        <div className="mx-auto mt-8 flex max-w-3xl flex-col items-center justify-between gap-3 rounded-2xl border border-white/8 bg-white/[0.02] p-4 text-center sm:flex-row sm:text-left">
+          <div>
+            <p className="text-sm font-bold">Butuh bantuan?</p>
+            <p className="mt-1 text-xs text-white/35">
+              Hubungi admin jika ada masalah dengan pembelian.
+            </p>
+          </div>
+
+          <button
+            onClick={contactAdmin}
+            className="rounded-xl border border-white/10 px-4 py-2.5 text-xs font-bold transition hover:bg-white/[0.06]"
+          >
+            WhatsApp Admin
+          </button>
         </div>
-      )}
+      </div>
 
-      {/* SUCCESS MODAL */}
-      {result && (
+      {/* Purchase success modal */}
+      {purchaseResult && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 p-4 backdrop-blur-md">
-          <div className="w-full max-w-md rounded-3xl border border-emerald-400/20 bg-[#09090b] p-6 shadow-2xl sm:p-7">
-            <div className="mx-auto flex size-16 items-center justify-center rounded-2xl bg-emerald-400/10 text-3xl ring-1 ring-emerald-400/20">
-              ✓
+          <div className="w-full max-w-md overflow-hidden rounded-3xl border border-emerald-400/20 bg-[#09090b] shadow-2xl shadow-black/70">
+            <div className="p-6 sm:p-7">
+              <div className="mx-auto flex size-16 items-center justify-center rounded-2xl bg-emerald-400/10 text-3xl ring-1 ring-emerald-400/20">
+                ✓
+              </div>
+
+              <div className="mt-5 text-center">
+                <h2 className="text-2xl font-black">Pembelian Berhasil</h2>
+                <p className="mt-2 text-sm text-white/40">
+                  Pesanan kamu berhasil diproses.
+                </p>
+              </div>
+
+              <div className="mt-6 space-y-2 rounded-2xl border border-white/8 bg-white/[0.025] p-4">
+                <div className="flex justify-between gap-4 text-sm">
+                  <span className="text-white/40">Produk</span>
+                  <span className="text-right font-bold">
+                    {purchaseResult.product}
+                  </span>
+                </div>
+
+                <div className="flex justify-between gap-4 text-sm">
+                  <span className="text-white/40">Durasi</span>
+                  <span className="font-bold">
+                    {purchaseResult.duration}
+                  </span>
+                </div>
+              </div>
+
+              {purchaseResult.deliveryKey && (
+                <div className="mt-4">
+                  <p className="mb-2 text-xs font-bold uppercase tracking-wider text-white/40">
+                    Delivery Key
+                  </p>
+
+                  <div className="rounded-2xl border border-purple-400/20 bg-purple-500/[0.06] p-4">
+                    <p className="break-all font-mono text-sm leading-6 text-purple-100">
+                      {purchaseResult.deliveryKey}
+                    </p>
+
+                    <button
+                      onClick={copyKey}
+                      className="mt-4 w-full rounded-xl bg-white px-4 py-3 text-sm font-black text-black transition hover:bg-white/90 active:scale-[0.98]"
+                    >
+                      {copied ? "✓ Berhasil Disalin" : "Salin Key"}
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {purchaseResult.deliveryLink && (
+                <div className="mt-4">
+                  <p className="mb-2 text-xs font-bold uppercase tracking-wider text-white/40">
+                    Delivery Link
+                  </p>
+
+                  <div className="rounded-2xl border border-cyan-400/20 bg-cyan-500/[0.06] p-4">
+                    <a
+                      href={purchaseResult.deliveryLink}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="block break-all text-sm leading-6 text-cyan-300 underline"
+                    >
+                      {purchaseResult.deliveryLink}
+                    </a>
+
+                    <button
+                      onClick={async () => {
+                        try {
+                          await navigator.clipboard.writeText(
+                            purchaseResult.deliveryLink || ""
+                          );
+                          setCopied(true);
+                          window.setTimeout(() => setCopied(false), 1800);
+                        } catch {
+                          alert("Gagal menyalin link. Silakan salin secara manual.");
+                        }
+                      }}
+                      className="mt-4 w-full rounded-xl bg-white px-4 py-3 text-sm font-black text-black transition hover:bg-white/90 active:scale-[0.98]"
+                    >
+                      {copied ? "✓ Berhasil Disalin" : "Salin Link"}
+                    </button>
+
+                    <a
+                      href={purchaseResult.deliveryLink}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="mt-2 block w-full rounded-xl bg-cyan-400 px-4 py-3 text-center text-sm font-black text-black transition hover:bg-cyan-300 active:scale-[0.98]"
+                    >
+                      Buka Link
+                    </a>
+                  </div>
+                </div>
+              )}
+
+              <button
+                onClick={() => setPurchaseResult(null)}
+                className="mt-4 w-full rounded-xl border border-white/10 px-4 py-3 text-sm font-bold text-white/70 transition hover:bg-white/[0.06] hover:text-white"
+              >
+                Selesai
+              </button>
             </div>
-
-            <h2 className="mt-5 text-center text-2xl font-black">
-              Pembelian Berhasil
-            </h2>
-
-            <div className="mt-6 space-y-2 rounded-2xl border border-white/10 bg-white/[0.025] p-4 text-sm">
-              <div className="flex justify-between gap-4">
-                <span className="text-white/40">
-                  Produk
-                </span>
-
-                <span className="font-bold">
-                  {result.product}
-                </span>
-              </div>
-
-              <div className="flex justify-between gap-4">
-                <span className="text-white/40">
-                  Durasi
-                </span>
-
-                <span className="font-bold">
-                  {result.duration}
-                </span>
-              </div>
-            </div>
-
-            {result.deliveryKey && (
-              <div className="mt-4 rounded-2xl border border-purple-400/20 bg-purple-500/[0.06] p-4">
-                <p className="mb-2 text-xs font-bold uppercase tracking-wider text-white/40">
-                  Delivery Key
-                </p>
-
-                <p className="break-all font-mono text-sm leading-6 text-purple-100">
-                  {result.deliveryKey}
-                </p>
-
-                <button
-                  onClick={() =>
-                    copy(result.deliveryKey || "")
-                  }
-                  className="mt-4 w-full rounded-xl bg-white px-4 py-3 text-sm font-black text-black"
-                >
-                  {copied
-                    ? "✓ Berhasil Disalin"
-                    : "Salin Key"}
-                </button>
-              </div>
-            )}
-
-            {result.deliveryLink && (
-              <div className="mt-4 rounded-2xl border border-cyan-400/20 bg-cyan-500/[0.06] p-4">
-                <p className="mb-2 text-xs font-bold uppercase tracking-wider text-white/40">
-                  Delivery Link
-                </p>
-
-                <a
-                  href={result.deliveryLink}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="block break-all text-sm text-cyan-300 underline"
-                >
-                  {result.deliveryLink}
-                </a>
-
-                <button
-                  onClick={() =>
-                    copy(result.deliveryLink || "")
-                  }
-                  className="mt-4 w-full rounded-xl bg-white px-4 py-3 text-sm font-black text-black"
-                >
-                  {copied
-                    ? "✓ Berhasil Disalin"
-                    : "Salin Link"}
-                </button>
-              </div>
-            )}
-
-            <button
-              onClick={() => setResult(null)}
-              className="mt-4 w-full rounded-xl border border-white/10 px-4 py-3 text-sm font-bold text-white/70 hover:bg-white/[0.06]"
-            >
-              Selesai
-            </button>
           </div>
         </div>
       )}
