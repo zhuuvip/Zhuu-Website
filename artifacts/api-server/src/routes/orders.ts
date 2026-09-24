@@ -483,9 +483,28 @@ router.get("/orders", async (req, res) => {
     }
 
     const transactions = await db
-      .select()
+      .select({
+        id: walletTransactionsTable.id,
+        amount: walletTransactionsTable.amount,
+        status: walletTransactionsTable.status,
+        createdAt: walletTransactionsTable.createdAt,
+        invoice: ordersTable.invoice,
+        productName: ordersTable.productName,
+        duration: ordersTable.duration,
+        paymentRef: ordersTable.paymentRef,
+        orderStatus: ordersTable.status,
+      })
       .from(walletTransactionsTable)
-      .where(eq(walletTransactionsTable.userId, userId))
+      .innerJoin(
+        ordersTable,
+        eq(walletTransactionsTable.reference, ordersTable.invoice),
+      )
+      .where(
+        and(
+          eq(walletTransactionsTable.userId, userId),
+          eq(walletTransactionsTable.type, "PURCHASE"),
+        ),
+      )
       .orderBy(desc(walletTransactionsTable.createdAt));
 
     return res.json(transactions);

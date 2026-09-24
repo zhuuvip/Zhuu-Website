@@ -59,6 +59,7 @@ export default function ProductsPage() {
   const [walletLoading, setWalletLoading] = useState(true);
   const [purchaseHistory, setPurchaseHistory] = useState<any[]>([]);
   const [historyLoading, setHistoryLoading] = useState(true);
+  const [copiedHistoryId, setCopiedHistoryId] = useState<number | null>(null);
   const [error, setError] = useState("");
 
   const [buying, setBuying] = useState(false);
@@ -98,13 +99,24 @@ export default function ProductsPage() {
       const data = await res.json();
       const rows = Array.isArray(data) ? data : [];
 
-      setPurchaseHistory(
-        rows.filter((item) => item.type === "PURCHASE"),
-      );
+      setPurchaseHistory(rows);
     } catch {
       setPurchaseHistory([]);
     } finally {
       setHistoryLoading(false);
+    }
+  };
+
+  const handleCopyHistory = async (item: any) => {
+    const value = item.paymentRef;
+    if (!value) return;
+
+    try {
+      await navigator.clipboard.writeText(value);
+      setCopiedHistoryId(Number(item.id));
+      setTimeout(() => setCopiedHistoryId(null), 1500);
+    } catch {
+      setCopiedHistoryId(null);
     }
   };
 
@@ -868,12 +880,12 @@ export default function ProductsPage() {
         <section className="mx-auto mt-8 max-w-5xl rounded-3xl border border-white/8 bg-white/[0.025] p-5 shadow-2xl shadow-black/20 sm:p-6">
           <div className="mb-5 flex items-center justify-between gap-4">
             <div>
-              <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-purple-300/70">
-                Purchase History
-              </p>
-              <h2 className="mt-1 text-xl font-black tracking-tight">
+              <h2 className="text-xl font-black tracking-tight">
                 Riwayat Pembelian
               </h2>
+              <p className="mt-1 text-[10px] font-bold uppercase tracking-[0.18em] text-white/30">
+                20 transaksi terakhir
+              </p>
             </div>
 
             <button
@@ -901,32 +913,68 @@ export default function ProductsPage() {
             </div>
           ) : (
             <div className="space-y-2">
-              {purchaseHistory.slice(0, 10).map((item) => (
-                <div
-                  key={item.id}
-                  className="flex flex-col gap-3 rounded-2xl border border-white/8 bg-black/20 p-4 sm:flex-row sm:items-center sm:justify-between"
-                >
-                  <div className="min-w-0">
-                    <p className="truncate text-sm font-bold text-white/90">
-                      {item.description || "Pembelian produk"}
-                    </p>
-                    <p className="mt-1 text-[10px] text-white/30">
-                      {item.createdAt
-                        ? new Date(item.createdAt).toLocaleString("id-ID")
-                        : "-"}
-                    </p>
-                  </div>
+              {purchaseHistory.slice(0, 20).map((item) => {
+                const delivery = item.paymentRef || "";
+                const isCopied =
+                  copiedHistoryId === Number(item.id);
 
-                  <div className="text-left sm:text-right">
-                    <p className="text-sm font-black text-red-300">
-                      -{formatRupiah(Math.abs(Number(item.amount) || 0))}
-                    </p>
-                    <p className="mt-1 text-[9px] font-bold uppercase tracking-wider text-emerald-300/70">
-                      {item.status || "PAID"}
-                    </p>
+                return (
+                  <div
+                    key={item.id}
+                    className="rounded-2xl border border-white/8 bg-black/20 p-4 transition hover:border-purple-400/20 hover:bg-white/[0.025]"
+                  >
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="min-w-0">
+                        <p className="truncate text-sm font-black text-white/90">
+                          {item.productName || "Produk"}
+                        </p>
+
+                        <p className="mt-1 text-[10px] font-bold uppercase tracking-wider text-purple-300/70">
+                          {item.duration || "-"}
+                        </p>
+                      </div>
+
+                      <p className="shrink-0 text-sm font-black text-emerald-400">
+                        {formatRupiah(
+                          Math.abs(Number(item.amount) || 0),
+                        )}
+                      </p>
+                    </div>
+
+                    <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-[9px] text-white/30">
+                      <span>
+                        Invoice: {item.invoice || "-"}
+                      </span>
+                      <span>•</span>
+                      <span>
+                        {item.createdAt
+                          ? new Date(item.createdAt).toLocaleString("id-ID")
+                          : "-"}
+                      </span>
+                    </div>
+
+                    <div className="mt-3 flex items-center gap-2">
+                      <div className="min-w-0 flex-1 rounded-xl border border-white/8 bg-white/[0.025] px-3 py-2">
+                        <p className="mb-1 text-[8px] font-bold uppercase tracking-wider text-white/25">
+                          Delivery Key
+                        </p>
+                        <p className="truncate font-mono text-[10px] text-white/65">
+                          {delivery || "Belum tersedia"}
+                        </p>
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={() => handleCopyHistory(item)}
+                        disabled={!delivery}
+                        className="shrink-0 rounded-xl border border-white/10 px-3 py-2 text-[10px] font-bold text-white/60 transition hover:bg-white/[0.06] hover:text-white disabled:cursor-not-allowed disabled:opacity-30"
+                      >
+                        {isCopied ? "Tersalin!" : "Salin"}
+                      </button>
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </section>
