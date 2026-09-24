@@ -20,6 +20,7 @@ type Product = {
   imageUrl?: string;
   image?: string;
   logo?: string;
+  purchaseCount?: number;
   options: ProductOption[];
 };
 
@@ -32,6 +33,21 @@ export default function ProductsPage() {
   const { getToken } = useAuth();
 
   const [products, setProducts] = useState<Product[]>([]);
+  const purchaseRank = [...products]
+    .sort((a, b) => (b.purchaseCount ?? 0) - (a.purchaseCount ?? 0))
+    .filter((p) => (p.purchaseCount ?? 0) > 0);
+
+  const getProductLabel = (product: Product) => {
+    const count = product.purchaseCount ?? 0;
+    if (count <= 0) return null;
+
+    const rank = purchaseRank.findIndex((p) => p.id === product.id);
+
+    if (rank === 0) return "BEST SELLER";
+    if (rank <= 2) return "RECOMMENDED";
+    return "POPULAR";
+  };
+
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [selectedOption, setSelectedOption] = useState<ProductOption | null>(null);
 
@@ -41,6 +57,8 @@ export default function ProductsPage() {
   const [balance, setBalance] = useState(0);
   const [loading, setLoading] = useState(true);
   const [walletLoading, setWalletLoading] = useState(true);
+  const [purchaseHistory, setPurchaseHistory] = useState<any[]>([]);
+  const [historyLoading, setHistoryLoading] = useState(true);
   const [error, setError] = useState("");
 
   const [buying, setBuying] = useState(false);
@@ -55,6 +73,40 @@ export default function ProductsPage() {
 
   const formatRupiah = (value: number) =>
     `Rp${Number(value || 0).toLocaleString("id-ID")}`;
+
+  const loadPurchaseHistory = async () => {
+    try {
+      setHistoryLoading(true);
+      const token = await getToken();
+
+      if (!token) {
+        setPurchaseHistory([]);
+        return;
+      }
+
+      const res = await fetch(`${API_BASE}/api/orders`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!res.ok) {
+        setPurchaseHistory([]);
+        return;
+      }
+
+      const data = await res.json();
+      const rows = Array.isArray(data) ? data : [];
+
+      setPurchaseHistory(
+        rows.filter((item) => item.type === "PURCHASE"),
+      );
+    } catch {
+      setPurchaseHistory([]);
+    } finally {
+      setHistoryLoading(false);
+    }
+  };
 
   const loadProducts = async () => {
     try {
@@ -138,6 +190,7 @@ export default function ProductsPage() {
 
   useEffect(() => {
     loadProducts();
+    loadPurchaseHistory();
     loadWallet();
   }, []);
 
@@ -292,7 +345,7 @@ export default function ProductsPage() {
       setCopied(false);
 
       // Refresh stok setelah pembelian.
-      await loadProducts();
+      await Promise.all([loadProducts(), loadPurchaseHistory()]);
     } catch (err) {
       alert(
         err instanceof Error
@@ -578,7 +631,12 @@ export default function ProductsPage() {
 
                       <div className="absolute left-2 top-2 rounded-lg border border-white/10 bg-black/60 px-2 py-1 text-[9px] font-bold tracking-wider text-white/60 backdrop-blur">
                         {productCategory}
-                      </div>
+                                                                                  </div>
+                                                                                  {getProductLabel(product) && (
+                                                                                    <div className="absolute right-2 top-2 rounded-lg border border-purple-400/20 bg-purple-500/15 px-2 py-1 text-[9px] font-black tracking-wider text-purple-200 backdrop-blur">
+                                                                                      {getProductLabel(product)}
+                                                                                    </div>
+                                                                                  )}
                     </div>
 
                     {/* Info */}
@@ -805,6 +863,73 @@ export default function ProductsPage() {
             </div>
           </div>
         )}
+
+        {/* Purchase History */}
+        <section className="mx-auto mt-8 max-w-5xl rounded-3xl border border-white/8 bg-white/[0.025] p-5 shadow-2xl shadow-black/20 sm:p-6">
+          <div className="mb-5 flex items-center justify-between gap-4">
+            <div>
+              <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-purple-300/70">
+                Purchase History
+              </p>
+              <h2 className="mt-1 text-xl font-black tracking-tight">
+                Riwayat Pembelian
+              </h2>
+            </div>
+
+            <button
+              type="button"
+              onClick={loadPurchaseHistory}
+              disabled={historyLoading}
+              className="rounded-xl border border-white/10 px-3 py-2 text-[10px] font-bold text-white/50 transition hover:bg-white/[0.06] hover:text-white disabled:opacity-40"
+            >
+              {historyLoading ? "Memuat..." : "↻ Refresh"}
+            </button>
+          </div>
+
+          {historyLoading ? (
+            <div className="rounded-2xl border border-white/8 bg-black/20 p-5 text-center text-xs text-white/30">
+              Memuat riwayat pembelian...
+            </div>
+          ) : purchaseHistory.length === 0 ? (
+            <div className="rounded-2xl border border-dashed border-white/10 bg-black/20 p-6 text-center">
+              <p className="text-sm font-bold text-white/60">
+                Belum ada pembelian
+              </p>
+              <p className="mt-1 text-[11px] text-white/30">
+                Riwayat pembelian kamu akan muncul di sini.
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-2">
+              {purchaseHistory.slice(0, 10).map((item) => (
+                <div
+                  key={item.id}
+                  className="flex flex-col gap-3 rounded-2xl border border-white/8 bg-black/20 p-4 sm:flex-row sm:items-center sm:justify-between"
+                >
+                  <div className="min-w-0">
+                    <p className="truncate text-sm font-bold text-white/90">
+                      {item.description || "Pembelian produk"}
+                    </p>
+                    <p className="mt-1 text-[10px] text-white/30">
+                      {item.createdAt
+                        ? new Date(item.createdAt).toLocaleString("id-ID")
+                        : "-"}
+                    </p>
+                  </div>
+
+                  <div className="text-left sm:text-right">
+                    <p className="text-sm font-black text-red-300">
+                      -{formatRupiah(Math.abs(Number(item.amount) || 0))}
+                    </p>
+                    <p className="mt-1 text-[9px] font-bold uppercase tracking-wider text-emerald-300/70">
+                      {item.status || "PAID"}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </section>
 
         {/* Help */}
         <div className="mx-auto mt-8 flex max-w-3xl flex-col items-center justify-between gap-3 rounded-2xl border border-white/8 bg-white/[0.02] p-4 text-center sm:flex-row sm:text-left">

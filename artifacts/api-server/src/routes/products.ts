@@ -5,6 +5,7 @@ import {
   productsTable,
   productOptionsTable,
   productKeysTable,
+  ordersTable,
 } from "@workspace/db";
 import { and, eq, sql } from "drizzle-orm";
 import { requireAdmin, isAdmin } from "../lib/auth.js";
@@ -147,14 +148,35 @@ router.get("/products", async (req, res) => {
     ADD COLUMN IF NOT EXISTS drip_stock INTEGER NOT NULL DEFAULT 0
   `);
 
-  const products = (await db.select().from(productsTable).orderBy(sql`sort_order ASC`, sql`id ASC`)).map((p) =>
-    admin ? p : { ...p, deliveryValue: null },
-  );
+  const products = (
+    await db
+      .select()
+      .from(productsTable)
+      .orderBy(sql`sort_order ASC`, sql`id ASC`)
+  ).map((p) => (admin ? p : { ...p, deliveryValue: null }));
+
   const options = await db.select().from(productOptionsTable);
+
+  const purchaseCounts = await db
+    .select({
+      productId: ordersTable.productId,
+      purchaseCount: sql<number>`COUNT(*)`,
+    })
+    .from(ordersTable)
+    .where(eq(ordersTable.status, "PAID"))
+    .groupBy(ordersTable.productId);
+
+  const purchaseCountMap = new Map(
+    purchaseCounts.map((row) => [
+      row.productId,
+      Number(row.purchaseCount),
+    ]),
+  );
 
   return res.json(
     products.map((p) => ({
       ...p,
+      purchaseCount: purchaseCountMap.get(p.id) ?? 0,
       options: options
         .filter((o) => o.productId === p.id)
         .map((o) => ({ ...o, resellerPrice: undefined })),

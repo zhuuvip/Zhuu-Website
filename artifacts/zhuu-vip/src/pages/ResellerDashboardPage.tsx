@@ -435,7 +435,7 @@ export default function ResellerDashboardPage() {
           </div>
 
           <h1 className="text-4xl font-black tracking-tight sm:text-5xl lg:text-6xl">
-            Premium{" "}
+            Reseller{" "}
             <span className="bg-gradient-to-r from-purple-400 via-fuchsia-300 to-blue-400 bg-clip-text text-transparent">
               Products
             </span>

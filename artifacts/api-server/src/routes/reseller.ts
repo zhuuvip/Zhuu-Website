@@ -355,11 +355,28 @@ router.get(
     const products = await db.select().from(productsTable);
     const options = await db.select().from(productOptionsTable);
 
+    const purchaseCounts = await db
+      .select({
+        productId: ordersTable.productId,
+        purchaseCount: sql<number>`COUNT(*)`,
+      })
+      .from(ordersTable)
+      .where(eq(ordersTable.status, "PAID"))
+      .groupBy(ordersTable.productId);
+
+    const purchaseCountMap = new Map(
+      purchaseCounts.map((row) => [
+        row.productId,
+        Number(row.purchaseCount),
+      ]),
+    );
+
     return res.json(
       products.map((p: any) => {
         const { deliveryValue, ...safe } = p;
         return {
           ...safe,
+          purchaseCount: purchaseCountMap.get(p.id) ?? 0,
           options: options
             .filter((o) => o.productId === p.id)
             .map(({ resellerPrice, ...o }) => ({
