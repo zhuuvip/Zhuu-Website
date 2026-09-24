@@ -35,6 +35,9 @@ export default function ProductsPage() {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [selectedOption, setSelectedOption] = useState<ProductOption | null>(null);
 
+  const [search, setSearch] = useState("");
+  const [category, setCategory] = useState("ALL");
+
   const [balance, setBalance] = useState(0);
   const [loading, setLoading] = useState(true);
   const [walletLoading, setWalletLoading] = useState(true);
@@ -137,6 +140,47 @@ export default function ProductsPage() {
     loadProducts();
     loadWallet();
   }, []);
+
+  const getProductLogo = (product: Product) =>
+    product.imageUrl || product.image || product.logo || "";
+
+  const getCategory = (name: string) => {
+    const upper = name.toUpperCase();
+
+    if (upper.includes("DRIP")) return "DRIP";
+    if (upper.includes("HG")) return "HG";
+    if (upper.includes("FLURIOTE")) return "FLURIOTE";
+    if (upper.includes("MIGUL")) return "MIGUL";
+    if (upper.includes("PATO")) return "PATO";
+    if (upper.includes("SILENT")) return "SILENT";
+    if (upper.includes("ROOT")) return "ROOT";
+    if (upper.includes("IOS")) return "IOS";
+    if (upper.includes("ANDROID")) return "ANDROID";
+    if (upper.includes("FF")) return "FF";
+
+    return "OTHER";
+  };
+
+  const categories = useMemo(() => {
+    const values = products.map((product) => getCategory(product.name));
+    return ["ALL", ...Array.from(new Set(values))];
+  }, [products]);
+
+  const filteredProducts = useMemo(() => {
+    const query = search.trim().toLowerCase();
+
+    return products.filter((product) => {
+      const matchesCategory =
+        category === "ALL" || getCategory(product.name) === category;
+
+      const matchesSearch =
+        !query ||
+        product.name.toLowerCase().includes(query) ||
+        getCategory(product.name).toLowerCase().includes(query);
+
+      return matchesCategory && matchesSearch;
+    });
+  }, [products, search, category]);
 
   const selectedPrice = Number(selectedOption?.price || 0);
 
@@ -413,218 +457,353 @@ export default function ProductsPage() {
           </div>
         </section>
 
-        {/* Stats */}
-        <div className="mb-5 flex items-center justify-between">
-          <div>
-            <h2 className="text-xl font-bold sm:text-2xl">Produk</h2>
-            <p className="mt-1 text-xs text-white/35">
-              {products.length} produk · {totalStock} stok tersedia
-            </p>
-          </div>
+        {/* Catalog */}
+        <section>
+          <div className="mb-5 flex flex-col gap-4">
+            <div className="flex items-end justify-between gap-3">
+              <div>
+                <h2 className="text-xl font-black sm:text-2xl">
+                  Product Catalog
+                </h2>
+                <p className="mt-1 text-xs text-white/35">
+                  {filteredProducts.length} produk · {totalStock} stok tersedia
+                </p>
+              </div>
 
-          <button
-            onClick={loadProducts}
-            className="rounded-xl border border-white/10 px-3 py-2 text-xs font-semibold text-white/50 transition hover:bg-white/[0.06] hover:text-white"
-          >
-            ↻ Refresh
-          </button>
-        </div>
+              <button
+                onClick={loadProducts}
+                className="rounded-xl border border-white/10 px-3 py-2 text-xs font-semibold text-white/50 transition hover:bg-white/[0.06] hover:text-white"
+              >
+                ↻ Refresh
+              </button>
+            </div>
 
-        {/* Product grid */}
-        {products.length === 0 ? (
-          <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-12 text-center">
-            <div className="text-4xl">📦</div>
-            <h2 className="mt-4 text-lg font-bold">Belum ada produk</h2>
-            <p className="mt-2 text-sm text-white/40">
-              Produk akan muncul di sini ketika sudah tersedia.
-            </p>
-          </div>
-        ) : (
-          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {products.map((product) => {
-              const isSelected = selectedProduct?.id === product.id;
-              const availableStock = product.options.reduce(
-                (sum, option) => sum + Math.max(0, getAvailableStock(option)),
-                0
-              );
-              const logo =
-                product.imageUrl || product.image || product.logo || "";
+            {/* Search */}
+            <div className="relative">
+              <input
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="Cari produk..."
+                className="w-full rounded-2xl border border-white/10 bg-white/[0.035] px-4 py-3.5 pl-11 text-sm text-white outline-none transition placeholder:text-white/25 focus:border-purple-400/40 focus:bg-white/[0.05]"
+              />
 
-              return (
-                <article
-                  key={product.id}
-                  className={`group relative overflow-hidden rounded-3xl border bg-white/[0.025] p-4 transition duration-300 sm:p-5 ${
-                    isSelected
-                      ? "border-purple-400/40 bg-purple-500/[0.035] shadow-xl shadow-purple-950/20"
-                      : "border-white/10 hover:-translate-y-1 hover:border-white/20 hover:bg-white/[0.04]"
+              <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-white/35">
+                ⌕
+              </span>
+
+              {search && (
+                <button
+                  onClick={() => setSearch("")}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 rounded-lg px-2 py-1 text-xs text-white/35 hover:bg-white/10 hover:text-white"
+                >
+                  ✕
+                </button>
+              )}
+            </div>
+
+            {/* Categories */}
+            <div className="flex gap-2 overflow-x-auto pb-1">
+              {categories.map((item) => (
+                <button
+                  key={item}
+                  onClick={() => setCategory(item)}
+                  className={`shrink-0 rounded-xl border px-3.5 py-2 text-[11px] font-bold transition ${
+                    category === item
+                      ? "border-purple-400/30 bg-purple-500/15 text-purple-200"
+                      : "border-white/10 bg-white/[0.025] text-white/45 hover:bg-white/[0.06] hover:text-white"
                   }`}
                 >
-                  {/* Selected indicator */}
-                  {isSelected && (
-                    <div className="absolute right-4 top-4 z-10 rounded-full border border-purple-300/20 bg-purple-500/15 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-purple-200">
-                      Dipilih
-                    </div>
-                  )}
+                  {item === "ALL" ? "SEMUA" : item}
+                </button>
+              ))}
+            </div>
+          </div>
 
-                  {/* Logo / image */}
+          {filteredProducts.length === 0 ? (
+            <div className="rounded-3xl border border-white/10 bg-white/[0.025] p-12 text-center">
+              <div className="text-4xl">⌕</div>
+              <h2 className="mt-4 text-lg font-bold">
+                Produk tidak ditemukan
+              </h2>
+              <p className="mt-2 text-sm text-white/35">
+                Coba gunakan kata pencarian atau kategori lain.
+              </p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-4 xl:grid-cols-5">
+              {filteredProducts.map((product) => {
+                const availableStock = product.options.reduce(
+                  (sum, option) =>
+                    sum + Math.max(0, getAvailableStock(option)),
+                  0
+                );
+
+                const logo = getProductLogo(product);
+
+                const startingPrice = product.options.length
+                  ? Math.min(
+                      ...product.options.map((option) =>
+                        Number(option.price || 0)
+                      )
+                    )
+                  : 0;
+
+                const productCategory = getCategory(product.name);
+
+                return (
                   <button
+                    key={product.id}
+                    type="button"
                     onClick={() => selectProduct(product)}
-                    className="relative mb-5 flex h-40 w-full items-center justify-center overflow-hidden rounded-2xl border border-white/10 bg-black/30 transition group-hover:border-white/15"
+                    className="group relative flex min-h-[250px] flex-col overflow-hidden rounded-2xl border border-white/10 bg-white/[0.025] p-3 text-left transition duration-300 hover:-translate-y-1 hover:border-purple-400/25 hover:bg-white/[0.045] active:scale-[0.98] sm:min-h-[280px] sm:rounded-3xl sm:p-4"
                   >
-                    {logo ? (
-                      <img
-                        src={logo.trim()}
-                        alt={product.name}
-                        className="h-full w-full object-contain p-7 transition duration-500 group-hover:scale-105"
-                        loading="lazy"
-                        referrerPolicy="no-referrer"
-                        onError={(e) => {
-                          e.currentTarget.style.display = "none";
-                        }}
-                      />
-                    ) : (
-                      <div className="flex size-20 items-center justify-center rounded-3xl bg-gradient-to-br from-purple-500/15 to-blue-500/15 text-4xl ring-1 ring-white/10">
-                        ◈
+                    {/* Logo */}
+                    <div className="relative flex h-32 w-full items-center justify-center overflow-hidden rounded-xl border border-white/8 bg-black/30 sm:h-40 sm:rounded-2xl">
+                      {logo ? (
+                        <img
+                          src={logo.trim()}
+                          alt={product.name}
+                          className="h-full w-full object-contain p-5 transition duration-500 group-hover:scale-105 sm:p-7"
+                          loading="lazy"
+                          referrerPolicy="no-referrer"
+                          onError={(e) => {
+                            e.currentTarget.style.display = "none";
+                          }}
+                        />
+                      ) : (
+                        <div className="flex size-16 items-center justify-center rounded-2xl bg-gradient-to-br from-purple-500/15 to-blue-500/15 text-3xl ring-1 ring-white/10">
+                          ◈
+                        </div>
+                      )}
+
+                      <div className="absolute left-2 top-2 rounded-lg border border-white/10 bg-black/60 px-2 py-1 text-[9px] font-bold tracking-wider text-white/60 backdrop-blur">
+                        {productCategory}
                       </div>
-                    )}
+                    </div>
 
-                    <div className="pointer-events-none absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-black/50 to-transparent" />
-                  </button>
-
-                  {/* Product info */}
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="min-w-0">
-                      <h3 className="truncate text-lg font-black">
+                    {/* Info */}
+                    <div className="mt-3 min-w-0 flex-1">
+                      <h3 className="line-clamp-2 text-sm font-black leading-5 sm:text-base">
                         {product.name}
                       </h3>
 
-                      {product.description && (
-                        <p className="mt-1 line-clamp-2 text-xs leading-5 text-white/40">
-                          {product.description}
-                        </p>
+                      <p className="mt-2 text-[10px] uppercase tracking-wider text-white/30">
+                        Harga mulai dari
+                      </p>
+
+                      <p className="mt-0.5 text-sm font-black text-white sm:text-base">
+                        {startingPrice > 0
+                          ? formatRupiah(startingPrice)
+                          : "Hubungi Admin"}
+                      </p>
+                    </div>
+
+                    {/* Bottom */}
+                    <div className="mt-3 flex items-center justify-between border-t border-white/8 pt-3">
+                      <span
+                        className={`text-[10px] font-bold ${
+                          availableStock > 0
+                            ? "text-emerald-300"
+                            : "text-red-300"
+                        }`}
+                      >
+                        {availableStock > 0
+                          ? `${availableStock} STOCK`
+                          : "SOLD OUT"}
+                      </span>
+
+                      <span className="text-xs font-bold text-white/35 transition group-hover:translate-x-0.5 group-hover:text-white">
+                        Detail →
+                      </span>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          )}
+        </section>
+
+        {/* Product Detail Modal */}
+        {selectedProduct && !purchaseResult && (
+          <div
+            className="fixed inset-0 z-40 flex items-center justify-center bg-black/75 p-4 backdrop-blur-md"
+            onMouseDown={(e) => {
+              if (e.target === e.currentTarget) {
+                setSelectedProduct(null);
+                setSelectedOption(null);
+              }
+            }}
+          >
+            <div className="w-full max-w-lg overflow-hidden rounded-3xl border border-white/10 bg-[#09090b] shadow-2xl shadow-black/80">
+              <div className="max-h-[90vh] overflow-y-auto">
+                {/* Header */}
+                <div className="relative p-5 sm:p-6">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSelectedProduct(null);
+                      setSelectedOption(null);
+                    }}
+                    className="absolute right-4 top-4 z-10 flex size-9 items-center justify-center rounded-xl border border-white/10 bg-black/50 text-sm text-white/50 transition hover:bg-white/10 hover:text-white"
+                  >
+                    ✕
+                  </button>
+
+                  <div className="flex gap-4 pr-10">
+                    <div className="flex size-20 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-white/10 bg-black/40 sm:size-24">
+                      {getProductLogo(selectedProduct) ? (
+                        <img
+                          src={getProductLogo(selectedProduct)}
+                          alt={selectedProduct.name}
+                          className="h-full w-full object-contain p-3"
+                          referrerPolicy="no-referrer"
+                        />
+                      ) : (
+                        <span className="text-3xl">◈</span>
                       )}
                     </div>
 
-                    <span
-                      className={`shrink-0 rounded-lg px-2 py-1 text-[10px] font-bold ${
-                        availableStock > 0
-                          ? "bg-emerald-400/10 text-emerald-300"
-                          : "bg-red-400/10 text-red-300"
-                      }`}
-                    >
-                      {availableStock > 0
-                        ? `${availableStock} STOCK`
-                        : "SOLD OUT"}
-                    </span>
+                    <div className="min-w-0">
+                      <span className="inline-flex rounded-lg bg-purple-500/10 px-2 py-1 text-[9px] font-bold tracking-wider text-purple-200">
+                        {getCategory(selectedProduct.name)}
+                      </span>
+
+                      <h2 className="mt-2 text-lg font-black leading-6 sm:text-xl">
+                        {selectedProduct.name}
+                      </h2>
+
+                      {selectedProduct.description && (
+                        <p className="mt-1 text-xs leading-5 text-white/35">
+                          {selectedProduct.description}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Duration */}
+                <div className="border-t border-white/8 px-5 py-5 sm:px-6">
+                  <div className="mb-3 flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-bold">Pilih Durasi</p>
+                      <p className="mt-1 text-[11px] text-white/30">
+                        Pilih paket yang ingin kamu beli.
+                      </p>
+                    </div>
                   </div>
 
-                  {/* Options */}
-                  <div className="mt-5 space-y-2">
-                    {product.options.map((option) => {
-                      const active =
-                        isSelected && selectedOption?.id === option.id;
+                  <div className="space-y-2">
+                    {selectedProduct.options.map((option) => {
+                      const stock = getAvailableStock(option);
+                      const active = selectedOption?.id === option.id;
 
                       return (
                         <button
                           key={option.id}
-                          disabled={getAvailableStock(option) <= 0}
-                          onClick={() => {
-                            selectProduct(product);
-                            selectOption(option);
-                          }}
-                          className={`w-full rounded-2xl border p-3 text-left transition ${
+                          type="button"
+                          disabled={stock <= 0}
+                          onClick={() => selectOption(option)}
+                          className={`w-full rounded-2xl border p-3.5 text-left transition ${
                             active
                               ? "border-purple-400/40 bg-purple-500/10 shadow-lg shadow-purple-950/20"
                               : "border-white/8 bg-white/[0.025] hover:border-white/15 hover:bg-white/[0.05]"
                           } ${
-                            getAvailableStock(option) <= 0
+                            stock <= 0
                               ? "cursor-not-allowed opacity-35"
                               : ""
                           }`}
                         >
-                          <div className="flex items-center justify-between gap-3">
+                          <div className="flex items-center justify-between gap-4">
                             <div>
                               <p className="text-sm font-bold">
                                 {option.duration}
                               </p>
-
-                              <p className="mt-1 text-[11px] text-white/35">
-                                {getAvailableStock(option) > 0
-                                  ? `${getAvailableStock(option)} tersedia`
+                              <p className="mt-1 text-[10px] text-white/30">
+                                {stock > 0
+                                  ? `${stock} stok tersedia`
                                   : "Stok habis"}
                               </p>
                             </div>
 
-                            <p className="text-sm font-black">
-                              {formatRupiah(option.price)}
-                            </p>
+                            <div className="text-right">
+                              <p className="text-sm font-black">
+                                {formatRupiah(option.price)}
+                              </p>
+
+                              {active && (
+                                <p className="mt-1 text-[9px] font-bold uppercase tracking-wider text-purple-300">
+                                  Dipilih ✓
+                                </p>
+                              )}
+                            </div>
                           </div>
                         </button>
                       );
                     })}
                   </div>
-                </article>
-              );
-            })}
-          </div>
-        )}
-
-        {/* Checkout panel */}
-        {selectedProduct && selectedOption && (
-          <section className="sticky bottom-3 z-20 mx-auto mt-8 max-w-3xl overflow-hidden rounded-3xl border border-white/10 bg-black/85 p-4 shadow-2xl shadow-black/60 backdrop-blur-2xl sm:bottom-5 sm:p-5">
-            <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
-              <div className="min-w-0 flex-1">
-                <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-white/35">
-                  Pilihan kamu
-                </p>
-
-                <div className="mt-1 flex items-center gap-2">
-                  <h3 className="truncate font-black">
-                    {selectedProduct.name}
-                  </h3>
-
-                  <span className="shrink-0 rounded-lg bg-white/5 px-2 py-1 text-[10px] font-semibold text-white/45">
-                    {selectedOption.duration}
-                  </span>
                 </div>
 
-                <p className="mt-1 text-lg font-black">
-                  {formatRupiah(selectedOption.price)}
-                </p>
+                {/* Wallet + Checkout */}
+                {selectedOption && (
+                  <div className="border-t border-white/8 bg-white/[0.018] p-5 sm:p-6">
+                    <div className="mb-4 flex items-center justify-between rounded-2xl border border-white/8 bg-black/20 p-3.5">
+                      <div>
+                        <p className="text-[10px] uppercase tracking-wider text-white/30">
+                          Saldo Wallet
+                        </p>
+                        <p className="mt-1 text-sm font-black">
+                          {walletLoading
+                            ? "Memuat..."
+                            : formatRupiah(balance)}
+                        </p>
+                      </div>
+
+                      <a
+                        href="/member"
+                        className="rounded-xl border border-white/10 px-3 py-2 text-xs font-bold text-white/60 transition hover:bg-white/10 hover:text-white"
+                      >
+                        + Deposit
+                      </a>
+                    </div>
+
+                    {balance < selectedOption.price &&
+                      getAvailableStock(selectedOption) > 0 &&
+                      !walletLoading && (
+                        <div className="mb-3 rounded-xl bg-amber-400/[0.06] px-3 py-2.5 text-[11px] text-amber-200/70">
+                          Saldo kurang{" "}
+                          {formatRupiah(
+                            selectedOption.price - balance
+                          )}
+                        </div>
+                      )}
+
+                    <button
+                      type="button"
+                      onClick={buyProduct}
+                      disabled={!canBuy}
+                      className="w-full rounded-2xl bg-gradient-to-r from-purple-500 to-blue-500 px-5 py-4 text-sm font-black shadow-lg shadow-purple-950/30 transition hover:brightness-110 active:scale-[0.98] disabled:cursor-not-allowed disabled:bg-white/10 disabled:bg-none disabled:text-white/30 disabled:shadow-none"
+                    >
+                      {buying
+                        ? "Memproses..."
+                        : getAvailableStock(selectedOption) <= 0
+                          ? "Stok Habis"
+                          : balance < selectedOption.price
+                            ? "Saldo Tidak Cukup"
+                            : "Beli Sekarang →"}
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={contactAdmin}
+                      className="mt-2 w-full rounded-xl border border-white/10 px-4 py-3 text-xs font-bold text-white/50 transition hover:bg-white/[0.06] hover:text-white"
+                    >
+                      Tanya Admin via WhatsApp
+                    </button>
+                  </div>
+                )}
               </div>
-
-              <button
-                onClick={buyProduct}
-                disabled={!canBuy}
-                className="w-full rounded-2xl bg-gradient-to-r from-purple-500 to-blue-500 px-6 py-4 text-sm font-black shadow-lg shadow-purple-950/30 transition hover:brightness-110 active:scale-[0.98] disabled:cursor-not-allowed disabled:bg-white/10 disabled:bg-none disabled:text-white/30 disabled:shadow-none sm:w-auto sm:min-w-52"
-              >
-                {buying
-                  ? "Memproses..."
-                  : getAvailableStock(selectedOption) <= 0
-                    ? "Stok Habis"
-                    : balance < selectedOption.price
-                      ? "Saldo Tidak Cukup"
-                      : "Beli Sekarang →"}
-              </button>
             </div>
-
-            {balance < selectedOption.price &&
-              getAvailableStock(selectedOption) > 0 &&
-              !walletLoading && (
-                <div className="mt-3 flex items-center justify-between rounded-xl bg-amber-400/[0.06] px-3 py-2 text-[11px] text-amber-200/70">
-                  <span>
-                    Saldo kurang {formatRupiah(selectedOption.price - balance)}
-                  </span>
-
-                  <a
-                    href="/member"
-                    className="font-bold text-amber-200 hover:underline"
-                  >
-                    Deposit →
-                  </a>
-                </div>
-              )}
-          </section>
+          </div>
         )}
 
         {/* Help */}

@@ -8,8 +8,61 @@ import {
 } from "@workspace/db";
 import { and, eq, sql } from "drizzle-orm";
 import { requireAdmin, isAdmin } from "../lib/auth.js";
+import { getDripProducts } from "../lib/dripApi.js";
 
 const router = Router();
+
+function getCatalogGroup(name: string) {
+  const upper = name.toUpperCase();
+
+  if (upper.includes("DRIP")) return "DRIP";
+  if (upper.includes("HG")) return "HG";
+  if (upper.includes("FLURIOTE")) return "FLURIOTE";
+  if (upper.includes("MIGUL")) return "MIGUL";
+  if (upper.includes("PATO")) return "PATO";
+  if (upper.includes("SILENT")) return "SILENT";
+  if (upper.includes("ROOT")) return "ROOT";
+  if (upper.includes("IOS")) return "IOS";
+  if (upper.includes("ANDROID")) return "ANDROID";
+  if (upper.includes("FF")) return "FF";
+
+  return "OTHER";
+}
+
+function findImageUrl(value: unknown): string | null {
+  if (!value || typeof value !== "object") return null;
+
+  const object = value as Record<string, unknown>;
+
+  const keys = [
+    "image_url",
+    "imageUrl",
+    "logo_url",
+    "logoUrl",
+    "thumbnail",
+    "thumbnail_url",
+    "thumbnailUrl",
+    "icon_url",
+    "iconUrl",
+    "image",
+    "logo",
+    "icon",
+  ];
+
+  for (const key of keys) {
+    const candidate = object[key];
+
+    if (
+      typeof candidate === "string" &&
+      /^https?:\/\//i.test(candidate.trim())
+    ) {
+      return candidate.trim();
+    }
+  }
+
+  return null;
+}
+
 
 let productsSchemaReady: Promise<void> | null = null;
 
@@ -337,14 +390,87 @@ router.post(
         });
       }
 
+      await db.execute(sql`
+        ALTER TABLE products
+        ADD COLUMN IF NOT EXISTS image_url TEXT
+      `);
+
+      const groups = [
+        "DRIP",
+        "HG",
+        "FLURIOTE",
+        "MIGUL",
+        "PATO",
+        "SILENT",
+        "ROOT",
+        "IOS",
+        "ANDROID",
+        "FF",
+        "OTHER",
+      ];
+
+      const orderedCatalog = [...DRIP_CATALOG].sort((a, b) => {
+        const ga = groups.indexOf(getCatalogGroup(a.name));
+        const gb = groups.indexOf(getCatalogGroup(b.name));
+
+        return ga - gb || a.name.localeCompare(b.name);
+      });
+
+      const imageByVariant = new Map<number, string>();
+
+      try {
+        const raw: any = await getDripProducts();
+
+        const items = Array.isArray(raw)
+          ? raw
+          : Array.isArray(raw?.data)
+            ? raw.data
+            : Array.isArray(raw?.products)
+              ? raw.products
+              : [];
+
+        for (const item of items) {
+          const image = findImageUrl(item);
+
+          if (!image) continue;
+
+          const variants = Array.isArray(item?.variants)
+            ? item.variants
+            : [item];
+
+          for (const variant of variants) {
+            const id = Number(
+              variant?.variant_id ??
+              variant?.variantId ??
+              variant?.id,
+            );
+
+            if (Number.isInteger(id) && id > 0) {
+              imageByVariant.set(id, image);
+            }
+          }
+        }
+      } catch (error) {
+        console.warn(
+          "Image DRIP gagal diambil, import tetap dilanjutkan.",
+          error,
+        );
+      }
+
       let productsCreated = 0;
       let productsUpdated = 0;
       let variantsCreated = 0;
       let variantsUpdated = 0;
+      let imagesImported = 0;
 
-      for (let index = 0; index < DRIP_CATALOG.length; index++) {
-        const catalogProduct = DRIP_CATALOG[index];
+      for (let index = 0; index < orderedCatalog.length; index++) {
+        const catalogProduct = orderedCatalog[index];
         const sortOrder = index + 1;
+
+        const imageUrl =
+          catalogProduct.variants
+            .map((variant) => imageByVariant.get(variant.id))
+            .find(Boolean) ?? null;
 
         const [existingProduct] = await db
           .select()
@@ -360,6 +486,7 @@ router.post(
             .update(productsTable)
             .set({
               sortOrder,
+              ...(imageUrl ? { imageUrl } : {}),
             })
             .where(eq(productsTable.id, productId));
 
@@ -370,12 +497,17 @@ router.post(
             .values({
               name: catalogProduct.name,
               deliveryType: "WHATSAPP",
+              imageUrl,
               sortOrder,
             })
             .returning();
 
           productId = createdProduct.id;
           productsCreated++;
+        }
+
+        if (imageUrl) {
+          imagesImported++;
         }
 
         for (const variant of catalogProduct.variants) {
@@ -424,6 +556,7 @@ router.post(
         productsUpdated,
         variantsCreated,
         variantsUpdated,
+        imagesImported,
       });
     } catch (error) {
       console.error("DRIP catalog import error:", error);
