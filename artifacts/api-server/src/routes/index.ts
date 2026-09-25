@@ -16,6 +16,7 @@ import lootlabsRouter from "./lootlabs.js";
 import premiumRouter from "./premium.js";
 import resellerRouter from "./reseller.js";
 import dripRouter from "./drip.js";
+import promosRouter from "./promos.js";
 
 const router = Router();
 
@@ -37,5 +38,6 @@ router.use(walletRouter);
 router.use(wablasRouter);
 router.use(resellerRouter);
 router.use(dripRouter);
+router.use(promosRouter);
 
 export default router;

@@ -16,7 +16,7 @@ import {
   Loader2, ChevronLeft, ToggleLeft, ToggleRight, Eye, EyeOff,
   MessageSquare, ShoppingCart, BarChart3, Star, Users, Bot, RefreshCw,
   Settings, Image as ImageIcon, Palette, Upload, CheckCircle2,
-  GripVertical, ExternalLink, WalletCards,
+  GripVertical, ExternalLink, WalletCards, TicketPercent,
 } from "lucide-react";
 
 const ADMIN_EMAIL = import.meta.env.VITE_ADMIN_EMAIL || "zhuusite@gmail.com";
@@ -52,7 +52,7 @@ interface SiteSettings {
 
 import AdminResellerTab from "@/components/AdminResellerTab";
 
-type Tab = "reseller" | "stats" | "links" | "songs" | "settings" | "feedback" | "products" | "orders" | "deposits" | "wallet";
+type Tab = "reseller" | "stats" | "links" | "songs" | "settings" | "feedback" | "products" | "orders" | "deposits" | "wallet" | "promo";
 
 const iconOptions = ["SiDiscord","SiYoutube","SiTiktok","SiInstagram","SiTwitch","SiX","SiGithub","SiSpotify","SiPatreon","SiReddit","SiWhatsapp"];
 
@@ -106,6 +106,217 @@ export default function AdminPage() {
   const [walletUsersLoading, setWalletUsersLoading] = useState(false);
   const [walletSearch, setWalletSearch] = useState("");
   const [selectedWalletUser, setSelectedWalletUser] = useState<any | null>(null);
+
+  const [promos, setPromos] = useState<any[]>([]);
+  const [promosLoading, setPromosLoading] = useState(false);
+  const [promoSaving, setPromoSaving] = useState(false);
+  const [editingPromoId, setEditingPromoId] = useState<number | null>(null);
+  const [promoForm, setPromoForm] = useState({
+    code: "",
+    audience: "MEMBER",
+    discountAmount: "",
+    expiresAt: "",
+    maxUses: "",
+    active: true,
+  });
+
+  useEffect(() => {
+    if (tab === "promo" && isAdmin) {
+      loadPromos();
+    }
+  }, [tab, isAdmin]);
+
+  const resetPromoForm = () => {
+    setEditingPromoId(null);
+    setPromoForm({
+      code: "",
+      audience: "MEMBER",
+      discountAmount: "",
+      expiresAt: "",
+      maxUses: "",
+      active: true,
+    });
+  };
+
+  const loadPromos = async () => {
+    try {
+      setPromosLoading(true);
+      const res = await fetch(`${API_BASE}/api/admin/promos`, {
+        headers: await authHeaders(),
+        cache: "no-store",
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        alert(data?.error || "Gagal mengambil data promo");
+        return;
+      }
+      setPromos(Array.isArray(data) ? data : []);
+    } catch {
+      alert("Gagal terhubung ke server");
+    } finally {
+      setPromosLoading(false);
+    }
+  };
+
+  const savePromo = async () => {
+    if (!promoForm.code.trim()) {
+      alert("Kode promo wajib diisi");
+      return;
+    }
+
+    const discountAmount = Number(promoForm.discountAmount);
+    if (!Number.isFinite(discountAmount) || discountAmount <= 0) {
+      alert("Diskon harus lebih dari 0");
+      return;
+    }
+
+    if (
+      promoForm.maxUses.trim() &&
+      (!Number.isInteger(Number(promoForm.maxUses)) ||
+        Number(promoForm.maxUses) <= 0)
+    ) {
+      alert("Maksimal penggunaan harus bilangan bulat lebih dari 0");
+      return;
+    }
+
+    try {
+      setPromoSaving(true);
+
+      const payload = {
+        code: promoForm.code.trim().toUpperCase(),
+        audience: promoForm.audience,
+        discountAmount,
+        expiresAt: promoForm.expiresAt
+          ? new Date(promoForm.expiresAt).toISOString()
+          : null,
+        maxUses: promoForm.maxUses.trim()
+          ? Number(promoForm.maxUses)
+          : null,
+        active: promoForm.active,
+      };
+
+      const url = editingPromoId
+        ? `${API_BASE}/api/admin/promos/${editingPromoId}`
+        : `${API_BASE}/api/admin/promos`;
+
+      const res = await fetch(url, {
+        method: editingPromoId ? "PATCH" : "POST",
+        headers: {
+          ...(await authHeaders()),
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        alert(data?.error || "Gagal menyimpan promo");
+        return;
+      }
+
+      await loadPromos();
+      resetPromoForm();
+      alert(editingPromoId ? "Promo berhasil diperbarui." : "Promo berhasil dibuat.");
+    } catch {
+      alert("Gagal terhubung ke server");
+    } finally {
+      setPromoSaving(false);
+    }
+  };
+
+  const editPromo = (promo: any) => {
+    setEditingPromoId(Number(promo.id));
+
+    let expiresAt = "";
+    if (promo.expires_at) {
+      const date = new Date(promo.expires_at);
+      if (!Number.isNaN(date.getTime())) {
+        const offset = date.getTimezoneOffset();
+        const local = new Date(date.getTime() - offset * 60 * 1000);
+        expiresAt = local.toISOString().slice(0, 16);
+      }
+    }
+
+    setPromoForm({
+      code: promo.code || "",
+      audience: promo.audience || "MEMBER",
+      discountAmount: String(promo.discount_amount ?? ""),
+      expiresAt,
+      maxUses:
+        promo.max_uses === null || promo.max_uses === undefined
+          ? ""
+          : String(promo.max_uses),
+      active: promo.active !== false,
+    });
+
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const togglePromo = async (promo: any) => {
+    try {
+      const res = await fetch(`${API_BASE}/api/admin/promos/${promo.id}`, {
+        method: "PATCH",
+        headers: {
+          ...(await authHeaders()),
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          code: promo.code,
+          audience: promo.audience,
+          discountAmount: promo.discount_amount,
+          expiresAt: promo.expires_at,
+          maxUses: promo.max_uses,
+          active: !promo.active,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        alert(data?.error || "Gagal mengubah status promo");
+        return;
+      }
+
+      await loadPromos();
+    } catch {
+      alert("Gagal terhubung ke server");
+    }
+  };
+
+  const deletePromo = async (promo: any) => {
+    if (
+      !confirm(
+        `Hapus promo "${promo.code}"?\n\nData penggunaan promo ini juga akan dihapus.`
+      )
+    ) {
+      return;
+    }
+
+    try {
+      const res = await fetch(`${API_BASE}/api/admin/promos/${promo.id}`, {
+        method: "DELETE",
+        headers: await authHeaders(),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        alert(data?.error || "Gagal menghapus promo");
+        return;
+      }
+
+      await loadPromos();
+
+      if (editingPromoId === Number(promo.id)) {
+        resetPromoForm();
+      }
+
+      alert("Promo berhasil dihapus.");
+    } catch {
+      alert("Gagal terhubung ke server");
+    }
+  };
 
   const loadDeposits = async () => {
     try {
@@ -585,6 +796,7 @@ const saveSettings = async () => {
     { id: "orders", label: "Orders", icon: <ShoppingCart size={14} /> },
     { id: "deposits", label: "Deposits", icon: <WalletCards size={14} /> },
   { id: "wallet", label: "Wallet Control", icon: <WalletCards size={14} /> },
+  { id: "promo", label: "Promo", icon: <TicketPercent size={14} /> },
   ];
 
   if (!user) return (
@@ -970,7 +1182,312 @@ const saveSettings = async () => {
       )}
 
       {/* Feedback Tab */}
-      {tab === "products" && (
+      {tab === "promo" && (
+  <div className="space-y-5">
+    <div className="glass-card rounded-2xl p-5">
+      <div className="flex items-center justify-between gap-3 mb-5">
+        <div>
+          <h2 className="text-lg font-semibold text-blue-100 flex items-center gap-2">
+            <TicketPercent size={18} className="text-cyan-300" />
+            Promo Management
+          </h2>
+          <p className="text-xs text-blue-300/50 mt-1">
+            Kelola kode promo untuk Member dan Reseller
+          </p>
+        </div>
+
+        <button
+          type="button"
+          onClick={() => {
+            resetPromoForm();
+            loadPromos();
+          }}
+          disabled={promosLoading}
+          className="px-3 py-2 rounded-lg bg-cyan-400/10 text-cyan-300 text-xs flex items-center gap-2"
+        >
+          <RefreshCw size={13} className={promosLoading ? "animate-spin" : ""} />
+          Refresh
+        </button>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+        <div>
+          <label className="text-xs text-blue-300/50 mb-1 block">
+            Kode Promo
+          </label>
+          <input
+            value={promoForm.code}
+            onChange={(e) =>
+              setPromoForm({
+                ...promoForm,
+                code: e.target.value.toUpperCase(),
+              })
+            }
+            placeholder="Contoh: ZHUU10"
+            className="w-full bg-white/5 border border-cyan-400/20 rounded-xl px-3 py-2.5 text-sm text-blue-100 placeholder-blue-300/25 focus:outline-none focus:border-cyan-400/50"
+          />
+        </div>
+
+        <div>
+          <label className="text-xs text-blue-300/50 mb-1 block">
+            Audience
+          </label>
+          <select
+            value={promoForm.audience}
+            onChange={(e) =>
+              setPromoForm({
+                ...promoForm,
+                audience: e.target.value,
+              })
+            }
+            className="w-full bg-slate-900 border border-cyan-400/20 rounded-xl px-3 py-2.5 text-sm text-blue-100 focus:outline-none focus:border-cyan-400/50"
+          >
+            <option value="MEMBER">Member</option>
+            <option value="RESELLER">Reseller</option>
+          </select>
+        </div>
+
+        <div>
+          <label className="text-xs text-blue-300/50 mb-1 block">
+            Diskon (Rp)
+          </label>
+          <input
+            type="number"
+            min="1"
+            value={promoForm.discountAmount}
+            onChange={(e) =>
+              setPromoForm({
+                ...promoForm,
+                discountAmount: e.target.value,
+              })
+            }
+            placeholder="10000"
+            className="w-full bg-white/5 border border-cyan-400/20 rounded-xl px-3 py-2.5 text-sm text-blue-100 placeholder-blue-300/25 focus:outline-none focus:border-cyan-400/50"
+          />
+        </div>
+
+        <div>
+          <label className="text-xs text-blue-300/50 mb-1 block">
+            Maksimal Penggunaan
+          </label>
+          <input
+            type="number"
+            min="1"
+            value={promoForm.maxUses}
+            onChange={(e) =>
+              setPromoForm({
+                ...promoForm,
+                maxUses: e.target.value,
+              })
+            }
+            placeholder="Kosong = tanpa batas"
+            className="w-full bg-white/5 border border-cyan-400/20 rounded-xl px-3 py-2.5 text-sm text-blue-100 placeholder-blue-300/25 focus:outline-none focus:border-cyan-400/50"
+          />
+        </div>
+
+        <div>
+          <label className="text-xs text-blue-300/50 mb-1 block">
+            Expired
+          </label>
+          <input
+            type="datetime-local"
+            value={promoForm.expiresAt}
+            onChange={(e) =>
+              setPromoForm({
+                ...promoForm,
+                expiresAt: e.target.value,
+              })
+            }
+            className="w-full bg-white/5 border border-cyan-400/20 rounded-xl px-3 py-2.5 text-sm text-blue-100 focus:outline-none focus:border-cyan-400/50"
+          />
+        </div>
+
+        <div className="flex items-end">
+          <label className="flex items-center gap-2 text-sm text-blue-200 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={promoForm.active}
+              onChange={(e) =>
+                setPromoForm({
+                  ...promoForm,
+                  active: e.target.checked,
+                })
+              }
+              className="accent-cyan-400"
+            />
+            Promo aktif
+          </label>
+        </div>
+      </div>
+
+      <div className="flex gap-2 mt-5">
+        <button
+          type="button"
+          onClick={savePromo}
+          disabled={promoSaving}
+          className="px-4 py-2.5 rounded-xl bg-cyan-400/15 text-cyan-300 border border-cyan-400/20 text-sm flex items-center gap-2 hover:bg-cyan-400/20 disabled:opacity-50"
+        >
+          {promoSaving ? (
+            <Loader2 size={15} className="animate-spin" />
+          ) : editingPromoId ? (
+            <Save size={15} />
+          ) : (
+            <Plus size={15} />
+          )}
+          {promoSaving
+            ? "Menyimpan..."
+            : editingPromoId
+              ? "Simpan Perubahan"
+              : "Buat Promo"}
+        </button>
+
+        {editingPromoId !== null && (
+          <button
+            type="button"
+            onClick={resetPromoForm}
+            className="px-4 py-2.5 rounded-xl bg-white/5 text-blue-300/70 border border-white/10 text-sm flex items-center gap-2"
+          >
+            <X size={15} />
+            Batal
+          </button>
+        )}
+      </div>
+    </div>
+
+    <div className="glass-card rounded-2xl p-5">
+      <div className="flex items-center justify-between mb-4">
+        <div>
+          <h3 className="text-sm font-semibold text-blue-100">
+            Daftar Promo
+          </h3>
+          <p className="text-xs text-blue-300/40 mt-1">
+            {promos.length} promo terdaftar
+          </p>
+        </div>
+      </div>
+
+      {promosLoading ? (
+        <div className="flex items-center justify-center py-10 text-cyan-300">
+          <Loader2 size={20} className="animate-spin" />
+        </div>
+      ) : promos.length === 0 ? (
+        <div className="text-center py-10 text-sm text-blue-300/40">
+          Belum ada promo.
+        </div>
+      ) : (
+        <div className="space-y-3">
+          {promos.map((promo) => {
+            const expired =
+              promo.expires_at &&
+              new Date(promo.expires_at).getTime() <= Date.now();
+
+            const usageText =
+              promo.max_uses === null || promo.max_uses === undefined
+                ? `${promo.used_count ?? 0} penggunaan`
+                : `${promo.used_count ?? 0} / ${promo.max_uses}`;
+
+            return (
+              <div
+                key={promo.id}
+                className="rounded-xl border border-white/10 bg-black/20 p-4"
+              >
+                <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+                  <div className="min-w-0">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="font-mono font-semibold text-cyan-300">
+                        {promo.code}
+                      </span>
+
+                      <span className="px-2 py-0.5 rounded-full text-[10px] bg-purple-400/10 text-purple-300 border border-purple-400/20">
+                        {promo.audience}
+                      </span>
+
+                      <span
+                        className={`px-2 py-0.5 rounded-full text-[10px] border ${
+                          promo.active && !expired
+                            ? "bg-green-400/10 text-green-300 border-green-400/20"
+                            : "bg-red-400/10 text-red-300 border-red-400/20"
+                        }`}
+                      >
+                        {expired
+                          ? "EXPIRED"
+                          : promo.active
+                            ? "AKTIF"
+                            : "NONAKTIF"}
+                      </span>
+                    </div>
+
+                    <div className="flex flex-wrap gap-x-5 gap-y-1 mt-2 text-xs text-blue-300/50">
+                      <span>
+                        Diskon:{" "}
+                        <b className="text-blue-200">
+                          Rp {Number(promo.discount_amount || 0).toLocaleString("id-ID")}
+                        </b>
+                      </span>
+
+                      <span>
+                        Digunakan:{" "}
+                        <b className="text-blue-200">{usageText}</b>
+                      </span>
+
+                      <span>
+                        Expired:{" "}
+                        <b className="text-blue-200">
+                          {promo.expires_at
+                            ? new Date(promo.expires_at).toLocaleString("id-ID")
+                            : "Tidak ada"}
+                        </b>
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-wrap gap-2">
+                    <button
+                      type="button"
+                      onClick={() => editPromo(promo)}
+                      className="px-3 py-2 rounded-lg bg-blue-400/10 text-blue-300 text-xs flex items-center gap-1.5"
+                    >
+                      <Edit2 size={13} />
+                      Edit
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => togglePromo(promo)}
+                      className={`px-3 py-2 rounded-lg text-xs flex items-center gap-1.5 ${
+                        promo.active
+                          ? "bg-yellow-400/10 text-yellow-300"
+                          : "bg-green-400/10 text-green-300"
+                      }`}
+                    >
+                      {promo.active ? (
+                        <ToggleRight size={14} />
+                      ) : (
+                        <ToggleLeft size={14} />
+                      )}
+                      {promo.active ? "Nonaktifkan" : "Aktifkan"}
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => deletePromo(promo)}
+                      className="px-3 py-2 rounded-lg bg-red-400/10 text-red-300 text-xs flex items-center gap-1.5"
+                    >
+                      <Trash2 size={13} />
+                      Hapus
+                    </button>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  </div>
+)}
+
+{tab === "products" && (
   <div className="glass-card rounded-2xl p-5">
     <h2 className="text-lg font-semibold text-blue-100 mb-4">Products</h2>
 
