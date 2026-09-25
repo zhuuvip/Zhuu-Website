@@ -1908,7 +1908,7 @@ const saveSettings = async () => {
                         </div>
 
         {p.options?.map((o:any) => (
-          <div key={o.id} className="grid grid-cols-1 sm:grid-cols-[1fr_1fr_1fr_auto_auto] gap-2 items-center mt-2">
+          <div key={o.id} className="grid grid-cols-1 sm:grid-cols-[1fr_1fr_1fr_1fr_auto_auto] gap-2 items-center mt-2">
             <input
               defaultValue={o.duration}
               id={`duration-${o.id}`} disabled={editingOptionId !== o.id}
@@ -1918,12 +1918,21 @@ const saveSettings = async () => {
               defaultValue={o.price}
               id={`price-${o.id}`} disabled={editingOptionId !== o.id}
               type="number"
+              placeholder="Harga Member"
+              className="px-3 py-2 rounded-lg bg-black/20 text-sm"
+            />
+            <input
+              defaultValue={o.resellerPrice ?? ""}
+              id={`reseller-price-${o.id}`} disabled={editingOptionId !== o.id}
+              type="number"
+              placeholder="Harga Reseller"
               className="px-3 py-2 rounded-lg bg-black/20 text-sm"
             />
             <input
               defaultValue={o.stock}
               id={`stock-${o.id}`} disabled={editingOptionId !== o.id}
               type="number"
+              placeholder="Stock"
               className="px-3 py-2 rounded-lg bg-black/20 text-sm"
             />
             <input

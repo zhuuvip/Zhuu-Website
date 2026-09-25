@@ -293,6 +293,9 @@ router.patch("/products/options/:id", requireAdmin, async (req, res) => {
     .set({
       duration: req.body.duration,
       price: Number(req.body.price),
+      resellerPrice: req.body.resellerPrice === null || req.body.resellerPrice === ""
+        ? null
+        : Number(req.body.resellerPrice),
       stock: Number(req.body.stock),
       dripVariantId: req.body.dripVariantId ? Number(req.body.dripVariantId) : null,
       dripStock: Number(req.body.dripStock ?? 0),
