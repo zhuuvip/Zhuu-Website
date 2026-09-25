@@ -13,6 +13,8 @@ const SETTINGS_KEYS = [
   "bannerUrl",
   "themeColor",
   "statusText",
+  "maintenanceMode",
+  "maintenanceReason",
 ] as const;
 
 type SettingsKey = typeof SETTINGS_KEYS[number];

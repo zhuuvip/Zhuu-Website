@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import React, { useEffect, useRef } from "react";
 import { ClerkProvider, useClerk, useAuth } from "@clerk/react";
 import { publishableKeyFromHost } from "@clerk/react/internal";
 import { shadcn } from "@clerk/themes";
@@ -32,6 +32,7 @@ import MemberPage from "@/pages/MemberPage";
 import ProductsPage from "@/pages/ProductsPage";
 import ResellerLoginPage from "@/pages/ResellerLoginPage";
 import ResellerDashboardPage from "@/pages/ResellerDashboardPage";
+import MaintenancePage from "@/pages/MaintenancePage";
 
 const apiUrl = import.meta.env.VITE_API_URL;
 if (apiUrl) {
@@ -148,6 +149,64 @@ function ClerkQueryClientCacheInvalidator() {
 
 function AppRouter() {
   const [location] = useLocation();
+  const [maintenance, setMaintenance] = React.useState(false);
+  const [maintenanceReason, setMaintenanceReason] = React.useState("");
+  const [maintenanceLoading, setMaintenanceLoading] = React.useState(true);
+
+  const isAdminPage = location.startsWith("/admin");
+  const isAuthPage =
+    location.startsWith("/sign-in") ||
+    location.startsWith("/sign-up");
+
+  useEffect(() => {
+    if (isAdminPage || isAuthPage) {
+      setMaintenanceLoading(false);
+      return;
+    }
+
+    const checkMaintenance = async () => {
+      try {
+        const base = (apiUrl || "").replace(/\/$/, "");
+        const res = await fetch(`${base}/api/settings`, {
+          cache: "no-store",
+        });
+
+        if (!res.ok) {
+          setMaintenance(false);
+          return;
+        }
+
+        const settings = await res.json();
+
+        setMaintenance(settings.maintenanceMode === "true");
+        setMaintenanceReason(
+          settings.maintenanceReason ||
+            "Website sedang dalam maintenance sementara."
+        );
+      } catch {
+        // Kalau API tidak bisa diakses, jangan mengunci website.
+        setMaintenance(false);
+      } finally {
+        setMaintenanceLoading(false);
+      }
+    };
+
+    checkMaintenance();
+
+    const interval = window.setInterval(checkMaintenance, 10000);
+
+    return () => window.clearInterval(interval);
+  }, [location, isAdminPage, isAuthPage]);
+
+  if (
+    !maintenanceLoading &&
+    maintenance &&
+    !isAdminPage &&
+    !isAuthPage
+  ) {
+    return <MaintenancePage reason={maintenanceReason} />;
+  }
+
   const isFullScreenPage = location.startsWith("/ai");
 
   return (
@@ -155,6 +214,7 @@ function AppRouter() {
       <OceanCanvas />
       <AnnouncementBanner />
       <Navigation />
+
       <Switch>
         <Route path="/" component={HomePage} />
         <Route path="/ai" component={AIPage} />
@@ -175,13 +235,13 @@ function AppRouter() {
         <Route path="/sign-up/*?" component={SignUpPage} />
         <Route component={NotFoundPage} />
       </Switch>
+
       {!isFullScreenPage && <Footer />}
       <MusicPlayer />
       <Toaster />
     </div>
   );
 }
-
 function ClerkProviderWithRoutes() {
   const [, setLocation] = useLocation();
 

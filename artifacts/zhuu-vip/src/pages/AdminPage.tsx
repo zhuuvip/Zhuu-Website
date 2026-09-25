@@ -48,6 +48,7 @@ interface Stats {
 interface SiteSettings {
   profileName?: string; profileBio?: string; logoUrl?: string;
   bannerUrl?: string; themeColor?: string; statusText?: string;
+  maintenanceMode?: string; maintenanceReason?: string;
 }
 
 import AdminResellerTab from "@/components/AdminResellerTab";
@@ -1076,6 +1077,56 @@ const saveSettings = async () => {
               {settingsSaving ? <Loader2 size={14} className="animate-spin" /> : settingsSaved ? <CheckCircle2 size={14} /> : <Save size={14} />}
               {settingsSaved ? "Saved!" : "Save All"}
             </button>
+          </div>
+
+          {/* Maintenance Mode */}
+          <div className="glass-card rounded-2xl p-5 space-y-4 border border-red-400/20">
+            <div className="flex items-center justify-between gap-4">
+              <div>
+                <h3 className="text-sm font-semibold text-red-300 flex items-center gap-2">
+                  🔧 Maintenance Mode
+                </h3>
+                <p className="text-xs text-blue-300/40 mt-1">
+                  Aktifkan saat website sedang diperbaiki atau di-update.
+                </p>
+              </div>
+
+              <button
+                type="button"
+                onClick={() =>
+                  setSettings({
+                    ...settings,
+                    maintenanceMode:
+                      settings.maintenanceMode === "true" ? "false" : "true",
+                  })
+                }
+                className={`px-4 py-2 rounded-xl text-sm font-semibold border transition-all ${
+                  settings.maintenanceMode === "true"
+                    ? "bg-red-500/15 border-red-400/30 text-red-300"
+                    : "bg-green-500/15 border-green-400/30 text-green-300"
+                }`}
+              >
+                {settings.maintenanceMode === "true" ? "🔴 ON" : "🟢 OFF"}
+              </button>
+            </div>
+
+            <div>
+              <label className="text-xs text-blue-300/50 mb-1 block">
+                Alasan Maintenance
+              </label>
+              <textarea
+                value={settings.maintenanceReason ?? ""}
+                onChange={(e) =>
+                  setSettings({
+                    ...settings,
+                    maintenanceReason: e.target.value,
+                  })
+                }
+                placeholder="Contoh: Website sedang melakukan update sistem..."
+                rows={3}
+                className="w-full bg-white/5 border border-red-400/20 rounded-xl px-3 py-2.5 text-sm text-blue-100 placeholder-blue-300/25 focus:outline-none focus:border-red-400/50 resize-none"
+              />
+            </div>
           </div>
 
           {/* Announcement Banner */}
