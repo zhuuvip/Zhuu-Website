@@ -47,6 +47,17 @@ export default function ResellerDashboardPage() {
   const [error, setError] = useState("");
 
   const [buying, setBuying] = useState(false);
+
+  const [promoCode, setPromoCode] = useState("");
+  const [promoApplied, setPromoApplied] = useState<{
+    code: string;
+    discount: number;
+    originalPrice: number;
+    finalPrice: number;
+  } | null>(null);
+  const [promoLoading, setPromoLoading] = useState(false);
+  const [promoError, setPromoError] = useState("");
+
   const [purchaseResult, setPurchaseResult] = useState<{
     product: string;
     duration: string;
@@ -227,12 +238,17 @@ export default function ResellerDashboardPage() {
 
   const selectedPrice = Number(selectedOption?.price || 0);
 
+  const finalPrice =
+    promoApplied && promoApplied.originalPrice === selectedPrice
+      ? promoApplied.finalPrice
+      : selectedPrice;
+
   const canBuy = Boolean(
     selectedProduct &&
       selectedOption &&
       getAvailableStock(selectedOption) > 0 &&
-      selectedPrice > 0 &&
-      balance >= selectedPrice &&
+      finalPrice > 0 &&
+      balance >= finalPrice &&
       !buying
   );
 
@@ -251,6 +267,8 @@ export default function ResellerDashboardPage() {
   );
 
   const selectProduct = (product: Product) => {
+    setPromoApplied(null);
+    setPromoError("");
     setSelectedProduct(product);
 
     const available =
@@ -263,7 +281,47 @@ export default function ResellerDashboardPage() {
 
   const selectOption = (option: ProductOption) => {
     if (getAvailableStock(option) <= 0) return;
+    setPromoApplied(null);
+    setPromoError("");
     setSelectedOption(option);
+  };
+
+  const applyPromoCode = async () => {
+    const code = promoCode.trim();
+
+    if (!selectedProduct || !selectedOption || !code || promoLoading) {
+      return;
+    }
+
+    try {
+      setPromoLoading(true);
+      setPromoError("");
+
+      const data = await resellerApi("/api/reseller/validate-promo", {
+        method: "POST",
+        body: JSON.stringify({
+          code,
+          productId: selectedProduct.id,
+          optionId: selectedOption.id,
+        }),
+      });
+
+      setPromoApplied({
+        code: String(data.code || code).toUpperCase(),
+        discount: Number(data.discount || 0),
+        originalPrice: Number(data.originalPrice || selectedPrice),
+        finalPrice: Number(data.finalPrice || selectedPrice),
+      });
+    } catch (err) {
+      setPromoApplied(null);
+      setPromoError(
+        err instanceof Error
+          ? err.message
+          : "Kode promo tidak valid."
+      );
+    } finally {
+      setPromoLoading(false);
+    }
   };
 
   const buyProduct = async () => {
@@ -276,13 +334,19 @@ export default function ResellerDashboardPage() {
       return;
     }
 
-    if (balance < selectedOption.price) {
+    const purchasePrice =
+      promoApplied &&
+      promoApplied.originalPrice === Number(selectedOption.price)
+        ? promoApplied.finalPrice
+        : Number(selectedOption.price);
+
+    if (balance < purchasePrice) {
       alert([
         "Saldo tidak cukup.",
         "",
         `Saldo: ${formatRupiah(balance)}`,
-        `Harga: ${formatRupiah(selectedOption.price)}`,
-        `Kurang: ${formatRupiah(selectedOption.price - balance)}`,
+        `Harga: ${formatRupiah(purchasePrice)}`,
+        `Kurang: ${formatRupiah(purchasePrice - balance)}`,
         "",
         "Silakan isi saldo terlebih dahulu.",
       ].join("\n"));
@@ -297,6 +361,7 @@ export default function ResellerDashboardPage() {
         body: JSON.stringify({
           productId: selectedProduct.id,
           optionId: selectedOption.id,
+          promoCode: promoApplied?.code || undefined,
         }),
       });
 
@@ -876,13 +941,75 @@ export default function ResellerDashboardPage() {
                       </a>
                     </div>
 
-                    {balance < selectedOption.price &&
+                                          <div className="mb-4 rounded-2xl border border-white/8 bg-black/20 p-4">
+                        <p className="mb-2 text-[10px] font-bold uppercase tracking-wider text-white/35">
+                          Kode Promo
+                        </p>
+
+                        <div className="flex gap-2">
+                          <input
+                            type="text"
+                            value={promoCode}
+                            onChange={(e) => {
+                              setPromoCode(e.target.value.toUpperCase());
+                              setPromoApplied(null);
+                              setPromoError("");
+                            }}
+                            onKeyDown={(e) => {
+                              if (e.key === "Enter") {
+                                e.preventDefault();
+                                applyPromoCode();
+                              }
+                            }}
+                            placeholder="Masukkan kode promo"
+                            className="min-w-0 flex-1 rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2.5 text-xs font-bold uppercase outline-none transition placeholder:text-white/20 focus:border-purple-400/50"
+                          />
+
+                          <button
+                            type="button"
+                            onClick={applyPromoCode}
+                            disabled={!promoCode.trim() || promoLoading}
+                            className="rounded-xl bg-white/10 px-4 py-2.5 text-xs font-black transition hover:bg-white/15 disabled:cursor-not-allowed disabled:opacity-30"
+                          >
+                            {promoLoading ? "..." : "Gunakan"}
+                          </button>
+                        </div>
+
+                        {promoError && (
+                          <p className="mt-2 text-[10px] font-bold text-red-300">
+                            {promoError}
+                          </p>
+                        )}
+
+                        {promoApplied && (
+                          <div className="mt-3 space-y-1.5 text-xs">
+                            <div className="flex justify-between text-white/40">
+                              <span>Harga normal</span>
+                              <span className="line-through">
+                                {formatRupiah(promoApplied.originalPrice)}
+                              </span>
+                            </div>
+
+                            <div className="flex justify-between text-emerald-300">
+                              <span>Diskon ({promoApplied.code})</span>
+                              <span>-{formatRupiah(promoApplied.discount)}</span>
+                            </div>
+
+                            <div className="flex justify-between border-t border-white/8 pt-2 text-sm font-black text-white">
+                              <span>Total bayar</span>
+                              <span>{formatRupiah(promoApplied.finalPrice)}</span>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+
+{balance < finalPrice &&
                       getAvailableStock(selectedOption) > 0 &&
                       !walletLoading && (
                         <div className="mb-3 rounded-xl bg-amber-400/[0.06] px-3 py-2.5 text-[11px] text-amber-200/70">
                           Saldo kurang{" "}
                           {formatRupiah(
-                            selectedOption.price - balance
+                            finalPrice - balance
                           )}
                         </div>
                       )}
@@ -897,7 +1024,7 @@ export default function ResellerDashboardPage() {
                         ? "Memproses..."
                         : getAvailableStock(selectedOption) <= 0
                           ? "Stok Habis"
-                          : balance < selectedOption.price
+                          : balance < finalPrice
                             ? "Saldo Tidak Cukup"
                             : "Beli Sekarang →"}
                     </button>

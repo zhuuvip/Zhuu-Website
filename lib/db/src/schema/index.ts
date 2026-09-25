@@ -14,3 +14,4 @@ export * from "./wallet.js";
 
 export * from "./dailyLimits.js";
 export * from "./premium.js";
+export * from "./promos.js";

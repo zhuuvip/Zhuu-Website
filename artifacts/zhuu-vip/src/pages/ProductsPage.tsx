@@ -63,6 +63,17 @@ export default function ProductsPage() {
   const [error, setError] = useState("");
 
   const [buying, setBuying] = useState(false);
+
+  const [promoCode, setPromoCode] = useState("");
+  const [promoApplied, setPromoApplied] = useState<{
+    code: string;
+    discount: number;
+    originalPrice: number;
+    finalPrice: number;
+  } | null>(null);
+  const [promoLoading, setPromoLoading] = useState(false);
+  const [promoError, setPromoError] = useState("");
+
   const [purchaseResult, setPurchaseResult] = useState<{
     product: string;
     duration: string;
@@ -249,14 +260,80 @@ export default function ProductsPage() {
 
   const selectedPrice = Number(selectedOption?.price || 0);
 
+  const finalPrice =
+    promoApplied && promoApplied.originalPrice === selectedPrice
+      ? promoApplied.finalPrice
+      : selectedPrice;
+
   const canBuy = Boolean(
     selectedProduct &&
-      selectedOption &&
-      getAvailableStock(selectedOption) > 0 &&
-      selectedPrice > 0 &&
-      balance >= selectedPrice &&
-      !buying
+    selectedOption &&
+    getAvailableStock(selectedOption) > 0 &&
+    finalPrice > 0 &&
+    balance >= finalPrice &&
+    !buying
   );
+
+  const applyPromoCode = async () => {
+    if (!selectedProduct || !selectedOption || promoLoading) return;
+
+    const code = promoCode.trim();
+
+    if (!code) {
+      setPromoApplied(null);
+      setPromoError("Masukkan kode promo terlebih dahulu.");
+      return;
+    }
+
+    try {
+      setPromoLoading(true);
+      setPromoError("");
+
+      const token = await getToken();
+
+      if (!token) {
+        setPromoError("Silakan login terlebih dahulu.");
+        return;
+      }
+
+      const res = await fetch(`${API_BASE}/api/orders/validate-promo`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          code,
+          productId: selectedProduct.id,
+          optionId: selectedOption.id,
+        }),
+      });
+
+      const data = await res.json().catch(() => ({}));
+
+      if (!res.ok) {
+        setPromoApplied(null);
+        throw new Error(data.error || "Kode promo tidak valid.");
+      }
+
+      setPromoApplied({
+        code: String(data.code || code).toUpperCase(),
+        discount: Number(data.discount || 0),
+        originalPrice: Number(data.originalPrice || selectedPrice),
+        finalPrice: Number(data.finalPrice || selectedPrice),
+      });
+
+      setPromoError("");
+    } catch (err) {
+      setPromoError(
+        err instanceof Error
+          ? err.message
+          : "Gagal memeriksa kode promo."
+      );
+    } finally {
+      setPromoLoading(false);
+    }
+  };
 
   const totalStock = useMemo(
     () =>
@@ -281,11 +358,17 @@ export default function ProductsPage() {
       null;
 
     setSelectedOption(available);
+    setPromoCode("");
+    setPromoApplied(null);
+    setPromoError("");
   };
 
   const selectOption = (option: ProductOption) => {
     if (getAvailableStock(option) <= 0) return;
     setSelectedOption(option);
+    setPromoCode("");
+    setPromoApplied(null);
+    setPromoError("");
   };
 
   const buyProduct = async () => {
@@ -296,18 +379,16 @@ export default function ProductsPage() {
       return;
     }
 
-    if (balance < selectedOption.price) {
-      alert(
-        [
-          "Saldo tidak cukup.",
-          "",
-          `Saldo: ${formatRupiah(balance)}`,
-          `Harga: ${formatRupiah(selectedOption.price)}`,
-          `Kurang: ${formatRupiah(selectedOption.price - balance)}`,
-          "",
-          "Silakan deposit terlebih dahulu.",
-        ].join("\n")
-      );
+    if (balance < finalPrice) {
+      alert([
+        "Saldo tidak cukup.",
+        "",
+        `Saldo: ${formatRupiah(balance)}`,
+        `Harga: ${formatRupiah(finalPrice)}`,
+        `Kurang: ${formatRupiah(finalPrice - balance)}`,
+        "",
+        "Silakan deposit terlebih dahulu.",
+      ].join("\n"));
       return;
     }
 
@@ -330,6 +411,7 @@ export default function ProductsPage() {
         body: JSON.stringify({
           productId: selectedProduct.id,
           optionId: selectedOption.id,
+            promoCode: promoApplied?.code || undefined,
         }),
       });
 
@@ -836,13 +918,79 @@ export default function ProductsPage() {
                       </a>
                     </div>
 
-                    {balance < selectedOption.price &&
+                    {/* Promo Code */}
+      <div className="mb-4 rounded-2xl border border-white/8 bg-black/20 p-3.5">
+        <p className="text-[10px] uppercase tracking-wider text-white/30">
+          Kode Promo
+        </p>
+
+        <div className="mt-2 flex gap-2">
+          <input
+            type="text"
+            value={promoCode}
+            onChange={(e) => {
+              setPromoCode(e.target.value.toUpperCase());
+              if (promoApplied) setPromoApplied(null);
+              if (promoError) setPromoError("");
+            }}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                e.preventDefault();
+                applyPromoCode();
+              }
+            }}
+            placeholder="Masukkan kode promo"
+            disabled={promoLoading || buying}
+            className="min-w-0 flex-1 rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2.5 text-xs font-bold uppercase outline-none placeholder:text-white/20 focus:border-purple-400/40 disabled:opacity-50"
+          />
+
+          <button
+            type="button"
+            onClick={applyPromoCode}
+            disabled={promoLoading || buying || !promoCode.trim()}
+            className="shrink-0 rounded-xl border border-purple-400/20 bg-purple-500/10 px-4 py-2.5 text-xs font-bold text-purple-200 transition hover:bg-purple-500/20 disabled:cursor-not-allowed disabled:opacity-40"
+          >
+            {promoLoading ? "Cek..." : "Gunakan"}
+          </button>
+        </div>
+
+        {promoError && (
+          <p className="mt-2 text-[10px] font-medium text-red-300/80">
+            {promoError}
+          </p>
+        )}
+
+        {promoApplied && (
+          <div className="mt-3 space-y-1.5 rounded-xl bg-emerald-400/[0.05] p-3">
+            <div className="flex items-center justify-between text-[11px] text-white/40">
+              <span>Harga normal</span>
+              <span>{formatRupiah(promoApplied.originalPrice)}</span>
+            </div>
+
+            <div className="flex items-center justify-between text-[11px] text-emerald-300/80">
+              <span>Diskon ({promoApplied.code})</span>
+              <span>-{formatRupiah(promoApplied.discount)}</span>
+            </div>
+
+            <div className="mt-2 flex items-center justify-between border-t border-white/8 pt-2">
+              <span className="text-xs font-bold text-white/60">
+                Total bayar
+              </span>
+              <span className="text-base font-black text-emerald-300">
+                {formatRupiah(finalPrice)}
+              </span>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {balance < finalPrice &&
                       getAvailableStock(selectedOption) > 0 &&
                       !walletLoading && (
                         <div className="mb-3 rounded-xl bg-amber-400/[0.06] px-3 py-2.5 text-[11px] text-amber-200/70">
                           Saldo kurang{" "}
                           {formatRupiah(
-                            selectedOption.price - balance
+                            finalPrice - balance
                           )}
                         </div>
                       )}
@@ -857,7 +1005,7 @@ export default function ProductsPage() {
                         ? "Memproses..."
                         : getAvailableStock(selectedOption) <= 0
                           ? "Stok Habis"
-                          : balance < selectedOption.price
+                          : balance < finalPrice
                             ? "Saldo Tidak Cukup"
                             : "Beli Sekarang →"}
                     </button>

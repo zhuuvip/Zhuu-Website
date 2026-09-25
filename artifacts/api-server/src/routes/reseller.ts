@@ -7,6 +7,11 @@ import { productsTable, productOptionsTable, ordersTable } from "@workspace/db";
 import { eq, sql, desc } from "drizzle-orm";
 import { requireAdmin } from "../lib/auth.js";
 import { generateDripKey } from "../lib/dripApi.js";
+import {
+  applyPromo,
+  recordPromoUsage,
+  rollbackPromoUsage,
+} from "../lib/promo.js";
 
 const router = Router();
 const rowsOf = (r: any): any[] => r?.rows ?? r ?? [];
@@ -392,12 +397,65 @@ router.get(
 );
 
 router.post(
+  "/reseller/validate-promo",
+  requireReseller,
+  h(async (req, res) => {
+    const acc = (req as any).reseller;
+    const productId = Number(req.body.productId);
+    const optionId = Number(req.body.optionId);
+    const code = req.body.code;
+
+    if (!code || !productId || !optionId) {
+      throw new HttpError(400, "Kode promo, produk, dan durasi wajib diisi");
+    }
+
+    const result = await db.transaction(async (tx) => {
+      const [product] = await tx
+        .select()
+        .from(productsTable)
+        .where(eq(productsTable.id, productId));
+
+      const [option] = await tx
+        .select()
+        .from(productOptionsTable)
+        .where(eq(productOptionsTable.id, optionId));
+
+      if (!product || !option || option.productId !== product.id) {
+        throw new HttpError(400, "Produk atau durasi tidak valid");
+      }
+
+      const basePrice = option.resellerPrice ?? option.price;
+
+      const promo = await applyPromo(tx, {
+        code,
+        audience: "RESELLER",
+        userId: acc.userId,
+        basePrice,
+      });
+
+      return {
+        ...promo,
+        originalPrice: basePrice,
+      };
+    });
+
+    return res.json({
+      code: result.promo?.code ?? null,
+      originalPrice: result.originalPrice,
+      discount: result.discount,
+      finalPrice: result.finalPrice,
+    });
+  }),
+);
+
+router.post(
   "/reseller/orders",
   requireReseller,
   h(async (req, res) => {
     const acc = (req as any).reseller;
     const productId = Number(req.body.productId);
     const optionId = Number(req.body.optionId);
+    const promoCode = req.body.promoCode;
 
     const result = await db.transaction(async (tx) => {
       const [product] = await tx.select().from(productsTable).where(eq(productsTable.id, productId));
@@ -417,6 +475,25 @@ router.post(
     if (availableStock <= 0) throw new HttpError(400, "Stok habis");
 
       const price = option.resellerPrice ?? option.price;
+        let promoResult;
+        try {
+          promoResult = await applyPromo(tx, {
+            code: promoCode,
+            audience: "RESELLER",
+            userId: acc.userId,
+            basePrice: price,
+          });
+        } catch (error) {
+          const message =
+            error instanceof Error
+              ? error.message
+              : "Kode promo tidak valid";
+
+          throw new HttpError(400, message);
+        }
+
+        const finalPrice = promoResult.finalPrice;
+
 
       let deliveryKey: string | null = null;
       let deliveryLink: string | null = null;
@@ -444,8 +521,8 @@ router.post(
 
       const debit = rowsOf(
         await tx.execute(sql`
-          UPDATE wallets SET balance = balance - ${price}, updated_at = NOW()
-          WHERE user_id = ${acc.userId} AND balance >= ${price}
+          UPDATE wallets SET balance = balance - ${finalPrice}, updated_at = NOW()
+          WHERE user_id = ${acc.userId} AND balance >= ${finalPrice}
           RETURNING balance
         `),
       )[0];
@@ -476,7 +553,7 @@ router.post(
           optionId: option.id,
           productName: product.name,
           duration: option.duration,
-          amount: price,
+          amount: finalPrice,
           whatsapp: `reseller:${acc.username}`,
           status: isDrip ? "PENDING" : "PAID",
           paymentRef: deliveryKey || deliveryLink || null,
@@ -485,12 +562,37 @@ router.post(
 
       await tx.execute(sql`
         INSERT INTO wallet_transactions (user_id, type, amount, reference, description, status)
-        VALUES (${acc.userId}, 'PURCHASE', ${-price}, ${invoice},
+        VALUES (${acc.userId}, 'PURCHASE', ${-finalPrice}, ${invoice},
                 ${`[Reseller] ${product.name} - ${option.duration}`},
           ${isDrip ? "PENDING" : "PAID"})
       `);
 
-      return { order, deliveryKey, deliveryLink, balance: Number(debit.balance) };
+      if (promoResult.promo) {
+          await recordPromoUsage(tx, {
+            promoId: promoResult.promo.id,
+            userId: acc.userId,
+            audience: "RESELLER",
+            orderId: order.id,
+            discount: promoResult.discount,
+          });
+        }
+
+        return {
+          order,
+          deliveryKey,
+          deliveryLink,
+          balance: Number(debit.balance),
+          promoId: promoResult.promo?.id ?? null,
+          promo: promoResult.promo
+            ? {
+                id: promoResult.promo.id,
+                code: promoResult.promo.code,
+                discount: promoResult.discount,
+                originalPrice: price,
+                finalPrice,
+              }
+            : null,
+        };
     });
 
     if (result.order.status === "PENDING" && result.order.optionId) {
@@ -562,6 +664,14 @@ router.post(
             .update(ordersTable)
             .set({ status: "CANCELLED" })
             .where(eq(ordersTable.id, result.order.id));
+
+          if (result.promoId !== null) {
+            await rollbackPromoUsage(tx, {
+              promoId: result.promoId,
+              userId: acc.userId,
+              orderId: result.order.id,
+            });
+          }
         });
 
         throw new HttpError(502, "Gagal generate key DRIP. Saldo sudah dikembalikan.");

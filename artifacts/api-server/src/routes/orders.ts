@@ -12,6 +12,11 @@ import { eq, and, sql, desc } from "drizzle-orm";
 import { getAuth } from "@clerk/express";
 import { requireAdmin } from "../lib/auth.js";
 import { generateDripKey } from "../lib/dripApi.js";
+import {
+  applyPromo,
+  recordPromoUsage,
+  rollbackPromoUsage,
+} from "../lib/promo.js";
 
 const router = Router();
 
@@ -22,11 +27,86 @@ function makeInvoice() {
   );
 }
 
+router.post("/orders/validate-promo", async (req, res) => {
+  try {
+    const userId = getAuth(req)?.userId;
+
+    if (!userId) {
+      return res.status(401).json({
+        error: "Login diperlukan",
+      });
+    }
+
+    const { code, productId, optionId } = req.body;
+
+    if (!code || !productId || !optionId) {
+      return res.status(400).json({
+        error: "Kode promo dan produk wajib diisi",
+      });
+    }
+
+    const result = await db.transaction(async (tx) => {
+      const [product] = await tx
+        .select()
+        .from(productsTable)
+        .where(eq(productsTable.id, Number(productId)));
+
+      const [option] = await tx
+        .select()
+        .from(productOptionsTable)
+        .where(eq(productOptionsTable.id, Number(optionId)));
+
+      if (!product || !option || option.productId !== product.id) {
+        throw new Error("Produk atau durasi tidak valid");
+      }
+
+      const promo = await applyPromo(tx, {
+        code,
+        audience: "MEMBER",
+        userId,
+        basePrice: option.price,
+      });
+
+      return {
+        ...promo,
+        originalPrice: option.price,
+      };
+    });
+
+    return res.json({
+      code: result.promo?.code ?? null,
+      originalPrice: result.originalPrice,
+      discount: result.discount,
+      finalPrice: result.finalPrice,
+    });
+  } catch (err) {
+    const message =
+      err instanceof Error ? err.message : "Gagal memeriksa kode promo";
+
+    if (
+      message === "Kode promo tidak valid atau tidak tersedia" ||
+      message === "Kode promo sudah expired" ||
+      message === "Kuota kode promo sudah habis" ||
+      message === "Kamu sudah pernah menggunakan kode promo ini" ||
+      message === "Produk atau durasi tidak valid"
+    ) {
+      return res.status(400).json({ error: message });
+    }
+
+    console.error("Promo validation error:", err);
+
+    return res.status(500).json({
+      error: "Gagal memeriksa kode promo",
+    });
+  }
+});
+
 router.post("/orders", async (req, res) => {
   let pendingOrderId: number | null = null;
   let pendingInvoice: string | null = null;
   let pendingUserId: string | null = null;
   let pendingAmount: number | null = null;
+  let pendingPromoId: number | null = null;
 
   try {
     const userId = getAuth(req)?.userId;
@@ -35,7 +115,7 @@ router.post("/orders", async (req, res) => {
       return res.status(401).json({ error: "Login diperlukan" });
     }
 
-    const { productId, optionId, whatsapp } = req.body;
+    const { productId, optionId, whatsapp, promoCode } = req.body;
 
     /*
      * STEP 1
@@ -111,9 +191,18 @@ router.post("/orders", async (req, res) => {
           .returning();
       }
 
-      if (wallet.balance < option.price) {
+      const promoResult = await applyPromo(tx, {
+        code: promoCode,
+        audience: "MEMBER",
+        userId,
+        basePrice: option.price,
+      });
+
+      const finalPrice = promoResult.finalPrice;
+
+      if (wallet.balance < finalPrice) {
         throw new Error(
-          `Saldo tidak cukup|${wallet.balance}|${option.price}`,
+          `Saldo tidak cukup|${wallet.balance}|${finalPrice}`,
         );
       }
 
@@ -122,13 +211,13 @@ router.post("/orders", async (req, res) => {
       const [updatedWallet] = await tx
         .update(walletsTable)
         .set({
-          balance: sql`${walletsTable.balance} - ${option.price}`,
+          balance: sql`${walletsTable.balance} - ${finalPrice}`,
           updatedAt: new Date(),
         })
         .where(
           and(
             eq(walletsTable.id, wallet.id),
-            sql`${walletsTable.balance} >= ${option.price}`,
+            sql`${walletsTable.balance} >= ${finalPrice}`,
           ),
         )
         .returning();
@@ -172,7 +261,7 @@ router.post("/orders", async (req, res) => {
           optionId: option.id,
           productName: product.name,
           duration: option.duration,
-          amount: option.price,
+          amount: finalPrice,
           whatsapp: whatsapp || null,
           status: isDrip ? "PENDING" : "PAID",
           paymentRef: null,
@@ -182,11 +271,21 @@ router.post("/orders", async (req, res) => {
       await tx.insert(walletTransactionsTable).values({
         userId,
         type: "PURCHASE",
-        amount: -option.price,
+        amount: -finalPrice,
         reference: invoice,
         description: `${product.name} - ${option.duration}`,
         status: isDrip ? "PENDING" : "PAID",
       });
+
+      if (promoResult.promo) {
+        await recordPromoUsage(tx, {
+          promoId: promoResult.promo.id,
+          userId,
+          audience: "MEMBER",
+          orderId: order.id,
+          discount: promoResult.discount,
+        });
+      }
 
       return {
         order,
@@ -194,13 +293,23 @@ router.post("/orders", async (req, res) => {
         option,
         balance: updatedWallet.balance,
         isDrip,
+        promo: promoResult.promo
+          ? {
+              id: promoResult.promo.id,
+              code: promoResult.promo.code,
+              discount: promoResult.discount,
+              originalPrice: option.price,
+              finalPrice,
+            }
+          : null,
       };
     });
 
     pendingOrderId = prepared.order.id;
     pendingInvoice = prepared.order.invoice;
     pendingUserId = userId;
-    pendingAmount = prepared.option.price;
+    pendingAmount = prepared.order.amount;
+  pendingPromoId = prepared.promo?.id ?? null;
 
     /*
      * ============================================================
@@ -321,7 +430,7 @@ router.post("/orders", async (req, res) => {
           await tx
             .update(walletsTable)
             .set({
-              balance: sql`${walletsTable.balance} + ${prepared.option.price}`,
+              balance: sql`${walletsTable.balance} + ${prepared.order.amount}`,
               updatedAt: new Date(),
             })
             .where(eq(walletsTable.userId, userId));
@@ -339,6 +448,14 @@ router.post("/orders", async (req, res) => {
               status: "CANCELLED",
             })
             .where(eq(ordersTable.id, prepared.order.id));
+
+        if (pendingPromoId !== null) {
+          await rollbackPromoUsage(tx, {
+            promoId: pendingPromoId,
+            userId,
+            orderId: prepared.order.id,
+          });
+        }
         });
 
         throw new Error("Key untuk durasi ini habis");
@@ -424,6 +541,14 @@ router.post("/orders", async (req, res) => {
                 status: "CANCELLED",
               })
               .where(eq(ordersTable.id, refundOrderId));
+
+          if (pendingPromoId !== null) {
+            await rollbackPromoUsage(tx, {
+              promoId: pendingPromoId,
+              userId: refundUserId,
+              orderId: refundOrderId,
+            });
+          }
           });
 
           console.log(
@@ -459,6 +584,10 @@ router.post("/orders", async (req, res) => {
       message === "Link delivery belum diatur oleh admin" ||
       message ===
         "Saldo tidak cukup atau saldo berubah, silakan coba lagi" ||
+      message === "Kode promo tidak valid atau tidak tersedia" ||
+      message === "Kode promo sudah expired" ||
+      message === "Kuota kode promo sudah habis" ||
+      message === "Kamu sudah pernah menggunakan kode promo ini" ||
       message === "Stok habis atau stok berubah, silakan coba lagi"
     ) {
       return res.status(400).json({
