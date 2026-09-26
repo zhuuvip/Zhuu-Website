@@ -48,9 +48,7 @@ export default function Navigation() {
       <nav
         className="fixed top-0 left-0 right-0 z-50 transition-all duration-300"
         style={{
-          background: scrolled
-            ? "rgba(1,8,18,0.97)"
-            : "rgba(1,10,20,0.82)",
+          background: scrolled ? "rgba(1,8,18,0.97)" : "rgba(1,10,20,0.82)",
           backdropFilter: "blur(24px)",
           WebkitBackdropFilter: "blur(24px)",
           borderBottom: scrolled
@@ -104,7 +102,9 @@ export default function Navigation() {
                           : "linear-gradient(135deg, rgba(120,80,255,0.75), rgba(0,150,255,0.75))",
                         border: "1px solid rgba(150,100,255,0.5)",
                         color: "white",
-                        boxShadow: active ? "0 0 16px rgba(120,80,255,0.4)" : "none",
+                        boxShadow: active
+                          ? "0 0 16px rgba(120,80,255,0.4)"
+                          : "none",
                       }}
                     >
                       ✨ {item.label}
@@ -137,8 +137,12 @@ export default function Navigation() {
                     className="px-3 py-1.5 rounded-full text-sm font-medium cursor-pointer transition-all duration-200 hover:text-cyan-300"
                     style={{
                       color: active ? "#00ffff" : "rgba(0,200,220,0.55)",
-                      background: active ? "rgba(0,255,255,0.08)" : "transparent",
-                      boxShadow: active ? "0 0 12px rgba(0,255,255,0.12)" : "none",
+                      background: active
+                        ? "rgba(0,255,255,0.08)"
+                        : "transparent",
+                      boxShadow: active
+                        ? "0 0 12px rgba(0,255,255,0.12)"
+                        : "none",
                     }}
                   >
                     {item.label}
@@ -183,7 +187,7 @@ export default function Navigation() {
               </Link>
             </Show>
             <button
-              className="lg:hidden p-2 rounded-lg transition-all duration-200"
+              className="hidden lg:hidden p-2 rounded-lg transition-all duration-200"
               style={{
                 background: mobileOpen
                   ? "rgba(0,255,255,0.1)"
@@ -201,76 +205,67 @@ export default function Navigation() {
             </button>
           </div>
         </div>
+      </nav>
 
-        {/* Mobile menu */}
-        {mobileOpen && (
-          <div
-            className="lg:hidden px-4 pb-5 pt-1"
-            style={{
-              background: "rgba(1,8,18,0.98)",
-              borderBottom: "1px solid rgba(0,255,255,0.1)",
-            }}
-          >
-            <div className="flex flex-col gap-1">
-              {NAV_ITEMS.map((item) => {
-                const active = isActive(item.path);
-                const isAi = item.highlight === "ai";
-                const isPurple = item.highlight === "purple";
-                return (
-                  <Link key={item.path} href={item.path}>
-                    <div
-                      className="px-4 py-3 rounded-xl cursor-pointer text-sm font-medium transition-all duration-150"
-                      style={{
-                        color: isAi
-                          ? "rgba(180,130,255,0.95)"
-                          : isPurple
-                          ? "rgba(192,132,252,0.9)"
-                          : active
-                          ? "#00ffff"
-                          : "rgba(0,200,220,0.65)",
-                        background: active
-                          ? isAi
-                            ? "rgba(120,80,255,0.12)"
-                            : "rgba(0,255,255,0.07)"
-                          : "transparent",
-                        borderLeft: active
-                          ? `2px solid ${isAi ? "rgba(150,100,255,0.7)" : "rgba(0,255,255,0.5)"}`
-                          : "2px solid transparent",
-                      }}
-                    >
-                      {isAi ? "✨ " : isPurple ? "🔗 " : ""}
-                      {item.label}
-                    </div>
-                  </Link>
-                );
-              })}
-              {isAdmin && (
-                <Link href="/admin">
-                  <div className="flex items-center gap-2 px-4 py-3 rounded-xl text-sm font-medium text-purple-300/80 cursor-pointer transition-all hover:text-purple-300">
-                    <Shield size={14} />
-                    Admin Panel
-                  </div>
-                </Link>
-              )}
-              <Show when="signed-out">
-                <Link href="/sign-in">
+      {/* Mobile horizontal bottom navigation */}
+      <div className="lg:hidden fixed bottom-0 left-0 right-0 z-50 pb-[env(safe-area-inset-bottom)]">
+        <div
+          className="w-full overflow-x-auto overscroll-x-contain"
+          style={{
+            scrollbarWidth: "none",
+            WebkitOverflowScrolling: "touch",
+          }}
+        >
+          <div className="flex min-w-max items-center gap-1 px-2 py-2 bg-[#010812]/95 backdrop-blur-xl border-t border-cyan-400/10 shadow-[0_-8px_30px_rgba(0,0,0,0.35)]">
+            {NAV_ITEMS.map((item) => {
+              const active = isActive(item.path);
+
+              return (
+                <Link key={item.path} href={item.path}>
                   <div
-                    className="px-4 py-3 rounded-xl text-sm font-medium cursor-pointer mt-2 text-center"
+                    className="flex-shrink-0 min-w-[68px] h-12 px-3 rounded-xl flex flex-col items-center justify-center cursor-pointer transition-all active:scale-95"
                     style={{
-                      background: "rgba(0,200,220,0.1)",
-                      border: "1px solid rgba(0,200,220,0.22)",
-                      color: "#00e5ff",
+                      color: active ? "#00ffff" : "rgba(150,210,230,0.65)",
+                      background: active
+                        ? "rgba(0,255,255,0.09)"
+                        : "transparent",
                     }}
                   >
-                    Sign In →
+                    <span className="text-xs whitespace-nowrap">
+                      {item.highlight === "ai"
+                        ? "✨ "
+                        : item.highlight === "purple"
+                          ? "🔗 "
+                          : ""}
+                      {item.label}
+                    </span>
                   </div>
                 </Link>
-              </Show>
-            </div>
+              );
+            })}
+
+            {isAdmin && (
+              <Link href="/admin">
+                <div
+                  className="flex-shrink-0 min-w-[68px] h-12 px-3 rounded-xl flex flex-col items-center justify-center cursor-pointer"
+                  style={{
+                    color: isActive("/admin")
+                      ? "#d8b4fe"
+                      : "rgba(192,132,252,0.65)",
+                    background: isActive("/admin")
+                      ? "rgba(168,85,247,0.1)"
+                      : "transparent",
+                  }}
+                >
+                  <span className="text-xs whitespace-nowrap">🛡️ Admin</span>
+                </div>
+              </Link>
+            )}
           </div>
-        )}
-      </nav>
-      <div className="h-16" />
+        </div>
+      </div>
+
+      <div className="h-16 lg:h-0" />
     </>
   );
 }
