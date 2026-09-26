@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { X } from "lucide-react";
 
 const API_BASE = (
@@ -8,6 +8,7 @@ const API_BASE = (
 export default function AnnouncementBanner() {
   const [announcement, setAnnouncement] = useState<any>(null);
   const [dismissed, setDismissed] = useState(false);
+  const bannerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     fetch(`${API_BASE}/api/announcements`, {
@@ -18,10 +19,37 @@ export default function AnnouncementBanner() {
       .catch(() => {});
   }, []);
 
+  useEffect(() => {
+    const banner = bannerRef.current;
+
+    if (!banner || !announcement || dismissed) {
+      document.documentElement.style.removeProperty("--announcement-height");
+      return;
+    }
+
+    const updateHeight = () => {
+      document.documentElement.style.setProperty(
+        "--announcement-height",
+        `${banner.offsetHeight}px`
+      );
+    };
+
+    updateHeight();
+
+    const observer = new ResizeObserver(updateHeight);
+    observer.observe(banner);
+
+    return () => {
+      observer.disconnect();
+      document.documentElement.style.removeProperty("--announcement-height");
+    };
+  }, [announcement, dismissed]);
+
   if (!announcement || dismissed) return null;
 
   return (
     <div
+      ref={bannerRef}
       className="w-full px-4 py-3 flex items-center justify-between gap-3 text-sm font-medium"
       style={{
         background: announcement.color + "22",
