@@ -831,14 +831,60 @@ const saveSettings = async () => {
         </div>
       </div>
 
-      {/* Tabs */}
-      <div className="flex gap-1.5 mb-6 flex-wrap glass-card rounded-2xl p-1.5">
-        {TABS.map((t) => (
-          <button key={t.id} onClick={() => setTab(t.id)} data-testid={`tab-${t.id}`}
-            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all flex-1 justify-center ${tab === t.id ? "bg-cyan-400/15 border border-cyan-400/30 text-cyan-300 shadow-sm" : "text-blue-200/60 hover:text-blue-200 hover:bg-white/5"}`}>
-            {t.icon}<span className="hidden sm:inline">{t.label}</span>
-          </button>
-        ))}
+      {/* Admin Control Center */}
+      <div className="mb-7">
+        <div className="mb-3 flex items-center justify-between gap-3">
+          <div>
+            <p className="text-[11px] uppercase tracking-[0.2em] text-cyan-300/50 font-semibold">
+              Control Center
+            </p>
+            <h2 className="text-sm font-semibold text-blue-100 mt-1">
+              Manage Website
+            </h2>
+          </div>
+
+          <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/[0.03] border border-white/5">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.8)]" />
+            <span className="text-[11px] text-blue-200/50">
+              Admin Mode
+            </span>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 p-2 rounded-2xl bg-slate-950/40 border border-white/[0.06] backdrop-blur-xl shadow-xl shadow-black/10">
+          {TABS.map((t) => {
+            const active = tab === t.id;
+
+            return (
+              <button
+                key={t.id}
+                onClick={() => setTab(t.id)}
+                data-testid={`tab-${t.id}`}
+                className={`group relative min-h-[64px] rounded-xl px-3 py-2.5 flex flex-col items-center justify-center gap-1.5 text-center transition-all duration-200 ${
+                  active
+                    ? "bg-cyan-400/[0.12] border border-cyan-300/25 text-cyan-300 shadow-[0_0_24px_rgba(34,211,238,0.08)]"
+                    : "border border-transparent text-blue-200/50 hover:text-blue-100 hover:bg-white/[0.04] hover:border-white/[0.06]"
+                }`}
+              >
+                <span
+                  className={`transition-transform duration-200 ${
+                    active ? "scale-110" : "group-hover:scale-105"
+                  }`}
+                >
+                  {t.icon}
+                </span>
+
+                <span className="text-[11px] sm:text-xs font-semibold leading-tight">
+                  {t.label}
+                </span>
+
+                {active && (
+                  <span className="absolute bottom-1.5 w-5 h-0.5 rounded-full bg-cyan-300 shadow-[0_0_8px_rgba(103,232,249,0.8)]" />
+                )}
+              </button>
+            );
+          })}
+        </div>
       </div>
 
       {/* Stats Tab */}
@@ -1548,11 +1594,16 @@ const saveSettings = async () => {
               <h3 className="text-sm font-semibold text-cyan-300">DRIP Supplier</h3>
               <p className="text-xs text-blue-300/50">{dripProducts.length} produk supplier tersedia</p>
             </div>
-            <div className="flex gap-2">
-              <button type="button" onClick={loadDrip} disabled={dripLoading}
-                className="px-3 py-2 rounded-lg bg-cyan-400/10 text-cyan-300 text-xs">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+              <button
+                type="button"
+                onClick={loadDrip}
+                disabled={dripLoading}
+                className="min-h-10 px-3 py-2.5 rounded-xl bg-cyan-400/10 border border-cyan-400/15 text-cyan-300 text-xs font-medium hover:bg-cyan-400/15 transition-all disabled:opacity-50"
+              >
                 {dripLoading ? "Loading..." : "Refresh"}
               </button>
+
               <button
                 type="button"
                 onClick={async () => {
@@ -1561,11 +1612,14 @@ const saveSettings = async () => {
                       method: "POST",
                       headers: await authHeaders(),
                     });
+
                     const data = await r.json();
+
                     if (!r.ok) {
                       alert(data?.error || "Gagal sync stock DRIP");
                       return;
                     }
+
                     alert(`Stock DRIP berhasil disync. ${data.updated} option diperbarui.`);
                     loadProducts();
                     loadDrip();
@@ -1573,18 +1627,11 @@ const saveSettings = async () => {
                     alert("Gagal sync stock DRIP");
                   }
                 }}
-                className="px-3 py-2 rounded-lg bg-green-400/10 text-green-300 text-xs"
+                className="min-h-10 px-3 py-2.5 rounded-xl bg-green-400/10 border border-green-400/10 text-green-300 text-xs font-medium hover:bg-green-400/15 transition-all"
               >
                 Sync Stock
               </button>
-          <button
-            type="button"
-            onClick={() => {
-              const item = dripProducts[0];
-              alert(item ? JSON.stringify(item, null, 2) : "Belum ada data DRIP");
-            }}
-            className="px-3 py-2 rounded-lg bg-purple-400/10 text-purple-300 text-xs"
-          >
+
               <button
                 type="button"
                 onClick={async () => {
@@ -1620,12 +1667,21 @@ const saveSettings = async () => {
                     alert("Gagal import DRIP catalog");
                   }
                 }}
-                className="px-3 py-2 rounded-lg bg-yellow-400/10 text-yellow-300 text-xs"
+                className="min-h-10 px-3 py-2.5 rounded-xl bg-yellow-400/10 border border-yellow-400/10 text-yellow-300 text-xs font-medium hover:bg-yellow-400/15 transition-all"
               >
                 Import Catalog
               </button>
-            Lihat Data
-          </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  const item = dripProducts[0];
+                  alert(item ? JSON.stringify(item, null, 2) : "Belum ada data DRIP");
+                }}
+                className="min-h-10 px-3 py-2.5 rounded-xl bg-purple-400/10 border border-purple-400/10 text-purple-300 text-xs font-medium hover:bg-purple-400/15 transition-all"
+              >
+                Lihat Data
+              </button>
             </div>
           </div>
 
@@ -1907,111 +1963,206 @@ const saveSettings = async () => {
                           </button>
                         </div>
 
-        {p.options?.map((o:any) => (
-          <div key={o.id} className="grid grid-cols-1 sm:grid-cols-[1fr_1fr_1fr_1fr_auto_auto] gap-2 items-center mt-2">
-            <input
-              defaultValue={o.duration}
-              id={`duration-${o.id}`} disabled={editingOptionId !== o.id}
-              className="px-3 py-2 rounded-lg bg-black/20 text-sm"
-            />
-            <input
-              defaultValue={o.price}
-              id={`price-${o.id}`} disabled={editingOptionId !== o.id}
-              type="number"
-              placeholder="Harga Member"
-              className="px-3 py-2 rounded-lg bg-black/20 text-sm"
-            />
-            <input
-              defaultValue={o.resellerPrice ?? ""}
-              id={`reseller-price-${o.id}`} disabled={editingOptionId !== o.id}
-              type="number"
-              placeholder="Harga Reseller"
-              className="px-3 py-2 rounded-lg bg-black/20 text-sm"
-            />
-            <input
-              defaultValue={o.stock}
-              id={`stock-${o.id}`} disabled={editingOptionId !== o.id}
-              type="number"
-              placeholder="Stock"
-              className="px-3 py-2 rounded-lg bg-black/20 text-sm"
-            />
-            <input
-              defaultValue={o.dripVariantId ?? ""}
-              id={`drip-variant-${o.id}`} disabled={editingOptionId !== o.id}
-              type="number"
-              placeholder="DRIP Variant ID"
-              className="px-3 py-2 rounded-lg bg-black/20 text-sm"
-            />
-            <div className="px-3 py-2 rounded-lg bg-black/20 text-sm text-cyan-300/70">
-              DRIP Stock: {o.dripStock ?? 0}
-            </div>
-
-            <button type="button"
-              onClick={async () => {
-                if (editingOptionId === o.id) {
-                  const d = document.getElementById(`duration-${o.id}`) as HTMLInputElement;
-                  const pr = document.getElementById(`price-${o.id}`) as HTMLInputElement;
-                  const st = document.getElementById(`stock-${o.id}`) as HTMLInputElement;
-                  const dv = document.getElementById(`drip-variant-${o.id}`) as HTMLInputElement;
-                                                                                            const rp = document.getElementById(`reseller-price-${o.id}`) as HTMLInputElement;
-                  const r = await fetch(`${API_BASE}/api/products/options/${o.id}`, {
-                    method: "PATCH",
-      headers: await authHeaders(),
-                    body: JSON.stringify({
-                    duration: d.value,
-                    price: pr.value,
-                    resellerPrice: rp?.value || null,
-                    stock: st.value,
-                    dripVariantId: dv.value || null
-                  })
-                  });
-                  if (!r.ok) { alert("Gagal menyimpan durasi"); return; }
-                  setEditingOptionId(null);
-                } else {
-                  setEditingOptionId(o.id);
-                }
-              }}
-              className="relative z-10 pointer-events-auto cursor-pointer w-full sm:w-auto px-3 py-2 rounded-lg bg-cyan-400/10 text-cyan-300 text-sm"
-            >
-              {editingOptionId === o.id ? "Simpan" : "Edit"}
-            </button>
-            {editingOptionId === o.id && (
-              <button type="button"
-                onClick={() => {
-                  setEditingOptionId(null);
-                  loadProducts();
-                }}
-                className="px-3 py-2 rounded-lg bg-yellow-400/10 text-yellow-300 text-sm"
-              >
-                Batal
-              </button>
-            )}
-
-            <button type="button"
-              onClick={async () => {
-                if (!confirm(`Hapus ${o.duration}?`)) return;
-                await fetch(`${API_BASE}/api/products/options/${o.id}`, {method: "DELETE", headers: await authHeaders()});
-                loadProducts();
-                }} className="px-3 py-2 rounded-lg bg-red-400/10 text-red-300 text-sm"
-            >
-              Hapus
-            </button>
-              {p.deliveryType === "KEY" && (
-                <div className="col-span-full mt-2 flex flex-col gap-2">
-                  <textarea
-                    value={keyInputs[o.id] || ""}
-                    onChange={e => setKeyInputs(prev => ({ ...prev, [o.id]: e.target.value }))}
-                    placeholder="Paste key, satu key per baris"
-                    className="w-full min-h-[80px] px-3 py-2 rounded-lg bg-black/20 text-sm"
+        {p.options?.map((o: any) => (
+          <div
+            key={o.id}
+            className="mt-3 rounded-2xl border border-white/[0.06] bg-black/20 p-3 sm:p-4"
+          >
+            <div className="flex flex-col gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
+                <div>
+                  <label className="block text-[10px] uppercase tracking-wider text-blue-200/40 mb-1">
+                    Durasi
+                  </label>
+                  <input
+                    defaultValue={o.duration}
+                    id={`duration-${o.id}`}
+                    disabled={editingOptionId !== o.id}
+                    className="w-full px-3 py-2.5 rounded-xl bg-black/20 border border-white/[0.06] text-sm"
                   />
-                  <button type="button"
-                    onClick={() => addKeys(p.id, o.id)}
-                    className="w-fit px-3 py-2 rounded-lg bg-green-400/10 text-green-300 text-sm"
+                </div>
+
+                <div>
+                  <label className="block text-[10px] uppercase tracking-wider text-blue-200/40 mb-1">
+                    Harga Member
+                  </label>
+                  <input
+                    defaultValue={o.price}
+                    id={`price-${o.id}`}
+                    disabled={editingOptionId !== o.id}
+                    type="number"
+                    placeholder="Harga Member"
+                    className="w-full px-3 py-2.5 rounded-xl bg-black/20 border border-white/[0.06] text-sm"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[10px] uppercase tracking-wider text-blue-200/40 mb-1">
+                    Harga Reseller
+                  </label>
+                  <input
+                    defaultValue={o.resellerPrice ?? ""}
+                    id={`reseller-price-${o.id}`}
+                    disabled={editingOptionId !== o.id}
+                    type="number"
+                    placeholder="Harga Reseller"
+                    className="w-full px-3 py-2.5 rounded-xl bg-black/20 border border-white/[0.06] text-sm"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[10px] uppercase tracking-wider text-blue-200/40 mb-1">
+                    Stock
+                  </label>
+                  <input
+                    defaultValue={o.stock}
+                    id={`stock-${o.id}`}
+                    disabled={editingOptionId !== o.id}
+                    type="number"
+                    placeholder="Stock"
+                    className="w-full px-3 py-2.5 rounded-xl bg-black/20 border border-white/[0.06] text-sm"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[10px] uppercase tracking-wider text-blue-200/40 mb-1">
+                    DRIP Variant ID
+                  </label>
+                  <input
+                    defaultValue={o.dripVariantId ?? ""}
+                    id={`drip-variant-${o.id}`}
+                    disabled={editingOptionId !== o.id}
+                    type="number"
+                    placeholder="DRIP Variant ID"
+                    className="w-full px-3 py-2.5 rounded-xl bg-black/20 border border-white/[0.06] text-sm"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[10px] uppercase tracking-wider text-blue-200/40 mb-1">
+                    DRIP Stock
+                  </label>
+                  <div className="w-full px-3 py-2.5 rounded-xl bg-black/20 border border-white/[0.06] text-sm text-cyan-300/70">
+                    {o.dripStock ?? 0}
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex flex-col sm:flex-row gap-2 pt-2 border-t border-white/[0.05]">
+                <button
+                  type="button"
+                  onClick={async () => {
+                    if (editingOptionId === o.id) {
+                      const d = document.getElementById(`duration-${o.id}`) as HTMLInputElement;
+                      const pr = document.getElementById(`price-${o.id}`) as HTMLInputElement;
+                      const st = document.getElementById(`stock-${o.id}`) as HTMLInputElement;
+                      const dv = document.getElementById(`drip-variant-${o.id}`) as HTMLInputElement;
+                      const rp = document.getElementById(`reseller-price-${o.id}`) as HTMLInputElement;
+
+                      const r = await fetch(`${API_BASE}/api/products/options/${o.id}`, {
+                        method: "PATCH",
+                        headers: await authHeaders(),
+                        body: JSON.stringify({
+                          duration: d.value,
+                          price: pr.value,
+                          resellerPrice: rp?.value || null,
+                          stock: st.value,
+                          dripVariantId: dv.value || null,
+                        }),
+                      });
+
+                      if (!r.ok) {
+                        alert("Gagal menyimpan durasi");
+                        return;
+                      }
+
+                      setEditingOptionId(null);
+                      loadProducts();
+                    } else {
+                      setEditingOptionId(o.id);
+                    }
+                  }}
+                  className="flex-1 min-h-10 px-4 py-2.5 rounded-xl bg-cyan-400/10 border border-cyan-400/15 text-cyan-300 text-sm font-medium hover:bg-cyan-400/15 transition-all"
+                >
+                  {editingOptionId === o.id ? "Simpan" : "Edit"}
+                </button>
+
+                {editingOptionId === o.id && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setEditingOptionId(null);
+                      loadProducts();
+                    }}
+                    className="flex-1 min-h-10 px-4 py-2.5 rounded-xl bg-yellow-400/10 border border-yellow-400/10 text-yellow-300 text-sm font-medium hover:bg-yellow-400/15 transition-all"
+                  >
+                    Batal
+                  </button>
+                )}
+
+                <button
+                  type="button"
+                  onClick={async () => {
+                    if (!confirm(`Hapus ${o.duration}?`)) return;
+
+                    await fetch(`${API_BASE}/api/products/options/${o.id}`, {
+                      method: "DELETE",
+                      headers: await authHeaders(),
+                    });
+
+                    loadProducts();
+                  }}
+                  className="flex-1 min-h-10 px-4 py-2.5 rounded-xl bg-red-400/10 border border-red-400/10 text-red-300 text-sm font-medium hover:bg-red-400/15 transition-all"
+                >
+                  Hapus
+                </button>
+              </div>
+
+              {p.deliveryType === "KEY" && (
+                <div className="pt-3 border-t border-white/[0.05] flex flex-col gap-2">
+                  <textarea
+                    id={`keys-${o.id}`}
+                    placeholder="Tempel key di sini..."
+                    className="w-full min-h-[90px] px-3 py-2.5 rounded-xl bg-black/20 border border-white/[0.06] text-sm resize-y"
+                  />
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      const ta = document.getElementById(`keys-${o.id}`) as HTMLTextAreaElement;
+                      const keys = ta.value
+                        .split("\n")
+                        .map((k) => k.trim())
+                        .filter(Boolean);
+
+                      if (!keys.length) {
+                        alert("Masukkan minimal 1 key");
+                        return;
+                      }
+
+                      const r = await fetch(`${API_BASE}/api/products/${p.id}/keys`, {
+                        method: "POST",
+                        headers: {
+                          ...(await authHeaders()),
+                          "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify({ keys }),
+                      });
+
+                      if (!r.ok) {
+                        alert("Gagal menambahkan key");
+                        return;
+                      }
+
+                      ta.value = "";
+                      loadProducts();
+                    }}
+                    className="w-full sm:w-auto self-start min-h-10 px-4 py-2.5 rounded-xl bg-purple-400/10 border border-purple-400/10 text-purple-300 text-sm font-medium hover:bg-purple-400/15 transition-all"
                   >
                     + Tambah Key
                   </button>
                 </div>
               )}
+            </div>
           </div>
         ))}
       </div>
