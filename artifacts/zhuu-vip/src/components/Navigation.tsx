@@ -1,7 +1,7 @@
 import { Link, useLocation } from "wouter";
 import { Show, UserButton, useUser } from "@clerk/react";
 import { useState, useEffect } from "react";
-import { Menu, X, Shield, LogIn } from "lucide-react";
+import { Menu, X, Shield, LogIn, Home, Gauge, Wrench, Sparkles, Link2, BriefcaseBusiness, Users, UserRound, MessageSquare, Share2, ShoppingCart } from "lucide-react";
 import logoPath from "@assets/file_000000003e9c72078d0f388bef03af6a_1778462394630.png";
 
 const ADMIN_EMAIL = import.meta.env.VITE_ADMIN_EMAIL || "zhuusite@gmail.com";
@@ -207,60 +207,151 @@ export default function Navigation() {
         </div>
       </nav>
 
-      {/* Mobile horizontal bottom navigation */}
+      {/* Premium Mobile Bottom Navigation */}
       <div className="lg:hidden fixed bottom-0 left-0 right-0 z-50 pb-[env(safe-area-inset-bottom)]">
-        <div
-          className="w-full overflow-x-auto overscroll-x-contain"
-          style={{
-            scrollbarWidth: "none",
-            WebkitOverflowScrolling: "touch",
-          }}
-        >
-          <div className="flex min-w-max items-center gap-1 px-2 py-2 bg-[#010812]/95 backdrop-blur-xl border-t border-cyan-400/10 shadow-[0_-8px_30px_rgba(0,0,0,0.35)]">
-            {NAV_ITEMS.map((item) => {
-              const active = isActive(item.path);
+        <div className="relative">
 
-              return (
-                <Link key={item.path} href={item.path}>
+          {/* Glow line */}
+          <div
+            className="absolute -top-px left-0 right-0 h-px"
+            style={{
+              background:
+                "linear-gradient(90deg, transparent, rgba(0,255,255,0.65), rgba(80,120,255,0.5), transparent)",
+              boxShadow: "0 0 12px rgba(0,255,255,0.35)",
+            }}
+          />
+
+          {/* Side fade */}
+          <div className="pointer-events-none absolute left-0 top-0 bottom-0 w-8 z-20 bg-gradient-to-r from-[#010812] to-transparent" />
+          <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-8 z-20 bg-gradient-to-l from-[#010812] to-transparent" />
+
+          <div
+            className="overflow-x-auto overscroll-x-contain"
+            style={{
+              scrollbarWidth: "none",
+              WebkitOverflowScrolling: "touch",
+            }}
+          >
+            <div
+              className="flex min-w-max items-center gap-1.5 px-3 py-2.5"
+              style={{
+                background:
+                  "linear-gradient(180deg, rgba(3,18,32,0.94), rgba(1,8,18,0.98))",
+                backdropFilter: "blur(24px)",
+                WebkitBackdropFilter: "blur(24px)",
+                boxShadow:
+                  "0 -12px 35px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.025)",
+              }}
+            >
+              {NAV_ITEMS.map((item) => {
+                const active = isActive(item.path);
+
+                const Icon =
+                  item.path === "/"
+                    ? Home
+                    : item.path === "/speedtest"
+                    ? Gauge
+                    : item.path === "/tools"
+                    ? Wrench
+                    : item.path === "/ai"
+                    ? Sparkles
+                    : item.path === "/linktree"
+                    ? Link2
+                    : item.path === "/portfolio"
+                    ? BriefcaseBusiness
+                    : item.path === "/community"
+                    ? Users
+                    : item.path === "/member"
+                    ? UserRound
+                    : item.path === "/feedback"
+                    ? MessageSquare
+                    : item.path === "/sharecard"
+                    ? Share2
+                    : ShoppingCart;
+
+                return (
+                  <Link key={item.path} href={item.path}>
+                    <div
+                      className="relative flex-shrink-0 min-w-[74px] h-[54px] px-3 rounded-2xl flex flex-col items-center justify-center gap-1 cursor-pointer select-none transition-all duration-200 active:scale-90"
+                      style={{
+                        color: active
+                          ? "#67f9ff"
+                          : "rgba(170,205,220,0.58)",
+                        background: active
+                          ? "linear-gradient(145deg, rgba(0,255,255,0.13), rgba(30,90,130,0.12))"
+                          : "rgba(255,255,255,0.018)",
+                        border: active
+                          ? "1px solid rgba(0,255,255,0.22)"
+                          : "1px solid rgba(255,255,255,0.035)",
+                        boxShadow: active
+                          ? "0 0 20px rgba(0,220,255,0.12), inset 0 1px 0 rgba(255,255,255,0.05)"
+                          : "inset 0 1px 0 rgba(255,255,255,0.02)",
+                      }}
+                    >
+                      {active && (
+                        <div
+                          className="absolute -top-[1px] left-1/2 -translate-x-1/2 w-7 h-[2px] rounded-full"
+                          style={{
+                            background: "#00ffff",
+                            boxShadow: "0 0 10px #00ffff",
+                          }}
+                        />
+                      )}
+
+                      <Icon
+                        size={17}
+                        strokeWidth={active ? 2.3 : 1.7}
+                      />
+
+                      <span className="text-[10px] font-medium whitespace-nowrap tracking-wide">
+                        {item.label.replace("🛒 ", "")}
+                      </span>
+                    </div>
+                  </Link>
+                );
+              })}
+
+              {isAdmin && (
+                <Link href="/admin">
                   <div
-                    className="flex-shrink-0 min-w-[68px] h-12 px-3 rounded-xl flex flex-col items-center justify-center cursor-pointer transition-all active:scale-95"
+                    className="relative flex-shrink-0 min-w-[74px] h-[54px] px-3 rounded-2xl flex flex-col items-center justify-center gap-1 cursor-pointer select-none transition-all duration-200 active:scale-90"
                     style={{
-                      color: active ? "#00ffff" : "rgba(150,210,230,0.65)",
-                      background: active
-                        ? "rgba(0,255,255,0.09)"
-                        : "transparent",
+                      color: isActive("/admin")
+                        ? "#d8b4fe"
+                        : "rgba(192,132,252,0.62)",
+                      background: isActive("/admin")
+                        ? "linear-gradient(145deg, rgba(168,85,247,0.14), rgba(80,40,130,0.10))"
+                        : "rgba(168,85,247,0.025)",
+                      border: isActive("/admin")
+                        ? "1px solid rgba(192,132,252,0.25)"
+                        : "1px solid rgba(192,132,252,0.05)",
+                      boxShadow: isActive("/admin")
+                        ? "0 0 20px rgba(168,85,247,0.14)"
+                        : "none",
                     }}
                   >
-                    <span className="text-xs whitespace-nowrap">
-                      {item.highlight === "ai"
-                        ? "✨ "
-                        : item.highlight === "purple"
-                          ? "🔗 "
-                          : ""}
-                      {item.label}
+                    {isActive("/admin") && (
+                      <div
+                        className="absolute -top-[1px] left-1/2 -translate-x-1/2 w-7 h-[2px] rounded-full"
+                        style={{
+                          background: "#c084fc",
+                          boxShadow: "0 0 10px #c084fc",
+                        }}
+                      />
+                    )}
+
+                    <Shield
+                      size={17}
+                      strokeWidth={isActive("/admin") ? 2.3 : 1.7}
+                    />
+
+                    <span className="text-[10px] font-medium whitespace-nowrap tracking-wide">
+                      Admin
                     </span>
                   </div>
                 </Link>
-              );
-            })}
-
-            {isAdmin && (
-              <Link href="/admin">
-                <div
-                  className="flex-shrink-0 min-w-[68px] h-12 px-3 rounded-xl flex flex-col items-center justify-center cursor-pointer"
-                  style={{
-                    color: isActive("/admin")
-                      ? "#d8b4fe"
-                      : "rgba(192,132,252,0.65)",
-                    background: isActive("/admin")
-                      ? "rgba(168,85,247,0.1)"
-                      : "transparent",
-                  }}
-                >
-                  <span className="text-xs whitespace-nowrap">🛡️ Admin</span>
-                </div>
-              </Link>
-            )}
+              )}
+            </div>
           </div>
         </div>
       </div>
