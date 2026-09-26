@@ -212,8 +212,8 @@ function AppRouter() {
   return (
     <div className="min-h-screen relative">
       <OceanCanvas />
-      <AnnouncementBanner />
       <Navigation />
+      <AnnouncementBanner />
 
       <Switch>
         <Route path="/" component={HomePage} />
