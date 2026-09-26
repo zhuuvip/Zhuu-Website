@@ -288,19 +288,50 @@ router.post("/products/:id/options", requireAdmin, async (req, res) => {
 });
 
 router.patch("/products/options/:id", requireAdmin, async (req, res) => {
+  const optionId = Number(req.params.id);
+
+  const [current] = await db
+    .select()
+    .from(productOptionsTable)
+    .where(eq(productOptionsTable.id, optionId));
+
+  if (!current) {
+    return res.status(404).json({ error: "Option tidak ditemukan" });
+  }
+
+  const updateData: Record<string, unknown> = {};
+
+  if (req.body.duration !== undefined && req.body.duration !== "") {
+    updateData.duration = req.body.duration;
+  }
+
+  if (req.body.price !== undefined && req.body.price !== "") {
+    updateData.price = Number(req.body.price);
+  }
+
+  if (req.body.resellerPrice !== undefined) {
+    updateData.resellerPrice =
+      req.body.resellerPrice === "" || req.body.resellerPrice === null
+        ? null
+        : Number(req.body.resellerPrice);
+  }
+
+  if (req.body.stock !== undefined && req.body.stock !== "") {
+    updateData.stock = Number(req.body.stock);
+  }
+
+  if (req.body.dripVariantId !== undefined && req.body.dripVariantId !== "") {
+    updateData.dripVariantId = Number(req.body.dripVariantId);
+  }
+
+  if (req.body.dripStock !== undefined && req.body.dripStock !== "") {
+    updateData.dripStock = Number(req.body.dripStock);
+  }
+
   const [option] = await db
     .update(productOptionsTable)
-    .set({
-      duration: req.body.duration,
-      price: Number(req.body.price),
-      resellerPrice: req.body.resellerPrice === null || req.body.resellerPrice === ""
-        ? null
-        : Number(req.body.resellerPrice),
-      stock: Number(req.body.stock),
-      dripVariantId: req.body.dripVariantId ? Number(req.body.dripVariantId) : null,
-      dripStock: Number(req.body.dripStock ?? 0),
-    })
-    .where(eq(productOptionsTable.id, Number(req.params.id)))
+    .set(updateData)
+    .where(eq(productOptionsTable.id, optionId))
     .returning();
 
   return res.json(option);
