@@ -215,6 +215,7 @@ function AppRouter() {
       <Navigation />
       <AnnouncementBanner />
 
+      <main className="relative pt-[76px] pb-[88px] lg:pt-0 lg:pb-0">
       <Switch>
         <Route path="/" component={HomePage} />
         <Route path="/ai" component={AIPage} />
@@ -237,6 +238,7 @@ function AppRouter() {
       </Switch>
 
       {!isFullScreenPage && <Footer />}
+      </main>
       <MusicPlayer />
       <Toaster />
     </div>
