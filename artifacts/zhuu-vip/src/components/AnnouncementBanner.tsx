@@ -1,14 +1,16 @@
 import { useState, useEffect } from "react";
 import { X } from "lucide-react";
 
-const API_BASE = "https://zhuuapi-hgeming2009-1446s-projects.vercel.app";
+const API_BASE = (import.meta.env.VITE_API_URL || "").replace(/\/$/, "");
 
 export default function AnnouncementBanner() {
   const [announcement, setAnnouncement] = useState<any>(null);
   const [dismissed, setDismissed] = useState(false);
 
   useEffect(() => {
-    fetch(`${API_BASE}/api/announcements`)
+    fetch(`${API_BASE}/api/announcements`, {
+      cache: "no-store",
+    })
       .then(r => r.json())
       .then(data => data && setAnnouncement(data))
       .catch(() => {});
