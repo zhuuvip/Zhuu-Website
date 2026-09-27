@@ -1826,7 +1826,7 @@ const saveSettings = async () => {
                 </div>
                 <div className="text-right text-xs shrink-0">
                   <div className="text-cyan-300">${item.price_usd ?? item.price ?? "-"}</div>
-                  <div className="text-blue-300/50">Stock: {item.stock ?? "-"}</div>
+                  <div className="text-blue-300/50">Stock: {item.in_stock ?? item.local_stock ?? item.stock ?? "-"}</div>
                 </div>
               </div>
             ))}
