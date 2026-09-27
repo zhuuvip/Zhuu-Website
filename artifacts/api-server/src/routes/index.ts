@@ -17,6 +17,7 @@ import premiumRouter from "./premium.js";
 import resellerRouter from "./reseller.js";
 import dripRouter from "./drip.js";
 import promosRouter from "./promos.js";
+import adminActivityLogsRouter from "./adminActivityLogs.js";
 
 const router = Router();
 
@@ -39,5 +40,6 @@ router.use(wablasRouter);
 router.use(resellerRouter);
 router.use(dripRouter);
 router.use(promosRouter);
+router.use(adminActivityLogsRouter);
 
 export default router;

@@ -16,7 +16,7 @@ import {
   Loader2, ChevronLeft, ToggleLeft, ToggleRight, Eye, EyeOff,
   MessageSquare, ShoppingCart, BarChart3, Star, Users, Bot, RefreshCw,
   Settings, Image as ImageIcon, Palette, Upload, CheckCircle2,
-  GripVertical, ExternalLink, WalletCards, TicketPercent,
+  GripVertical, ExternalLink, WalletCards, TicketPercent, History,
 } from "lucide-react";
 
 const ADMIN_EMAIL = import.meta.env.VITE_ADMIN_EMAIL || "zhuusite@gmail.com";
@@ -53,7 +53,7 @@ interface SiteSettings {
 
 import AdminResellerTab from "@/components/AdminResellerTab";
 
-type Tab = "reseller" | "stats" | "links" | "songs" | "settings" | "feedback" | "products" | "orders" | "deposits" | "wallet" | "promo";
+type Tab = "reseller" | "stats" | "links" | "songs" | "settings" | "feedback" | "products" | "orders" | "deposits" | "wallet" | "promo" | "activity";
 
 const iconOptions = ["SiDiscord","SiYoutube","SiTiktok","SiInstagram","SiTwitch","SiX","SiGithub","SiSpotify","SiPatreon","SiReddit","SiWhatsapp"];
 
@@ -123,9 +123,41 @@ export default function AdminPage() {
     active: true,
   });
 
+  const [activityLogs, setActivityLogs] = useState<any[]>([]);
+  const [activityLogsLoading, setActivityLogsLoading] = useState(false);
+
+  const loadActivityLogs = async () => {
+    try {
+      setActivityLogsLoading(true);
+
+      const headers = await authHeaders();
+
+      const response = await fetch(
+        `${API_BASE}/api/admin/activity-logs?limit=100`,
+        { headers },
+      );
+
+      if (!response.ok) {
+        throw new Error("Gagal mengambil activity log");
+      }
+
+      const data = await response.json();
+      setActivityLogs(Array.isArray(data) ? data : []);
+    } catch (error) {
+      console.error("Load activity logs error:", error);
+      setActivityLogs([]);
+    } finally {
+      setActivityLogsLoading(false);
+    }
+  };
+
   useEffect(() => {
     if (tab === "promo" && isAdmin) {
       loadPromos();
+    }
+
+    if (tab === "activity" && isAdmin) {
+      loadActivityLogs();
     }
   }, [tab, isAdmin]);
 
@@ -800,6 +832,7 @@ const saveSettings = async () => {
     { id: "deposits", label: "Deposits", icon: <WalletCards size={14} /> },
   { id: "wallet", label: "Wallet Control", icon: <WalletCards size={14} /> },
   { id: "promo", label: "Promo", icon: <TicketPercent size={14} /> },
+    { id: "activity", label: "Activity Log", icon: <History size={14} /> },
   ];
 
   if (!user) return (
@@ -1586,7 +1619,92 @@ const saveSettings = async () => {
   </div>
 )}
 
-{tab === "products" && (
+
+      {/* Activity Log Tab */}
+      {tab === "activity" && (
+        <div className="space-y-5">
+          <div className="glass-card rounded-2xl p-5">
+            <div className="flex items-center justify-between gap-3 mb-5">
+              <div>
+                <h2 className="text-lg font-semibold text-blue-100 flex items-center gap-2">
+                  <History size={18} className="text-cyan-300" />
+                  Activity Log
+                </h2>
+                <p className="text-xs text-blue-300/50 mt-1">
+                  Riwayat aktivitas admin di website
+                </p>
+              </div>
+
+              <button
+                type="button"
+                onClick={loadActivityLogs}
+                disabled={activityLogsLoading}
+                className="px-3 py-2 rounded-lg bg-cyan-400/10 text-cyan-300 text-xs flex items-center gap-2"
+              >
+                <RefreshCw
+                  size={13}
+                  className={activityLogsLoading ? "animate-spin" : ""}
+                />
+                Refresh
+              </button>
+            </div>
+
+            {activityLogsLoading ? (
+              <div className="flex items-center justify-center py-12 text-blue-300/50">
+                <Loader2 size={22} className="animate-spin mr-2" />
+                Memuat activity log...
+              </div>
+            ) : activityLogs.length === 0 ? (
+              <div className="text-center py-12 text-blue-300/40 text-sm">
+                Belum ada aktivitas admin.
+              </div>
+            ) : (
+              <div className="space-y-2">
+                {activityLogs.map((log: any) => (
+                  <div
+                    key={log.id}
+                    className="rounded-xl border border-white/5 bg-white/[0.03] p-4"
+                  >
+                    <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2">
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className="text-sm font-semibold text-cyan-300">
+                            {log.action}
+                          </span>
+
+                          {log.adminEmail && (
+                            <span className="text-xs text-blue-300/40">
+                              {log.adminEmail}
+                            </span>
+                          )}
+                        </div>
+
+                        <p className="text-sm text-blue-100/80 mt-1">
+                          {log.description}
+                        </p>
+                      </div>
+
+                      <span className="text-[11px] text-blue-300/35 whitespace-nowrap">
+                        {log.createdAt
+                          ? new Date(log.createdAt).toLocaleString("id-ID")
+                          : "-"}
+                      </span>
+                    </div>
+
+                    {log.metadata && (
+                      <pre className="mt-3 overflow-x-auto rounded-lg bg-black/20 p-3 text-[11px] text-blue-300/50">
+                        {JSON.stringify(log.metadata, null, 2)}
+                      </pre>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {tab === "products" && (
   <div className="glass-card rounded-2xl p-5">
     <h2 className="text-lg font-semibold text-blue-100 mb-4">Products</h2>
 

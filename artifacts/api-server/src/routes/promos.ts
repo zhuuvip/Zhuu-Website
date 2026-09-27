@@ -2,6 +2,7 @@ import { Router } from "express";
 import { sql } from "drizzle-orm";
 import { db } from "@workspace/db";
 import { requireAdmin } from "../lib/auth.js";
+import { logAdminActivity, getAdminEmail } from "../lib/adminActivityLog.js";
 
 const router = Router();
 
@@ -86,7 +87,24 @@ router.post("/admin/promos", requireAdmin, async (req, res) => {
       RETURNING *
     `);
 
-    return res.status(201).json((result as any).rows?.[0]);
+    const row = (result as any).rows?.[0];
+
+    await logAdminActivity({
+      action: "PROMO_CREATED",
+      description: `Membuat promo ${code} untuk ${audience} dengan diskon Rp${discountAmount.toLocaleString("id-ID")}`,
+      adminEmail: getAdminEmail(req),
+      metadata: {
+        promoId: row?.id,
+        code,
+        audience,
+        discountAmount,
+        maxUses,
+        expiresAt,
+        active,
+      },
+    });
+
+    return res.status(201).json(row);
   } catch (error: any) {
     if (error?.code === "23505") {
       return res.status(400).json({
@@ -166,6 +184,21 @@ router.patch("/admin/promos/:id", requireAdmin, async (req, res) => {
       return res.status(404).json({ error: "Promo tidak ditemukan" });
     }
 
+    await logAdminActivity({
+      action: "PROMO_UPDATED",
+      description: `Mengubah promo ${code} (${audience})`,
+      adminEmail: getAdminEmail(req),
+      metadata: {
+        promoId: row.id,
+        code,
+        audience,
+        discountAmount,
+        maxUses,
+        expiresAt,
+        active,
+      },
+    });
+
     return res.json(row);
   } catch (error: any) {
     if (error?.code === "23505") {
@@ -202,6 +235,15 @@ router.delete("/admin/promos/:id", requireAdmin, async (req, res) => {
       if (!(result as any).rows?.length) {
         throw new Error("PROMO_NOT_FOUND");
       }
+    });
+
+    await logAdminActivity({
+      action: "PROMO_DELETED",
+      description: `Menghapus promo ID ${id}`,
+      adminEmail: getAdminEmail(req),
+      metadata: {
+        promoId: id,
+      },
     });
 
     return res.json({ success: true });
