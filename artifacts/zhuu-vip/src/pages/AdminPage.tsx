@@ -1908,7 +1908,14 @@ const saveSettings = async () => {
           String(p.name || "").toLowerCase().includes(productSearch.trim().toLowerCase());
 
         const options = Array.isArray(p.options) ? p.options : [];
-        const hasStock = options.some((o: any) => Number(o.stock ?? 0) > 0);
+        const hasStock = options.some((o: any) => {
+          const isDrip = Boolean(o.dripVariantId);
+          const stock = isDrip
+            ? Number(o.dripStock ?? 0)
+            : Number(o.stock ?? 0);
+
+          return stock > 0;
+        });
 
         const stockMatch =
           productStockFilter === "all" ||
