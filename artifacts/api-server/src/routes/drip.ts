@@ -18,6 +18,10 @@ router.post("/admin/drip/sync-stock", requireAdmin, async (_req, res) => {
           ? data.data
           : [];
 
+    const dripVariants = dripProducts.flatMap((item: any) =>
+      Array.isArray(item?.variants) ? item.variants : [item]
+    );
+
     await db.execute(sql`
       ALTER TABLE product_options
       ADD COLUMN IF NOT EXISTS drip_variant_id INTEGER
@@ -36,18 +40,36 @@ router.post("/admin/drip/sync-stock", requireAdmin, async (_req, res) => {
     for (const option of options) {
       if (!option.dripVariantId) continue;
 
-      const drip = dripProducts.find(
-        (item: any) => Number(item.variant_id) === Number(option.dripVariantId)
-      );
+      const drip = dripVariants.find((item: any) => {
+        const variantId =
+          item?.variant_id ??
+          item?.variantId ??
+          item?.id;
+
+        return Number(variantId) === Number(option.dripVariantId);
+      });
 
       if (!drip) continue;
 
       matched++;
 
+      const rawStock =
+        drip?.in_stock ??
+        drip?.local_stock ??
+        drip?.stock ??
+        drip?.stock_count ??
+        drip?.quantity ??
+        0;
+
+      const dripStock = Number(rawStock);
+
       await db
         .update(productOptionsTable)
         .set({
-          dripStock: Number(drip.in_stock ?? drip.local_stock ?? 0),
+          dripStock:
+            Number.isFinite(dripStock) && dripStock >= 0
+              ? dripStock
+              : 0,
         })
         .where(eq(productOptionsTable.id, option.id));
 
@@ -57,6 +79,8 @@ router.post("/admin/drip/sync-stock", requireAdmin, async (_req, res) => {
     return res.json({
       ok: true,
       totalOptions: options.length,
+      dripProducts: dripProducts.length,
+      dripVariants: dripVariants.length,
       matched,
       updated,
     });
@@ -67,7 +91,6 @@ router.post("/admin/drip/sync-stock", requireAdmin, async (_req, res) => {
     });
   }
 });
-
 
 router.get("/admin/drip/products", requireAdmin, async (_req, res) => {
   try {
