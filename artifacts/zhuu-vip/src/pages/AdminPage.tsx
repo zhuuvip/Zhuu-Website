@@ -2484,78 +2484,171 @@ const saveSettings = async () => {
         </div>
       )}
 
-      {tab === "orders" && (
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <h2 className="text-lg font-semibold text-blue-100">Orders</h2>
-            <button
-              onClick={loadOrders}
-              className="rounded-xl border border-white/10 px-4 py-2 text-sm hover:bg-white/5"
-            >
-              ↻ Refresh
-            </button>
-          </div>
+      {tab === "orders" && (() => {
+        const orderSearch = (window as any).__zhuuOrderSearch ?? "";
+        const orderStatus = (window as any).__zhuuOrderStatus ?? "ALL";
 
-          {ordersLoading ? (
-            <div className="rounded-2xl border border-white/10 p-6 text-center text-blue-200/60">
-              Memuat order...
+        const filteredOrders = orders.filter((order: any) => {
+          const q = orderSearch.toLowerCase().trim();
+
+          const matchesSearch =
+            !q ||
+            String(order.productName || "").toLowerCase().includes(q) ||
+            String(order.invoice || "").toLowerCase().includes(q) ||
+            String(order.whatsapp || "").toLowerCase().includes(q);
+
+          const matchesStatus =
+            orderStatus === "ALL" || String(order.status || "").toUpperCase() === orderStatus;
+
+          return matchesSearch && matchesStatus;
+        });
+
+        const pendingCount = orders.filter(
+          (o: any) => String(o.status || "").toUpperCase() === "PENDING"
+        ).length;
+
+        const paidCount = orders.filter(
+          (o: any) => String(o.status || "").toUpperCase() === "PAID"
+        ).length;
+
+        return (
+          <div className="space-y-5">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <p className="text-[11px] uppercase tracking-[0.2em] text-cyan-300/50 font-semibold">
+                  Order Management
+                </p>
+                <h2 className="text-lg font-semibold text-blue-100 mt-1">
+                  Orders
+                </h2>
+              </div>
+
+              <button
+                type="button"
+                onClick={loadOrders}
+                className="flex items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-2 text-sm text-blue-100 hover:bg-white/5 transition"
+              >
+                ↻ Refresh
+              </button>
             </div>
-          ) : orders.length === 0 ? (
-            <div className="rounded-2xl border border-white/10 p-6 text-center text-blue-200/60">
-              Belum ada order.
+
+            <div className="grid grid-cols-3 gap-2">
+              <div className="rounded-2xl border border-white/[0.06] bg-white/[0.03] p-3">
+                <div className="text-[10px] uppercase tracking-wider text-blue-200/40">Total</div>
+                <div className="mt-1 text-xl font-bold text-blue-100">{orders.length}</div>
+              </div>
+
+              <div className="rounded-2xl border border-yellow-400/10 bg-yellow-400/[0.04] p-3">
+                <div className="text-[10px] uppercase tracking-wider text-yellow-300/50">Pending</div>
+                <div className="mt-1 text-xl font-bold text-yellow-300">{pendingCount}</div>
+              </div>
+
+              <div className="rounded-2xl border border-emerald-400/10 bg-emerald-400/[0.04] p-3">
+                <div className="text-[10px] uppercase tracking-wider text-emerald-300/50">Paid</div>
+                <div className="mt-1 text-xl font-bold text-emerald-300">{paidCount}</div>
+              </div>
             </div>
-          ) : (
-            <div className="space-y-3">
-              {orders.map((order: any) => (
-                <div
-                  key={order.id}
-                  className="rounded-2xl border border-white/10 bg-white/[0.03] p-4"
-                >
-                  <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                    <div className="space-y-1">
-                      <div className="font-semibold text-blue-100">
-                        {order.productName}
-                      </div>
-                      <div className="text-sm text-blue-200/70">
-                        {order.duration} • Rp{Number(order.amount).toLocaleString("id-ID")}
-                      </div>
-                      <div className="text-xs text-blue-200/50">
-                        Invoice: {order.invoice}
-                      </div>
-                      {order.whatsapp && (
-                        <div className="text-xs text-blue-200/50">
-                          WhatsApp: {order.whatsapp}
+
+            <div className="flex flex-col sm:flex-row gap-2">
+              <input
+                defaultValue={orderSearch}
+                onChange={(e) => {
+                  (window as any).__zhuuOrderSearch = e.target.value;
+                  e.currentTarget.form?.requestSubmit();
+                }}
+                placeholder="Cari produk, invoice, WhatsApp..."
+                className="flex-1 rounded-xl border border-white/10 bg-black/20 px-4 py-2.5 text-sm text-blue-100 outline-none focus:border-cyan-400/30"
+              />
+
+              <select
+                defaultValue={orderStatus}
+                onChange={(e) => {
+                  (window as any).__zhuuOrderStatus = e.target.value;
+                  e.currentTarget.form?.requestSubmit();
+                }}
+                className="rounded-xl border border-white/10 bg-black/20 px-4 py-2.5 text-sm text-blue-100"
+              >
+                <option value="ALL">Semua Status</option>
+                <option value="PENDING">Pending</option>
+                <option value="PAID">Paid</option>
+              </select>
+            </div>
+
+            {ordersLoading ? (
+              <div className="rounded-2xl border border-white/10 p-6 text-center text-blue-200/60">
+                Memuat order...
+              </div>
+            ) : filteredOrders.length === 0 ? (
+              <div className="rounded-2xl border border-white/10 p-6 text-center text-blue-200/60">
+                Tidak ada order yang cocok.
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {filteredOrders.map((order: any) => {
+                  const status = String(order.status || "").toUpperCase();
+
+                  return (
+                    <div
+                      key={order.id}
+                      className="rounded-2xl border border-white/[0.07] bg-white/[0.025] p-4 hover:bg-white/[0.04] transition"
+                    >
+                      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                        <div className="min-w-0 space-y-1.5">
+                          <div className="font-semibold text-blue-100 truncate">
+                            {order.productName}
+                          </div>
+
+                          <div className="text-sm text-blue-200/70">
+                            {order.duration} • Rp{Number(order.amount).toLocaleString("id-ID")}
+                          </div>
+
+                          <div className="text-xs text-blue-200/45 break-all">
+                            Invoice: {order.invoice}
+                          </div>
+
+                          {order.whatsapp && (
+                            <div className="text-xs text-blue-200/45">
+                              WhatsApp: {order.whatsapp}
+                            </div>
+                          )}
+
+                          {order.createdAt && (
+                            <div className="text-[11px] text-blue-200/30">
+                              {new Date(order.createdAt).toLocaleString("id-ID")}
+                            </div>
+                          )}
                         </div>
-                      )}
-                    </div>
 
-                    <div className="flex items-center gap-2">
-                      <span
-                        className={`rounded-full px-3 py-1 text-xs font-semibold ${
-                          order.status === "PAID"
-                            ? "bg-emerald-400/15 text-emerald-300"
-                            : "bg-yellow-400/15 text-yellow-300"
-                        }`}
-                      >
-                        {order.status}
-                      </span>
+                        <div className="flex flex-wrap items-center gap-2 sm:justify-end">
+                          <span
+                            className={`rounded-full px-3 py-1 text-xs font-semibold ${
+                              status === "PAID"
+                                ? "bg-emerald-400/15 text-emerald-300"
+                                : "bg-yellow-400/15 text-yellow-300"
+                            }`}
+                          >
+                            {status || "UNKNOWN"}
+                          </span>
 
-                      {order.status === "PENDING" && (
-                        <button
-                          onClick={() => confirmOrder(order.id)}
-                          className="rounded-xl bg-cyan-400/15 px-4 py-2 text-sm font-semibold text-cyan-300 hover:bg-cyan-400/25"
-                        >
-                          ✓ Konfirmasi
-                        </button>
-                      )}
+                          {status === "PENDING" && (
+                            <button
+                              type="button"
+                              onClick={() => confirmOrder(order.id)}
+                              className="rounded-xl bg-cyan-400/15 px-4 py-2 text-sm font-semibold text-cyan-300 hover:bg-cyan-400/25 transition"
+                            >
+                              ✓ Konfirmasi
+                            </button>
+                          )}
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      )}
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        );
+      })()}
 
       {tab === "feedback" && (
         <div className="space-y-4">
