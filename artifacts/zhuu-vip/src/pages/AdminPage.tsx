@@ -1880,7 +1880,14 @@ const saveSettings = async () => {
                 String(p.name || "").toLowerCase().includes(productSearch.trim().toLowerCase());
 
               const options = Array.isArray(p.options) ? p.options : [];
-              const hasStock = options.some((o: any) => Number(o.stock ?? 0) > 0);
+              const hasStock = options.some((o: any) => {
+              const isDrip = Boolean(o.dripVariantId);
+              const stock = isDrip
+                ? Number(o.dripStock ?? 0)
+                : Number(o.stock ?? 0);
+
+              return stock > 0;
+            });
 
               const stockMatch =
                 productStockFilter === "all" ||
@@ -2077,7 +2084,7 @@ const saveSettings = async () => {
 
                 <div>
                   <label className="block text-[10px] uppercase tracking-wider text-blue-200/40 mb-1">
-                    Stock
+                    Stock Lokal
                   </label>
                   <input
                     defaultValue={o.stock}
@@ -2107,8 +2114,19 @@ const saveSettings = async () => {
                   <label className="block text-[10px] uppercase tracking-wider text-blue-200/40 mb-1">
                     DRIP Stock
                   </label>
-                  <div className="w-full px-3 py-2.5 rounded-xl bg-black/20 border border-white/[0.06] text-sm text-cyan-300/70">
+                  <div className="w-full px-3 py-2.5 rounded-xl bg-black/20 border border-cyan-400/10 text-sm text-cyan-300/80">
                     {o.dripStock ?? 0}
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-[10px] uppercase tracking-wider text-emerald-300/60 mb-1">
+                    Stock Aktif
+                  </label>
+                  <div className="w-full px-3 py-2.5 rounded-xl bg-emerald-400/[0.06] border border-emerald-400/10 text-sm font-semibold text-emerald-300">
+                    {o.dripVariantId
+                      ? (o.dripStock ?? 0)
+                      : (o.stock ?? 0)}
                   </div>
                 </div>
               </div>
