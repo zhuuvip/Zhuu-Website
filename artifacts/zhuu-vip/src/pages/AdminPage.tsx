@@ -90,6 +90,8 @@ export default function AdminPage() {
 
   const [tab, setTab] = useState<Tab>("stats");
   const [products, setProducts] = useState<any[]>([]);
+  const [productSearch, setProductSearch] = useState("");
+  const [productStockFilter, setProductStockFilter] = useState<"all" | "available" | "empty">("all");
   const [dripProducts, setDripProducts] = useState<any[]>([]);
   const [dripBalance, setDripBalance] = useState<any>(null);
   const [dripLoading, setDripLoading] = useState(false);
@@ -1845,7 +1847,70 @@ const saveSettings = async () => {
       </button>
     </div>
 
-    {products.map(p => (
+    {/* Product Manager Toolbar */}
+    <div className="mb-4 p-4 rounded-2xl bg-black/20 border border-white/[0.06]">
+      <div className="flex flex-col lg:flex-row gap-3 lg:items-center lg:justify-between">
+        <div className="flex-1 relative">
+          <input
+            value={productSearch}
+            onChange={e => setProductSearch(e.target.value)}
+            placeholder="Cari nama produk..."
+            className="w-full px-4 py-2.5 pl-10 rounded-xl bg-black/30 border border-white/[0.06] text-sm text-blue-100 placeholder:text-blue-200/30 focus:outline-none focus:border-cyan-400/30"
+          />
+          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-blue-200/30">
+            🔎
+          </span>
+        </div>
+
+        <select
+          value={productStockFilter}
+          onChange={e => setProductStockFilter(e.target.value as "all" | "available" | "empty")}
+          className="px-4 py-2.5 rounded-xl bg-black/30 border border-white/[0.06] text-sm text-blue-100"
+        >
+          <option value="all">Semua Stock</option>
+          <option value="available">Ada Stock</option>
+          <option value="empty">Stock Habis</option>
+        </select>
+
+        <div className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-cyan-400/[0.05] border border-cyan-400/10">
+          <span className="text-xs text-blue-200/50">Produk</span>
+          <span className="text-sm font-semibold text-cyan-300">
+            {products.filter(p => {
+              const nameMatch = !productSearch.trim() ||
+                String(p.name || "").toLowerCase().includes(productSearch.trim().toLowerCase());
+
+              const options = Array.isArray(p.options) ? p.options : [];
+              const hasStock = options.some((o: any) => Number(o.stock ?? 0) > 0);
+
+              const stockMatch =
+                productStockFilter === "all" ||
+                (productStockFilter === "available" && hasStock) ||
+                (productStockFilter === "empty" && !hasStock);
+
+              return nameMatch && stockMatch;
+            }).length}
+            <span className="text-blue-200/30 font-normal"> / {products.length}</span>
+          </span>
+        </div>
+      </div>
+    </div>
+
+    {products
+      .filter(p => {
+        const nameMatch = !productSearch.trim() ||
+          String(p.name || "").toLowerCase().includes(productSearch.trim().toLowerCase());
+
+        const options = Array.isArray(p.options) ? p.options : [];
+        const hasStock = options.some((o: any) => Number(o.stock ?? 0) > 0);
+
+        const stockMatch =
+          productStockFilter === "all" ||
+          (productStockFilter === "available" && hasStock) ||
+          (productStockFilter === "empty" && !hasStock);
+
+        return nameMatch && stockMatch;
+      })
+      .map(p => (
       <div key={p.id} className="mt-4 p-4 rounded-xl bg-black/20">
         <div className="flex flex-col sm:flex-row gap-2 items-stretch sm:items-center">
                           <input
