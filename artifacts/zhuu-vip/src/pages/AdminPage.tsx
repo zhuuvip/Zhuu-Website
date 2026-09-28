@@ -17,6 +17,7 @@ import {
   MessageSquare, ShoppingCart, BarChart3, Star, Users, Bot, RefreshCw,
   Settings, Image as ImageIcon, Palette, Upload, CheckCircle2,
   GripVertical, ExternalLink, WalletCards, TicketPercent, History,
+  Wallet, Clock3, CreditCard, AlertTriangle, ChevronRight
 } from "lucide-react";
 
 const ADMIN_EMAIL = import.meta.env.VITE_ADMIN_EMAIL || "zhuusite@gmail.com";
@@ -42,7 +43,20 @@ interface FeedbackItem {
 }
 
 interface Stats {
-  links: number; songs: number; feedback: number; conversations: number; messages: number; visitors?: number;
+  links: number;
+  songs: number;
+  feedback: number;
+  conversations: number;
+  messages: number;
+  visitors?: number;
+  business?: {
+    totalOrders: number;
+    successfulOrders: number;
+    pendingOrders: number;
+    revenue: number;
+    pendingDeposits: number;
+    depositTotal: number;
+  };
 }
 
 interface SiteSettings {
@@ -925,45 +939,195 @@ const saveSettings = async () => {
       {/* Stats Tab */}
       {tab === "stats" && (
         <div className="space-y-6">
+
           <div className="flex items-center justify-between">
-            <h2 className="text-lg font-semibold text-blue-100">Site Overview</h2>
-            <button onClick={fetchStats} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs text-blue-300/60 hover:text-cyan-300 hover:bg-cyan-400/10 transition-all">
-              <RefreshCw size={12} className={statsLoading ? "animate-spin" : ""} /> Refresh
+            <div>
+              <h2 className="text-xl font-black text-blue-100 tracking-tight">
+                Dashboard Overview
+              </h2>
+              <p className="text-xs text-blue-300/40 mt-1">
+                Ringkasan aktivitas & bisnis ZhuuVIP
+              </p>
+            </div>
+
+            <button
+              onClick={fetchStats}
+              className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs text-blue-300/60 hover:text-cyan-300 hover:bg-cyan-400/10 border border-transparent hover:border-cyan-400/10 transition-all"
+            >
+              <RefreshCw size={13} className={statsLoading ? "animate-spin" : ""} />
+              Refresh
             </button>
           </div>
+
           {statsLoading && !stats ? (
-            <div className="flex justify-center py-12"><Loader2 size={24} className="animate-spin text-cyan-400" /></div>
+            <div className="flex justify-center py-16">
+              <Loader2 size={28} className="animate-spin text-cyan-400" />
+            </div>
           ) : stats ? (
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-              <StatCard label="Linktree Links" value={stats.links} icon={<Link2 size={18} />} color="#00d4ff" />
-              <StatCard label="Songs" value={stats.songs} icon={<Music size={18} />} color="#a78bfa" />
-              <StatCard label="Feedback" value={stats.feedback} icon={<MessageSquare size={18} />} color="#4ade80" />
-              <StatCard label="AI Conversations" value={stats.conversations} icon={<Bot size={18} />} color="#f9a8d4" />
-              <StatCard label="AI Messages" value={stats.messages} icon={<Users size={18} />} color="#fbbf24" />
-                  <StatCard label="Visitors" value={stats.visitors ?? 0} icon={<Eye size={18} />} color="#fb923c" />
-            </div>
-          ) : (
-            <div className="text-center py-8 text-blue-300/30 text-sm">Failed to load stats. <button onClick={fetchStats} className="text-cyan-400 hover:underline">Try again</button></div>
-          )}
-          <div className="glass-card rounded-2xl p-6">
-            <h3 className="font-semibold text-blue-100 mb-4 flex items-center gap-2"><Shield size={16} className="text-purple-400" /> Admin Info</h3>
-            <div className="space-y-0">
-              {[
-                { label: "Admin Account", value: email },
-                { label: "User ID", value: user.id, mono: true },
-                { label: "Role", value: null },
-              ].map((row, i) => (
-                <div key={i} className="flex items-center justify-between py-2.5 border-b border-cyan-400/5 last:border-0">
-                  <span className="text-sm text-blue-300/50">{row.label}</span>
-                  {row.value !== null ? (
-                    <span className={`text-sm text-blue-100 ${row.mono ? "font-mono text-xs text-blue-100/60" : "font-medium"}`}>{row.value}</span>
-                  ) : (
-                    <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-purple-400/15 text-purple-300 border border-purple-400/30">ADMIN</span>
-                  )}
+            <>
+              {/* Business Overview */}
+              <div>
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="w-1 h-5 rounded-full bg-cyan-400 shadow-[0_0_12px_rgba(34,211,238,.6)]" />
+                  <h3 className="text-sm font-bold text-blue-100">
+                    Business Overview
+                  </h3>
                 </div>
-              ))}
+
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+
+                  <div className="col-span-2 md:col-span-1 glass-card rounded-2xl p-4 border border-cyan-400/10 bg-cyan-400/[0.025]">
+                    <div className="flex items-center justify-between mb-3">
+                      <span className="text-[10px] uppercase tracking-wider font-bold text-blue-300/45">
+                        Revenue
+                      </span>
+                      <div className="p-2 rounded-xl bg-cyan-400/10 text-cyan-300">
+                        <Wallet size={15} />
+                      </div>
+                    </div>
+
+                    <div className="text-xl font-black text-cyan-300">
+                      Rp{(stats.business?.revenue ?? 0).toLocaleString("id-ID")}
+                    </div>
+
+                    <div className="text-[10px] text-blue-300/30 mt-1">
+                      Pesanan berhasil
+                    </div>
+                  </div>
+
+                  <StatCard
+                    label="Total Orders"
+                    value={stats.business?.totalOrders ?? 0}
+                    icon={<ShoppingCart size={17} />}
+                    color="#a78bfa"
+                  />
+
+                  <StatCard
+                    label="Completed"
+                    value={stats.business?.successfulOrders ?? 0}
+                    icon={<CheckCircle2 size={17} />}
+                    color="#4ade80"
+                  />
+
+                  <StatCard
+                    label="Pending Orders"
+                    value={stats.business?.pendingOrders ?? 0}
+                    icon={<Clock3 size={17} />}
+                    color="#fbbf24"
+                  />
+
+                  <StatCard
+                    label="Pending Deposit"
+                    value={stats.business?.pendingDeposits ?? 0}
+                    icon={<CreditCard size={17} />}
+                    color="#fb923c"
+                  />
+
+                  <StatCard
+                    label="Visitors"
+                    value={stats.visitors ?? 0}
+                    icon={<Eye size={17} />}
+                    color="#f472b6"
+                  />
+                </div>
+              </div>
+
+              {(stats.business?.pendingDeposits ?? 0) > 0 && (
+                <button
+                  onClick={() => setTab("deposits")}
+                  className="w-full text-left glass-card rounded-2xl p-4 border border-amber-400/15 bg-amber-400/[0.025] hover:bg-amber-400/[0.05] transition-all group"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="p-2.5 rounded-xl bg-amber-400/10 text-amber-300">
+                      <AlertTriangle size={18} />
+                    </div>
+
+                    <div className="flex-1">
+                      <div className="text-sm font-bold text-amber-200">
+                        Ada deposit yang menunggu konfirmasi
+                      </div>
+                      <div className="text-xs text-blue-300/40 mt-0.5">
+                        {(stats.business?.pendingDeposits ?? 0).toLocaleString()} deposit
+                        {" · "}
+                        Rp{(stats.business?.depositTotal ?? 0).toLocaleString("id-ID")}
+                      </div>
+                    </div>
+
+                    <ChevronRight
+                      size={17}
+                      className="text-amber-300/40 group-hover:text-amber-300 transition-colors"
+                    />
+                  </div>
+                </button>
+              )}
+
+              {/* Website Stats */}
+              <div>
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="w-1 h-5 rounded-full bg-purple-400 shadow-[0_0_12px_rgba(167,139,250,.5)]" />
+                  <h3 className="text-sm font-bold text-blue-100">
+                    Website Stats
+                  </h3>
+                </div>
+
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                  <StatCard label="Linktree Links" value={stats.links} icon={<Link2 size={17} />} color="#00d4ff" />
+                  <StatCard label="Songs" value={stats.songs} icon={<Music size={17} />} color="#a78bfa" />
+                  <StatCard label="Feedback" value={stats.feedback} icon={<MessageSquare size={17} />} color="#4ade80" />
+                  <StatCard label="AI Conversations" value={stats.conversations} icon={<Bot size={17} />} color="#f9a8d4" />
+                  <StatCard label="AI Messages" value={stats.messages} icon={<Users size={17} />} color="#fbbf24" />
+                  <StatCard label="Visitors" value={stats.visitors ?? 0} icon={<Eye size={17} />} color="#fb923c" />
+                </div>
+              </div>
+
+              {/* Admin Info */}
+              <div className="glass-card rounded-2xl p-5">
+                <h3 className="font-semibold text-blue-100 mb-4 flex items-center gap-2">
+                  <Shield size={16} className="text-purple-400" />
+                  Admin Info
+                </h3>
+
+                {[
+                  { label: "Admin Account", value: email },
+                  { label: "User ID", value: user.id, mono: true },
+                  { label: "Role", value: null },
+                ].map((row, i) => (
+                  <div
+                    key={i}
+                    className="flex items-center justify-between py-2.5 border-b border-cyan-400/5 last:border-0"
+                  >
+                    <span className="text-sm text-blue-300/50">{row.label}</span>
+
+                    {row.value !== null ? (
+                      <span
+                        className={`text-sm text-blue-100 ${
+                          row.mono
+                            ? "font-mono text-xs text-blue-100/60"
+                            : "font-medium"
+                        }`}
+                      >
+                        {row.value}
+                      </span>
+                    ) : (
+                      <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-purple-400/15 text-purple-300 border border-purple-400/30">
+                        ADMIN
+                      </span>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </>
+          ) : (
+            <div className="text-center py-10 text-blue-300/30 text-sm">
+              Failed to load stats.
+              <button
+                onClick={fetchStats}
+                className="text-cyan-400 hover:underline ml-1"
+              >
+                Try again
+              </button>
             </div>
-          </div>
+          )}
         </div>
       )}
 
