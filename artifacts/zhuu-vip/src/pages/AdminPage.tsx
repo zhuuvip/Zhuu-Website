@@ -1388,6 +1388,103 @@ const saveSettings = async () => {
                 })()}
               </div>
 
+              {/* Revenue 30 Day Analytics */}
+              <div className="glass-card rounded-2xl p-5">
+                {(() => {
+                  const analytics = stats.business?.orderAnalytics30d ?? [];
+                  const totalRevenue = analytics.reduce(
+                    (sum, item) => sum + item.revenue,
+                    0,
+                  );
+                  const maxRevenue = Math.max(
+                    1,
+                    ...analytics.map((item) => item.revenue),
+                  );
+
+                  const peakDay = analytics.reduce(
+                    (best, item) =>
+                      item.revenue > (best?.revenue ?? 0) ? item : best,
+                    analytics[0],
+                  );
+
+                  return (
+                    <>
+                      <div className="flex items-center justify-between mb-5">
+                        <div>
+                          <h3 className="font-bold text-blue-100 flex items-center gap-2">
+                            <BarChart3 size={16} className="text-emerald-300" />
+                            Revenue 30 Hari
+                          </h3>
+                          <p className="text-[10px] text-blue-300/35 mt-1">
+                            Pendapatan harian selama 30 hari terakhir
+                          </p>
+                        </div>
+
+                        <div className="text-right">
+                          <div className="text-[9px] uppercase tracking-wider text-blue-300/35">
+                            Total Revenue
+                          </div>
+                          <div className="text-lg font-black text-emerald-300">
+                            Rp{totalRevenue.toLocaleString("id-ID")}
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="flex items-end gap-[3px] h-36">
+                        {analytics.map((day) => {
+                          const height = (day.revenue / maxRevenue) * 100;
+
+                          return (
+                            <div
+                              key={day.date}
+                              className="flex-1 h-full flex items-end group"
+                              title={`${day.date}: Rp${day.revenue.toLocaleString("id-ID")}`}
+                            >
+                              <div
+                                className="w-full rounded-t-sm bg-emerald-400/70 group-hover:bg-emerald-300 transition-all"
+                                style={{
+                                  height: `${Math.max(
+                                    height,
+                                    day.revenue > 0 ? 4 : 0,
+                                  )}%`,
+                                }}
+                              />
+                            </div>
+                          );
+                        })}
+                      </div>
+
+                      <div className="mt-4 grid grid-cols-2 gap-3">
+                        <div className="rounded-xl bg-emerald-400/[0.035] border border-emerald-400/10 p-3">
+                          <div className="text-[8px] uppercase tracking-wider text-blue-300/35">
+                            Revenue 30 Hari
+                          </div>
+                          <div className="text-lg font-black text-emerald-300 mt-1">
+                            Rp{totalRevenue.toLocaleString("id-ID")}
+                          </div>
+                        </div>
+
+                        <div className="rounded-xl bg-cyan-400/[0.035] border border-cyan-400/10 p-3">
+                          <div className="text-[8px] uppercase tracking-wider text-blue-300/35">
+                            Hari Tertinggi
+                          </div>
+                          <div className="text-sm font-black text-cyan-300 mt-1">
+                            {peakDay
+                              ? `Rp${peakDay.revenue.toLocaleString("id-ID")}`
+                              : "Rp0"}
+                          </div>
+                          {peakDay && (
+                            <div className="text-[8px] text-blue-300/30 mt-1">
+                              {peakDay.date}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </>
+                  );
+                })()}
+              </div>
+
               {/* Top Products + Low Stock */}
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
 
