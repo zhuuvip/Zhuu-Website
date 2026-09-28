@@ -10,6 +10,7 @@ import {
   Loader2,
   LockKeyhole,
   RefreshCw,
+  KeyRound,
   ShieldCheck,
   Sparkles,
   Trophy,
@@ -489,6 +490,284 @@ function PremiumUpgradeCard() {
   );
 }
 
+function ResetKeySection() {
+  const { getToken } = useAuth();
+
+  const [api, setApi] = useState<"drip" | "fluorite">("drip");
+  const [key, setKey] = useState("");
+  const [usedToday, setUsedToday] = useState(0);
+  const [dailyLimit, setDailyLimit] = useState<number | null>(2);
+  const [unlimited, setUnlimited] = useState(false);
+  const [loadingStatus, setLoadingStatus] = useState(true);
+  const [resetting, setResetting] = useState(false);
+  const [message, setMessage] = useState("");
+  const [error, setError] = useState("");
+
+  const loadStatus = async () => {
+    try {
+      setLoadingStatus(true);
+
+      const token = await getToken();
+      if (!token) return;
+
+      const res = await fetch(`${API_BASE}/api/reset-key/status`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const data = await res.json().catch(() => ({}));
+
+      if (!res.ok) {
+        throw new Error(data.error || "Gagal mengambil status reset");
+      }
+
+      setUsedToday(Number(data.usedToday || 0));
+      setDailyLimit(
+        data.dailyLimit === null ? null : Number(data.dailyLimit ?? 2)
+      );
+      setUnlimited(Boolean(data.unlimited));
+    } catch (err) {
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Gagal mengambil status reset key"
+      );
+    } finally {
+      setLoadingStatus(false);
+    }
+  };
+
+  useEffect(() => {
+    loadStatus();
+  }, [getToken]);
+
+  const resetKey = async () => {
+    if (!key.trim() || resetting) return;
+
+    setError("");
+    setMessage("");
+    setResetting(true);
+
+    try {
+      const token = await getToken();
+
+      if (!token) {
+        throw new Error("Silakan login terlebih dahulu.");
+      }
+
+      const res = await fetch(`${API_BASE}/api/reset-key`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          api,
+          key: key.trim(),
+        }),
+      });
+
+      const data = await res.json().catch(() => ({}));
+
+      if (!res.ok) {
+        throw new Error(data.error || "Reset key gagal");
+      }
+
+      if (!unlimited) {
+        setUsedToday(Number(data.usedToday ?? usedToday + 1));
+      }
+
+      setKey("");
+      setMessage(
+        api === "drip"
+          ? "Reset DRIP berhasil."
+          : "Reset Fluorite berhasil."
+      );
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : "Reset key gagal"
+      );
+    } finally {
+      setResetting(false);
+    }
+  };
+
+  const limitReached =
+    !unlimited &&
+    dailyLimit !== null &&
+    usedToday >= dailyLimit;
+
+  return (
+    <div className="flex flex-col gap-5">
+      <div className="glass-card rounded-[24px] p-5 sm:p-7">
+        <div className="mb-6 flex items-start justify-between">
+          <div>
+            <p className="text-xs uppercase tracking-[.2em] text-cyan-300/45">
+              License Tools
+            </p>
+            <h3 className="mt-1 flex items-center gap-2 text-xl font-bold text-cyan-50">
+              <KeyRound className="size-5 text-cyan-300" />
+              Reset Key
+            </h3>
+            <p className="mt-2 text-xs leading-5 text-cyan-100/40">
+              Reset license key produk yang didukung DRIP.
+            </p>
+          </div>
+
+          <button
+            type="button"
+            onClick={loadStatus}
+            disabled={loadingStatus}
+            className="rounded-xl border border-cyan-300/15 bg-cyan-300/5 p-2.5 text-cyan-200/60 transition hover:bg-cyan-300/10 hover:text-cyan-200 disabled:opacity-40"
+            aria-label="Refresh reset status"
+          >
+            <RefreshCw
+              className={`size-4 ${loadingStatus ? "animate-spin" : ""}`}
+            />
+          </button>
+        </div>
+
+        <div
+          className={`mb-5 rounded-2xl border px-4 py-3 ${
+            unlimited
+              ? "border-purple-400/20 bg-purple-400/5"
+              : limitReached
+                ? "border-rose-400/20 bg-rose-400/5"
+                : "border-cyan-300/15 bg-cyan-300/5"
+          }`}
+        >
+          <div className="flex items-center justify-between">
+            <span className="text-xs text-cyan-100/45">
+              Limit reset hari ini
+            </span>
+
+            <span
+              className={`text-sm font-black ${
+                unlimited
+                  ? "text-purple-300"
+                  : limitReached
+                    ? "text-rose-300"
+                    : "text-cyan-200"
+              }`}
+            >
+              {loadingStatus
+                ? "..."
+                : unlimited
+                  ? "Unlimited"
+                  : `${usedToday}/${dailyLimit}`}
+            </span>
+          </div>
+
+          {!unlimited && (
+            <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-cyan-300/10">
+              <div
+                className="h-full rounded-full bg-cyan-400 transition-all"
+                style={{
+                  width: `${Math.min(
+                    100,
+                    ((usedToday / (dailyLimit || 2)) * 100)
+                  )}%`,
+                }}
+              />
+            </div>
+          )}
+
+          <p className="mt-2 text-[10px] text-cyan-100/30">
+            {unlimited
+              ? "Premium dan Reseller aktif tidak memiliki batas harian."
+              : "Member biasa mendapat maksimal 2 reset gabungan DRIP + Fluorite per hari."}
+          </p>
+        </div>
+
+        <div className="mb-4 grid grid-cols-2 gap-2">
+          <button
+            type="button"
+            onClick={() => {
+              setApi("drip");
+              setError("");
+              setMessage("");
+            }}
+            className={`rounded-xl border px-3 py-3 text-sm font-bold transition ${
+              api === "drip"
+                ? "border-cyan-300/40 bg-cyan-300/10 text-cyan-200"
+                : "border-cyan-300/10 bg-cyan-300/[.03] text-cyan-100/40 hover:text-cyan-100/70"
+            }`}
+          >
+            DRIP
+          </button>
+
+          <button
+            type="button"
+            onClick={() => {
+              setApi("fluorite");
+              setError("");
+              setMessage("");
+            }}
+            className={`rounded-xl border px-3 py-3 text-sm font-bold transition ${
+              api === "fluorite"
+                ? "border-purple-400/40 bg-purple-400/10 text-purple-200"
+                : "border-cyan-300/10 bg-cyan-300/[.03] text-cyan-100/40 hover:text-cyan-100/70"
+            }`}
+          >
+            Fluorite
+          </button>
+        </div>
+
+        <label className="mb-2 block text-xs text-cyan-100/45">
+          License Key
+        </label>
+
+        <input
+          value={key}
+          onChange={(e) => setKey(e.target.value)}
+          placeholder="Masukkan license key..."
+          className="w-full rounded-xl border border-cyan-300/15 bg-cyan-300/5 px-4 py-3 font-mono text-sm text-cyan-100 outline-none placeholder:text-cyan-100/20 focus:border-cyan-300/50 focus:ring-2 focus:ring-cyan-300/10"
+          autoComplete="off"
+          spellCheck={false}
+        />
+
+        {error && (
+          <div className="mt-3 rounded-xl border border-rose-400/20 bg-rose-400/5 px-4 py-3 text-xs text-rose-300">
+            {error}
+          </div>
+        )}
+
+        {message && (
+          <div className="mt-3 rounded-xl border border-emerald-400/20 bg-emerald-400/5 px-4 py-3 text-xs text-emerald-300">
+            ✓ {message}
+          </div>
+        )}
+
+        <button
+          type="button"
+          onClick={resetKey}
+          disabled={!key.trim() || resetting || limitReached}
+          className="neon-btn-solid mt-4 flex w-full items-center justify-center gap-2 rounded-xl py-3.5 font-bold disabled:cursor-not-allowed disabled:opacity-40"
+        >
+          {resetting ? (
+            <>
+              <Loader2 className="size-4 animate-spin" />
+              Memproses Reset...
+            </>
+          ) : (
+            <>
+              <RefreshCw className="size-4" />
+              Reset {api === "drip" ? "DRIP" : "Fluorite"}
+            </>
+          )}
+        </button>
+
+        {limitReached && (
+          <p className="mt-3 text-center text-[11px] text-rose-300/60">
+            Batas reset hari ini sudah habis. Coba lagi besok.
+          </p>
+        )}
+      </div>
+    </div>
+  );
+}
+
 function RankSection() {
   const current = 6420;
   const next = 1000;
@@ -496,7 +775,7 @@ function RankSection() {
 }
 
 export default function MemberPage() {
-  const [tab, setTab] = useState<"topup" | "rank">("topup");
-  return <main className="ocean-bg min-h-screen px-4 pb-28 pt-24"><div className="mx-auto max-w-xl page-enter"><Link href="/" className="mb-7 inline-flex items-center gap-2 text-xs font-semibold text-cyan-100/45 transition-colors hover:text-cyan-200"><ArrowLeft className="size-4" /> Kembali ke home</Link><div className="mb-7"><div className="mb-3 flex items-center gap-2 text-xs font-semibold uppercase tracking-[.25em] text-cyan-300/55"><Sparkles className="size-3.5" /> ZhuuVIP Member</div><h1 className="text-balance text-3xl font-black leading-tight text-cyan-50 sm:text-4xl" style={{ fontFamily: "Poppins, Inter, sans-serif" }}>Wallet & <span className="gradient-text">Member Rank</span></h1><p className="mt-3 max-w-md text-sm leading-6 text-cyan-100/45">Isi saldo instan dengan QRIS dan naikkan statusmu di dunia bawah laut ZhuuVIP.</p></div><div className="mb-5 grid grid-cols-2 rounded-xl border border-cyan-300/10 bg-cyan-300/[.03] p-1"><button onClick={() => setTab("topup")} className={`rounded-lg py-2.5 text-sm font-bold transition-all ${tab === "topup" ? "bg-cyan-300/15 text-cyan-200 shadow-[0_0_14px_rgba(0,229,255,.1)]" : "text-cyan-100/40 hover:text-cyan-100/70"}`}>Top Up Saldo</button><button onClick={() => setTab("rank")} className={`rounded-lg py-2.5 text-sm font-bold transition-all ${tab === "rank" ? "bg-purple-300/15 text-purple-200 shadow-[0_0_14px_rgba(192,132,252,.12)]" : "text-cyan-100/40 hover:text-cyan-100/70"}`}>Rank Member</button></div>{tab === "topup" ? <TopUpFlow /> : <RankSection />}</div></main>;
+  const [tab, setTab] = useState<"topup" | "rank" | "reset">("topup");
+  return <main className="ocean-bg min-h-screen px-4 pb-28 pt-24"><div className="mx-auto max-w-xl page-enter"><Link href="/" className="mb-7 inline-flex items-center gap-2 text-xs font-semibold text-cyan-100/45 transition-colors hover:text-cyan-200"><ArrowLeft className="size-4" /> Kembali ke home</Link><div className="mb-7"><div className="mb-3 flex items-center gap-2 text-xs font-semibold uppercase tracking-[.25em] text-cyan-300/55"><Sparkles className="size-3.5" /> ZhuuVIP Member</div><h1 className="text-balance text-3xl font-black leading-tight text-cyan-50 sm:text-4xl" style={{ fontFamily: "Poppins, Inter, sans-serif" }}>Wallet & <span className="gradient-text">Member Rank</span></h1><p className="mt-3 max-w-md text-sm leading-6 text-cyan-100/45">Isi saldo instan dengan QRIS dan naikkan statusmu di dunia bawah laut ZhuuVIP.</p></div><div className="mb-5 grid grid-cols-3 rounded-xl border border-cyan-300/10 bg-cyan-300/[.03] p-1"><button onClick={() => setTab("topup")} className={`rounded-lg py-2.5 text-sm font-bold transition-all ${tab === "topup" ? "bg-cyan-300/15 text-cyan-200 shadow-[0_0_14px_rgba(0,229,255,.1)]" : "text-cyan-100/40 hover:text-cyan-100/70"}`}>Top Up Saldo</button><button onClick={() => setTab("rank")} className={`rounded-lg py-2.5 text-sm font-bold transition-all ${tab === "rank" ? "bg-purple-300/15 text-purple-200 shadow-[0_0_14px_rgba(192,132,252,.12)]" : "text-cyan-100/40 hover:text-cyan-100/70"}`}>Rank Member</button><button onClick={() => setTab("reset")} className={`rounded-lg py-2.5 text-sm font-bold transition-all ${tab === "reset" ? "bg-cyan-300/15 text-cyan-200 shadow-[0_0_14px_rgba(0,229,255,.1)]" : "text-cyan-100/40 hover:text-cyan-100/70"}`}>🔑 Reset Key</button></div>{tab === "topup" ? <TopUpFlow /> : tab === "rank" ? <RankSection /> : <ResetKeySection />}</div></main>;
 }
 

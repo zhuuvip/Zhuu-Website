@@ -18,6 +18,7 @@ import resellerRouter from "./reseller.js";
 import dripRouter from "./drip.js";
 import promosRouter from "./promos.js";
 import adminActivityLogsRouter from "./adminActivityLogs.js";
+import resetKeyRouter from "./resetKey.js";
 
 const router = Router();
 
@@ -41,5 +42,6 @@ router.use(resellerRouter);
 router.use(dripRouter);
 router.use(promosRouter);
 router.use(adminActivityLogsRouter);
+router.use(resetKeyRouter);
 
 export default router;

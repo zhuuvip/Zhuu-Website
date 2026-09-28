@@ -33,6 +33,44 @@ export async function generateDripKey(variantId: number, quantity = 1) {
   return data;
 }
 
+export async function resetDripKey(key: string) {
+  const { data } = await axios.post(
+    `${BASE_URL}/reset_key.php`,
+    new URLSearchParams({
+      api: "drip",
+      key,
+    }),
+    {
+      headers: {
+        "X-API-Token": token(),
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+      timeout: 10000,
+    },
+  );
+
+  return data;
+}
+
+export async function resetFluoriteKey(key: string) {
+  const { data } = await axios.post(
+    `${BASE_URL}/reset_key.php`,
+    new URLSearchParams({
+      api: "fluorite",
+      key,
+    }),
+    {
+      headers: {
+        "X-API-Token": token(),
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+      timeout: 10000,
+    },
+  );
+
+  return data;
+}
+
 export async function getDripBalance() {
   const { data } = await axios.get(`${BASE_URL}/balance.php`, {
     headers: { "X-API-Token": token() },
