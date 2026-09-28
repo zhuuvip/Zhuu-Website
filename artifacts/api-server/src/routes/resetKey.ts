@@ -173,6 +173,30 @@ router.post("/reset-key", async (req, res) => {
       result = await resetHgKey(key);
     }
 
+    // Provider bisa mengembalikan HTTP 200 meskipun reset gagal.
+    // Jangan pernah mencatat reset sebagai sukses hanya berdasarkan HTTP 200.
+    if (result && typeof result === "object" && result.success === false) {
+      return res.status(400).json({
+        error: result.error || "Key yang kamu masukkan salah.",
+      });
+    }
+
+    if (typeof result === "string") {
+      const normalized = result.toLowerCase();
+
+      const invalidHg =
+        normalized.includes("link inválido") ||
+        normalized.includes("link invalido") ||
+        normalized.includes("link inválido ou não encontrado") ||
+        normalized.includes("link invalido ou nao encontrado");
+
+      if (invalidHg) {
+        return res.status(400).json({
+          error: "Key yang kamu masukkan salah.",
+        });
+      }
+    }
+
     await db.execute(sql`
       INSERT INTO reset_key_logs (user_id, api, key)
       VALUES (${userId}, ${api}, ${key})

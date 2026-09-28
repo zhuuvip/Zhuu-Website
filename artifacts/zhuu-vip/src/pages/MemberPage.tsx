@@ -572,7 +572,11 @@ function ResetKeySection() {
       const data = await res.json().catch(() => ({}));
 
       if (!res.ok) {
-        throw new Error(data.error || "Reset key gagal");
+        throw new Error(data.error || "Key yang kamu masukkan salah.");
+      }
+
+      if (data.ok !== true) {
+        throw new Error(data.error || "Key yang kamu masukkan salah.");
       }
 
       if (!unlimited) {
@@ -580,6 +584,7 @@ function ResetKeySection() {
       }
 
       setKey("");
+      setError("");
       setMessage(
         api === "drip"
           ? "Reset DRIP berhasil."
@@ -588,8 +593,11 @@ function ResetKeySection() {
           : "Reset HG berhasil."
       );
     } catch (err) {
+      setMessage("");
       setError(
-        err instanceof Error ? err.message : "Reset key gagal"
+        err instanceof Error
+          ? err.message
+          : "Key yang kamu masukkan salah."
       );
     } finally {
       setResetting(false);
