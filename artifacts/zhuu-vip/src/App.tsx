@@ -33,6 +33,7 @@ import ProductsPage from "@/pages/ProductsPage";
 import ResellerLoginPage from "@/pages/ResellerLoginPage";
 import ResellerDashboardPage from "@/pages/ResellerDashboardPage";
 import MaintenancePage from "@/pages/MaintenancePage";
+import ZhuuAlertProvider from "@/components/ZhuuAlertProvider";
 
 const apiUrl = import.meta.env.VITE_API_URL;
 if (apiUrl) {
@@ -276,7 +277,9 @@ function ClerkProviderWithRoutes() {
         <ClerkAuthSetup />
         <ClerkQueryClientCacheInvalidator />
         <TooltipProvider>
-          <AppRouter />
+          <ZhuuAlertProvider>
+            <AppRouter />
+          </ZhuuAlertProvider>
         </TooltipProvider>
       </QueryClientProvider>
     </ClerkProvider>
