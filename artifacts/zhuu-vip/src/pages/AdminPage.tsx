@@ -66,6 +66,13 @@ interface Stats {
       pending_orders: number;
       revenue: number;
     }[];
+    orderAnalytics30d: {
+      date: string;
+      total_orders: number;
+      successful_orders: number;
+      pending_orders: number;
+      revenue: number;
+    }[];
     topProducts: {
       productName: string;
       sold: number;
@@ -1258,6 +1265,125 @@ const saveSettings = async () => {
                         </div>
                       </div>
                     </div>
+                  );
+                })()}
+              </div>
+
+              {/* 30 Day Analytics */}
+              <div className="glass-card rounded-2xl p-5">
+                {(() => {
+                  const analytics = stats.business?.orderAnalytics30d ?? [];
+                  const totalOrders = analytics.reduce(
+                    (sum, item) => sum + item.total_orders,
+                    0,
+                  );
+                  const successfulOrders = analytics.reduce(
+                    (sum, item) => sum + item.successful_orders,
+                    0,
+                  );
+                  const pendingOrders = analytics.reduce(
+                    (sum, item) => sum + item.pending_orders,
+                    0,
+                  );
+                  const revenue = analytics.reduce(
+                    (sum, item) => sum + item.revenue,
+                    0,
+                  );
+                  const successRate =
+                    totalOrders > 0
+                      ? Math.round((successfulOrders / totalOrders) * 100)
+                      : 0;
+                  const maxOrders = Math.max(
+                    1,
+                    ...analytics.map((item) => item.total_orders),
+                  );
+
+                  return (
+                    <>
+                      <div className="flex items-center justify-between mb-5">
+                        <div>
+                          <h3 className="font-bold text-blue-100 flex items-center gap-2">
+                            <BarChart3 size={16} className="text-purple-300" />
+                            Analytics 30 Hari
+                          </h3>
+                          <p className="text-[10px] text-blue-300/35 mt-1">
+                            Performa order selama 30 hari terakhir
+                          </p>
+                        </div>
+
+                        <div className="text-right">
+                          <div className="text-[9px] uppercase tracking-wider text-blue-300/35">
+                            Success Rate
+                          </div>
+                          <div className="text-xl font-black text-emerald-300">
+                            {successRate}%
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="flex items-end gap-[3px] h-32">
+                        {analytics.map((day) => {
+                          const height =
+                            (day.total_orders / maxOrders) * 100;
+
+                          return (
+                            <div
+                              key={day.date}
+                              className="flex-1 h-full flex items-end group relative"
+                              title={`${day.date}: ${day.total_orders} order`}
+                            >
+                              <div
+                                className="w-full rounded-t-sm bg-purple-400/70 group-hover:bg-purple-300 transition-all"
+                                style={{
+                                  height: `${Math.max(
+                                    height,
+                                    day.total_orders > 0 ? 4 : 0,
+                                  )}%`,
+                                }}
+                              />
+                            </div>
+                          );
+                        })}
+                      </div>
+
+                      <div className="mt-4 grid grid-cols-2 sm:grid-cols-4 gap-2">
+                        <div className="rounded-xl bg-white/[0.025] border border-white/[0.05] p-3">
+                          <div className="text-[8px] uppercase tracking-wider text-blue-300/35">
+                            Total Order
+                          </div>
+                          <div className="text-lg font-black text-blue-100 mt-1">
+                            {totalOrders}
+                          </div>
+                        </div>
+
+                        <div className="rounded-xl bg-emerald-400/[0.035] border border-emerald-400/10 p-3">
+                          <div className="text-[8px] uppercase tracking-wider text-blue-300/35">
+                            Berhasil
+                          </div>
+                          <div className="text-lg font-black text-emerald-300 mt-1">
+                            {successfulOrders}
+                          </div>
+                        </div>
+
+                        <div className="rounded-xl bg-amber-400/[0.035] border border-amber-400/10 p-3">
+                          <div className="text-[8px] uppercase tracking-wider text-blue-300/35">
+                            Pending
+                          </div>
+                          <div className="text-lg font-black text-amber-300 mt-1">
+                            {pendingOrders}
+                          </div>
+                        </div>
+
+                        <div className="rounded-xl bg-cyan-400/[0.035] border border-cyan-400/10 p-3">
+                          <div className="text-[8px] uppercase tracking-wider text-blue-300/35">
+                            Revenue
+                          </div>
+                          <div className="text-sm font-black text-cyan-300 mt-1">
+                            Rp{revenue.toLocaleString("id-ID")}
+                          </div>
+                        </div>
+                      </div>
+                    </>
                   );
                 })()}
               </div>
