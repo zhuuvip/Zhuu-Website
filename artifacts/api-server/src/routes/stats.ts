@@ -67,7 +67,7 @@ router.get("/admin/stats", requireAdmin, async (req, res) => {
         })
         .from(ordersTable)
         .where(
-          sql`UPPER(${ordersTable.status}) IN ('SUCCESS', 'COMPLETED', 'CONFIRMED')`,
+          sql`UPPER(${ordersTable.status}) IN ('PAID')`,
         ),
 
       db
@@ -83,7 +83,7 @@ router.get("/admin/stats", requireAdmin, async (req, res) => {
         })
         .from(ordersTable)
         .where(
-          sql`UPPER(${ordersTable.status}) IN ('SUCCESS', 'COMPLETED', 'CONFIRMED')`,
+          sql`UPPER(${ordersTable.status}) IN ('PAID')`,
         ),
 
       db
@@ -93,7 +93,7 @@ router.get("/admin/stats", requireAdmin, async (req, res) => {
         .from(ordersTable)
         .where(
           sql`
-            UPPER(${ordersTable.status}) IN ('SUCCESS', 'COMPLETED', 'CONFIRMED')
+            UPPER(${ordersTable.status}) IN ('PAID')
             AND ${ordersTable.createdAt} >= NOW() - INTERVAL '7 days'
           `,
         ),
@@ -105,7 +105,7 @@ router.get("/admin/stats", requireAdmin, async (req, res) => {
         .from(ordersTable)
         .where(
           sql`
-            UPPER(${ordersTable.status}) IN ('SUCCESS', 'COMPLETED', 'CONFIRMED')
+            UPPER(${ordersTable.status}) IN ('PAID')
             AND ${ordersTable.createdAt} >= date_trunc('month', NOW())
           `,
         ),
@@ -126,14 +126,14 @@ router.get("/admin/stats", requireAdmin, async (req, res) => {
           TO_CHAR(DATE(created_at), 'YYYY-MM-DD') AS date,
           COUNT(*)::int AS total_orders,
           COUNT(*) FILTER (
-            WHERE UPPER(status) IN ('SUCCESS', 'COMPLETED', 'CONFIRMED')
+            WHERE UPPER(status) IN ('PAID')
           )::int AS successful_orders,
           COUNT(*) FILTER (
             WHERE UPPER(status) = 'PENDING'
           )::int AS pending_orders,
           COALESCE(
             SUM(amount) FILTER (
-              WHERE UPPER(status) IN ('SUCCESS', 'COMPLETED', 'CONFIRMED')
+              WHERE UPPER(status) IN ('PAID')
             ),
             0
           )::int AS revenue
@@ -177,7 +177,7 @@ router.get("/admin/stats", requireAdmin, async (req, res) => {
         })
         .from(ordersTable)
         .where(
-          sql`UPPER(${ordersTable.status}) IN ('SUCCESS', 'COMPLETED', 'CONFIRMED')`,
+          sql`UPPER(${ordersTable.status}) IN ('PAID')`,
         )
         .groupBy(ordersTable.productName)
         .orderBy(sql`count(*) DESC`)
