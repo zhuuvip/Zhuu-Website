@@ -78,3 +78,15 @@ export async function getDripBalance() {
   });
   return data;
 }
+
+
+export async function resetHgKey(key: string) {
+  const { data } = await axios.get(
+    "https://hgcheats.online/painel/reset_temp.php",
+    {
+      params: { key },
+      timeout: 10000,
+    },
+  );
+  return data;
+}

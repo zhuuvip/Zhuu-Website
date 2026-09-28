@@ -2,7 +2,7 @@ import { Router } from "express";
 import { getAuth } from "@clerk/express";
 import { db } from "@workspace/db";
 import { sql } from "drizzle-orm";
-import { resetDripKey, resetFluoriteKey } from "../lib/dripApi.js";
+import { resetDripKey, resetFluoriteKey, resetHgKey } from "../lib/dripApi.js";
 
 const router = Router();
 
@@ -137,7 +137,7 @@ router.post("/reset-key", async (req, res) => {
     const api = String(req.body?.api || "").toLowerCase();
     const key = String(req.body?.key || "").trim();
 
-    if (api !== "drip" && api !== "fluorite") {
+    if (api !== "drip" && api !== "fluorite" && api !== "hg") {
       return res.status(400).json({
         error: "API reset tidak valid",
       });
@@ -167,8 +167,10 @@ router.post("/reset-key", async (req, res) => {
 
     if (api === "drip") {
       result = await resetDripKey(key);
-    } else {
+    } else if (api === "fluorite") {
       result = await resetFluoriteKey(key);
+    } else {
+      result = await resetHgKey(key);
     }
 
     await db.execute(sql`

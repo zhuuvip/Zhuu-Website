@@ -481,6 +481,8 @@ function PremiumUpgradeCard() {
               >
                 {isCurrent ? "✓ Aktif" : buyingTier === tier.key ? "Memproses…" : "Upgrade Sekarang"}
               </button>
+
+
             </div>
           );
         })}
@@ -493,7 +495,7 @@ function PremiumUpgradeCard() {
 function ResetKeySection() {
   const { getToken } = useAuth();
 
-  const [api, setApi] = useState<"drip" | "fluorite">("drip");
+  const [api, setApi] = useState<"drip" | "fluorite" | "hg">("drip");
   const [key, setKey] = useState("");
   const [usedToday, setUsedToday] = useState(0);
   const [dailyLimit, setDailyLimit] = useState<number | null>(2);
@@ -711,6 +713,22 @@ function ResetKeySection() {
             }`}
           >
             Fluorite
+          </button>
+
+          <button
+            type="button"
+            onClick={() => {
+              setApi("hg");
+              setError("");
+              setMessage("");
+            }}
+            className={`rounded-xl border px-3 py-3 text-sm font-bold transition ${
+              api === "hg"
+                ? "border-amber-400/40 bg-amber-400/10 text-amber-200"
+                : "border-cyan-300/10 bg-cyan-300/[.03] text-cyan-100/40 hover:text-cyan-100/70"
+            }`}
+          >
+            HG
           </button>
         </div>
 
