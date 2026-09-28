@@ -51,7 +51,7 @@ export default function ResellerPlanCard() {
   }, [isSignedIn]);
 
   const buy = async (plan: string, label: string, price: number) => {
-    if (!confirm(`Beli ${label} seharga ${rupiah(price)} dari saldo wallet?`)) return;
+    if (!await window.zhuuConfirm(`Beli ${label} seharga ${rupiah(price)} dari saldo wallet?`)) return;
     setErr("");
     setMsg("");
     setBusy(plan);

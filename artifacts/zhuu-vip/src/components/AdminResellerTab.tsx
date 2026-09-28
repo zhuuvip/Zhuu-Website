@@ -158,8 +158,8 @@ export default function AdminResellerTab() {
                 </button>
                 <button
                   className="rounded-lg border border-red-400/30 px-3 py-1.5 text-red-300"
-                  onClick={() => {
-                    if (confirm(`Cabut akses reseller ${m.username || m.user_id}?`))
+                  onClick={async () => {
+                    if (await window.zhuuConfirm(`Cabut akses reseller ${m.username || m.user_id}?`))
                       run(() => call(`/api/admin/resellers/${m.id}`, { method: "DELETE" }));
                   }}
                 >

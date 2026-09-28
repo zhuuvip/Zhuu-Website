@@ -321,7 +321,7 @@ export default function AdminPage() {
 
   const deletePromo = async (promo: any) => {
     if (
-      !confirm(
+      !await window.zhuuConfirm(
         `Hapus promo "${promo.code}"?\n\nData penggunaan promo ini juga akan dihapus.`
       )
     ) {
@@ -365,7 +365,7 @@ export default function AdminPage() {
   };
 
   const updateDeposit = async (id: number, action: "confirm" | "reject") => {
-    if (!confirm(action === "confirm" ? "ACC deposit ini?" : "TOLAK deposit ini?")) return;
+    if (!await window.zhuuConfirm(action === "confirm" ? "ACC deposit ini?" : "TOLAK deposit ini?")) return;
 
     try {
       const res = await fetch(`${API_BASE}/api/admin/wallet/deposits/${id}/${action}`, {
@@ -445,7 +445,7 @@ export default function AdminPage() {
 
     const actionText = walletAction === "add" ? "MENAMBAH" : "MENGURANGI";
 
-    if (!confirm(
+    if (!await window.zhuuConfirm(
       `Yakin ${actionText} saldo member sebesar Rp${amount.toLocaleString("id-ID")}?\n\nUser ID: ${userId}\nAlasan: ${reason}`
     )) return;
 
@@ -497,7 +497,7 @@ export default function AdminPage() {
   };
 
   const confirmOrder = async (id: number) => {
-    if (!confirm("Konfirmasi pembayaran order ini?")) return;
+    if (!await window.zhuuConfirm("Konfirmasi pembayaran order ini?")) return;
 
     try {
       const res = await fetch(`${API_BASE}/api/admin/orders/${id}/confirm`, {
@@ -759,7 +759,7 @@ const saveSettings = async () => {
   };
 
   const handleDeleteSong = async (id: number) => {
-    if (!confirm("Delete this song?")) return;
+    if (!await window.zhuuConfirm("Delete this song?")) return;
     setDeletingSongId(id);
   try {
       await fetch(`${API_BASE}/api/songs/${id}`, { method: "DELETE", headers: await authHeaders() });
@@ -794,13 +794,13 @@ const saveSettings = async () => {
   };
 
   const handleDeleteLink = async (id: number) => {
-    if (!confirm("Delete this link?")) return;
+    if (!await window.zhuuConfirm("Delete this link?")) return;
     await deleteLink.mutateAsync({ id });
     queryClient.invalidateQueries({ queryKey: getListLinksQueryKey() });
   };
 
   const handleDeleteFeedback = async (id: number) => {
-    if (!confirm("Delete this feedback entry?")) return;
+    if (!await window.zhuuConfirm("Delete this feedback entry?")) return;
     setDeletingFeedbackId(id);
   try {
       await fetch(`${API_BASE}/api/feedback/${id}`, { method: "DELETE", headers: await authHeaders() });
@@ -1904,7 +1904,7 @@ const saveSettings = async () => {
       <button
         type="button"
         onClick={async () => {
-          if (!confirm("Rapikan semua nomor urutan produk menjadi 1, 2, 3, ...?")) return;
+          if (!await window.zhuuConfirm("Rapikan semua nomor urutan produk menjadi 1, 2, 3, ...?")) return;
           try {
             const r = await fetch(`${API_BASE}/api/products/normalize-order`, {
               method: "POST",
@@ -2147,7 +2147,7 @@ const saveSettings = async () => {
                           <button
                             type="button"
                             onClick={async () => {
-                              if (!confirm(`Hapus ${p.name}?`)) return;
+                              if (!await window.zhuuConfirm(`Hapus ${p.name}?`)) return;
                               await fetch(`${API_BASE}/api/products/${p.id}`, {
                                 method: "DELETE",
                                 headers: await authHeaders(),
@@ -2311,7 +2311,7 @@ const saveSettings = async () => {
                 <button
                   type="button"
                   onClick={async () => {
-                    if (!confirm(`Hapus ${o.duration}?`)) return;
+                    if (!await window.zhuuConfirm(`Hapus ${o.duration}?`)) return;
 
                     await fetch(`${API_BASE}/api/products/options/${o.id}`, {
                       method: "DELETE",
