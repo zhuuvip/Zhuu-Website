@@ -8,6 +8,8 @@ import {
   messages,
   ordersTable,
   walletTransactionsTable,
+  productsTable,
+  productOptionsTable,
 } from "@workspace/db";
 import { requireAdmin } from "../lib/auth.js";
 import { sql } from "drizzle-orm";
@@ -26,52 +28,179 @@ router.get("/admin/stats", requireAdmin, async (req, res) => {
       [{ successfulOrders }],
       [{ pendingOrders }],
       [{ revenue }],
+      [{ revenue7d }],
+      [{ revenueMonth }],
+      [{ orders7d }],
       [{ pendingDeposits }],
       [{ depositTotal }],
+      topProducts,
+      lowStockProducts,
     ] = await Promise.all([
       db.select({ links: sql<number>`count(*)::int` }).from(linksTable),
+
       db.select({ songs: sql<number>`count(*)::int` }).from(songsTable),
+
       db.select({ feedback: sql<number>`count(*)::int` }).from(feedbackTable),
-      db.select({ conversationsCount: sql<number>`count(*)::int` }).from(conversations),
-      db.select({ messagesCount: sql<number>`count(*)::int` }).from(messages),
 
-      db.select({ totalOrders: sql<number>`count(*)::int` }).from(ordersTable),
+      db
+        .select({
+          conversationsCount: sql<number>`count(*)::int`,
+        })
+        .from(conversations),
 
-      db.select({
-        successfulOrders: sql<number>`count(*)::int`,
-      })
+      db
+        .select({
+          messagesCount: sql<number>`count(*)::int`,
+        })
+        .from(messages),
+
+      db
+        .select({
+          totalOrders: sql<number>`count(*)::int`,
+        })
+        .from(ordersTable),
+
+      db
+        .select({
+          successfulOrders: sql<number>`count(*)::int`,
+        })
         .from(ordersTable)
-        .where(sql`UPPER(${ordersTable.status}) IN ('SUCCESS', 'COMPLETED', 'CONFIRMED')`),
+        .where(
+          sql`UPPER(${ordersTable.status}) IN ('SUCCESS', 'COMPLETED', 'CONFIRMED')`,
+        ),
 
-      db.select({
-        pendingOrders: sql<number>`count(*)::int`,
-      })
+      db
+        .select({
+          pendingOrders: sql<number>`count(*)::int`,
+        })
         .from(ordersTable)
         .where(sql`UPPER(${ordersTable.status}) = 'PENDING'`),
 
-      db.select({
-        revenue: sql<number>`COALESCE(SUM(${ordersTable.amount}), 0)::int`,
-      })
+      db
+        .select({
+          revenue: sql<number>`COALESCE(SUM(${ordersTable.amount}), 0)::int`,
+        })
         .from(ordersTable)
-        .where(sql`UPPER(${ordersTable.status}) IN ('SUCCESS', 'COMPLETED', 'CONFIRMED')`),
+        .where(
+          sql`UPPER(${ordersTable.status}) IN ('SUCCESS', 'COMPLETED', 'CONFIRMED')`,
+        ),
 
-      db.select({
-        pendingDeposits: sql<number>`count(*)::int`,
-      })
-        .from(walletTransactionsTable)
-        .where(sql`
-          UPPER(${walletTransactionsTable.type}) IN ('DEPOSIT', 'TOPUP')
-          AND UPPER(${walletTransactionsTable.status}) = 'PENDING'
-        `),
+      db
+        .select({
+          revenue7d: sql<number>`COALESCE(SUM(${ordersTable.amount}), 0)::int`,
+        })
+        .from(ordersTable)
+        .where(
+          sql`
+            UPPER(${ordersTable.status}) IN ('SUCCESS', 'COMPLETED', 'CONFIRMED')
+            AND ${ordersTable.createdAt} >= NOW() - INTERVAL '7 days'
+          `,
+        ),
 
-      db.select({
-        depositTotal: sql<number>`COALESCE(SUM(${walletTransactionsTable.amount}), 0)::int`,
-      })
+      db
+        .select({
+          revenueMonth: sql<number>`COALESCE(SUM(${ordersTable.amount}), 0)::int`,
+        })
+        .from(ordersTable)
+        .where(
+          sql`
+            UPPER(${ordersTable.status}) IN ('SUCCESS', 'COMPLETED', 'CONFIRMED')
+            AND ${ordersTable.createdAt} >= date_trunc('month', NOW())
+          `,
+        ),
+
+      db
+        .select({
+          orders7d: sql<number>`count(*)::int`,
+        })
+        .from(ordersTable)
+        .where(
+          sql`
+            ${ordersTable.createdAt} >= NOW() - INTERVAL '7 days'
+          `,
+        ),
+
+      db
+        .select({
+          pendingDeposits: sql<number>`count(*)::int`,
+        })
         .from(walletTransactionsTable)
-        .where(sql`
-          UPPER(${walletTransactionsTable.type}) IN ('DEPOSIT', 'TOPUP')
-          AND UPPER(${walletTransactionsTable.status}) = 'PENDING'
-        `),
+        .where(
+          sql`
+            UPPER(${walletTransactionsTable.type}) IN ('DEPOSIT', 'TOPUP')
+            AND UPPER(${walletTransactionsTable.status}) = 'PENDING'
+          `,
+        ),
+
+      db
+        .select({
+          depositTotal: sql<number>`
+            COALESCE(SUM(${walletTransactionsTable.amount}), 0)::int
+          `,
+        })
+        .from(walletTransactionsTable)
+        .where(
+          sql`
+            UPPER(${walletTransactionsTable.type}) IN ('DEPOSIT', 'TOPUP')
+            AND UPPER(${walletTransactionsTable.status}) = 'PENDING'
+          `,
+        ),
+
+      db
+        .select({
+          productName: ordersTable.productName,
+          sold: sql<number>`count(*)::int`,
+          revenue: sql<number>`COALESCE(SUM(${ordersTable.amount}), 0)::int`,
+        })
+        .from(ordersTable)
+        .where(
+          sql`UPPER(${ordersTable.status}) IN ('SUCCESS', 'COMPLETED', 'CONFIRMED')`,
+        )
+        .groupBy(ordersTable.productName)
+        .orderBy(sql`count(*) DESC`)
+        .limit(5),
+
+      db
+        .select({
+          productId: productsTable.id,
+          productName: productsTable.name,
+          optionId: productOptionsTable.id,
+          duration: productOptionsTable.duration,
+          stock: productOptionsTable.stock,
+          dripStock: productOptionsTable.dripStock,
+          dripVariantId: productOptionsTable.dripVariantId,
+          effectiveStock: sql<number>`
+            CASE
+              WHEN ${productOptionsTable.dripVariantId} IS NOT NULL
+                THEN ${productOptionsTable.dripStock}
+              ELSE ${productOptionsTable.stock}
+            END
+          `,
+        })
+        .from(productOptionsTable)
+        .leftJoin(
+          productsTable,
+          sql`${productsTable.id} = ${productOptionsTable.productId}`,
+        )
+        .where(
+          sql`
+            CASE
+              WHEN ${productOptionsTable.dripVariantId} IS NOT NULL
+                THEN ${productOptionsTable.dripStock}
+              ELSE ${productOptionsTable.stock}
+            END <= 5
+          `,
+        )
+        .orderBy(
+          sql`
+            CASE
+              WHEN ${productOptionsTable.dripVariantId} IS NOT NULL
+                THEN ${productOptionsTable.dripStock}
+              ELSE ${productOptionsTable.stock}
+            END ASC
+          `,
+        )
+        .limit(10),
     ]);
 
     res.json({
@@ -86,8 +215,13 @@ router.get("/admin/stats", requireAdmin, async (req, res) => {
         successfulOrders,
         pendingOrders,
         revenue,
+        revenue7d,
+        revenueMonth,
+        orders7d,
         pendingDeposits,
         depositTotal,
+        topProducts,
+        lowStockProducts,
       },
     });
   } catch (err) {

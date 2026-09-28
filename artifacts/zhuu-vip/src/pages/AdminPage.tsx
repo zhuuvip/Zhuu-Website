@@ -17,7 +17,7 @@ import {
   MessageSquare, ShoppingCart, BarChart3, Star, Users, Bot, RefreshCw,
   Settings, Image as ImageIcon, Palette, Upload, CheckCircle2,
   GripVertical, ExternalLink, WalletCards, TicketPercent, History,
-  Wallet, Clock3, CreditCard, AlertTriangle, ChevronRight
+  Wallet, Clock3, CreditCard, AlertTriangle, ChevronRight, Package
 } from "lucide-react";
 
 const ADMIN_EMAIL = import.meta.env.VITE_ADMIN_EMAIL || "zhuusite@gmail.com";
@@ -54,8 +54,26 @@ interface Stats {
     successfulOrders: number;
     pendingOrders: number;
     revenue: number;
+    revenue7d: number;
+    revenueMonth: number;
+    orders7d: number;
     pendingDeposits: number;
     depositTotal: number;
+    topProducts: {
+      productName: string;
+      sold: number;
+      revenue: number;
+    }[];
+    lowStockProducts: {
+      productId: number;
+      productName: string;
+      optionId: number;
+      duration: string;
+      stock: number;
+      dripStock: number;
+      dripVariantId: number | null;
+      effectiveStock: number;
+    }[];
   };
 }
 
@@ -1060,6 +1078,140 @@ const saveSettings = async () => {
                   </div>
                 </button>
               )}
+
+              {/* Revenue Analytics */}
+              <div>
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="w-1 h-5 rounded-full bg-emerald-400 shadow-[0_0_12px_rgba(52,211,153,.5)]" />
+                  <h3 className="text-sm font-bold text-blue-100">
+                    Revenue Analytics
+                  </h3>
+                </div>
+
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                  <div className="glass-card rounded-2xl p-4 border border-emerald-400/10 bg-emerald-400/[0.025]">
+                    <div className="text-[10px] uppercase tracking-wider font-bold text-blue-300/45 mb-2">
+                      Revenue 7 Hari
+                    </div>
+                    <div className="text-xl font-black text-emerald-300">
+                      Rp{(stats.business?.revenue7d ?? 0).toLocaleString("id-ID")}
+                    </div>
+                  </div>
+
+                  <div className="glass-card rounded-2xl p-4 border border-purple-400/10 bg-purple-400/[0.025]">
+                    <div className="text-[10px] uppercase tracking-wider font-bold text-blue-300/45 mb-2">
+                      Revenue Bulan Ini
+                    </div>
+                    <div className="text-xl font-black text-purple-300">
+                      Rp{(stats.business?.revenueMonth ?? 0).toLocaleString("id-ID")}
+                    </div>
+                  </div>
+
+                  <StatCard
+                    label="Order 7 Hari"
+                    value={stats.business?.orders7d ?? 0}
+                    icon={<ShoppingCart size={17} />}
+                    color="#38bdf8"
+                  />
+                </div>
+              </div>
+
+              {/* Top Products + Low Stock */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+
+                <div className="glass-card rounded-2xl p-5">
+                  <div className="flex items-center justify-between mb-4">
+                    <div>
+                      <h3 className="font-bold text-blue-100 flex items-center gap-2">
+                        <Star size={16} className="text-yellow-300" />
+                        Produk Terlaris
+                      </h3>
+                      <p className="text-[10px] text-blue-300/35 mt-1">
+                        Berdasarkan pesanan berhasil
+                      </p>
+                    </div>
+                  </div>
+
+                  {(stats.business?.topProducts?.length ?? 0) > 0 ? (
+                    <div className="space-y-2">
+                      {stats.business?.topProducts.map((product, index) => (
+                        <div
+                          key={`${product.productName}-${index}`}
+                          className="flex items-center gap-3 rounded-xl px-3 py-2.5 bg-white/[0.025] border border-white/[0.04]"
+                        >
+                          <div className="w-7 h-7 rounded-lg bg-cyan-400/10 text-cyan-300 flex items-center justify-center text-xs font-black">
+                            {index + 1}
+                          </div>
+
+                          <div className="flex-1 min-w-0">
+                            <div className="text-xs font-semibold text-blue-100 truncate">
+                              {product.productName}
+                            </div>
+                            <div className="text-[10px] text-blue-300/35">
+                              {product.sold} terjual
+                            </div>
+                          </div>
+
+                          <div className="text-xs font-bold text-emerald-300 whitespace-nowrap">
+                            Rp{product.revenue.toLocaleString("id-ID")}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="py-8 text-center text-xs text-blue-300/30">
+                      Belum ada produk terjual
+                    </div>
+                  )}
+                </div>
+
+                <div className="glass-card rounded-2xl p-5">
+                  <div className="flex items-center justify-between mb-4">
+                    <div>
+                      <h3 className="font-bold text-blue-100 flex items-center gap-2">
+                        <AlertTriangle size={16} className="text-amber-300" />
+                        Stok Menipis
+                      </h3>
+                      <p className="text-[10px] text-blue-300/35 mt-1">
+                        Produk dengan stok ≤ 5
+                      </p>
+                    </div>
+                  </div>
+
+                  {(stats.business?.lowStockProducts?.length ?? 0) > 0 ? (
+                    <div className="space-y-2">
+                      {stats.business?.lowStockProducts.map((product) => (
+                        <div
+                          key={product.optionId}
+                          className="flex items-center gap-3 rounded-xl px-3 py-2.5 bg-white/[0.025] border border-white/[0.04]"
+                        >
+                          <div className="p-2 rounded-lg bg-amber-400/10 text-amber-300">
+                            <Package size={15} />
+                          </div>
+
+                          <div className="flex-1 min-w-0">
+                            <div className="text-xs font-semibold text-blue-100 truncate">
+                              {product.productName}
+                            </div>
+                            <div className="text-[10px] text-blue-300/35 truncate">
+                              {product.duration}
+                            </div>
+                          </div>
+
+                          <div className="text-xs font-black text-amber-300">
+                            {product.effectiveStock}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="py-8 text-center text-xs text-emerald-300/50">
+                      ✓ Semua stok aman
+                    </div>
+                  )}
+                </div>
+
+              </div>
 
               {/* Website Stats */}
               <div>
