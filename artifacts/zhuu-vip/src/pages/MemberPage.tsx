@@ -396,8 +396,7 @@ function PremiumUpgradeCard() {
   const [error, setError] = useState("");
 
   const TIERS = [
-    { key: "silver", label: "Silver", price: 5000, aiBonus: 60, toolsBonus: 25 },
-    { key: "gold", label: "Gold", price: 10000, aiBonus: 200, toolsBonus: 100 },
+    { key: "premium", label: "Premium", price: 5000, aiBonus: 200, toolsBonus: 100 },
   ];
 
   useEffect(() => {
@@ -584,7 +583,9 @@ function ResetKeySection() {
       setMessage(
         api === "drip"
           ? "Reset DRIP berhasil."
-          : "Reset Fluorite berhasil."
+        : api === "fluorite"
+          ? "Reset Fluorite berhasil."
+          : "Reset HG berhasil."
       );
     } catch (err) {
       setError(
@@ -682,7 +683,7 @@ function ResetKeySection() {
           </p>
         </div>
 
-        <div className="mb-4 grid grid-cols-2 gap-2">
+        <div className="mb-4 grid grid-cols-3 gap-2">
           <button
             type="button"
             onClick={() => {
