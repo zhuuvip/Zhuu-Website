@@ -31,6 +31,7 @@ router.get("/admin/stats", requireAdmin, async (req, res) => {
       [{ revenue7d }],
       [{ revenueMonth }],
       [{ orders7d }],
+      orderAnalytics7d,
       [{ pendingDeposits }],
       [{ depositTotal }],
       topProducts,
@@ -119,6 +120,28 @@ router.get("/admin/stats", requireAdmin, async (req, res) => {
             ${ordersTable.createdAt} >= NOW() - INTERVAL '7 days'
           `,
         ),
+
+      db.execute(sql`
+        SELECT
+          TO_CHAR(DATE(created_at), 'YYYY-MM-DD') AS date,
+          COUNT(*)::int AS total_orders,
+          COUNT(*) FILTER (
+            WHERE UPPER(status) IN ('SUCCESS', 'COMPLETED', 'CONFIRMED')
+          )::int AS successful_orders,
+          COUNT(*) FILTER (
+            WHERE UPPER(status) = 'PENDING'
+          )::int AS pending_orders,
+          COALESCE(
+            SUM(amount) FILTER (
+              WHERE UPPER(status) IN ('SUCCESS', 'COMPLETED', 'CONFIRMED')
+            ),
+            0
+          )::int AS revenue
+        FROM orders
+        WHERE created_at >= CURRENT_DATE - INTERVAL '6 days'
+        GROUP BY DATE(created_at)
+        ORDER BY DATE(created_at) ASC
+      `),
 
       db
         .select({
@@ -218,6 +241,7 @@ router.get("/admin/stats", requireAdmin, async (req, res) => {
         revenue7d,
         revenueMonth,
         orders7d,
+        orderAnalytics7d: orderAnalytics7d.rows,
         pendingDeposits,
         depositTotal,
         topProducts,

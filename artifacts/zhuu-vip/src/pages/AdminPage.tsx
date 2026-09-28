@@ -59,6 +59,13 @@ interface Stats {
     orders7d: number;
     pendingDeposits: number;
     depositTotal: number;
+    orderAnalytics7d: {
+      date: string;
+      total_orders: number;
+      successful_orders: number;
+      pending_orders: number;
+      revenue: number;
+    }[];
     topProducts: {
       productName: string;
       sold: number;
@@ -1114,6 +1121,145 @@ const saveSettings = async () => {
                     color="#38bdf8"
                   />
                 </div>
+              </div>
+
+              {/* Order Analytics */}
+              <div className="glass-card rounded-2xl p-5">
+                <div className="flex items-center justify-between mb-5">
+                  <div>
+                    <h3 className="font-bold text-blue-100 flex items-center gap-2">
+                      <BarChart3 size={16} className="text-cyan-300" />
+                      Order Analytics
+                    </h3>
+                    <p className="text-[10px] text-blue-300/35 mt-1">
+                      Aktivitas order 7 hari terakhir
+                    </p>
+                  </div>
+
+                  <div className="flex items-center gap-3 text-[9px] text-blue-300/50">
+                    <span className="flex items-center gap-1">
+                      <span className="w-2 h-2 rounded-full bg-cyan-400" />
+                      Sukses
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <span className="w-2 h-2 rounded-full bg-amber-400" />
+                      Pending
+                    </span>
+                  </div>
+                </div>
+
+                {(() => {
+                  const analytics = stats.business?.orderAnalytics7d ?? [];
+                  const today = new Date();
+
+                  const days = Array.from({ length: 7 }, (_, i) => {
+                    const d = new Date(today);
+                    d.setHours(0, 0, 0, 0);
+                    d.setDate(today.getDate() - (6 - i));
+
+                    const key = [
+                      d.getFullYear(),
+                      String(d.getMonth() + 1).padStart(2, "0"),
+                      String(d.getDate()).padStart(2, "0"),
+                    ].join("-");
+
+                    return {
+                      key,
+                      label: d.toLocaleDateString("id-ID", {
+                        weekday: "short",
+                      }),
+                      data: analytics.find((item) => item.date === key) ?? {
+                        total_orders: 0,
+                        successful_orders: 0,
+                        pending_orders: 0,
+                        revenue: 0,
+                      },
+                    };
+                  });
+
+                  const maxOrders = Math.max(
+                    1,
+                    ...days.map((day) => day.data.total_orders),
+                  );
+
+                  return (
+                    <div>
+                      <div className="flex items-end gap-2 sm:gap-4 h-44">
+                        {days.map((day) => {
+                          const successHeight =
+                            (day.data.successful_orders / maxOrders) * 100;
+                          const pendingHeight =
+                            (day.data.pending_orders / maxOrders) * 100;
+
+                          return (
+                            <div
+                              key={day.key}
+                              className="flex-1 h-full flex flex-col justify-end items-center gap-2"
+                            >
+                              <div className="w-full max-w-10 h-full flex items-end justify-center gap-1">
+                                <div
+                                  className="w-2.5 sm:w-4 rounded-t-md bg-cyan-400/80 transition-all"
+                                  style={{
+                                    height: `${Math.max(
+                                      successHeight,
+                                      day.data.successful_orders > 0 ? 5 : 0,
+                                    )}%`,
+                                  }}
+                                  title={`${day.data.successful_orders} sukses`}
+                                />
+                                <div
+                                  className="w-2.5 sm:w-4 rounded-t-md bg-amber-400/80 transition-all"
+                                  style={{
+                                    height: `${Math.max(
+                                      pendingHeight,
+                                      day.data.pending_orders > 0 ? 5 : 0,
+                                    )}%`,
+                                  }}
+                                  title={`${day.data.pending_orders} pending`}
+                                />
+                              </div>
+
+                              <div className="text-[9px] font-semibold text-blue-300/40">
+                                {day.label}
+                              </div>
+                              <div className="text-[8px] text-blue-300/25">
+                                {day.data.total_orders}
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+
+                      <div className="mt-4 pt-4 border-t border-white/[0.05] grid grid-cols-2 gap-3">
+                        <div className="rounded-xl bg-cyan-400/[0.035] border border-cyan-400/10 p-3">
+                          <div className="text-[9px] uppercase tracking-wider text-blue-300/40">
+                            Sukses 7 Hari
+                          </div>
+                          <div className="text-lg font-black text-cyan-300 mt-1">
+                            {days.reduce(
+                              (sum, day) =>
+                                sum + day.data.successful_orders,
+                              0,
+                            )}
+                          </div>
+                        </div>
+
+                        <div className="rounded-xl bg-amber-400/[0.035] border border-amber-400/10 p-3">
+                          <div className="text-[9px] uppercase tracking-wider text-blue-300/40">
+                            Pending 7 Hari
+                          </div>
+                          <div className="text-lg font-black text-amber-300 mt-1">
+                            {days.reduce(
+                              (sum, day) =>
+                                sum + day.data.pending_orders,
+                              0,
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })()}
               </div>
 
               {/* Top Products + Low Stock */}
