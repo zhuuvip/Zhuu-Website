@@ -503,6 +503,19 @@ router.post(
               ? raw.products
               : [];
 
+      if (String(_req.query.debug ?? "") === "1") {
+        return res.json({
+          debug: true,
+          rawType: Array.isArray(raw) ? "array" : typeof raw,
+          rawKeys:
+            raw && typeof raw === "object" && !Array.isArray(raw)
+              ? Object.keys(raw)
+              : [],
+          totalDetected: dripProducts.length,
+          sample: dripProducts.slice(0, 2),
+        });
+      }
+
       if (!dripProducts.length) {
         return res.status(502).json({
           error: "DRIP API tidak mengembalikan produk",
