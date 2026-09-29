@@ -2442,7 +2442,7 @@ const saveSettings = async () => {
                 onClick={async () => {
                   try {
                     const r = await fetch(
-                      `${API_BASE}/api/admin/products/import-drip-catalog`,
+                      `${API_BASE}/api/admin/products/import-drip-catalog?debug=1`,
                       {
                         method: "POST",
                         headers: await authHeaders(),
