@@ -978,7 +978,7 @@ const saveSettings = async () => {
                 Dashboard Overview
               </h2>
               <p className="text-xs text-blue-300/40 mt-1">
-                Ringkasan aktivitas & bisnis ZhuuVIP
+                Ringkasan aktivitas & bisnis ZhuuSite
               </p>
             </div>
 
@@ -2572,13 +2572,16 @@ const saveSettings = async () => {
   sortOrder: sortOrder.trim() ? Number(sortOrder) : null,
 })
           });
-          if (r.ok) {
-            setProductName("");
-            setSortOrder("");
-            loadProducts();
+          const data = await r.json().catch(() => ({}));
+          if (!r.ok) {
+            alert(data?.error || "Gagal menambahkan produk");
+            return;
           }
+          setProductName("");
+          setSortOrder("");
+          loadProducts();
           } catch (e) {
-            alert("Gagal menambahkan produk");
+            alert(e instanceof Error ? e.message : "Gagal menambahkan produk");
           }
         }}
         className="px-4 py-2 rounded-lg bg-cyan-400/10 text-cyan-300 text-sm"
@@ -2634,14 +2637,17 @@ const saveSettings = async () => {
       headers: await authHeaders(),
             body: JSON.stringify({duration, price, stock})
           });
-          if (r.ok) {
-            setDuration("");
-            setPrice("");
-            setStock("");
-            loadProducts();
+          const data = await r.json().catch(() => ({}));
+          if (!r.ok) {
+            alert(data?.error || "Gagal menambahkan durasi");
+            return;
           }
+          setDuration("");
+          setPrice("");
+          setStock("");
+          loadProducts();
           } catch (e) {
-            alert("Gagal menambahkan durasi");
+            alert(e instanceof Error ? e.message : "Gagal menambahkan durasi");
           }
         }}
         className="px-4 py-2 rounded-lg bg-cyan-400/10 text-cyan-300 text-sm"
@@ -2833,11 +2839,20 @@ const saveSettings = async () => {
                             type="button"
                             onClick={async () => {
                               if (!await window.zhuuConfirm(`Hapus ${p.name}?`)) return;
-                              await fetch(`${API_BASE}/api/products/${p.id}`, {
-                                method: "DELETE",
-                                headers: await authHeaders(),
-                              });
-                              loadProducts();
+                              try {
+                                const r = await fetch(`${API_BASE}/api/products/${p.id}`, {
+                                  method: "DELETE",
+                                  headers: await authHeaders(),
+                                });
+                                const data = await r.json().catch(() => ({}));
+                                if (!r.ok) {
+                                  alert(data?.error || "Gagal menghapus produk");
+                                  return;
+                                }
+                                loadProducts();
+                              } catch (e) {
+                                alert(e instanceof Error ? e.message : "Gagal menghapus produk");
+                              }
                             }}
                             className="px-3 py-2 rounded-lg bg-red-400/10 text-red-300 text-sm"
                           >
@@ -2952,25 +2967,31 @@ const saveSettings = async () => {
                       const dv = document.getElementById(`drip-variant-${o.id}`) as HTMLInputElement;
                       const rp = document.getElementById(`reseller-price-${o.id}`) as HTMLInputElement;
 
-                      const r = await fetch(`${API_BASE}/api/products/options/${o.id}`, {
-                        method: "PATCH",
-                        headers: await authHeaders(),
-                        body: JSON.stringify({
-                          duration: d.value,
-                          price: pr.value,
-                          resellerPrice: rp?.value || null,
-                          stock: st.value,
-                          dripVariantId: dv.value || null,
-                        }),
-                      });
+                      try {
+                        const r = await fetch(`${API_BASE}/api/products/options/${o.id}`, {
+                          method: "PATCH",
+                          headers: await authHeaders(),
+                          body: JSON.stringify({
+                            duration: d.value,
+                            price: Number(pr.value),
+                            resellerPrice: rp?.value || null,
+                            stock: Number(st.value),
+                            dripVariantId: dv?.value || null,
+                          }),
+                        });
 
-                      if (!r.ok) {
-                        alert("Gagal menyimpan durasi");
-                        return;
+                        const data = await r.json().catch(() => ({}));
+
+                        if (!r.ok) {
+                          alert(data?.error || "Gagal menyimpan durasi");
+                          return;
+                        }
+
+                        setEditingOptionId(null);
+                        loadProducts();
+                      } catch (e) {
+                        alert(e instanceof Error ? e.message : "Gagal menyimpan durasi");
                       }
-
-                      setEditingOptionId(null);
-                      loadProducts();
                     } else {
                       setEditingOptionId(o.id);
                     }
@@ -2998,19 +3019,29 @@ const saveSettings = async () => {
                   onClick={async () => {
                     if (!await window.zhuuConfirm(`Hapus ${o.duration}?`)) return;
 
-                    await fetch(`${API_BASE}/api/products/options/${o.id}`, {
-                      method: "DELETE",
-                      headers: await authHeaders(),
-                    });
+                    try {
+                      const r = await fetch(`${API_BASE}/api/products/options/${o.id}`, {
+                        method: "DELETE",
+                        headers: await authHeaders(),
+                      });
 
-                    loadProducts();
+                      const data = await r.json().catch(() => ({}));
+
+                      if (!r.ok) {
+                        alert(data?.error || "Gagal menghapus durasi");
+                        return;
+                      }
+
+                      loadProducts();
+                    } catch (e) {
+                      alert(e instanceof Error ? e.message : "Gagal menghapus durasi");
+                    }
                   }}
                   className="flex-1 min-h-10 px-4 py-2.5 rounded-xl bg-red-400/10 border border-red-400/10 text-red-300 text-sm font-medium hover:bg-red-400/15 transition-all"
                 >
                   Hapus
                 </button>
               </div>
-
               {p.deliveryType === "KEY" && (
                 <div className="pt-3 border-t border-white/[0.05] flex flex-col gap-2">
                   <textarea

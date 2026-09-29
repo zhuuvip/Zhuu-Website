@@ -233,6 +233,54 @@ router.post("/promotions", async (req, res) => {
   }
 });
 
+// Admin: lihat semua promosi
+router.get("/admin/promotions", async (req, res) => {
+  if (!isAdmin(req)) {
+    return res.status(403).json({ error: "Forbidden" });
+  }
+
+  try {
+    const rows = await db
+      .select()
+      .from(promotions)
+      .orderBy(desc(promotions.createdAt));
+
+    return res.json(rows);
+  } catch (err) {
+    console.error("Admin get promotions error:", err);
+    return res.status(500).json({ error: "Gagal mengambil promosi" });
+  }
+});
+
+// Admin: hapus promosi permanen
+router.delete("/admin/promotions/:id", async (req, res) => {
+  if (!isAdmin(req)) {
+    return res.status(403).json({ error: "Forbidden" });
+  }
+
+  try {
+    const id = Number(req.params.id);
+
+    if (!Number.isInteger(id)) {
+      return res.status(400).json({ error: "ID promosi tidak valid" });
+    }
+
+    const [deleted] = await db
+      .delete(promotions)
+      .where(eq(promotions.id, id))
+      .returning();
+
+    if (!deleted) {
+      return res.status(404).json({ error: "Promosi tidak ditemukan" });
+    }
+
+    return res.json({ success: true, promotion: deleted });
+  } catch (err) {
+    console.error("Admin delete promotion error:", err);
+    return res.status(500).json({ error: "Gagal menghapus promosi" });
+  }
+});
+
 // Admin: batalkan promosi
 router.patch("/admin/promotions/:id/cancel", async (req, res) => {
   if (!isAdmin(req)) {

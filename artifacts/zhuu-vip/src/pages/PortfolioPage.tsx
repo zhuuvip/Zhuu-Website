@@ -1,6 +1,6 @@
 const PROJECTS = [
   {
-    title: "ZhuuVIP Platform",
+    title: "ZhuuSite Platform",
     desc: "A full-featured VIP community platform with speed test, AI chat, portfolio, and more. Built with React, TypeScript, and Claude AI.",
     tags: ["React", "TypeScript", "Claude AI", "Vite"],
     icon: "🌊", color: "#00ffff", status: "Live",
@@ -36,7 +36,7 @@ const PROJECTS = [
   },
   {
     title: "Zhuu Brand Design",
-    desc: "The visual identity and branding system for ZhuuVIP — deep ocean colors, neon cyan palette, immersive ocean animations.",
+    desc: "The visual identity and branding system for ZhuuSite — deep ocean colors, neon cyan palette, immersive ocean animations.",
     tags: ["Design", "Branding", "CSS", "Animation"],
     icon: "🎨", color: "#fcd34d", status: "v2.0",
     link: "#",

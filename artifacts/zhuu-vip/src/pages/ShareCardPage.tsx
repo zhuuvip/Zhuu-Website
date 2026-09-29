@@ -9,7 +9,7 @@ const CARD_THEMES = [
 ];
 
 const TITLES = [
-  "ZhuuVIP Member",
+  "ZhuuSite Member",
   "Deep Ocean Explorer",
   "Void Walker",
   "Zhuu Community OG",
@@ -22,7 +22,7 @@ export default function ShareCardPage() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [theme, setTheme] = useState(CARD_THEMES[0]);
   const [title, setTitle] = useState(TITLES[0]);
-  const [customName, setCustomName] = useState(user?.username || user?.firstName || "ZhuuVIP");
+  const [customName, setCustomName] = useState(user?.username || user?.firstName || "ZhuuSite");
   const [generated, setGenerated] = useState(false);
 
   const generateCard = () => {
@@ -64,13 +64,13 @@ export default function ShareCardPage() {
     ctx.textAlign = "center";
     ctx.fillText("🌊", 130, 210);
 
-    // ZhuuVIP title
+    // ZhuuSite title
     ctx.font = "bold 48px Arial";
     ctx.fillStyle = theme.accent;
     ctx.textAlign = "left";
     ctx.shadowColor = theme.accent;
     ctx.shadowBlur = 15;
-    ctx.fillText("ZhuuVIP", 240, 140);
+    ctx.fillText("ZhuuSite", 240, 140);
     ctx.shadowBlur = 0;
 
     // Name
@@ -100,7 +100,7 @@ export default function ShareCardPage() {
     ctx.font = "bold 16px Arial";
     ctx.fillStyle = theme.accent + "66";
     ctx.textAlign = "center";
-    ctx.fillText("— A ZhuuVIP Experience —", 400, 420);
+    ctx.fillText("— A ZhuuSite Experience —", 400, 420);
 
     // Decorative dots
     for (let i = 0; i < 20; i++) {
@@ -135,7 +135,7 @@ export default function ShareCardPage() {
           <h1 className="text-4xl font-black gradient-text mb-2" style={{ fontFamily: "Poppins, Inter, sans-serif" }}>
             Share Card
           </h1>
-          <p style={{ color: "rgba(0,200,220,0.5)" }}>Generate your ZhuuVIP card and share it!</p>
+          <p style={{ color: "rgba(0,200,220,0.5)" }}>Generate your ZhuuSite card and share it!</p>
         </div>
 
         {/* Options */}

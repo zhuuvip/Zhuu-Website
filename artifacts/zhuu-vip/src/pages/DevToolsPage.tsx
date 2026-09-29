@@ -80,7 +80,7 @@ function inputStyle(extra?: React.CSSProperties): React.CSSProperties {
 // ─── JSON Formatter ───────────────────────────────────────────────────────────
 
 function JsonFormatter() {
-  const [input, setInput] = useState(`{"name":"ZhuuVIP","version":1,"ocean":true}`);
+  const [input, setInput] = useState(`{"name":"ZhuuSite","version":1,"ocean":true}`);
   const [output, setOutput] = useState("");
   const [status, setStatus] = useState<{ ok: boolean; msg: string } | null>(null);
 
@@ -428,7 +428,7 @@ function UrlTools() {
 
 function Base64Tool() {
   const trackToolUse = useToolUsage();
-  const [input, setInput] = useState("Hello, ZhuuVIP! 🌊");
+  const [input, setInput] = useState("Hello, ZhuuSite! 🌊");
   const [output, setOutput] = useState("");
   const [mode, setMode] = useState<"encode" | "decode">("encode");
   const [error, setError] = useState("");
@@ -690,7 +690,7 @@ function parseMarkdown(md: string): string {
   return html;
 }
 
-const SAMPLE_MD = `# Hello ZhuuVIP 🌊
+const SAMPLE_MD = `# Hello ZhuuSite 🌊
 
 **Bold text**, *italic*, and ~~strikethrough~~.
 
@@ -708,7 +708,7 @@ const greet = () => "Hello, ocean!";
 
 > The deep sea holds infinite wisdom.
 
-[Visit ZhuuVIP](https://zhuuvip.com)
+[Visit ZhuuSite](https://zhuuvip.com)
 `;
 
 function MarkdownPreview() {

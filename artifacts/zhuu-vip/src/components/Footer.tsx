@@ -47,7 +47,7 @@ export default function Footer() {
                   className="font-black text-lg gradient-text"
                   style={{ fontFamily: "Poppins, Inter, sans-serif" }}
                 >
-                  ZhuuVIP
+                  ZhuuSite
                 </span>
               </div>
             </Link>
@@ -117,7 +117,7 @@ export default function Footer() {
             className="text-xs text-center sm:text-left"
             style={{ color: "rgba(0,200,220,0.2)" }}
           >
-            © 2026 ZhuuVIP · Made with love in the deep ocean 🌊
+            © 2026 ZhuuSite · Made with love in the deep ocean 🌊
           </p>
           <div className="flex items-center gap-4">
             <span className="text-xs" style={{ color: "rgba(0,200,220,0.18)" }}>

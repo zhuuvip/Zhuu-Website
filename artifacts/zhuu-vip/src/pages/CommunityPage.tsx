@@ -3,7 +3,7 @@ const DISCORD_INVITE = "https://discord.gg/zhuu";
 const PLATFORMS = [
   { name: "Discord", icon: "💬", desc: "Our main community hub. Meet the crew, share work, get feedback, and have fun!", members: "500+", color: "#5865f2", link: DISCORD_INVITE, btn: "Join", badge: "Most Active" },
   { name: "YouTube", icon: "▶️", desc: "Full-length tutorials, vlogs, community highlights, and deep dives.", members: "800+", color: "#ff0000", link: "https://youtube.com/@zhuuvip", btn: "Subscribe", badge: null },
-  { name: "TikTok", icon: "🎵", desc: "Short videos, tutorials, and fun content from the ZhuuVIP universe.", members: "1K+", color: "#ff0050", link: "https://tiktok.com/@zhuuvip", btn: "Follow", badge: null },
+  { name: "TikTok", icon: "🎵", desc: "Short videos, tutorials, and fun content from the ZhuuSite universe.", members: "1K+", color: "#ff0050", link: "https://tiktok.com/@zhuuvip", btn: "Follow", badge: null },
   { name: "Instagram", icon: "📸", desc: "Follow for daily inspiration, creative showcases, and behind-the-scenes content.", members: "2K+", color: "#e1306c", link: "https://instagram.com/zhuuvip", btn: "Follow", badge: null },
   { name: "Twitter / X", icon: "🐦", desc: "Real-time updates, thoughts, announcements, and community interactions.", members: "1.5K+", color: "#1da1f2", link: "https://twitter.com/zhuuvip", btn: "Follow", badge: null },
   { name: "GitHub", icon: "👾", desc: "Open source projects, code snippets, and technical contributions.", members: "300+", color: "#6e40c9", link: "https://github.com/zhuuvip", btn: "Star", badge: "Dev Hub" },
@@ -24,7 +24,7 @@ export default function CommunityPage() {
           <div className="text-5xl mb-4">🌊</div>
           <h1 className="text-4xl font-black gradient-text mb-3" style={{ fontFamily: "Poppins, Inter, sans-serif" }}>Join the Community</h1>
           <p style={{ color: "rgba(0,200,220,0.5)", maxWidth: 500, margin: "0 auto", lineHeight: 1.7 }}>
-            Dive into ZhuuVIP's ocean community. A space for creators, developers, and dreamers to connect and grow.
+            Dive into ZhuuSite's ocean community. A space for creators, developers, and dreamers to connect and grow.
           </p>
         </div>
 

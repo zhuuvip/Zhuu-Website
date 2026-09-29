@@ -41,7 +41,7 @@ const categories = [
 ];
 
 export default function FreeHubPage() {
-  const { getToken, isSignedIn } = useAuth();
+  const { getToken, isSignedIn, isLoaded } = useAuth();
   const [posts, setPosts] = useState<FreePost[]>([]);
   const [promotions, setPromotions] = useState<Promotion[]>([]);
   const [loading, setLoading] = useState(true);
@@ -66,7 +66,7 @@ export default function FreeHubPage() {
       const postsData = await postsRes.json();
       const promotionsData = await promotionsRes.json();
 
-      setPosts(Array.isArray(postsData) ? postsData : []);
+      setPosts(Array.isArray(postsData) ? postsData : Array.isArray(postsData?.posts) ? postsData.posts : []);
       setPromotions(Array.isArray(promotionsData) ? promotionsData : []);
     } finally {
       setLoading(false);
@@ -74,8 +74,12 @@ export default function FreeHubPage() {
   }
 
   useEffect(() => {
-    loadPosts();
-  }, []);
+    if (isLoaded && isSignedIn) {
+      loadPosts();
+    } else if (isLoaded && !isSignedIn) {
+      setLoading(false);
+    }
+  }, [isLoaded, isSignedIn]);
 
   async function createPost() {
     if (!title.trim()) {
@@ -121,6 +125,36 @@ export default function FreeHubPage() {
     } finally {
       setPosting(false);
     }
+  }
+
+  if (!isLoaded || loading) {
+    return (
+      <div className="min-h-[60vh] flex items-center justify-center px-4">
+        <div className="text-sm text-white/50">Memuat Free Hub...</div>
+      </div>
+    );
+  }
+
+  if (!isSignedIn) {
+    return (
+      <div className="min-h-[60vh] flex items-center justify-center px-4">
+        <div className="w-full max-w-md rounded-3xl border border-cyan-400/20 bg-white/[0.04] p-6 text-center shadow-2xl backdrop-blur-xl">
+          <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-cyan-400/10 text-2xl">
+            🔒
+          </div>
+          <h2 className="text-xl font-bold text-white">Free Hub</h2>
+          <p className="mt-2 text-sm leading-6 text-white/50">
+            Silakan login terlebih dahulu untuk melihat postingan dan promotion di Free Hub.
+          </p>
+          <a
+            href="/sign-in"
+            className="mt-5 inline-flex rounded-xl bg-cyan-400 px-5 py-2.5 text-sm font-bold text-black transition hover:bg-cyan-300"
+          >
+            Login
+          </a>
+        </div>
+      </div>
+    );
   }
 
   const filtered =

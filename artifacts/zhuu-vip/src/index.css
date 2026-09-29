@@ -532,3 +532,207 @@ body {
     scroll-behavior: auto !important;
   }
 }
+
+/* =========================================================
+   ZHUUSITE UI SYSTEM
+   Clean / restrained / product-style
+   ========================================================= */
+
+:root {
+  --zs-bg: #090b0d;
+  --zs-surface: #101316;
+  --zs-surface-2: #15191d;
+  --zs-surface-hover: #191e23;
+  --zs-border: rgba(255,255,255,0.075);
+  --zs-border-strong: rgba(255,255,255,0.12);
+  --zs-text: #f3f5f7;
+  --zs-text-secondary: #a3abb4;
+  --zs-text-muted: #69727c;
+  --zs-accent: #22d3ee;
+  --zs-accent-soft: rgba(34,211,238,0.10);
+  --zs-success: #34d399;
+  --zs-danger: #fb7185;
+  --zs-radius: 14px;
+}
+
+/* New neutral surface system */
+.zs-surface {
+  background: var(--zs-surface);
+  border: 1px solid var(--zs-border);
+  border-radius: var(--zs-radius);
+}
+
+.zs-surface-hover {
+  transition:
+    background-color .18s ease,
+    border-color .18s ease,
+    transform .18s ease;
+}
+
+.zs-surface-hover:hover {
+  background: var(--zs-surface-hover);
+  border-color: var(--zs-border-strong);
+  transform: translateY(-1px);
+}
+
+.zs-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: .5rem;
+  min-height: 40px;
+  padding: 0 .95rem;
+  border-radius: 10px;
+  border: 1px solid var(--zs-border);
+  background: var(--zs-surface-2);
+  color: var(--zs-text);
+  font-size: .875rem;
+  font-weight: 600;
+  transition:
+    background-color .18s ease,
+    border-color .18s ease,
+    color .18s ease,
+    transform .18s ease;
+}
+
+.zs-button:hover {
+  background: #1b2025;
+  border-color: var(--zs-border-strong);
+}
+
+.zs-button:active {
+  transform: scale(.98);
+}
+
+.zs-button-primary {
+  background: var(--zs-accent);
+  border-color: var(--zs-accent);
+  color: #061014;
+}
+
+.zs-button-primary:hover {
+  background: #67e8f9;
+  border-color: #67e8f9;
+}
+
+.zs-button-ghost {
+  background: transparent;
+  border-color: transparent;
+  color: var(--zs-text-secondary);
+}
+
+.zs-button-ghost:hover {
+  background: rgba(255,255,255,.045);
+  color: var(--zs-text);
+  border-color: transparent;
+}
+
+/* Remove the old "AI generated" visual language when new components use this class. */
+.zs-title {
+  color: var(--zs-text);
+  letter-spacing: -.025em;
+  font-weight: 750;
+}
+
+.zs-muted {
+  color: var(--zs-text-secondary);
+}
+
+.zs-caption {
+  color: var(--zs-text-muted);
+  font-size: .8125rem;
+}
+
+.zs-input {
+  width: 100%;
+  min-height: 42px;
+  border-radius: 10px;
+  border: 1px solid var(--zs-border);
+  background: #0c0f12;
+  color: var(--zs-text);
+  padding: .65rem .8rem;
+  outline: none;
+  transition: border-color .18s ease, background-color .18s ease;
+}
+
+.zs-input::placeholder {
+  color: var(--zs-text-muted);
+}
+
+.zs-input:focus {
+  border-color: rgba(34,211,238,.42);
+  background: #0e1215;
+}
+
+/* Verified badge */
+.verified-badge {
+  color: #38bdf8;
+  flex-shrink: 0;
+}
+
+.verified-badge-icon {
+  animation: verified-in .45s cubic-bezier(.2,.8,.2,1) both;
+}
+
+.verified-badge:hover .verified-badge-icon {
+  transform: scale(1.08);
+  filter: drop-shadow(0 0 5px rgba(56,189,248,.35));
+}
+
+@keyframes verified-in {
+  0% {
+    opacity: 0;
+    transform: scale(.72) rotate(-8deg);
+  }
+  70% {
+    opacity: 1;
+    transform: scale(1.08) rotate(2deg);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) rotate(0);
+  }
+}
+
+/* New navigation */
+.zs-nav {
+  background: rgba(9,11,13,.94);
+  border-bottom: 1px solid rgba(255,255,255,.065);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+.zs-nav-link {
+  display: inline-flex;
+  align-items: center;
+  gap: .45rem;
+  min-height: 36px;
+  padding: 0 .7rem;
+  border-radius: 9px;
+  color: #8f98a2;
+  font-size: .8125rem;
+  font-weight: 600;
+  transition: background-color .18s ease, color .18s ease;
+}
+
+.zs-nav-link:hover {
+  color: #e7ebee;
+  background: rgba(255,255,255,.045);
+}
+
+.zs-nav-link[data-active="true"] {
+  color: #f3f5f7;
+  background: rgba(255,255,255,.075);
+}
+
+@media (max-width: 1023px) {
+  .zs-nav-link {
+    min-height: 52px;
+    min-width: 66px;
+    padding: .45rem .65rem;
+    flex-direction: column;
+    gap: .25rem;
+    border-radius: 11px;
+    font-size: .68rem;
+  }
+}

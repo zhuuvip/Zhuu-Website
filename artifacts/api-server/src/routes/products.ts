@@ -302,30 +302,55 @@ router.patch("/products/options/:id", requireAdmin, async (req, res) => {
   const updateData: Record<string, unknown> = {};
 
   if (req.body.duration !== undefined && req.body.duration !== "") {
-    updateData.duration = req.body.duration;
+    updateData.duration = String(req.body.duration).trim();
   }
 
   if (req.body.price !== undefined && req.body.price !== "") {
-    updateData.price = Number(req.body.price);
+    const value = Number(req.body.price);
+    if (!Number.isInteger(value) || value < 0) {
+      return res.status(400).json({ error: "Harga member tidak valid" });
+    }
+    updateData.price = value;
   }
 
   if (req.body.resellerPrice !== undefined) {
-    updateData.resellerPrice =
-      req.body.resellerPrice === "" || req.body.resellerPrice === null
-        ? null
-        : Number(req.body.resellerPrice);
+    if (req.body.resellerPrice === "" || req.body.resellerPrice === null) {
+      updateData.resellerPrice = null;
+    } else {
+      const value = Number(req.body.resellerPrice);
+      if (!Number.isInteger(value) || value < 0) {
+        return res.status(400).json({ error: "Harga reseller tidak valid" });
+      }
+      updateData.resellerPrice = value;
+    }
   }
 
   if (req.body.stock !== undefined && req.body.stock !== "") {
-    updateData.stock = Number(req.body.stock);
+    const value = Number(req.body.stock);
+    if (!Number.isInteger(value) || value < 0) {
+      return res.status(400).json({ error: "Stock tidak valid" });
+    }
+    updateData.stock = value;
   }
 
-  if (req.body.dripVariantId !== undefined && req.body.dripVariantId !== "") {
-    updateData.dripVariantId = Number(req.body.dripVariantId);
+  if (req.body.dripVariantId !== undefined) {
+    if (req.body.dripVariantId === "" || req.body.dripVariantId === null) {
+      updateData.dripVariantId = null;
+    } else {
+      const value = Number(req.body.dripVariantId);
+      if (!Number.isInteger(value) || value <= 0) {
+        return res.status(400).json({ error: "DRIP Variant ID tidak valid" });
+      }
+      updateData.dripVariantId = value;
+    }
   }
 
   if (req.body.dripStock !== undefined && req.body.dripStock !== "") {
-    updateData.dripStock = Number(req.body.dripStock);
+    const value = Number(req.body.dripStock);
+    if (!Number.isInteger(value) || value < 0) {
+      return res.status(400).json({ error: "DRIP Stock tidak valid" });
+    }
+    updateData.dripStock = value;
   }
 
   const [option] = await db

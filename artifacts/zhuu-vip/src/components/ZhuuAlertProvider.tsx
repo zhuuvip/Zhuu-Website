@@ -178,7 +178,7 @@ export default function ZhuuAlertProvider({
           className="fixed inset-0 z-[99999] flex items-center justify-center p-5"
           role="dialog"
           aria-modal="true"
-          aria-label="ZhuuVIP notification"
+          aria-label="ZhuuSite notification"
         >
           {/* Backdrop */}
           <div className="absolute inset-0 bg-[#01050c]/80 backdrop-blur-[18px] animate-[zh-alert-backdrop_.25s_ease-out]" />
@@ -258,7 +258,7 @@ export default function ZhuuAlertProvider({
               {/* Brand */}
               <div className="mt-5 flex items-center justify-center gap-2">
                 <h3 className="text-[20px] font-bold tracking-[-.025em] text-white">
-                  ZhuuVIP
+                  ZhuuSite
                 </h3>
 
                 <span className="rounded-full border border-cyan-300/15 bg-cyan-300/[.06] px-2 py-0.5 text-[8px] font-bold tracking-[.14em] text-cyan-200/55">

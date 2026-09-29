@@ -214,7 +214,7 @@ export default function LinktreePage() {
       </div>
 
       <p className="mt-12 text-blue-300/20 text-xs">
-        ZhuuVIP · All links are official
+        ZhuuSite · All links are official
       </p>
     </div>
   );

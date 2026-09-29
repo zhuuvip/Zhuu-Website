@@ -38,7 +38,7 @@ export default function SignInPage() {
         <div className="flex items-center justify-center gap-2 mb-2">
           <Waves size={20} className="text-cyan-400/50" />
           <span className="text-2xl font-bold gradient-text" style={{ fontFamily: "Poppins, Inter, sans-serif" }}>
-            ZhuuVIP
+            ZhuuSite
           </span>
         </div>
         <p className="text-sm" style={{ color: "rgba(0,200,220,0.45)" }}>

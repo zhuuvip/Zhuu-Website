@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 
-const API_BASE = "https://zhuuapi.vercel.app";
+const API_BASE = (import.meta.env.VITE_API_URL || "https://zhuuapi.vercel.app").replace(/\/$/, "");
 const WA = "62882005730502";
 const TOKEN_KEY = "reseller_token";
 

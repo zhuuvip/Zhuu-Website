@@ -183,14 +183,14 @@ export default function PromotionPage() {
       <div className="max-w-5xl mx-auto">
         <div className="mb-6">
           <span className="text-xs font-black uppercase tracking-[0.25em] text-cyan-400">
-            ZhuuVIP Promotion
+            ZhuuSite Promotion
           </span>
           <h1 className="mt-2 text-3xl sm:text-4xl font-black text-cyan-50">
             Paid Promotion
           </h1>
           <p className="mt-2 text-sm text-cyan-100/50">
             Promosikan produk, website, aplikasi, layanan, atau komunitas kamu
-            di platform ZhuuVIP.
+            di platform ZhuuSite.
           </p>
         </div>
 

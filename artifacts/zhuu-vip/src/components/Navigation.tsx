@@ -1,27 +1,57 @@
 import { Link, useLocation } from "wouter";
 import { Show, UserButton, useAuth, useUser } from "@clerk/react";
-import { useState, useEffect } from "react";
-import { Menu, X, LogIn, Home, Gauge, Wrench, Sparkles, Link2, BriefcaseBusiness, Users, UserRound, MessageSquare, Share2, ShoppingCart, Gift, Megaphone, Bell } from "lucide-react";
+import { useEffect, useState } from "react";
+import {
+  Bell,
+  ChevronDown,
+  Gauge,
+  Gift,
+  Home,
+  Link2,
+  Menu,
+  MessageSquare,
+  MoreHorizontal,
+  ShoppingBag,
+  Sparkles,
+  Users,
+  Wrench,
+  X,
+} from "lucide-react";
 import logoPath from "@assets/file_000000003e9c72078d0f388bef03af6a_1778462394630.png";
+import VerifiedBadge from "@/components/ui/VerifiedBadge";
 
+const API = (import.meta.env.VITE_API_URL || "").replace(/\/$/, "");
 
+const MAIN_ITEMS = [
+  { path: "/", label: "Home", Icon: Home },
+  { path: "/products", label: "Products", Icon: ShoppingBag },
+  { path: "/free", label: "Free Hub", Icon: Gift },
+  { path: "/member", label: "Member", Icon: Sparkles },
+];
 
+const MORE_ITEMS = [
+  { path: "/speedtest", label: "Speed Test", Icon: Gauge },
+  { path: "/tools", label: "Tools", Icon: Wrench },
+  { path: "/ai", label: "Zhuu AI", Icon: Sparkles },
+  { path: "/linktree", label: "Linktree", Icon: Link2 },
+  { path: "/portfolio", label: "Portfolio", Icon: Users },
+  { path: "/community", label: "Community", Icon: Users },
+  { path: "/zhuu-chat", label: "Chat", Icon: MessageSquare },
+  { path: "/promote", label: "Promotion", Icon: Gift },
+  { path: "/feedback", label: "Feedback", Icon: MessageSquare },
+  { path: "/sharecard", label: "Share Card", Icon: Link2 },
+];
 
-function NotificationBell({
-  unread,
-}: {
-  unread: number;
-}) {
+function NotificationBell({ unread }: { unread: number }) {
   return (
     <Link
       href="/notifications"
       aria-label="Notifications"
-      className="relative flex items-center justify-center w-10 h-10 rounded-xl border border-white/10 bg-white/[0.03] text-cyan-100/70 hover:text-cyan-100 hover:bg-white/[0.06] transition"
+      className="relative flex h-9 w-9 items-center justify-center rounded-xl border border-white/10 bg-white/[0.04] text-white/60 transition hover:border-white/15 hover:bg-white/[0.07] hover:text-white"
     >
-      <Bell className="w-[18px] h-[18px]" />
-
+      <Bell size={17} />
       {unread > 0 && (
-        <span className="absolute -top-1 -right-1 min-w-[17px] h-[17px] px-1 rounded-full bg-cyan-400 text-[9px] font-black text-slate-950 flex items-center justify-center border-2 border-slate-950">
+        <span className="absolute -right-1 -top-1 flex h-[17px] min-w-[17px] items-center justify-center rounded-full border-2 border-[#080b10] bg-blue-500 px-1 text-[9px] font-bold text-white">
           {unread > 99 ? "99+" : unread}
         </span>
       )}
@@ -29,33 +59,30 @@ function NotificationBell({
   );
 }
 
-const NAV_ITEMS = [
-  { path: "/", label: "Home" },
-  { path: "/speedtest", label: "Speed" },
-  { path: "/tools", label: "Tools" },
-  { path: "/ai", label: "Zhuu AI", highlight: "ai" },
-  { path: "/linktree", label: "Linktree", highlight: "purple" },
-  { path: "/portfolio", label: "Portfolio" },
-  { path: "/community", label: "Community" },
-  { path: "/zhuu-chat", label: "Chat" },
-  { path: "/free", label: "Free Hub", highlight: "cyan" },
-  { path: "/promote", label: "Promotion", highlight: "purple" },
-  { path: "/member", label: "Member", highlight: "cyan" },
-  { path: "/reseller", label: "◈ Reseller", highlight: "purple" },
-  { path: "/feedback", label: "Feedback" },
-  { path: "/sharecard", label: "Share Card", highlight: "cyan" },
-  { path: "/products", label: "🛒 Products", highlight: "cyan" },
-];
-
 export default function Navigation() {
   const [location] = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const { user } = useUser();
-  const { getToken } = useAuth();
+  const [moreOpen, setMoreOpen] = useState(false);
   const [isReseller, setIsReseller] = useState(false);
   const [unreadNotifications, setUnreadNotifications] = useState(0);
-  const NOTIFICATION_API = (import.meta.env.VITE_API_URL || "").replace(/\/$/, "");
+
+  const { user } = useUser();
+  const { getToken } = useAuth();
+
+  const isActive = (path: string) =>
+    path === "/" ? location === "/" : location.startsWith(path);
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 12);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  useEffect(() => {
+    setMobileOpen(false);
+    setMoreOpen(false);
+  }, [location]);
 
   useEffect(() => {
     let cancelled = false;
@@ -68,14 +95,13 @@ export default function Navigation() {
 
       try {
         const token = await getToken();
-        const res = await fetch(`${NOTIFICATION_API}/api/notifications`, {
+        const res = await fetch(`${API}/api/notifications`, {
           headers: token ? { Authorization: `Bearer ${token}` } : {},
         });
 
         if (!res.ok) return;
 
         const data = await res.json();
-
         if (!cancelled) {
           const notifications = Array.isArray(data?.notifications)
             ? data.notifications
@@ -97,10 +123,7 @@ export default function Navigation() {
       cancelled = true;
       window.clearInterval(timer);
     };
-  }, [user, getToken, NOTIFICATION_API]);
-
-  const API = (import.meta.env.VITE_API_URL || "").replace(/\/$/, "");
-
+  }, [user, getToken]);
 
   useEffect(() => {
     let cancelled = false;
@@ -110,311 +133,204 @@ export default function Navigation() {
       return;
     }
 
-    getToken().then((token) =>
-      fetch(`${API}/api/reseller/plans`, {
-        headers: token
-          ? { Authorization: `Bearer ${token}` }
-          : {},
-      })
-        .then((res) => (res.ok ? res.json() : null))
-        .then((data) => {
-          console.log("[RESELLER NAV]", data);
-          if (!cancelled) {
-            setIsReseller(Boolean(data?.member?.active));
-          }
-        })
-        .catch(() => {
-          if (!cancelled) setIsReseller(false);
+    getToken()
+      .then((token) =>
+        fetch(`${API}/api/reseller/plans`, {
+          headers: token
+            ? { Authorization: `Bearer ${token}` }
+            : {},
         }),
-    );
+      )
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (!cancelled) {
+          setIsReseller(Boolean(data?.member?.active));
+        }
+      })
+      .catch(() => {
+        if (!cancelled) setIsReseller(false);
+      });
 
     return () => {
       cancelled = true;
     };
-  }, [user, getToken, API]);
+  }, [user, getToken]);
 
-  const isActive = (href: string) =>
-    href === "/" ? location === "/" : location.startsWith(href);
+  const moreItems = [
+    ...MORE_ITEMS,
+    ...(isReseller
+      ? [{ path: "/reseller", label: "Reseller", Icon: ShoppingBag }]
+      : []),
+  ];
 
-  useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 20);
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
-
-  useEffect(() => {
-    if (mobileOpen) setMobileOpen(false);
-  }, [location]);
+  const desktopMoreActive = moreItems.some((item) => isActive(item.path));
 
   return (
     <>
       <nav
-        className="fixed top-0 left-0 right-0 z-50 transition-all duration-300"
-        style={{
-          background: scrolled ? "rgba(1,8,18,0.97)" : "rgba(1,10,20,0.82)",
-          backdropFilter: "blur(24px)",
-          WebkitBackdropFilter: "blur(24px)",
-          borderBottom: scrolled
-            ? "1px solid rgba(0,255,255,0.12)"
-            : "1px solid rgba(0,255,255,0.06)",
-          boxShadow: scrolled ? "0 4px 30px rgba(0,0,0,0.5)" : "none",
-        }}
+        className={`zs-nav fixed left-0 right-0 top-0 z-50 transition-all duration-300 ${
+          scrolled ? "border-white/10 bg-[#080b10]/95 shadow-lg" : "bg-[#080b10]/80"
+        }`}
       >
-        <div className="max-w-7xl mx-auto px-3 sm:px-6 flex items-center justify-between h-14 sm:h-16">
-          {/* Logo */}
-          <Link href="/">
-            <div className="flex items-center gap-3 cursor-pointer group">
-              <div
-                className="transition-all duration-300 group-hover:scale-105"
-                style={{
-                  width: 36,
-                  height: 36,
-                  borderRadius: "50%",
-                  overflow: "hidden",
-                  border: "2px solid rgba(0,255,255,0.5)",
-                  boxShadow: "0 0 14px rgba(0,255,255,0.25)",
-                }}
-              >
+        <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-3 sm:h-16 sm:px-6">
+          <Link href="/" className="shrink-0">
+            <div className="flex items-center gap-2.5">
+              <div className="h-8 w-8 overflow-hidden rounded-full border border-white/15 bg-white/[0.05] sm:h-9 sm:w-9">
                 <img
                   src={logoPath}
-                  alt="ZhuuVIP"
-                  style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                  alt="ZhuuSite"
+                  className="h-full w-full object-cover"
                 />
               </div>
-              <span
-                className="gradient-text font-bold text-base sm:text-lg tracking-tight"
-                style={{ fontFamily: "Poppins, Inter, sans-serif" }}
-              >
-                ZhuuVIP
-              </span>
+
+              <div className="flex items-center gap-1.5">
+                <span className="text-[15px] font-bold tracking-tight text-white sm:text-base">
+                  ZhuuSite
+                </span>
+                <VerifiedBadge size={15} />
+              </div>
             </div>
           </Link>
 
-          {/* Desktop Nav */}
-          <div className="hidden lg:flex items-center gap-0.5">
-            {NAV_ITEMS.filter(
-              (item) => item.path !== "/reseller" || isReseller,
-            ).map((item) => {
-              const active = isActive(item.path);
-              if (item.highlight === "ai") {
-                return (
-                  <Link key={item.path} href={item.path}>
-                    <button
-                      className="ml-2 px-4 py-1.5 rounded-full text-sm font-semibold transition-all duration-200 hover:scale-105 hover:shadow-lg"
-                      style={{
-                        background: active
-                          ? "linear-gradient(135deg, rgba(120,80,255,0.95), rgba(0,150,255,0.95))"
-                          : "linear-gradient(135deg, rgba(120,80,255,0.75), rgba(0,150,255,0.75))",
-                        border: "1px solid rgba(150,100,255,0.5)",
-                        color: "white",
-                        boxShadow: active
-                          ? "0 0 16px rgba(120,80,255,0.4)"
-                          : "none",
-                      }}
-                    >
-                      ✨ {item.label}
-                    </button>
-                  </Link>
-                );
-              }
-              if (item.highlight === "purple") {
-                return (
-                  <Link key={item.path} href={item.path}>
-                    <button
-                      className="ml-1 px-4 py-1.5 rounded-full text-sm font-semibold transition-all duration-200"
-                      style={{
-                        background: active
-                          ? "rgba(120,60,200,0.28)"
-                          : "rgba(120,60,200,0.08)",
-                        border: "1px solid rgba(150,80,255,0.35)",
-                        color: active ? "#d8b4fe" : "#c084fc",
-                        cursor: "pointer",
-                      }}
-                    >
-                      🔗 {item.label}
-                    </button>
-                  </Link>
-                );
-              }
+          <div className="hidden items-center gap-1 lg:flex">
+            {MAIN_ITEMS.map(({ path, label, Icon }) => {
+              const active = isActive(path);
+
               return (
-                <Link key={item.path} href={item.path}>
-                  <div
-                    className="px-3 py-1.5 rounded-full text-sm font-medium cursor-pointer transition-all duration-200 hover:text-cyan-300"
-                    style={{
-                      color: active ? "#00ffff" : "rgba(0,200,220,0.55)",
-                      background: active
-                        ? "rgba(0,255,255,0.08)"
-                        : "transparent",
-                      boxShadow: active
-                        ? "0 0 12px rgba(0,255,255,0.12)"
-                        : "none",
-                    }}
+                <Link key={path} href={path}>
+                  <span
+                    className={`zs-nav-link inline-flex items-center gap-1.5 ${
+                      active ? "zs-nav-link-active" : ""
+                    }`}
                   >
-                    {item.label}
-                  </div>
+                    <Icon size={15} />
+                    {label}
+                  </span>
                 </Link>
               );
             })}
+
+            <div className="relative">
+              <button
+                type="button"
+                onClick={() => setMoreOpen((value) => !value)}
+                className={`zs-nav-link inline-flex items-center gap-1.5 ${
+                  desktopMoreActive ? "zs-nav-link-active" : ""
+                }`}
+              >
+                <MoreHorizontal size={15} />
+                More
+                <ChevronDown
+                  size={13}
+                  className={`transition-transform ${
+                    moreOpen ? "rotate-180" : ""
+                  }`}
+                />
+              </button>
+
+              {moreOpen && (
+                <div className="absolute right-0 top-[calc(100%+10px)] w-56 rounded-2xl border border-white/10 bg-[#0b0f15]/98 p-1.5 shadow-2xl backdrop-blur-xl">
+                  {moreItems.map(({ path, label, Icon }) => (
+                    <Link key={path} href={path}>
+                      <span
+                        className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition ${
+                          isActive(path)
+                            ? "bg-white/[0.08] text-white"
+                            : "text-white/55 hover:bg-white/[0.05] hover:text-white"
+                        }`}
+                      >
+                        <Icon size={16} />
+                        {label}
+                      </span>
+                    </Link>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
 
-          {/* Auth + Mobile toggle */}
-          <div className="flex items-center gap-2.5 sm:gap-3">
+          <div className="flex items-center gap-2">
             <Show when="signed-in">
               <NotificationBell unread={unreadNotifications} />
-            <UserButton
-                appearance={{
-                  elements: {
-                    avatarBox:
-                      "w-8 h-8 ring-1 ring-cyan-400/40 hover:ring-cyan-400/80 transition-all rounded-full",
-                  },
-                }}
-              />
+              <UserButton />
             </Show>
+
             <Show when="signed-out">
               <Link href="/sign-in">
-                <button className="hidden sm:flex items-center gap-1.5 px-4 py-1.5 rounded-lg bg-cyan-400/10 border border-cyan-400/25 text-cyan-300 text-sm font-medium hover:bg-cyan-400/18 hover:border-cyan-400/45 transition-all cursor-pointer">
-                  <LogIn size={14} />
-                  Sign In
+                <button className="hidden rounded-xl border border-white/10 bg-white/[0.04] px-3.5 py-2 text-sm font-medium text-white/80 transition hover:bg-white/[0.08] hover:text-white sm:block">
+                  Sign in
                 </button>
               </Link>
             </Show>
+
             <button
-              className="hidden lg:hidden p-2 rounded-lg transition-all duration-200"
-              style={{
-                background: mobileOpen
-                  ? "rgba(0,255,255,0.1)"
-                  : "rgba(0,255,255,0.05)",
-                border: "1px solid rgba(0,255,255,0.15)",
-              }}
-              onClick={() => setMobileOpen(!mobileOpen)}
-              aria-label="Toggle mobile menu"
+              type="button"
+              aria-label="Open menu"
+              onClick={() => setMobileOpen((value) => !value)}
+              className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/10 bg-white/[0.04] text-white/70 lg:hidden"
             >
-              {mobileOpen ? (
-                <X size={20} style={{ color: "rgba(0,220,240,0.9)" }} />
-              ) : (
-                <Menu size={20} style={{ color: "rgba(0,220,240,0.75)" }} />
-              )}
+              {mobileOpen ? <X size={18} /> : <Menu size={18} />}
             </button>
           </div>
         </div>
+
+        {mobileOpen && (
+          <div className="border-t border-white/10 bg-[#080b10]/98 px-3 pb-4 pt-2 shadow-2xl lg:hidden">
+            {[...MAIN_ITEMS, ...moreItems].map(({ path, label, Icon }) => (
+              <Link key={path} href={path}>
+                <span
+                  className={`flex items-center gap-3 rounded-xl px-3 py-3 text-sm ${
+                    isActive(path)
+                      ? "bg-white/[0.08] text-white"
+                      : "text-white/60"
+                  }`}
+                >
+                  <Icon size={17} />
+                  {label}
+                </span>
+              </Link>
+            ))}
+
+            <Show when="signed-out">
+              <Link href="/sign-in">
+                <span className="mt-1 flex items-center gap-3 rounded-xl border-t border-white/10 px-3 py-3 text-sm text-white/60">
+                  Sign in
+                </span>
+              </Link>
+            </Show>
+          </div>
+        )}
       </nav>
 
-      {/* Premium Mobile Bottom Navigation */}
-      <div className="lg:hidden fixed bottom-0 left-0 right-0 z-50 pb-[env(safe-area-inset-bottom)]">
-        <div className="relative">
+      <div className="h-14 sm:h-16" />
 
-          {/* Glow line */}
-          <div
-            className="absolute -top-px left-0 right-0 h-px"
-            style={{
-              background:
-                "linear-gradient(90deg, transparent, rgba(0,255,255,0.65), rgba(80,120,255,0.5), transparent)",
-              boxShadow: "0 0 12px rgba(0,255,255,0.35)",
-            }}
-          />
+      <div className="fixed bottom-3 left-3 right-3 z-40 lg:hidden">
+        <div className="flex items-center justify-around rounded-2xl border border-white/10 bg-[#090c12]/95 p-1.5 shadow-2xl backdrop-blur-xl">
+          {MAIN_ITEMS.map(({ path, label, Icon }) => (
+            <Link key={path} href={path}>
+              <span
+                className={`flex min-w-[58px] flex-col items-center gap-1 rounded-xl px-2 py-2 text-[10px] transition ${
+                  isActive(path)
+                    ? "bg-white/[0.09] text-white"
+                    : "text-white/40"
+                }`}
+              >
+                <Icon size={17} />
+                {label}
+              </span>
+            </Link>
+          ))}
 
-          {/* Side fade */}
-          <div className="pointer-events-none absolute left-0 top-0 bottom-0 w-8 z-20 bg-gradient-to-r from-[#010812] to-transparent" />
-          <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-8 z-20 bg-gradient-to-l from-[#010812] to-transparent" />
-
-          <div
-            className="overflow-x-auto overscroll-x-contain"
-            style={{
-              scrollbarWidth: "none",
-              WebkitOverflowScrolling: "touch",
-            }}
+          <button
+            type="button"
+            onClick={() => setMobileOpen(true)}
+            className="flex min-w-[58px] flex-col items-center gap-1 rounded-xl px-2 py-2 text-[10px] text-white/40"
           >
-            <div
-              className="flex min-w-max items-center gap-1.5 px-3 py-2.5"
-              style={{
-                background:
-                  "linear-gradient(180deg, rgba(3,18,32,0.94), rgba(1,8,18,0.98))",
-                backdropFilter: "blur(24px)",
-                WebkitBackdropFilter: "blur(24px)",
-                boxShadow:
-                  "0 -12px 35px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.025)",
-              }}
-            >
-              {NAV_ITEMS.filter(
-                (item) => item.path !== "/reseller" || isReseller,
-              ).map((item) => {
-                const active = isActive(item.path);
-
-                const Icon =
-                  item.path === "/"
-                    ? Home
-                    : item.path === "/speedtest"
-                    ? Gauge
-                    : item.path === "/tools"
-                    ? Wrench
-                    : item.path === "/ai"
-                    ? Sparkles
-                    : item.path === "/linktree"
-                    ? Link2
-                    : item.path === "/portfolio"
-                    ? BriefcaseBusiness
-                    : item.path === "/community"
-                    ? Users
-                    : item.path === "/zhuu-chat"
-                    ? MessageSquare
-                    : item.path === "/member"
-                    ? UserRound
-                    : item.path === "/feedback"
-                    ? MessageSquare
-                    : item.path === "/sharecard"
-                    ? Share2
-                    : item.path === "/reseller"
-                                                ? ShoppingCart
-                                                : ShoppingCart;
-
-                return (
-                  <Link key={item.path} href={item.path}>
-                    <div
-                      className="relative flex-shrink-0 min-w-[74px] h-[54px] px-3 rounded-2xl flex flex-col items-center justify-center gap-1 cursor-pointer select-none transition-all duration-200 active:scale-90"
-                      style={{
-                        color: active
-                          ? "#67f9ff"
-                          : "rgba(170,205,220,0.58)",
-                        background: active
-                          ? "linear-gradient(145deg, rgba(0,255,255,0.13), rgba(30,90,130,0.12))"
-                          : "rgba(255,255,255,0.018)",
-                        border: active
-                          ? "1px solid rgba(0,255,255,0.22)"
-                          : "1px solid rgba(255,255,255,0.035)",
-                        boxShadow: active
-                          ? "0 0 20px rgba(0,220,255,0.12), inset 0 1px 0 rgba(255,255,255,0.05)"
-                          : "inset 0 1px 0 rgba(255,255,255,0.02)",
-                      }}
-                    >
-                      {active && (
-                        <div
-                          className="absolute -top-[1px] left-1/2 -translate-x-1/2 w-7 h-[2px] rounded-full"
-                          style={{
-                            background: "#00ffff",
-                            boxShadow: "0 0 10px #00ffff",
-                          }}
-                        />
-                      )}
-
-                      <Icon
-                        size={17}
-                        strokeWidth={active ? 2.3 : 1.7}
-                      />
-
-                      <span className="text-[10px] font-medium whitespace-nowrap tracking-wide">
-                        {item.label.replace("🛒 ", "")}
-                      </span>
-                    </div>
-                  </Link>
-                );
-              })}
-
-            </div>
-          </div>
+            <MoreHorizontal size={17} />
+            More
+          </button>
         </div>
       </div>
-
-      <div className="h-16 lg:h-0" />
     </>
   );
 }

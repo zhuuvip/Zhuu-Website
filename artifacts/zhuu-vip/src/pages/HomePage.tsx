@@ -1,433 +1,203 @@
 import { Link } from "wouter";
 import { useEffect } from "react";
-import { Show, useUser } from "@clerk/react";
-import { ChevronRight, Shield, Waves, Zap, Bot, Lock, Gauge } from "lucide-react";
+import { Show } from "@clerk/react";
+import {
+  ArrowRight,
+  Bot,
+  Gift,
+  Gauge,
+  MessageSquare,
+  ShieldCheck,
+  ShoppingBag,
+  Sparkles,
+  Users,
+} from "lucide-react";
 import logoPath from "@assets/file_000000003e9c72078d0f388bef03af6a_1778462394630.png";
+import VerifiedBadge from "@/components/ui/VerifiedBadge";
 
-const ADMIN_EMAIL = import.meta.env.VITE_ADMIN_EMAIL || "";
 const API_BASE = (import.meta.env.VITE_API_URL || "").replace(/\/$/, "");
 
-const FEATURES = [
+const QUICK_LINKS = [
   {
-    icon: "⚡",
-    emoji: true,
-    title: "Speed Test",
-    desc: "Real-time internet speed testing with download, upload, and latency measurement.",
-    path: "/speedtest",
-    color: "#00ffff",
-    gradient: "from-cyan-400/15 to-transparent",
+    path: "/products",
+    title: "Products",
+    description: "Lihat produk, paket, dan layanan yang tersedia.",
+    Icon: ShoppingBag,
   },
   {
-    icon: "✨",
-    emoji: true,
-    title: "Zhuu AI",
-    desc: "Chat with Zhuu AI — your deep-sea companion powered by Gemini. Upload files, send voice messages.",
-    path: "/ai",
-    color: "#a78bfa",
-    gradient: "from-violet-400/15 to-transparent",
+    path: "/free",
+    title: "Free Hub",
+    description: "Temukan resource, key, promo, dan postingan gratis.",
+    Icon: Gift,
   },
   {
-    icon: "💼",
-    emoji: true,
-    title: "Portfolio",
-    desc: "Explore projects and works curated by Zhuu and the community.",
-    path: "/portfolio",
-    color: "#34d399",
-    gradient: "from-emerald-400/15 to-transparent",
-  },
-  {
-    icon: "🌊",
-    emoji: true,
-    title: "Community",
-    desc: "Join our underwater world. Meet creators, share ideas, and grow together.",
-    path: "/community",
-    color: "#60a5fa",
-    gradient: "from-blue-400/15 to-transparent",
-  },
-  {
-    icon: "🔗",
-    emoji: true,
-    title: "Resources",
-    desc: "Curated links, tools, and resources for developers and creators.",
-    path: "/resources",
-    color: "#f9a8d4",
-    gradient: "from-pink-400/15 to-transparent",
-  },
-  {
-    icon: "💬",
-    emoji: true,
-    title: "Feedback",
-    desc: "Share your thoughts, ideas, and suggestions to improve ZhuuVIP.",
-    path: "/feedback",
-    color: "#fcd34d",
-    gradient: "from-yellow-400/15 to-transparent",
+    path: "/member",
+    title: "Member",
+    description: "Kelola akun member dan akses fitur premium.",
+    Icon: Sparkles,
   },
 ];
 
-const HIGHLIGHTS = [
+const FEATURES = [
   {
+    path: "/speedtest",
+    title: "Speed Test",
+    description: "Uji download, upload, dan latency koneksi kamu.",
+    Icon: Gauge,
+  },
+  {
+    path: "/ai",
+    title: "Zhuu AI",
+    description: "Asisten AI untuk ngobrol, bertanya, dan membantu pekerjaan.",
     Icon: Bot,
-    label: "Gemini AI",
-    sub: "Powered by Google",
-    color: "rgba(167,139,250,0.8)",
-    bg: "rgba(167,139,250,0.07)",
-    border: "rgba(167,139,250,0.2)",
   },
   {
-    Icon: Waves,
-    label: "Ocean Theme",
-    sub: "Deep sea aesthetic",
-    color: "rgba(0,212,255,0.8)",
-    bg: "rgba(0,212,255,0.07)",
-    border: "rgba(0,212,255,0.2)",
+    path: "/community",
+    title: "Community",
+    description: "Tempat berbagi, berdiskusi, dan terhubung dengan pengguna lain.",
+    Icon: Users,
   },
   {
-    Icon: Lock,
-    label: "Auth by Clerk",
-    sub: "Google & email sign-in",
-    color: "rgba(52,211,153,0.8)",
-    bg: "rgba(52,211,153,0.07)",
-    border: "rgba(52,211,153,0.2)",
-  },
-  {
-    Icon: Zap,
-    label: "Built for Speed",
-    sub: "Vite + React",
-    color: "rgba(251,191,36,0.8)",
-    bg: "rgba(251,191,36,0.07)",
-    border: "rgba(251,191,36,0.2)",
+    path: "/zhuu-chat",
+    title: "Public Chat",
+    description: "Ngobrol bersama pengguna ZhuuSite lainnya.",
+    Icon: MessageSquare,
   },
 ];
 
 export default function HomePage() {
   useEffect(() => {
-    fetch(`${API_BASE}/api/visitors`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ page: "/" }) }).catch(() => {});
+    fetch(`${API_BASE}/api/visitors`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ page: "/" }),
+    }).catch(() => {});
   }, []);
-  const { user } = useUser();
-
-  const isAdmin =
-    user?.primaryEmailAddress?.emailAddress === ADMIN_EMAIL ||
-    user?.externalAccounts?.[0]?.emailAddress === ADMIN_EMAIL;
 
   return (
-    <div className="ocean-bg min-h-screen">
-      {/* Hero */}
-      <section className="hero-section flex flex-col items-center justify-center min-h-[92vh] px-4 text-center relative">
-        {/* Ambient glow */}
-        <div
-          style={{
-            position: "absolute",
-            top: "35%",
-            left: "50%",
-            transform: "translate(-50%, -50%)",
-            width: 700,
-            height: 700,
-            borderRadius: "50%",
-            background:
-              "radial-gradient(circle, rgba(0,200,220,0.06) 0%, transparent 65%)",
-            pointerEvents: "none",
-          }}
-        />
+    <main className="min-h-screen bg-[#080b10] text-white">
+      <section className="relative overflow-hidden border-b border-white/[0.06]">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(37,99,235,0.10),transparent_45%)]" />
 
-        <div className="relative z-10 flex flex-col items-center w-full max-w-2xl">
-          {/* Avatar */}
-          <div className="relative mb-6 animate-float" data-testid="hero-avatar">
-            <div
-              style={{
-                width: 136,
-                height: 136,
-                borderRadius: "50%",
-                overflow: "hidden",
-                border: "3px solid rgba(0,255,255,0.4)",
-                boxShadow:
-                  "0 0 36px rgba(0,255,255,0.22), 0 0 80px rgba(0,200,220,0.1)",
-              }}
-            >
+        <div className="relative mx-auto flex min-h-[650px] max-w-6xl flex-col items-center justify-center px-5 py-24 text-center sm:px-6">
+          <div className="mb-7 flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.035] px-3.5 py-1.5 text-xs text-white/55">
+            <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
+            ZhuuSite is online
+          </div>
+
+          <div className="mb-7 flex items-center gap-3">
+            <div className="h-20 w-20 overflow-hidden rounded-[24px] border border-white/10 bg-white/[0.04] shadow-xl sm:h-24 sm:w-24">
               <img
                 src={logoPath}
-                alt="Zhuu"
-                style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                alt="ZhuuSite"
+                className="h-full w-full object-cover"
               />
             </div>
-            {/* Badge */}
-            <div
-              style={{
-                position: "absolute",
-                bottom: 4,
-                right: 4,
-                width: 32,
-                height: 32,
-                borderRadius: "50%",
-                background: "linear-gradient(135deg, #00d4ff, #9b59b6)",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                boxShadow: "0 0 14px rgba(0,212,255,0.5)",
-                border: "2px solid rgba(1,10,20,0.8)",
-              }}
-            >
-              <Waves size={14} color="white" />
-            </div>
+
+            <VerifiedBadge size={22} title="ZhuuSite Verified" />
           </div>
 
-          {/* Status badge */}
-          <div
-            className="mb-4 inline-flex items-center gap-2 px-4 py-2 rounded-full"
-            style={{
-              background: "rgba(0,200,220,0.06)",
-              border: "1px solid rgba(0,255,255,0.16)",
-            }}
-          >
-            <span
-              style={{
-                width: 7,
-                height: 7,
-                borderRadius: "50%",
-                background: "#4ade80",
-                display: "inline-block",
-                boxShadow: "0 0 7px rgba(74,222,128,0.75)",
-                flexShrink: 0,
-              }}
-            />
-            <span
-              className="text-xs font-medium tracking-wide"
-              style={{ color: "rgba(0,200,220,0.75)" }}
-            >
-              Deep ocean, online 24/7
-            </span>
-          </div>
-
-          {/* Title */}
-          <h1
-            className="text-6xl md:text-8xl font-black mb-4 leading-none"
-            style={{ fontFamily: "Poppins, Inter, sans-serif" }}
-          >
-            <span className="gradient-text">Zhuu</span>
-            <span className="text-white">VIP</span>
+          <h1 className="max-w-3xl text-4xl font-bold tracking-tight text-white sm:text-6xl">
+            Welcome to <span className="text-blue-400">ZhuuSite</span>
           </h1>
 
-          <p
-            className="text-lg md:text-xl max-w-lg mb-8 leading-relaxed"
-            style={{ color: "rgba(0,200,220,0.6)" }}
-          >
-            Your VIP portal to the deep ocean — AI chat, speed tests, community,
-            portfolio, and more.
+          <p className="mt-5 max-w-2xl text-base leading-7 text-white/50 sm:text-lg">
+            Satu platform untuk produk, tools, komunitas, AI, dan berbagai
+            layanan Zhuu. Simple, cepat, dan terus berkembang.
           </p>
 
-          {/* CTAs */}
-          <div className="flex flex-wrap items-center justify-center gap-3 w-full">
+          <div className="mt-9 flex flex-wrap justify-center gap-3">
+            <Link href="/products">
+              <button className="zs-button zs-button-primary inline-flex items-center gap-2 px-5 py-3">
+                <ShoppingBag size={17} />
+                Explore Products
+                <ArrowRight size={16} />
+              </button>
+            </Link>
+
+            <Link href="/free">
+              <button className="zs-button zs-button-ghost inline-flex items-center gap-2 px-5 py-3">
+                <Gift size={17} />
+                Free Hub
+              </button>
+            </Link>
+
             <Show when="signed-out">
-              <Link href="/community">
-                <button className="neon-btn-solid px-8 py-3.5 rounded-full font-bold text-base transition-all hover:scale-105">
-                  Join the Community 🌊
+              <Link href="/sign-up">
+                <button className="zs-button zs-button-ghost px-5 py-3">
+                  Create account
                 </button>
               </Link>
-              <Link href="/ai">
-                <button
-                  className="neon-btn px-8 py-3.5 rounded-full font-bold text-base transition-all hover:scale-105"
-                  style={{
-                    borderColor: "rgba(167,139,250,0.45)",
-                    color: "#c4b5fd",
-                  }}
-                >
-                  Chat with Zhuu AI ✨
-                </button>
-              </Link>
-              <a href="https://zhuugame.vercel.app" target="_blank" rel="noopener noreferrer">
-                <button
-                  className="neon-btn px-8 py-3.5 rounded-full font-bold text-base transition-all hover:scale-105"
-                  style={{
-                    borderColor: "rgba(255,100,100,0.45)",
-                    color: "#ff6b6b",
-                  }}
-                >
-                  Play Zhuu-05 VOID 🎮
-                </button>
-              </a>
-            </Show>
-            <Show when="signed-in">
-              <a href="https://zhuugame.vercel.app" target="_blank" rel="noopener noreferrer">
-                <button
-                  className="neon-btn px-8 py-3.5 rounded-full font-bold text-base transition-all hover:scale-105"
-                  style={{ borderColor: "rgba(255,100,100,0.45)", color: "#ff6b6b" }}
-                >
-                  Play Zhuu-05 VOID 🎮
-                </button>
-              </a>
-              <Link href="/ai">
-                <button className="neon-btn-solid px-8 py-3.5 rounded-full font-bold text-base flex items-center gap-2 transition-all hover:scale-105">
-                  Open Zhuu AI ✨ <ChevronRight size={16} />
-                </button>
-              </Link>
-
-
             </Show>
           </div>
-        </div>
 
-        {/* Scroll indicator */}
-        <div className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 opacity-30 select-none">
-          <span className="text-xs text-cyan-400" style={{ letterSpacing: "0.14em" }}>
-            SCROLL
-          </span>
-          <div
-            style={{
-              width: 1.5,
-              height: 36,
-              background:
-                "linear-gradient(180deg, rgba(0,255,255,0.65), transparent)",
-            }}
-          />
+          <div className="mt-10 flex items-center gap-2 text-xs text-white/35">
+            <ShieldCheck size={15} />
+            Secure account & verified platform
+          </div>
         </div>
       </section>
 
-      {/* Highlights strip */}
-      <section className="px-4 pb-16">
-        <div className="max-w-4xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-4">
-          {HIGHLIGHTS.map(({ Icon, label, sub, color, bg, border }) => (
-            <div
-              key={label}
-              className="glass-card p-5 text-center rounded-2xl transition-all duration-300 hover:scale-[1.03]"
-              style={{
-                background: bg,
-                borderColor: border,
-              }}
-            >
-              <div
-                className="w-10 h-10 rounded-xl flex items-center justify-center mx-auto mb-3"
-                style={{
-                  background: `${bg}`,
-                  border: `1px solid ${border}`,
-                }}
-              >
-                <Icon size={18} style={{ color }} />
+      <section className="mx-auto max-w-6xl px-5 py-16 sm:px-6">
+        <div className="mb-7">
+          <p className="zs-caption">Quick access</p>
+          <h2 className="zs-title mt-1">Mulai dari sini</h2>
+          <p className="zs-muted mt-2 max-w-xl">
+            Fitur utama yang paling sering digunakan ada di satu tempat.
+          </p>
+        </div>
+
+        <div className="grid gap-4 md:grid-cols-3">
+          {QUICK_LINKS.map(({ path, title, description, Icon }) => (
+            <Link key={path} href={path}>
+              <div className="zs-surface zs-surface-hover group h-full p-5">
+                <div className="mb-5 flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-white/[0.045] text-blue-400">
+                  <Icon size={19} />
+                </div>
+
+                <div className="flex items-center justify-between gap-3">
+                  <h3 className="text-base font-semibold text-white">
+                    {title}
+                  </h3>
+                  <ArrowRight
+                    size={16}
+                    className="text-white/25 transition group-hover:translate-x-1 group-hover:text-white/60"
+                  />
+                </div>
+
+                <p className="mt-2 text-sm leading-6 text-white/45">
+                  {description}
+                </p>
               </div>
-              <div
-                className="text-sm font-bold mb-0.5"
-                style={{ color }}
-              >
-                {label}
-              </div>
-              <div
-                className="text-xs"
-                style={{ color: "rgba(0,200,220,0.4)" }}
-              >
-                {sub}
-              </div>
-            </div>
+            </Link>
           ))}
         </div>
       </section>
 
-      <div className="section-divider mx-auto max-w-3xl mb-16" />
+      <section className="mx-auto max-w-6xl px-5 pb-24 sm:px-6">
+        <div className="mb-7">
+          <p className="zs-caption">Platform</p>
+          <h2 className="zs-title mt-1">Lebih banyak fitur</h2>
+        </div>
 
-      {/* Features grid */}
-      <section className="px-4 pb-20">
-        <div className="max-w-5xl mx-auto">
-          <div className="text-center mb-12">
-            <h2
-              className="text-3xl md:text-4xl font-black gradient-text mb-3"
-              style={{ fontFamily: "Poppins, Inter, sans-serif" }}
-            >
-              Explore ZhuuVIP
-            </h2>
-            <p className="text-sm" style={{ color: "rgba(0,200,220,0.42)" }}>
-              Everything you need, in the deep ocean
-            </p>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {FEATURES.map((f) => (
-              <Link key={f.path} href={f.path}>
-                <div
-                  className="group glass-card glass-card-hover p-6 cursor-pointer h-full rounded-2xl transition-all duration-300 relative overflow-hidden"
-                  style={{ borderColor: "rgba(0,255,255,0.07)" }}
-                >
-                  {/* Hover gradient overlay */}
-                  <div
-                    className={`absolute inset-0 bg-gradient-to-br ${f.gradient} opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-2xl pointer-events-none`}
-                  />
-                  <div className="relative">
-                    <div className="text-3xl mb-3">{f.icon}</div>
-                    <h3
-                      className="font-bold text-lg mb-2 transition-all duration-200"
-                      style={{
-                        color: f.color,
-                        fontFamily: "Poppins, Inter, sans-serif",
-                      }}
-                    >
-                      {f.title}
-                    </h3>
-                    <p
-                      className="text-sm leading-relaxed"
-                      style={{ color: "rgba(0,200,220,0.5)" }}
-                    >
-                      {f.desc}
-                    </p>
-                    <div
-                      className="mt-4 flex items-center gap-1.5 font-medium transition-all duration-200 group-hover:gap-2.5"
-                      style={{ color: f.color, fontSize: 13 }}
-                    >
-                      Explore <ChevronRight size={13} />
-                    </div>
-                  </div>
-                </div>
-              </Link>
-            ))}
-          </div>
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          {FEATURES.map(({ path, title, description, Icon }) => (
+            <Link key={path} href={path}>
+              <div className="zs-surface zs-surface-hover h-full p-5">
+                <Icon size={19} className="text-white/60" />
+
+                <h3 className="mt-5 text-sm font-semibold text-white">
+                  {title}
+                </h3>
+
+                <p className="mt-2 text-xs leading-5 text-white/40">
+                  {description}
+                </p>
+              </div>
+            </Link>
+          ))}
         </div>
       </section>
-
-      {/* CTA banner */}
-      <section className="px-4 pb-24">
-        <div
-          className="max-w-2xl mx-auto text-center glass-card p-10 rounded-2xl relative overflow-hidden"
-          style={{ borderColor: "rgba(0,255,255,0.1)" }}
-        >
-          {/* Subtle glow */}
-          <div
-            style={{
-              position: "absolute",
-              top: "50%",
-              left: "50%",
-              transform: "translate(-50%, -50%)",
-              width: 400,
-              height: 200,
-              background: "radial-gradient(ellipse, rgba(0,200,220,0.045) 0%, transparent 70%)",
-              pointerEvents: "none",
-            }}
-          />
-          <div className="relative">
-            <div className="text-4xl mb-4">🌊</div>
-            <h2
-              className="text-3xl font-black gradient-text mb-3"
-              style={{ fontFamily: "Poppins, Inter, sans-serif" }}
-            >
-              Ready to dive in?
-            </h2>
-            <p className="mb-8 text-sm" style={{ color: "rgba(0,200,220,0.5)" }}>
-              Join ZhuuVIP and explore the deep ocean community.
-            </p>
-            <div className="flex flex-wrap items-center justify-center gap-3 w-full">
-              <Link href="/community">
-                <button className="neon-btn-solid px-10 py-3.5 rounded-full font-bold text-base transition-all hover:scale-105">
-                  Join Community →
-                </button>
-              </Link>
-              <Link href="/ai">
-                <button
-                  className="neon-btn px-8 py-3.5 rounded-full font-bold text-base transition-all hover:scale-105"
-                  style={{
-                    borderColor: "rgba(167,139,250,0.4)",
-                    color: "#c4b5fd",
-                  }}
-                >
-                  Try Zhuu AI ✨
-                </button>
-              </Link>
-            </div>
-          </div>
-        </div>
-      </section>
-    </div>
+    </main>
   );
 }

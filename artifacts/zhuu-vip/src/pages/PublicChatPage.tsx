@@ -167,7 +167,7 @@ export default function PublicChatPage() {
               </h1>
 
               <p className="text-xs text-cyan-100/40 truncate">
-                Semua user ZhuuVIP bisa ngobrol di sini
+                Semua user ZhuuSite bisa ngobrol di sini
               </p>
             </div>
 

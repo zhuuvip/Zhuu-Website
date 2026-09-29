@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "@clerk/react";
 
-const API_BASE = "https://zhuuapi.vercel.app";
+const API_BASE = (import.meta.env.VITE_API_URL || "https://zhuuapi.vercel.app").replace(/\/$/, "");
 const rupiah = (v: number) => `Rp${Number(v || 0).toLocaleString("id-ID")}`;
 
 type Member = {
@@ -29,6 +29,7 @@ export default function AdminResellerTab() {
   const [manualEmail, setManualEmail] = useState("");
   const [manualDuration, setManualDuration] = useState("30");
   const [addingReseller, setAddingReseller] = useState(false);
+  const [promotions, setPromotions] = useState<any[]>([]);
 
   const call = async (path: string, init: RequestInit = {}) => {
     const token = await getToken();
@@ -44,11 +45,12 @@ export default function AdminResellerTab() {
 
   const load = async () => {
     try {
-      const [mem, prods, pr, set] = await Promise.all([
+      const [mem, prods, pr, set, promos] = await Promise.all([
         call("/api/admin/resellers"),
         fetch(`${API_BASE}/api/products`, { cache: "no-store" }).then((r) => r.json()),
         call("/api/admin/reseller-prices"),
         call("/api/admin/reseller-settings"),
+        call("/api/admin/promotions"),
       ]);
       setMembers(Array.isArray(mem) ? mem : []);
       setProducts(Array.isArray(prods) ? prods : []);
@@ -56,6 +58,7 @@ export default function AdminResellerTab() {
       if (Array.isArray(pr)) pr.forEach((x: any) => (map[Number(x.option_id)] = String(x.price)));
       setPrices(map);
       setPlan({ monthly: String(set.monthly ?? ""), lifetime: String(set.lifetime ?? "") });
+      setPromotions(Array.isArray(promos) ? promos : []);
     } catch (e) {
       setMsg(e instanceof Error ? e.message : "Gagal memuat");
     }
@@ -188,6 +191,69 @@ export default function AdminResellerTab() {
           >
             {addingReseller ? "Menambahkan..." : "Tambah Reseller"}
           </button>
+        </div>
+      </section>
+
+      {/* Kelola Promotion */}
+      <section className="rounded-2xl border border-purple-400/20 bg-purple-400/[0.03] p-4">
+        <div className="flex items-center justify-between gap-3 mb-3">
+          <div>
+            <h3 className="font-bold">Kelola Promotion</h3>
+            <p className="text-xs text-white/40">
+              Khusus owner untuk menghapus promosi.
+            </p>
+          </div>
+          <span className="text-xs text-white/40">
+            {promotions.length} promosi
+          </span>
+        </div>
+
+        <div className="space-y-2">
+          {promotions.map((promo) => (
+            <div
+              key={promo.id}
+              className="rounded-xl border border-white/10 bg-black/20 p-3"
+            >
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <p className="truncate font-bold">{promo.title}</p>
+                  <p className="text-[11px] text-white/35">
+                    #{promo.id} · {promo.category} · {promo.durationDays} hari · {promo.status}
+                  </p>
+                  <p className="truncate text-[11px] text-white/30">
+                    {promo.userId}
+                  </p>
+                </div>
+
+                <button
+                  className="shrink-0 rounded-lg border border-red-400/30 px-3 py-1.5 text-xs font-bold text-red-300 hover:bg-red-400/10"
+                  onClick={async () => {
+                    if (
+                      await window.zhuuConfirm(
+                        `Hapus promotion "${promo.title}" secara permanen?`
+                      )
+                    ) {
+                      await run(
+                        () =>
+                          call(`/api/admin/promotions/${promo.id}`, {
+                            method: "DELETE",
+                          }),
+                        "Promotion berhasil dihapus",
+                      );
+                    }
+                  }}
+                >
+                  Hapus
+                </button>
+              </div>
+            </div>
+          ))}
+
+          {promotions.length === 0 && (
+            <p className="text-sm text-white/40">
+              Belum ada promotion.
+            </p>
+          )}
         </div>
       </section>
 

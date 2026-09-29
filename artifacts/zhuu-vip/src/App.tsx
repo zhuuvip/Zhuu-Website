@@ -269,13 +269,13 @@ function ClerkProviderWithRoutes() {
       localization={{
         signIn: {
           start: {
-            title: "Welcome back to ZhuuVIP",
+            title: "Welcome back to ZhuuSite",
             subtitle: "Sign in with Google or your email",
           },
         },
         signUp: {
           start: {
-            title: "Join ZhuuVIP",
+            title: "Join ZhuuSite",
             subtitle: "Create your account to get started",
           },
         },
