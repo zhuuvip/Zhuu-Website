@@ -6,6 +6,8 @@ const API_BASE = (import.meta.env.VITE_API_URL || "").replace(/\/$/, "");
 type ChatMessage = {
   id: number;
   userId: string;
+  username?: string;
+  imageUrl?: string;
   message: string;
   createdAt: string;
 };
@@ -217,10 +219,19 @@ export default function PublicChatPage() {
                           : "items-start"
                       } flex flex-col`}
                     >
-                      <div className="text-[10px] text-cyan-100/30 mb-1 px-2">
-                        {item.userId === user?.id
-                          ? "You"
-                          : `User ${item.userId.slice(-6)}`}
+                      <div className="flex items-center gap-1.5 text-[10px] text-cyan-100/40 mb-1 px-2">
+                        {item.imageUrl ? (
+                          <img
+                            src={item.imageUrl}
+                            alt=""
+                            className="w-4 h-4 rounded-full object-cover border border-white/10"
+                          />
+                        ) : (
+                          <div className="w-4 h-4 rounded-full bg-cyan-400/10 border border-cyan-300/10" />
+                        )}
+                        <span>
+                          {mine ? "You" : item.username || "User"}
+                        </span>
                       </div>
 
                       <div
