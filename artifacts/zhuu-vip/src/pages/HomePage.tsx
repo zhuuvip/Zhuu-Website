@@ -77,7 +77,6 @@ export default function HomePage() {
   return (
     <main className="min-h-screen bg-[#080b10] text-white">
       <section className="relative overflow-hidden border-b border-white/[0.06]">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(37,99,235,0.10),transparent_45%)]" />
 
         <div className="relative mx-auto flex min-h-[650px] max-w-6xl flex-col items-center justify-center px-5 py-24 text-center sm:px-6">
           <div className="mb-7 flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.035] px-3.5 py-1.5 text-xs text-white/55">
@@ -94,11 +93,10 @@ export default function HomePage() {
               />
             </div>
 
-            <VerifiedBadge size={22} title="ZhuuSite Verified" />
           </div>
 
           <h1 className="max-w-3xl text-4xl font-bold tracking-tight text-white sm:text-6xl">
-            Welcome to <span className="text-blue-400">ZhuuSite</span>
+              Welcome to{" "}<span className="inline-flex items-center gap-2 text-blue-400">ZhuuSite<VerifiedBadge size={25} title="ZhuuSite Verified" /></span>
           </h1>
 
           <p className="mt-5 max-w-2xl text-base leading-7 text-white/50 sm:text-lg">
