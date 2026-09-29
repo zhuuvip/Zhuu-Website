@@ -20,7 +20,7 @@ export default function PublicChatPage() {
   const [sending, setSending] = useState(false);
   const [error, setError] = useState("");
 
-  const bottomRef = useRef<HTMLDivElement>(null);
+  const chatScrollRef = useRef<HTMLDivElement>(null);
 
   const authHeaders = async () => {
     const token = await getToken();
@@ -63,7 +63,13 @@ export default function PublicChatPage() {
   }, [isLoaded, isSignedIn]);
 
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+    const container = chatScrollRef.current;
+    if (!container) return;
+
+    container.scrollTo({
+      top: container.scrollHeight,
+      behavior: "smooth",
+    });
   }, [messages]);
 
   const sendMessage = async () => {
@@ -175,7 +181,10 @@ export default function PublicChatPage() {
         {/* Chat */}
         <div className="glass-card rounded-3xl overflow-hidden">
 
-          <div className="h-[60vh] min-h-[420px] overflow-y-auto p-4 sm:p-6 space-y-3">
+          <div
+            ref={chatScrollRef}
+            className="h-[60vh] min-h-[420px] overflow-y-auto p-4 sm:p-6 space-y-3"
+          >
             {loading ? (
               <div className="h-full flex items-center justify-center text-cyan-200/40">
                 Memuat pesan...
@@ -239,7 +248,7 @@ export default function PublicChatPage() {
               })
             )}
 
-            <div ref={bottomRef} />
+            <div aria-hidden="true" />
           </div>
 
           {/* Composer */}
