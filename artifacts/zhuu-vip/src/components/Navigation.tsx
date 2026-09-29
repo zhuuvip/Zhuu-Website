@@ -1,5 +1,5 @@
 import { Link, useLocation } from "wouter";
-import { Show, UserButton, useUser } from "@clerk/react";
+import { Show, UserButton, useAuth, useUser } from "@clerk/react";
 import { useState, useEffect } from "react";
 import { Menu, X, LogIn, Home, Gauge, Wrench, Sparkles, Link2, BriefcaseBusiness, Users, UserRound, MessageSquare, Share2, ShoppingCart, Gift, Megaphone } from "lucide-react";
 import logoPath from "@assets/file_000000003e9c72078d0f388bef03af6a_1778462394630.png";
@@ -29,6 +29,7 @@ export default function Navigation() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const { user } = useUser();
+  const { getToken } = useAuth();
   const [isReseller, setIsReseller] = useState(false);
   const API = (import.meta.env.VITE_API_URL || "").replace(/\/$/, "");
 
@@ -41,21 +42,28 @@ export default function Navigation() {
       return;
     }
 
-    fetch(`${API}/api/reseller/plans`)
-      .then((res) => (res.ok ? res.json() : null))
-      .then((data) => {
-        if (!cancelled) {
-          setIsReseller(Boolean(data?.member?.active));
-        }
+    getToken().then((token) =>
+      fetch(`${API}/api/reseller/plans`, {
+        headers: token
+          ? { Authorization: `Bearer ${token}` }
+          : {},
       })
-      .catch(() => {
-        if (!cancelled) setIsReseller(false);
-      });
+        .then((res) => (res.ok ? res.json() : null))
+        .then((data) => {
+          console.log("[RESELLER NAV]", data);
+          if (!cancelled) {
+            setIsReseller(Boolean(data?.member?.active));
+          }
+        })
+        .catch(() => {
+          if (!cancelled) setIsReseller(false);
+        }),
+    );
 
     return () => {
       cancelled = true;
     };
-  }, [user, API]);
+  }, [user, getToken, API]);
 
   const isActive = (href: string) =>
     href === "/" ? location === "/" : location.startsWith(href);
