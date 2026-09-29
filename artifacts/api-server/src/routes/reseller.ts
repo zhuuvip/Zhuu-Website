@@ -2,6 +2,7 @@ import { Router } from "express";
 import type { Request, Response, NextFunction } from "express";
 import crypto from "node:crypto";
 import { getAuth } from "@clerk/express";
+import { createClerkClient } from "@clerk/backend";
 import { db } from "@workspace/db";
 import { productsTable, productOptionsTable, ordersTable } from "@workspace/db";
 import { eq, sql, desc } from "drizzle-orm";
@@ -727,6 +728,128 @@ router.put(
       `);
     }
     return res.json({ ok: true, monthly, lifetime });
+  }),
+);
+
+router.post(
+  "/admin/resellers/manual",
+  requireAdmin,
+  h(async (req, res) => {
+    const email =
+      typeof req.body.email === "string"
+        ? req.body.email.trim().toLowerCase()
+        : "";
+
+    const duration = typeof req.body.duration === "string"
+      ? req.body.duration
+      : "";
+
+    const allowedDays: Record<string, number> = {
+      "1": 1,
+      "3": 3,
+      "7": 7,
+      "10": 10,
+      "15": 15,
+      "30": 30,
+    };
+
+    if (!email || !email.includes("@")) {
+      throw new HttpError(400, "Email user tidak valid");
+    }
+
+    if (duration !== "lifetime" && !allowedDays[duration]) {
+      throw new HttpError(400, "Durasi reseller tidak valid");
+    }
+
+    const secretKey = process.env.CLERK_SECRET_KEY;
+    if (!secretKey) {
+      throw new HttpError(500, "CLERK_SECRET_KEY belum dikonfigurasi di server");
+    }
+
+    const clerk = createClerkClient({ secretKey });
+
+    const result = await clerk.users.getUserList({
+      limit: 100,
+      query: email,
+    });
+
+    const user = result.data.find((u) =>
+      u.emailAddresses.some(
+        (item) => item.emailAddress.toLowerCase() === email,
+      ),
+    );
+
+    if (!user) {
+      throw new HttpError(404, "User dengan email tersebut tidak ditemukan");
+    }
+
+    const [existing] = rowsOf(
+      await db.execute(sql`
+        SELECT id, user_id, plan, expires_at, username, active
+        FROM reseller_members
+        WHERE user_id = ${user.id}
+        LIMIT 1
+      `),
+    );
+
+    if (duration === "lifetime") {
+      if (existing) {
+        await db.execute(sql`
+          UPDATE reseller_members
+          SET plan = 'lifetime',
+              expires_at = NULL,
+              active = TRUE
+          WHERE id = ${existing.id}
+        `);
+      } else {
+        await db.execute(sql`
+          INSERT INTO reseller_members
+            (user_id, plan, expires_at, active)
+          VALUES
+            (${user.id}, 'lifetime', NULL, TRUE)
+        `);
+      }
+
+      return res.json({
+        ok: true,
+        userId: user.id,
+        email,
+        duration: "lifetime",
+      });
+    }
+
+    const days = allowedDays[duration];
+    const base = existing?.expires_at &&
+      new Date(existing.expires_at).getTime() > Date.now()
+      ? new Date(existing.expires_at)
+      : new Date();
+
+    base.setUTCDate(base.getUTCDate() + days);
+
+    if (existing) {
+      await db.execute(sql`
+        UPDATE reseller_members
+        SET plan = ${`${days}_days`},
+            expires_at = ${base.toISOString()}::timestamptz,
+            active = TRUE
+        WHERE id = ${existing.id}
+      `);
+    } else {
+      await db.execute(sql`
+        INSERT INTO reseller_members
+          (user_id, plan, expires_at, active)
+        VALUES
+          (${user.id}, ${`${days}_days`}, ${base.toISOString()}::timestamptz, TRUE)
+      `);
+    }
+
+    return res.json({
+      ok: true,
+      userId: user.id,
+      email,
+      duration: days,
+      expiresAt: base.toISOString(),
+    });
   }),
 );
 

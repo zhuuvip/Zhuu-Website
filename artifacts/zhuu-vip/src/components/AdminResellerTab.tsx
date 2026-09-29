@@ -26,6 +26,9 @@ export default function AdminResellerTab() {
   const [prices, setPrices] = useState<Record<number, string>>({});
   const [plan, setPlan] = useState({ monthly: "", lifetime: "" });
   const [msg, setMsg] = useState("");
+  const [manualEmail, setManualEmail] = useState("");
+  const [manualDuration, setManualDuration] = useState("30");
+  const [addingReseller, setAddingReseller] = useState(false);
 
   const call = async (path: string, init: RequestInit = {}) => {
     const token = await getToken();
@@ -120,6 +123,72 @@ export default function AdminResellerTab() {
         >
           Simpan Harga Rank
         </button>
+      </section>
+
+      {/* Add reseller manual */}
+      <section className="rounded-2xl border border-cyan-400/20 bg-cyan-400/[0.03] p-4">
+        <h3 className="mb-1 font-bold">Tambah Reseller Manual</h3>
+        <p className="mb-3 text-xs text-white/40">
+          Masukkan email user yang sudah terdaftar di website.
+        </p>
+
+        <div className="grid gap-2 sm:grid-cols-[1fr_180px_auto]">
+          <input
+            className={inputCls}
+            type="email"
+            placeholder="email user"
+            value={manualEmail}
+            onChange={(e) => setManualEmail(e.target.value)}
+          />
+
+          <select
+            className={inputCls}
+            value={manualDuration}
+            onChange={(e) => setManualDuration(e.target.value)}
+          >
+            <option value="1">1 Day</option>
+            <option value="3">3 Days</option>
+            <option value="7">7 Days</option>
+            <option value="10">10 Days</option>
+            <option value="15">15 Days</option>
+            <option value="30">30 Days</option>
+            <option value="lifetime">Lifetime</option>
+          </select>
+
+          <button
+            disabled={addingReseller || !manualEmail.trim()}
+            className="rounded-xl bg-cyan-400 px-4 py-2 text-sm font-bold text-black disabled:opacity-40"
+            onClick={async () => {
+              try {
+                setAddingReseller(true);
+                setMsg("");
+
+                await call("/api/admin/resellers/manual", {
+                  method: "POST",
+                  body: JSON.stringify({
+                    email: manualEmail.trim(),
+                    duration: manualDuration,
+                  }),
+                });
+
+                setManualEmail("");
+                setMsg(
+                  manualDuration === "lifetime"
+                    ? "Reseller lifetime berhasil ditambahkan"
+                    : `Reseller ${manualDuration} hari berhasil ditambahkan`
+                );
+
+                await load();
+              } catch (e) {
+                setMsg(e instanceof Error ? e.message : "Gagal menambah reseller");
+              } finally {
+                setAddingReseller(false);
+              }
+            }}
+          >
+            {addingReseller ? "Menambahkan..." : "Tambah Reseller"}
+          </button>
+        </div>
       </section>
 
       {/* Member reseller */}
