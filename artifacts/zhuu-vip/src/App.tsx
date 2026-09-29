@@ -12,6 +12,7 @@ import { setBaseUrl, setAuthTokenGetter } from "@workspace/api-client-react";
 
 import OceanCanvas from "@/components/OceanCanvas";
 import Navigation from "@/components/Navigation";
+import NotificationsPage from "@/pages/NotificationsPage";
 import Footer from "@/components/Footer";
 import MusicPlayer from "@/components/MusicPlayer";
 
@@ -233,6 +234,7 @@ function AppRouter() {
         <Route path="/resources" component={ResourceLinksPage} />
         <Route path="/tools" component={DevToolsPage} />
         <Route path="/member" component={MemberPage} />
+        <Route path="/notifications" component={NotificationsPage} />
         <Route path="/member/settings" component={MemberSettingsPage} />
             <Route path="/free" component={FreeHubPage} />
         <Route path="/promote" component={PromotionPage} />

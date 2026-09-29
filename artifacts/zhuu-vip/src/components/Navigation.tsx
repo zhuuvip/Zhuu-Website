@@ -1,10 +1,33 @@
 import { Link, useLocation } from "wouter";
 import { Show, UserButton, useAuth, useUser } from "@clerk/react";
 import { useState, useEffect } from "react";
-import { Menu, X, LogIn, Home, Gauge, Wrench, Sparkles, Link2, BriefcaseBusiness, Users, UserRound, MessageSquare, Share2, ShoppingCart, Gift, Megaphone } from "lucide-react";
+import { Menu, X, LogIn, Home, Gauge, Wrench, Sparkles, Link2, BriefcaseBusiness, Users, UserRound, MessageSquare, Share2, ShoppingCart, Gift, Megaphone, Bell } from "lucide-react";
 import logoPath from "@assets/file_000000003e9c72078d0f388bef03af6a_1778462394630.png";
 
 
+
+
+function NotificationBell({
+  unread,
+}: {
+  unread: number;
+}) {
+  return (
+    <Link
+      href="/notifications"
+      aria-label="Notifications"
+      className="relative flex items-center justify-center w-10 h-10 rounded-xl border border-white/10 bg-white/[0.03] text-cyan-100/70 hover:text-cyan-100 hover:bg-white/[0.06] transition"
+    >
+      <Bell className="w-[18px] h-[18px]" />
+
+      {unread > 0 && (
+        <span className="absolute -top-1 -right-1 min-w-[17px] h-[17px] px-1 rounded-full bg-cyan-400 text-[9px] font-black text-slate-950 flex items-center justify-center border-2 border-slate-950">
+          {unread > 99 ? "99+" : unread}
+        </span>
+      )}
+    </Link>
+  );
+}
 
 const NAV_ITEMS = [
   { path: "/", label: "Home" },
@@ -31,6 +54,51 @@ export default function Navigation() {
   const { user } = useUser();
   const { getToken } = useAuth();
   const [isReseller, setIsReseller] = useState(false);
+  const [unreadNotifications, setUnreadNotifications] = useState(0);
+  const NOTIFICATION_API = (import.meta.env.VITE_API_URL || "").replace(/\/$/, "");
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const loadNotifications = async () => {
+      if (!user) {
+        setUnreadNotifications(0);
+        return;
+      }
+
+      try {
+        const token = await getToken();
+        const res = await fetch(`${NOTIFICATION_API}/api/notifications`, {
+          headers: token ? { Authorization: `Bearer ${token}` } : {},
+        });
+
+        if (!res.ok) return;
+
+        const data = await res.json();
+
+        if (!cancelled) {
+          const notifications = Array.isArray(data?.notifications)
+            ? data.notifications
+            : [];
+
+          setUnreadNotifications(
+            notifications.filter((item: any) => !item.read).length,
+          );
+        }
+      } catch {
+        if (!cancelled) setUnreadNotifications(0);
+      }
+    };
+
+    loadNotifications();
+    const timer = window.setInterval(loadNotifications, 10000);
+
+    return () => {
+      cancelled = true;
+      window.clearInterval(timer);
+    };
+  }, [user, getToken, NOTIFICATION_API]);
+
   const API = (import.meta.env.VITE_API_URL || "").replace(/\/$/, "");
 
 
@@ -192,7 +260,8 @@ export default function Navigation() {
           {/* Auth + Mobile toggle */}
           <div className="flex items-center gap-2.5 sm:gap-3">
             <Show when="signed-in">
-              <UserButton
+              <NotificationBell unread={unreadNotifications} />
+            <UserButton
                 appearance={{
                   elements: {
                     avatarBox:
