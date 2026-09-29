@@ -450,31 +450,354 @@ router.post(
   requireAdmin,
   async (_req, res) => {
     try {
-      const expectedProducts = 41;
-      const expectedVariants = 165;
-
-      const actualVariants = DRIP_CATALOG.reduce(
-        (total, product) => total + product.variants.length,
-        0,
-      );
-
-      if (
-        DRIP_CATALOG.length !== expectedProducts ||
-        actualVariants !== expectedVariants
-      ) {
-        return res.status(500).json({
-          error: "DRIP catalog tidak lengkap",
-          products: DRIP_CATALOG.length,
-          variants: actualVariants,
-          expectedProducts,
-          expectedVariants,
-        });
-      }
-
       await db.execute(sql`
         ALTER TABLE products
         ADD COLUMN IF NOT EXISTS image_url TEXT
       `);
+
+      await db.execute(sql`
+        ALTER TABLE product_options
+        ADD COLUMN IF NOT EXISTS drip_variant_id INTEGER
+      `);
+
+      await db.execute(sql`
+        ALTER TABLE product_options
+        ADD COLUMN IF NOT EXISTS drip_stock INTEGER NOT NULL DEFAULT 0
+      `);
+
+      const raw: any = await getDripProducts();
+
+      const dripProducts: any[] =
+        Array.isArray(raw)
+          ? raw
+          : Array.isArray(raw?.data)
+            ? raw.data
+            : Array.isArray(raw?.products)
+              ? raw.products
+              : [];
+
+      if (!dripProducts.length) {
+        return res.status(502).json({
+          error: "DRIP API tidak mengembalikan produk",
+        });
+      }
+
+      const getNumber = (...values: unknown[]): number | null => {
+        for (const value of values) {
+          if (typeof value === "number" && Number.isFinite(value)) {
+            return value;
+          }
+
+          if (typeof value === "string" && value.trim()) {
+            const parsed = Number(
+              value.replace(/[^\d.-]/g, ""),
+            );
+
+            if (Number.isFinite(parsed)) return parsed;
+          }
+        }
+
+        return null;
+      };
+
+      const getText = (...values: unknown[]): string | null => {
+        for (const value of values) {
+          if (typeof value === "string" && value.trim()) {
+            return value.trim();
+          }
+        }
+
+        return null;
+      };
+
+      const getVariantId = (variant: any): number | null => {
+        const id = getNumber(
+          variant?.variant_id,
+          variant?.variantId,
+          variant?.id,
+        );
+
+        return id && Number.isInteger(id) && id > 0 ? id : null;
+      };
+
+      const getStock = (variant: any): number => {
+        const stock = getNumber(
+          variant?.in_stock,
+          variant?.local_stock,
+          variant?.stock,
+          variant?.stock_count,
+          variant?.quantity,
+          variant?.available_stock,
+          variant?.availableStock,
+        );
+
+        return stock !== null && stock >= 0
+          ? Math.floor(stock)
+          : 0;
+      };
+
+      const getDuration = (variant: any): string =>
+        getText(
+          variant?.duration,
+          variant?.period,
+          variant?.name,
+          variant?.title,
+          variant?.duration_name,
+          variant?.durationName,
+        ) ?? "Default";
+
+      const getProductName = (item: any): string | null =>
+        getText(
+          item?.name,
+          item?.product_name,
+          item?.productName,
+          item?.title,
+          item?.product,
+        );
+
+      const getVariants = (item: any): any[] =>
+        Array.isArray(item?.variants)
+          ? item.variants
+          : [item];
+
+      /*
+       * DRIP_CATALOG hanya dipakai sebagai fallback harga
+       * untuk variant lama.
+       *
+       * Jumlah product/variant TIDAK lagi dibatasi 41/165.
+       */
+      const catalogByVariant = new Map<
+        number,
+        {
+          duration: string;
+          resellerPrice: number;
+          memberPrice: number;
+        }
+      >();
+
+      for (const product of DRIP_CATALOG) {
+        for (const variant of product.variants) {
+          catalogByVariant.set(Number(variant.id), {
+            duration: variant.duration,
+            resellerPrice: Number(variant.resellerPrice),
+            memberPrice: Number(variant.memberPrice),
+          });
+        }
+      }
+
+      const getApiMemberPrice = (variant: any): number | null =>
+        getNumber(
+          variant?.member_price,
+          variant?.memberPrice,
+          variant?.customer_price,
+          variant?.customerPrice,
+          variant?.price,
+        );
+
+      const getApiResellerPrice = (variant: any): number | null =>
+        getNumber(
+          variant?.reseller_price,
+          variant?.resellerPrice,
+        );
+
+      const getApiModal = (variant: any): number | null =>
+        getNumber(
+          variant?.modal,
+          variant?.modal_price,
+          variant?.modalPrice,
+          variant?.cost,
+          variant?.buy_price,
+          variant?.buyPrice,
+          variant?.purchase_price,
+          variant?.purchasePrice,
+          variant?.base_price,
+          variant?.basePrice,
+        );
+
+      const ceil1000 = (value: number): number =>
+        Math.ceil(value / 1000) * 1000;
+
+      const calculateNewPrices = (
+        modal: number,
+        duration: string,
+      ): {
+        resellerPrice: number;
+        memberPrice: number;
+      } => {
+        const match = duration.match(/(\\d+)/);
+        const days = match ? Number(match[1]) : null;
+        const base = ceil1000(modal);
+
+        if (days === null || days <= 3) {
+          return {
+            resellerPrice: base,
+            memberPrice: base,
+          };
+        }
+
+        if (days === 7) {
+          return {
+            resellerPrice: base + 10000,
+            memberPrice: base + 15000,
+          };
+        }
+
+        if (days === 10) {
+          return {
+            resellerPrice: base + 12000,
+            memberPrice: base + 18000,
+          };
+        }
+
+        if (days === 14 || days === 15) {
+          return {
+            resellerPrice: base + 16000,
+            memberPrice: base + 24000,
+          };
+        }
+
+        if (days === 20) {
+          return {
+            resellerPrice: base + 18000,
+            memberPrice: base + 27000,
+          };
+        }
+
+        if (days === 28) {
+          return {
+            resellerPrice: base + 20000,
+            memberPrice: base + 29000,
+          };
+        }
+
+        if (days === 30) {
+          return {
+            resellerPrice: base + 20000,
+            memberPrice: base + 28000,
+          };
+        }
+
+        return {
+          resellerPrice: base,
+          memberPrice: base,
+        };
+      };
+
+      const imageByVariant = new Map<number, string>();
+
+      for (const item of dripProducts) {
+        const image = findImageUrl(item);
+
+        if (!image) continue;
+
+        for (const variant of getVariants(item)) {
+          const id = getVariantId(variant);
+
+          if (id) {
+            imageByVariant.set(id, image);
+          }
+        }
+      }
+
+      const liveCatalog = dripProducts
+        .map((item: any) => {
+          const name = getProductName(item);
+
+          if (!name) return null;
+
+          const variants = getVariants(item)
+            .map((variant: any) => {
+              const id = getVariantId(variant);
+
+              if (!id) return null;
+
+              const old = catalogByVariant.get(id);
+              const duration = getDuration(variant);
+              const modal = getApiModal(variant);
+
+              let memberPrice =
+                getApiMemberPrice(variant) ??
+                old?.memberPrice ??
+                null;
+
+              let resellerPrice =
+                getApiResellerPrice(variant) ??
+                old?.resellerPrice ??
+                null;
+
+              /*
+               * Variant baru:
+               * kalau DRIP mengirim modal/cost, harga otomatis dihitung.
+               */
+              if (
+                !old &&
+                modal !== null &&
+                (
+                  memberPrice === null ||
+                  resellerPrice === null
+                )
+              ) {
+                const calculated = calculateNewPrices(
+                  modal,
+                  duration,
+                );
+
+                resellerPrice ??= calculated.resellerPrice;
+                memberPrice ??= calculated.memberPrice;
+              }
+
+              /*
+               * Jangan membuat harga 0/NULL.
+               */
+              if (
+                memberPrice === null ||
+                resellerPrice === null
+              ) {
+                console.warn(
+                  `Variant DRIP ${id} dilewati: harga tidak ditemukan.`,
+                );
+
+                return null;
+              }
+
+              return {
+                id,
+                duration,
+                memberPrice: Math.round(memberPrice),
+                resellerPrice: Math.round(resellerPrice),
+                stock: getStock(variant),
+              };
+            })
+            .filter(
+              (
+                value,
+              ): value is {
+                id: number;
+                duration: string;
+                memberPrice: number;
+                resellerPrice: number;
+                stock: number;
+              } => Boolean(value),
+            );
+
+          return variants.length
+            ? { name, variants }
+            : null;
+        })
+        .filter(
+          (
+            value,
+          ): value is {
+            name: string;
+            variants: Array<{
+              id: number;
+              duration: string;
+              memberPrice: number;
+              resellerPrice: number;
+              stock: number;
+            }>;
+          } => Boolean(value),
+        );
 
       const groups = [
         "DRIP",
@@ -490,73 +813,53 @@ router.post(
         "OTHER",
       ];
 
-      const orderedCatalog = [...DRIP_CATALOG].sort((a, b) => {
-        const ga = groups.indexOf(getCatalogGroup(a.name));
-        const gb = groups.indexOf(getCatalogGroup(b.name));
+      const orderedCatalog = [...liveCatalog].sort(
+        (a: any, b: any) => {
+          const ga = groups.indexOf(
+            getCatalogGroup(a.name),
+          );
 
-        return ga - gb || a.name.localeCompare(b.name);
-      });
+          const gb = groups.indexOf(
+            getCatalogGroup(b.name),
+          );
 
-      const imageByVariant = new Map<number, string>();
-
-      try {
-        const raw: any = await getDripProducts();
-
-        const items = Array.isArray(raw)
-          ? raw
-          : Array.isArray(raw?.data)
-            ? raw.data
-            : Array.isArray(raw?.products)
-              ? raw.products
-              : [];
-
-        for (const item of items) {
-          const image = findImageUrl(item);
-
-          if (!image) continue;
-
-          const variants = Array.isArray(item?.variants)
-            ? item.variants
-            : [item];
-
-          for (const variant of variants) {
-            const id = Number(
-              variant?.variant_id ??
-              variant?.variantId ??
-              variant?.id,
-            );
-
-            if (Number.isInteger(id) && id > 0) {
-              imageByVariant.set(id, image);
-            }
-          }
-        }
-      } catch (error) {
-        console.warn(
-          "Image DRIP gagal diambil, import tetap dilanjutkan.",
-          error,
-        );
-      }
+          return (
+            ga - gb ||
+            a.name.localeCompare(b.name)
+          );
+        },
+      );
 
       let productsCreated = 0;
       let productsUpdated = 0;
       let variantsCreated = 0;
       let variantsUpdated = 0;
+      let stockUpdated = 0;
       let imagesImported = 0;
 
-      for (let index = 0; index < orderedCatalog.length; index++) {
+      for (
+        let index = 0;
+        index < orderedCatalog.length;
+        index++
+      ) {
         const catalogProduct = orderedCatalog[index];
-        const sortOrder = index + 1;
 
         const imageUrl =
           catalogProduct.variants
-            .map((variant) => imageByVariant.get(variant.id))
+            .map((variant: any) =>
+              imageByVariant.get(variant.id),
+            )
             .find(Boolean) ?? null;
 
         const [existingProduct] = await db
           .select()
           .from(productsTable)
-          .where(eq(productsTable.name, catalogProduct.name));
+          .where(
+            eq(
+              productsTable.name,
+              catalogProduct.name,
+            ),
+          );
 
         let productId: number;
 
@@ -566,10 +869,17 @@ router.post(
           await db
             .update(productsTable)
             .set({
-              sortOrder,
-              ...(imageUrl ? { imageUrl } : {}),
+              sortOrder: index + 1,
+              ...(imageUrl
+                ? { imageUrl }
+                : {}),
             })
-            .where(eq(productsTable.id, productId));
+            .where(
+              eq(
+                productsTable.id,
+                productId,
+              ),
+            );
 
           productsUpdated++;
         } else {
@@ -579,7 +889,7 @@ router.post(
               name: catalogProduct.name,
               deliveryType: "WHATSAPP",
               imageUrl,
-              sortOrder,
+              sortOrder: index + 1,
             })
             .returning();
 
@@ -592,13 +902,17 @@ router.post(
         }
 
         for (const variant of catalogProduct.variants) {
+          /*
+           * dripVariantId adalah unique identity variant DRIP.
+           * Tidak bergantung pada nama product.
+           */
           const [existingOption] = await db
             .select()
             .from(productOptionsTable)
             .where(
-              and(
-                eq(productOptionsTable.productId, productId),
-                eq(productOptionsTable.dripVariantId, variant.id),
+              eq(
+                productOptionsTable.dripVariantId,
+                variant.id,
               ),
             );
 
@@ -606,41 +920,65 @@ router.post(
             await db
               .update(productOptionsTable)
               .set({
+                productId,
                 duration: variant.duration,
                 price: variant.memberPrice,
-                resellerPrice: variant.resellerPrice,
+                resellerPrice:
+                  variant.resellerPrice,
+                dripStock: variant.stock,
               })
-              .where(eq(productOptionsTable.id, existingOption.id));
+              .where(
+                eq(
+                  productOptionsTable.id,
+                  existingOption.id,
+                ),
+              );
 
             variantsUpdated++;
           } else {
-            await db.insert(productOptionsTable).values({
-              productId,
-              duration: variant.duration,
-              price: variant.memberPrice,
-              resellerPrice: variant.resellerPrice,
-              dripVariantId: variant.id,
-              dripStock: 0,
-              stock: 0,
-            });
+            await db
+              .insert(productOptionsTable)
+              .values({
+                productId,
+                duration: variant.duration,
+                price: variant.memberPrice,
+                resellerPrice:
+                  variant.resellerPrice,
+                dripVariantId: variant.id,
+                dripStock: variant.stock,
+                stock: 0,
+              });
 
             variantsCreated++;
           }
+
+          stockUpdated++;
         }
       }
 
       return res.json({
         ok: true,
-        catalogProducts: DRIP_CATALOG.length,
-        catalogVariants: actualVariants,
+        source: "DRIP_API",
+        catalogProducts:
+          orderedCatalog.length,
+        catalogVariants:
+          orderedCatalog.reduce(
+            (total: number, product: any) =>
+              total + product.variants.length,
+            0,
+          ),
         productsCreated,
         productsUpdated,
         variantsCreated,
         variantsUpdated,
+        stockUpdated,
         imagesImported,
       });
     } catch (error) {
-      console.error("DRIP catalog import error:", error);
+      console.error(
+        "DRIP catalog import error:",
+        error,
+      );
 
       return res.status(500).json({
         error: "Gagal import DRIP catalog",
@@ -648,5 +986,6 @@ router.post(
     }
   },
 );
+
 
 export default router;
