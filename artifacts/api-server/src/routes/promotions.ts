@@ -23,6 +23,18 @@ const CATEGORIES = [
   "OTHER",
 ];
 
+async function cleanupExpiredPromotions(): Promise<void> {
+  await db
+    .delete(promotions)
+    .where(
+      and(
+        eq(promotions.status, "ACTIVE"),
+        sql`${promotions.expiresAt} <= now()`,
+      ),
+    );
+}
+
+
 function requireAuth(req: any, res: any): string | null {
   const userId = getAuth(req)?.userId;
 
@@ -45,6 +57,8 @@ router.get("/promotions/packages", (_req, res) => {
 // Promosi aktif
 router.get("/promotions", async (_req, res) => {
   try {
+    await cleanupExpiredPromotions();
+
     const rows = await db
       .select()
       .from(promotions)
@@ -69,6 +83,8 @@ router.get("/promotions/mine", async (req, res) => {
   if (!userId) return;
 
   try {
+    await cleanupExpiredPromotions();
+
     const rows = await db
       .select()
       .from(promotions)
@@ -88,6 +104,8 @@ router.post("/promotions", async (req, res) => {
   if (!userId) return;
 
   try {
+    await cleanupExpiredPromotions();
+
     const {
       title,
       description,
@@ -240,6 +258,8 @@ router.get("/admin/promotions", async (req, res) => {
   }
 
   try {
+    await cleanupExpiredPromotions();
+
     const rows = await db
       .select()
       .from(promotions)

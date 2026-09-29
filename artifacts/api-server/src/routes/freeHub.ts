@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { broadcastNotification } from "./notifications.js";
 import { getAuth } from "@clerk/express";
-import { desc, eq } from "drizzle-orm";
+import { count, desc, eq, lt, sql } from "drizzle-orm";
 import { db, freePosts } from "@workspace/db";
 import { isAdmin } from "../lib/auth.js";
 
@@ -31,9 +31,29 @@ function requireAuth(req: any, res: any): string | null {
   return userId;
 }
 
+const MAX_ACTIVE_FREE_POSTS = 20;
+const FREE_POST_TTL_DAYS = 1;
+
+async function cleanupExpiredFreePosts(): Promise<void> {
+  await db.delete(freePosts).where(
+    lt(freePosts.createdAt, sql`now() - interval '1 day'`),
+  );
+}
+
+async function hasFreePostCapacity(): Promise<boolean> {
+  const [result] = await db
+    .select({ total: count() })
+    .from(freePosts)
+    .where(eq(freePosts.active, true));
+
+  return Number(result?.total ?? 0) < MAX_ACTIVE_FREE_POSTS;
+}
+
 // Semua posting aktif, pinned selalu di atas.
 router.get("/free/posts", async (_req, res): Promise<void> => {
   try {
+    await cleanupExpiredFreePosts();
+
     const posts = await db
       .select()
       .from(freePosts)
@@ -57,6 +77,7 @@ router.get("/free/posts/:id", async (req, res): Promise<void> => {
   }
 
   try {
+    await cleanupExpiredFreePosts();
     const [post] = await db
       .select()
       .from(freePosts)
@@ -138,6 +159,15 @@ router.post("/free/posts", async (req, res): Promise<void> => {
     }
 
   try {
+    await cleanupExpiredFreePosts();
+
+    if (!(await hasFreePostCapacity())) {
+      res.status(429).json({
+        error: `Free Hub sedang penuh. Maksimal ${MAX_ACTIVE_FREE_POSTS} posting aktif. Tunggu posting lama expired setelah ${FREE_POST_TTL_DAYS} hari atau hapus posting sebelumnya.`,
+      });
+      return;
+    }
+
     const [post] = await db
       .insert(freePosts)
       .values({
