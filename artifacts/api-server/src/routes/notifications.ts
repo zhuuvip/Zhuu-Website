@@ -5,9 +5,72 @@ import {
   db,
   notifications,
   notificationPreferences,
+  pushSubscriptions,
 } from "@workspace/db";
+import webpush from "web-push";
 
 const router = Router();
+
+const VAPID_SUBJECT = process.env.VAPID_SUBJECT || "";
+const VAPID_PUBLIC_KEY = process.env.VAPID_PUBLIC_KEY || "";
+const VAPID_PRIVATE_KEY = process.env.VAPID_PRIVATE_KEY || "";
+
+if (VAPID_SUBJECT && VAPID_PUBLIC_KEY && VAPID_PRIVATE_KEY) {
+  webpush.setVapidDetails(
+    VAPID_SUBJECT,
+    VAPID_PUBLIC_KEY,
+    VAPID_PRIVATE_KEY,
+  );
+}
+
+export async function sendPushToUser(
+  userId: string,
+  payload: {
+    title: string;
+    message?: string;
+    link?: string;
+    icon?: string;
+    badge?: string;
+  },
+): Promise<void> {
+  if (!VAPID_SUBJECT || !VAPID_PUBLIC_KEY || !VAPID_PRIVATE_KEY) {
+    console.warn("Web Push disabled: VAPID environment variables are missing");
+    return;
+  }
+
+  const subscriptions = await db
+    .select()
+    .from(pushSubscriptions)
+    .where(eq(pushSubscriptions.userId, userId));
+
+  await Promise.all(
+    subscriptions.map(async (subscription) => {
+      try {
+        await webpush.sendNotification(
+          {
+            endpoint: subscription.endpoint,
+            keys: {
+              p256dh: subscription.p256dh,
+              auth: subscription.auth,
+            },
+          },
+          JSON.stringify(payload),
+        );
+      } catch (error: any) {
+        const statusCode = error?.statusCode;
+
+        if (statusCode === 404 || statusCode === 410) {
+          await db
+            .delete(pushSubscriptions)
+            .where(eq(pushSubscriptions.id, subscription.id));
+        } else {
+          console.error("Web Push send error:", error);
+        }
+      }
+    }),
+  );
+}
+
 
 function requireAuth(req: any, res: any): string | null {
   const userId = getAuth(req)?.userId;
@@ -19,6 +82,77 @@ function requireAuth(req: any, res: any): string | null {
 
   return userId;
 }
+
+// Simpan subscription browser/device.
+router.post("/notifications/push/subscribe", async (req, res): Promise<void> => {
+  const userId = requireAuth(req, res);
+  if (!userId) return;
+
+  const subscription = req.body?.subscription;
+
+  const endpoint = String(subscription?.endpoint || "").trim();
+  const p256dh = String(subscription?.keys?.p256dh || "").trim();
+  const auth = String(subscription?.keys?.auth || "").trim();
+
+  if (!endpoint || !p256dh || !auth) {
+    res.status(400).json({ error: "Invalid push subscription" });
+    return;
+  }
+
+  try {
+    const [result] = await db
+      .insert(pushSubscriptions)
+      .values({
+        userId,
+        endpoint,
+        p256dh,
+        auth,
+      })
+      .onConflictDoUpdate({
+        target: pushSubscriptions.endpoint,
+        set: {
+          userId,
+          p256dh,
+          auth,
+        },
+      })
+      .returning();
+
+    res.json({ success: true, subscription: result });
+  } catch (error) {
+    console.error("Push subscription save error:", error);
+    res.status(500).json({ error: "Failed to save push subscription" });
+  }
+});
+
+// Hapus subscription browser/device.
+router.delete("/notifications/push/subscribe", async (req, res): Promise<void> => {
+  const userId = requireAuth(req, res);
+  if (!userId) return;
+
+  const endpoint = String(req.body?.endpoint || "").trim();
+
+  if (!endpoint) {
+    res.status(400).json({ error: "Endpoint is required" });
+    return;
+  }
+
+  try {
+    await db
+      .delete(pushSubscriptions)
+      .where(
+        and(
+          eq(pushSubscriptions.userId, userId),
+          eq(pushSubscriptions.endpoint, endpoint),
+        ),
+      );
+
+    res.json({ success: true });
+  } catch (error) {
+    console.error("Push subscription delete error:", error);
+    res.status(500).json({ error: "Failed to delete push subscription" });
+  }
+});
 
 // Ambil notifikasi user.
 router.get("/notifications", async (req, res): Promise<void> => {
@@ -174,6 +308,82 @@ router.patch("/notifications/preferences", async (req, res): Promise<void> => {
   } catch (error) {
     console.error("Notification preferences update error:", error);
     res.status(500).json({ error: "Failed to update preferences" });
+  }
+});
+
+export type NotificationType =
+  | "chat"
+  | "products"
+  | "free"
+  | "updates"
+  | "orders"
+  | "wallet"
+  | "system";
+
+export async function createNotification(input: {
+  userId: string;
+  type: NotificationType;
+  title: string;
+  message: string;
+  link?: string;
+  icon?: string;
+  badge?: string;
+}) {
+  const [notification] = await db
+    .insert(notifications)
+    .values({
+      userId: input.userId,
+      type: input.type,
+      title: input.title,
+      message: input.message,
+      link: input.link ?? null,
+    })
+    .returning();
+
+  const [preferences] = await db
+    .select()
+    .from(notificationPreferences)
+    .where(eq(notificationPreferences.userId, input.userId))
+    .limit(1);
+
+  const pushEnabled = preferences?.[input.type] ?? true;
+
+  if (pushEnabled) {
+    await sendPushToUser(input.userId, {
+      title: input.title,
+      message: input.message,
+      link: input.link,
+      icon: input.icon,
+      badge: input.badge,
+    });
+  }
+
+  return notification;
+}
+
+
+router.post("/admin/notifications/test-push", async (req, res): Promise<void> => {
+  const userId = requireAuth(req, res);
+  if (!userId) return;
+
+  const adminUserId = process.env.ADMIN_USER_ID;
+
+  if (!adminUserId || userId !== adminUserId) {
+    res.status(403).json({ error: "Forbidden" });
+    return;
+  }
+
+  try {
+    await sendPushToUser(adminUserId, {
+      title: "ZHUU Push Test 🚀",
+      message: "Web Push berhasil masuk ke perangkat kamu.",
+      link: "/notifications",
+    });
+
+    res.json({ success: true });
+  } catch (error) {
+    console.error("Test push error:", error);
+    res.status(500).json({ error: "Failed to send test push" });
   }
 });
 

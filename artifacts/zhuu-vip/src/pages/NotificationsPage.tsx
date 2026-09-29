@@ -1,5 +1,5 @@
 import { useAuth } from "@clerk/react";
-import { Bell, CheckCheck, MessageSquare, ShoppingBag, Gift, Wallet, Info, RefreshCw } from "lucide-react";
+import { Bell, CheckCheck, MessageSquare, ShoppingBag, Gift, Wallet, Info, RefreshCw, Smartphone } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 
 const API = (import.meta.env.VITE_API_URL || "").replace(/\/$/, "");
@@ -47,6 +47,9 @@ export default function NotificationsPage() {
   const { getToken } = useAuth();
   const [items, setItems] = useState<NotificationItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [pushSupported, setPushSupported] = useState(false);
+  const [pushEnabled, setPushEnabled] = useState(false);
+  const [pushLoading, setPushLoading] = useState(false);
 
   const load = useCallback(async () => {
     try {
@@ -116,9 +119,130 @@ export default function NotificationsPage() {
 
   const unread = items.filter((item) => !item.read).length;
 
+  useEffect(() => {
+    const checkPush = async () => {
+      if (
+        !("serviceWorker" in navigator) ||
+        !("PushManager" in window) ||
+        !("Notification" in window)
+      ) {
+        return;
+      }
+
+      setPushSupported(true);
+
+      try {
+        const registration = await navigator.serviceWorker.register("/sw.js");
+        const subscription = await registration.pushManager.getSubscription();
+
+        if (subscription) {
+          setPushEnabled(true);
+        }
+      } catch (error) {
+        console.error("Push setup check error:", error);
+      }
+    };
+
+    checkPush();
+  }, []);
+
+  const enablePush = async () => {
+    if (!pushSupported || pushLoading) return;
+
+    setPushLoading(true);
+
+    try {
+      const permission = await Notification.requestPermission();
+
+      if (permission !== "granted") {
+        return;
+      }
+
+      const registration = await navigator.serviceWorker.register("/sw.js");
+      const publicKey = import.meta.env.VITE_VAPID_PUBLIC_KEY;
+
+      if (!publicKey) {
+        throw new Error("VITE_VAPID_PUBLIC_KEY belum diatur");
+      }
+
+      const padding = "=".repeat((4 - (publicKey.length % 4)) % 4);
+      const base64 = (publicKey + padding)
+        .replace(/-/g, "+")
+        .replace(/_/g, "/");
+
+      const raw = window.atob(base64);
+      const applicationServerKey = Uint8Array.from(
+        [...raw].map((char) => char.charCodeAt(0)),
+      );
+
+      const subscription = await registration.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey,
+      });
+
+      const token = await getToken();
+
+      const res = await fetch(`${API}/api/notifications/push/subscribe`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify({
+          subscription: subscription.toJSON(),
+        }),
+      });
+
+      if (!res.ok) {
+        throw new Error("Gagal menyimpan subscription");
+      }
+
+      setPushEnabled(true);
+    } catch (error) {
+      console.error("Push notification error:", error);
+      window.alert(
+        error instanceof Error
+          ? error.message
+          : "Gagal mengaktifkan notifikasi",
+      );
+    } finally {
+      setPushLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen px-3 sm:px-4 pt-4 pb-28">
       <div className="max-w-3xl mx-auto">
+          {pushSupported && (
+            <div className="glass-card rounded-2xl p-4 mb-4 flex items-center gap-3">
+              <div className="w-10 h-10 shrink-0 rounded-2xl bg-cyan-300/10 border border-cyan-300/10 flex items-center justify-center">
+                <Smartphone className="w-5 h-5 text-cyan-300" />
+              </div>
+
+              <div className="min-w-0 flex-1">
+                <p className="text-sm font-bold text-cyan-50">
+                  {pushEnabled
+                    ? "Notifikasi HP aktif"
+                    : "Aktifkan notifikasi HP"}
+                </p>
+                <p className="text-xs text-cyan-100/40 mt-0.5">
+                  {pushEnabled
+                    ? "ZHUU bisa mengirim notifikasi langsung ke perangkat kamu."
+                    : "Terima notifikasi meskipun website sedang tidak dibuka."}
+                </p>
+              </div>
+
+              {!pushEnabled && (
+                <button
+                  onClick={enablePush}
+                  disabled={pushLoading}
+                  className="shrink-0 rounded-xl bg-cyan-300 px-3 py-2 text-xs font-black text-slate-950 disabled:opacity-50"
+                >
+                  {pushLoading ? "Memproses..." : "Aktifkan"}
+                </button>
+              )}
+            </div>
+          )}
         <div className="flex items-center justify-between gap-3 mb-6">
           <div>
             <div className="flex items-center gap-2">
