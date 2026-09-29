@@ -144,7 +144,7 @@ export default function SpeedTestPage() {
   };
 
   return (
-    <div className="ocean-bg min-h-screen pt-6 pb-28 px-4">
+    <div className="zhuu-page-bg min-h-screen pt-6 pb-28 px-4">
       <div className="max-w-3xl mx-auto">
         <div className="text-center mb-10">
           <div className="text-4xl mb-3">⚡</div>
@@ -154,7 +154,7 @@ export default function SpeedTestPage() {
 
         <div className="glass-card p-8 mb-6 rounded-2xl">
           <div className="grid grid-cols-3 gap-4 mb-8">
-            <SpeedGauge value={download} max={500} label="Download" unit="Mbps" color="#00ffff" />
+            <SpeedGauge value={download} max={500} label="Download" unit="Mbps" color="#f4f4f5" />
             <SpeedGauge value={upload} max={250} label="Upload" unit="Mbps" color="#34d399" />
             <SpeedGauge value={pingMs} max={200} label="Ping" unit="ms" color="#f9a8d4" />
           </div>
@@ -163,10 +163,10 @@ export default function SpeedTestPage() {
             <div className="mb-6">
               <div className="flex justify-between items-center mb-2">
                 <span className="text-sm" style={{ color: "rgba(0,200,220,0.6)" }}>{phaseLabel[phase]}</span>
-                <span className="text-sm font-bold" style={{ color: "#00ffff" }}>{Math.round(progress)}%</span>
+                <span className="text-sm font-bold" style={{ color: "#f4f4f5" }}>{Math.round(progress)}%</span>
               </div>
               <div style={{ height: 4, background: "rgba(0,200,220,0.1)", borderRadius: 2, overflow: "hidden" }}>
-                <div style={{ height: "100%", width: `${progress}%`, background: "linear-gradient(90deg, #00b4d8, #00ffff)", borderRadius: 2, transition: "width 0.3s ease", boxShadow: "0 0 8px rgba(0,255,255,0.6)" }} />
+                <div style={{ height: "100%", width: `${progress}%`, background: "linear-gradient(90deg, #d4d4d8, #f4f4f5)", borderRadius: 2, transition: "width 0.3s ease", boxShadow: "0 0 8px rgba(255,255,255,0.15)" }} />
               </div>
             </div>
           )}
@@ -182,12 +182,12 @@ export default function SpeedTestPage() {
 
           <div className="flex justify-center gap-4">
             {(phase === "idle" || phase === "done") && (
-              <button onClick={runTest} className="neon-btn-solid px-10 py-4 rounded-full font-bold text-base">
+              <button onClick={runTest} className="bg-white text-black hover:bg-zinc-200 transition-colors px-10 py-4 rounded-full font-bold text-base">
                 {phase === "done" ? "▶ Run Again" : "▶ Start Test"}
               </button>
             )}
             {phase !== "idle" && phase !== "done" && (
-              <button onClick={reset} className="neon-btn px-8 py-4 rounded-full font-bold text-base">
+              <button onClick={reset} className="bg-white/10 text-white border border-white/10 hover:bg-white/15 transition-colors px-8 py-4 rounded-full font-bold text-base">
                 ■ Stop Test
               </button>
             )}
@@ -212,7 +212,7 @@ export default function SpeedTestPage() {
                       <td className="py-3 pr-4" style={{ color: "rgba(0,200,220,0.5)", fontSize: 12 }}>
                         {r.timestamp.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
                       </td>
-                      <td className="py-3 pr-4 font-bold" style={{ color: "#00ffff" }}>{r.download.toFixed(1)} Mbps</td>
+                      <td className="py-3 pr-4 font-bold" style={{ color: "#f4f4f5" }}>{r.download.toFixed(1)} Mbps</td>
                       <td className="py-3 pr-4 font-bold" style={{ color: "#34d399" }}>{r.upload.toFixed(1)} Mbps</td>
                       <td className="py-3 pr-4 font-bold" style={{ color: "#f9a8d4" }}>{r.ping} ms</td>
                       <td className="py-3 font-bold" style={{ color: "#fbbf24" }}>{r.jitter} ms</td>

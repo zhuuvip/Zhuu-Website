@@ -8,9 +8,9 @@ export default function MaintenancePage({ reason }: MaintenancePageProps) {
   return (
     <div className="min-h-screen flex items-center justify-center px-5 relative z-10">
       <div className="w-full max-w-lg text-center">
-        <div className="glass-card rounded-3xl p-8 border border-cyan-400/20">
-          <div className="mx-auto mb-5 w-16 h-16 rounded-2xl bg-cyan-400/10 border border-cyan-400/20 flex items-center justify-center">
-            <Wrench size={30} className="text-cyan-300" />
+        <div className="glass-card rounded-3xl p-8 border border-white/10">
+          <div className="mx-auto mb-5 w-16 h-16 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center">
+            <Wrench size={30} className="text-zinc-200" />
           </div>
 
           <h1 className="text-3xl font-bold text-white">
@@ -23,17 +23,17 @@ export default function MaintenancePage({ reason }: MaintenancePageProps) {
 
           {reason && (
             <div className="mt-5 rounded-2xl bg-white/5 border border-white/10 px-4 py-3">
-              <p className="text-sm text-blue-100/80">{reason}</p>
+              <p className="text-sm text-zinc-200/80">{reason}</p>
             </div>
           )}
 
-          <p className="mt-6 text-xs text-blue-300/40">
+          <p className="mt-6 text-xs text-zinc-400/40">
             Silakan kembali lagi beberapa saat.
           </p>
 
           <button
             onClick={() => window.location.reload()}
-            className="mt-5 inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-cyan-400/10 border border-cyan-400/20 text-cyan-300 text-sm hover:bg-cyan-400/20 transition-all"
+            className="mt-5 inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-zinc-200 text-sm hover:bg-white/10 transition-all"
           >
             <RefreshCw size={14} />
             Refresh

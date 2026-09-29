@@ -17,7 +17,7 @@ type Opt = { id: number; duration: string; price: number };
 type Prod = { id: number; name: string; options: Opt[] };
 
 const inputCls =
-  "w-full rounded-lg bg-black/30 border border-white/10 px-3 py-2 text-sm outline-none focus:border-cyan-400/40";
+  "w-full rounded-lg bg-black/30 border border-white/10 px-3 py-2 text-sm outline-none focus:border-white/20";
 
 export default function AdminResellerTab() {
   const { getToken } = useAuth();
@@ -115,7 +115,7 @@ export default function AdminResellerTab() {
           </div>
         </div>
         <button
-          className="mt-3 rounded-xl bg-cyan-400 px-4 py-2 text-sm font-bold text-black"
+          className="mt-3 rounded-xl bg-white px-4 py-2 text-sm font-bold text-black"
           onClick={() =>
             run(
               () =>
@@ -132,7 +132,7 @@ export default function AdminResellerTab() {
       </section>
 
       {/* Add reseller manual */}
-      <section className="rounded-2xl border border-cyan-400/20 bg-cyan-400/[0.03] p-4">
+      <section className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
         <h3 className="mb-1 font-bold">Tambah Reseller Manual</h3>
         <p className="mb-3 text-xs text-white/40">
           Masukkan email user yang sudah terdaftar di website.
@@ -163,7 +163,7 @@ export default function AdminResellerTab() {
 
           <button
             disabled={addingReseller || !manualEmail.trim()}
-            className="rounded-xl bg-cyan-400 px-4 py-2 text-sm font-bold text-black disabled:opacity-40"
+            className="rounded-xl bg-white px-4 py-2 text-sm font-bold text-black disabled:opacity-40"
             onClick={async () => {
               try {
                 setAddingReseller(true);
@@ -397,7 +397,7 @@ export default function AdminResellerTab() {
                       onChange={(e) => setPrices({ ...prices, [o.id]: e.target.value })}
                     />
                     <button
-                      className="rounded-lg bg-cyan-400 px-3 py-2 text-xs font-bold text-black"
+                      className="rounded-lg bg-white px-3 py-2 text-xs font-bold text-black"
                       onClick={() =>
                         run(
                           () =>

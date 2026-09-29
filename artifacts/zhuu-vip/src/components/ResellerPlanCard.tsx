@@ -101,17 +101,17 @@ export default function ResellerPlanCard() {
     : "";
 
   const inputCls =
-    "w-full rounded-xl border border-cyan-300/15 bg-cyan-300/[.03] px-3 py-2.5 text-sm text-cyan-50 outline-none focus:border-purple-400/40";
+    "w-full rounded-xl border border-white/10 bg-white/[.03] px-3 py-2.5 text-sm text-zinc-100 outline-none focus:border-white/20";
 
   return (
     <div className="glass-card rounded-[24px] p-5 sm:p-7">
       <div className="mb-5">
-        <p className="text-xs uppercase tracking-[.2em] text-cyan-300/45">Harga khusus produk</p>
-        <h3 className="mt-1 text-xl font-bold text-cyan-50">Reseller Products</h3>
+        <p className="text-xs uppercase tracking-[.2em] text-zinc-400/60">Harga khusus produk</p>
+        <h3 className="mt-1 text-xl font-bold text-zinc-100">Reseller Products</h3>
       </div>
 
       {!isSignedIn ? (
-        <p className="text-xs text-cyan-100/50">Login dulu untuk membeli rank reseller.</p>
+        <p className="text-xs text-zinc-400/50">Login dulu untuk membeli rank reseller.</p>
       ) : (
         <>
           {member && (
@@ -147,12 +147,12 @@ export default function ResellerPlanCard() {
                       ? "Perpanjang +30 hari"
                       : "Beli Sekarang";
               return (
-                <div key={p.key} className="rounded-2xl border border-cyan-300/15 bg-cyan-300/[.03] p-4">
+                <div key={p.key} className="rounded-2xl border border-white/10 bg-white/[.03] p-4">
                   <div className="flex items-center justify-between">
-                    <span className="text-sm font-bold text-cyan-50">{p.label}</span>
-                    <span className="text-sm font-black text-cyan-200">{rupiah(p.price)}</span>
+                    <span className="text-sm font-bold text-zinc-100">{p.label}</span>
+                    <span className="text-sm font-black text-zinc-200">{rupiah(p.price)}</span>
                   </div>
-                  <ul className="mt-2 space-y-1 text-[11px] text-cyan-100/55">
+                  <ul className="mt-2 space-y-1 text-[11px] text-zinc-400/60">
                     <li>Harga reseller di semua produk</li>
                     <li>{p.note}</li>
                   </ul>
@@ -170,11 +170,11 @@ export default function ResellerPlanCard() {
           </div>
 
           {member?.active && (
-            <div className="mt-5 rounded-2xl border border-cyan-300/15 bg-cyan-300/[.03] p-4">
-              <p className="text-sm font-bold text-cyan-50">Akun Login Reseller</p>
-              <p className="mt-1 text-[11px] text-cyan-100/45">
+            <div className="mt-5 rounded-2xl border border-white/10 bg-white/[.03] p-4">
+              <p className="text-sm font-bold text-zinc-100">Akun Login Reseller</p>
+              <p className="mt-1 text-[11px] text-zinc-400/50">
                 Buat sendiri username & password. Dipakai untuk masuk di{" "}
-                <a href="/reseller-login" className="text-cyan-300 underline">
+                <a href="/reseller-login" className="text-zinc-200 underline">
                   /reseller-login
                 </a>
                 . Isi lagi untuk mengganti.
@@ -199,7 +199,7 @@ export default function ResellerPlanCard() {
                 type="button"
                 disabled={saving || !username || password.length < 6}
                 onClick={saveCreds}
-                className="mt-3 w-full rounded-xl bg-cyan-400 px-3 py-2.5 text-xs font-bold text-black transition disabled:cursor-not-allowed disabled:opacity-40"
+                className="mt-3 w-full rounded-xl bg-white px-3 py-2.5 text-xs font-bold text-black transition disabled:cursor-not-allowed disabled:opacity-40"
               >
                 {saving ? "Menyimpan…" : member.username ? "Perbarui Akun" : "Simpan Akun"}
               </button>
@@ -208,7 +208,7 @@ export default function ResellerPlanCard() {
         </>
       )}
 
-      <p className="mt-3 text-[11px] text-cyan-100/35">
+      <p className="mt-3 text-[11px] text-zinc-400/40">
         Dibayar dari saldo wallet. Produk dibeli reseller juga memakai saldo wallet yang sama.
       </p>
     </div>

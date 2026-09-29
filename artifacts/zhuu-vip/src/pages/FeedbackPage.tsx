@@ -59,16 +59,16 @@ export default function FeedbackPage() {
 
   if (submitted) {
     return (
-      <div className="ocean-bg min-h-screen pt-6 pb-28 px-4 flex items-center justify-center">
+      <div className="zhuu-page-bg min-h-screen pt-6 pb-28 px-4 flex items-center justify-center">
         <div className="glass-card p-12 text-center max-w-md w-full rounded-2xl">
-          <div className="text-6xl mb-4">🌊</div>
+          <div className="text-6xl mb-4"></div>
           <h2 className="text-2xl font-black gradient-text mb-3">Thanks for the feedback!</h2>
           <p style={{ color: "rgba(0,200,220,0.55)", lineHeight: 1.6 }}>
             Your message has been received.
           </p>
           <button
             onClick={() => { setSubmitted(false); setMessage(""); setCategory(null); setRating(null); setName(""); setEmail(""); }}
-            className="mt-8 neon-btn px-8 py-3 rounded-full font-semibold text-sm"
+            className="mt-8 bg-white/10 text-white border border-white/10 hover:bg-white/15 transition-colors px-8 py-3 rounded-full font-semibold text-sm"
           >
             Send Another
           </button>
@@ -78,7 +78,7 @@ export default function FeedbackPage() {
   }
 
   return (
-    <div className="ocean-bg min-h-screen pt-6 pb-28 px-4">
+    <div className="zhuu-page-bg min-h-screen pt-6 pb-28 px-4">
       <div className="max-w-2xl mx-auto">
         <div className="text-center mb-10">
           <div className="text-4xl mb-3">💬</div>
@@ -129,7 +129,7 @@ export default function FeedbackPage() {
                     cursor: "pointer",
                   }}
                 >
-                  <div className="text-sm font-semibold" style={{ color: category === cat.id ? "#00e5ff" : "rgba(0,220,240,0.7)" }}>
+                  <div className="text-sm font-semibold" style={{ color: category === cat.id ? "#f4f4f5" : "rgba(255,255,255,0.55)" }}>
                     {cat.label}
                   </div>
                   <div className="text-xs mt-0.5" style={{ color: "rgba(0,200,220,0.4)" }}>{cat.desc}</div>
@@ -184,7 +184,7 @@ export default function FeedbackPage() {
           <button
             type="submit"
             disabled={!message.trim() || sending}
-            className="w-full py-4 rounded-full font-bold text-base transition-all duration-300 neon-btn"
+            className="w-full py-4 rounded-full font-bold text-base transition-all duration-300 bg-white/10 text-white border border-white/10 hover:bg-white/15 transition-colors"
           >
             {sending ? "Sending..." : "Send Feedback"}
           </button>
@@ -197,7 +197,7 @@ export default function FeedbackPage() {
               {guestbook.map((entry: any) => (
                 <div key={entry.id} className="glass-card p-4 rounded-2xl">
                   <div className="flex items-center gap-2 mb-2">
-                    <span className="font-semibold text-sm" style={{ color: "#00e5ff" }}>{entry.name || "Anonymous"}</span>
+                    <span className="font-semibold text-sm" style={{ color: "#f4f4f5" }}>{entry.name || "Anonymous"}</span>
                     {entry.rating !== null && <span className="text-lg">{RATINGS[entry.rating]}</span>}
                     <span className="text-xs ml-auto" style={{ color: "rgba(0,200,220,0.35)" }}>
                       {new Date(entry.createdAt).toLocaleDateString()}

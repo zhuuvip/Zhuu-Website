@@ -32,11 +32,11 @@ export default function SignInPage() {
           style={{ background: "rgba(0,200,220,0.07)", border: "1px solid rgba(0,255,255,0.15)" }}>
           <span style={{ width: 7, height: 7, borderRadius: "50%", background: "#4ade80", display: "inline-block", boxShadow: "0 0 6px rgba(74,222,128,0.7)" }} />
           <span className="text-xs font-medium" style={{ color: "rgba(0,200,220,0.8)" }}>
-            Secure Ocean Login
+            Secure ZhuuSite Login
           </span>
         </div>
         <div className="flex items-center justify-center gap-2 mb-2">
-          <Waves size={20} className="text-cyan-400/50" />
+          <Waves size={20} className="text-zinc-200/50" />
           <span className="text-2xl font-bold gradient-text" style={{ fontFamily: "Poppins, Inter, sans-serif" }}>
             ZhuuSite
           </span>

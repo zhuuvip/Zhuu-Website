@@ -1120,12 +1120,12 @@ export default function ResellerDashboardPage() {
                     Delivery Link
                   </p>
 
-                  <div className="rounded-2xl border border-cyan-400/20 bg-cyan-500/[0.06] p-4">
+                  <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-4">
                     <a
                       href={purchaseResult.deliveryLink}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="block break-all text-sm leading-6 text-cyan-300 underline"
+                      className="block break-all text-sm leading-6 text-zinc-200 underline"
                     >
                       {purchaseResult.deliveryLink}
                     </a>
@@ -1151,7 +1151,7 @@ export default function ResellerDashboardPage() {
                       href={purchaseResult.deliveryLink}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="mt-2 block w-full rounded-xl bg-cyan-400 px-4 py-3 text-center text-sm font-black text-black transition hover:bg-cyan-300 active:scale-[0.98]"
+                      className="mt-2 block w-full rounded-xl bg-white px-4 py-3 text-center text-sm font-black text-black transition hover:bg-zinc-200 active:scale-[0.98]"
                     >
                       Buka Link
                     </a>

@@ -8,7 +8,7 @@ export default function MemberSettingsPage() {
           <h1 className="text-2xl sm:text-3xl font-black gradient-text">
             Account Settings
           </h1>
-          <p className="text-sm text-cyan-100/40 mt-1">
+          <p className="text-sm text-zinc-400/40 mt-1">
             Kelola profil, username, email, password, foto profil, dan keamanan akun.
           </p>
         </div>
@@ -21,12 +21,12 @@ export default function MemberSettingsPage() {
                 rootBox: "w-full",
                 cardBox: "w-full shadow-none bg-transparent",
                 navbar: "bg-transparent",
-                navbarMobileMenuButton: "text-cyan-100",
+                navbarMobileMenuButton: "text-zinc-200",
                 pageScrollBox: "bg-transparent",
                 profileSectionPrimaryButton:
-                  "bg-cyan-400/10 border border-cyan-300/20 text-cyan-100 hover:bg-cyan-400/20",
+                  "bg-white/5 border border-white/10 text-zinc-200 hover:bg-white/10",
                 formButtonPrimary:
-                  "bg-cyan-400 text-black hover:bg-cyan-300",
+                  "bg-white text-black hover:bg-zinc-200",
               },
             }}
           />

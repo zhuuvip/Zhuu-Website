@@ -28,25 +28,25 @@ const formatRupiah = (value: number) => `Rp${new Intl.NumberFormat("id-ID").form
 const API_BASE = (import.meta.env.VITE_API_URL || "").replace(/\/$/, "");
 
 const LEADERBOARD = [
-  { name: "Naya Ocean", handle: "@naya", rank: "trench" as RankType, points: "12.840", initials: "NO", color: "#c084fc" },
-  { name: "Raka Deep", handle: "@raka", rank: "trench" as RankType, points: "10.420", initials: "RD", color: "#00e5ff" },
-  { name: "Zio Abyss", handle: "@zio", rank: "deep-sea" as RankType, points: "8.960", initials: "ZA", color: "#38bdf8" },
-  { name: "Mira Tide", handle: "@mira", rank: "deep-sea" as RankType, points: "7.320", initials: "MT", color: "#818cf8" },
-  { name: "Ardan Reef", handle: "@ardan", rank: "surface" as RankType, points: "5.180", initials: "AR", color: "#22d3ee" },
+  { name: "Naya", handle: "@naya", rank: "trench" as RankType, points: "12.840", initials: "NO", color: "#c084fc" },
+  { name: "Raka", handle: "@raka", rank: "trench" as RankType, points: "10.420", initials: "RD", color: "#e4e4e7" },
+  { name: "Zio", handle: "@zio", rank: "deep-sea" as RankType, points: "8.960", initials: "ZA", color: "#a1a1aa" },
+  { name: "Mira", handle: "@mira", rank: "deep-sea" as RankType, points: "7.320", initials: "MT", color: "#818cf8" },
+  { name: "Ardan", handle: "@ardan", rank: "surface" as RankType, points: "5.180", initials: "AR", color: "#71717a" },
 ];
 
 function BalanceCard({ balance }: { balance: number }) {
   return (
-    <div className="relative overflow-hidden rounded-[24px] p-6 glass-card" style={{ background: "linear-gradient(135deg, rgba(0,229,255,.12), rgba(192,132,252,.07) 60%, rgba(7,15,30,.78))" }}>
-      <div className="absolute -right-12 -top-16 size-40 rounded-full border border-cyan-300/10" />
-      <div className="absolute -right-4 -top-8 size-24 rounded-full border border-cyan-300/10" />
+    <div className="relative overflow-hidden rounded-[24px] p-6 glass-card" style={{ background: "linear-gradient(135deg, rgba(255,255,255,.07), rgba(255,255,255,.025) 60%, rgba(18,18,21,.9))" }}>
+      <div className="absolute -right-12 -top-16 size-40 rounded-full border border-white/10" />
+      <div className="absolute -right-4 -top-8 size-24 rounded-full border border-white/10" />
       <div className="relative flex items-start justify-between">
         <div>
-          <div className="mb-3 flex items-center gap-2 text-sm text-cyan-100/55"><Wallet className="size-4" /> Current balance</div>
+          <div className="mb-3 flex items-center gap-2 text-sm text-zinc-400/60"><Wallet className="size-4" /> Current balance</div>
           <div className="text-3xl font-black tracking-tight gradient-text">{formatRupiah(balance)}</div>
           <div className="mt-2 flex items-center gap-1.5 text-xs text-emerald-300/75"><ShieldCheck className="size-3.5" /> Saldo aman & terenkripsi</div>
         </div>
-        <div className="rounded-2xl border border-cyan-300/20 bg-cyan-300/10 p-3 text-cyan-300"><CreditCard className="size-5" /></div>
+        <div className="rounded-2xl border border-white/10 bg-white/[0.05] p-3 text-zinc-200"><CreditCard className="size-5" /></div>
       </div>
     </div>
   );
@@ -259,20 +259,20 @@ function TopUpFlow() {
   if (step === "waiting") {
     return (
       <div className="glass-card rounded-[24px] p-5 text-center sm:p-7">
-        <div className="mb-5 flex items-center justify-between text-left"><div><p className="text-xs uppercase tracking-[.2em] text-cyan-300/45">Payment request</p><h3 className="mt-1 text-lg font-bold text-cyan-50">Scan untuk membayar</h3></div><button onClick={() => setStep("choose")} className="rounded-full p-2 text-cyan-200/60 hover:bg-cyan-300/10 hover:text-cyan-200" aria-label="Close payment"><X className="size-4" /></button></div>
-        <div className="mx-auto mb-5 max-w-[260px] rounded-[22px] border border-cyan-300/40 bg-cyan-50 p-3 shadow-[0_0_28px_rgba(0,229,255,.18)]" style={{ animation: "qr-pulse 2.4s ease-in-out infinite" }}><img src={qrUrl || QRIS_CODE} alt="QRIS payment code" className="aspect-square w-full rounded-xl" /></div>
+        <div className="mb-5 flex items-center justify-between text-left"><div><p className="text-xs uppercase tracking-[.2em] text-zinc-200/45">Payment request</p><h3 className="mt-1 text-lg font-bold text-zinc-100">Scan untuk membayar</h3></div><button onClick={() => setStep("choose")} className="rounded-full p-2 text-zinc-200/60 hover:bg-white/[0.05] hover:text-zinc-200" aria-label="Close payment"><X className="size-4" /></button></div>
+        <div className="mx-auto mb-5 max-w-[260px] rounded-[22px] border border-white/20 bg-zinc-100 p-3 shadow-[0_0_28px_rgba(0,0,0,.18)]" style={{ animation: "qr-pulse 2.4s ease-in-out infinite" }}><img src={qrUrl || QRIS_CODE} alt="QRIS payment code" className="aspect-square w-full rounded-xl" /></div>
         {depositRef && (
-          <div className="mb-4 rounded-xl border border-cyan-300/10 bg-cyan-300/5 px-4 py-3 text-center">
-            <p className="text-[10px] uppercase tracking-wider text-cyan-100/35">
+          <div className="mb-4 rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 text-center">
+            <p className="text-[10px] uppercase tracking-wider text-zinc-400/50">
               Deposit Reference
             </p>
-            <p className="mt-1 font-mono text-xs font-bold text-cyan-200">
+            <p className="mt-1 font-mono text-xs font-bold text-zinc-200">
               {depositRef}
             </p>
           </div>
         )}
-        <div className="mb-5 flex items-center justify-center gap-3 text-xs text-cyan-100/60"><div className="relative flex size-10 items-center justify-center rounded-full border border-cyan-300/20"><svg className="absolute inset-[-3px] size-12 -rotate-90"><circle cx="24" cy="24" r="21" fill="none" stroke="rgba(0,229,255,.12)" strokeWidth="2" /><circle cx="24" cy="24" r="21" fill="none" stroke="#00e5ff" strokeWidth="2" strokeDasharray="132" strokeDashoffset={132 - 132 * (progress / 100)} strokeLinecap="round" /></svg><span className="font-mono text-[10px] text-cyan-200">{Math.ceil(seconds / 60)}m</span></div><span>Berlaku sampai <b className="font-mono text-cyan-200">{timerLabel}</b></span></div>
-        <div className="mb-6 flex justify-center gap-2 text-[10px] text-cyan-100/45"><span className="rounded-lg border border-cyan-300/10 bg-cyan-300/5 px-2 py-1">GoPay</span><span className="rounded-lg border border-cyan-300/10 bg-cyan-300/5 px-2 py-1">OVO</span><span className="rounded-lg border border-cyan-300/10 bg-cyan-300/5 px-2 py-1">DANA</span><span className="rounded-lg border border-cyan-300/10 bg-cyan-300/5 px-2 py-1">QRIS</span></div>
+        <div className="mb-5 flex items-center justify-center gap-3 text-xs text-zinc-400/60"><div className="relative flex size-10 items-center justify-center rounded-full border border-white/10"><svg className="absolute inset-[-3px] size-12 -rotate-90"><circle cx="24" cy="24" r="21" fill="none" stroke="rgba(255,255,255,.10)" strokeWidth="2" /><circle cx="24" cy="24" r="21" fill="none" stroke="#e4e4e7" strokeWidth="2" strokeDasharray="132" strokeDashoffset={132 - 132 * (progress / 100)} strokeLinecap="round" /></svg><span className="font-mono text-[10px] text-zinc-200">{Math.ceil(seconds / 60)}m</span></div><span>Berlaku sampai <b className="font-mono text-zinc-200">{timerLabel}</b></span></div>
+        <div className="mb-6 flex justify-center gap-2 text-[10px] text-zinc-400/50"><span className="rounded-lg border border-white/10 bg-white/[0.03] px-2 py-1">GoPay</span><span className="rounded-lg border border-white/10 bg-white/[0.03] px-2 py-1">OVO</span><span className="rounded-lg border border-white/10 bg-white/[0.03] px-2 py-1">DANA</span><span className="rounded-lg border border-white/10 bg-white/[0.03] px-2 py-1">QRIS</span></div>
         <button
   onClick={async () => {
     if (paymentChecked || checking || !currentDepositId) return;
@@ -334,20 +334,20 @@ function TopUpFlow() {
     }
   }}
   disabled={checking || paymentChecked}
-  className="neon-btn-solid flex w-full items-center justify-center gap-2 rounded-xl py-3.5 font-bold disabled:cursor-not-allowed disabled:opacity-70"
+  className="bg-white text-black hover:bg-zinc-200 transition-colors flex w-full items-center justify-center gap-2 rounded-xl py-3.5 font-bold disabled:cursor-not-allowed disabled:opacity-70"
 >
   {checking ? "Mengirim verifikasi..." : paymentChecked ? "Verifikasi Terkirim" : "Kirim Verifikasi WhatsApp"}
 </button>
-        <button onClick={() => setStep("choose")} className="mt-4 text-xs text-cyan-100/45 underline-offset-4 hover:text-cyan-200 hover:underline">Batal, top up jumlah lain</button>
+        <button onClick={() => setStep("choose")} className="mt-4 text-xs text-zinc-400/50 underline-offset-4 hover:text-zinc-200 hover:underline">Batal, top up jumlah lain</button>
       </div>
     );
   }
 
   if (step === "success") {
-    return <div className="glass-card rounded-[24px] p-8 text-center"><div className="mx-auto mb-5 flex size-20 items-center justify-center rounded-full border border-emerald-300/40 bg-emerald-300/10 shadow-[0_0_40px_rgba(52,211,153,.3)]"><Check className="size-10 text-emerald-300" /></div><p className="text-xs uppercase tracking-[.2em] text-emerald-300/60">Transaction complete</p><h3 className="mt-2 text-2xl font-black text-cyan-50">Saldo berhasil ditambahkan!</h3><p className="mt-2 text-lg font-bold text-cyan-300">+{formatRupiah(selectedAmount)}</p><div className="my-7 rounded-2xl border border-cyan-300/15 bg-cyan-300/5 p-4"><span className="text-xs text-cyan-100/45">Saldo baru</span><div className="mt-1 text-2xl font-black gradient-text">{formatRupiah(animatedBalance)}</div></div><div className="flex flex-col gap-3 sm:flex-row"><Link href="/portfolio" className="neon-btn-solid flex flex-1 items-center justify-center rounded-xl py-3 text-sm font-bold">Lihat Role Shop <ChevronRight className="ml-1 size-4" /></Link><button onClick={() => setStep("choose")} className="neon-btn flex flex-1 items-center justify-center rounded-xl py-3 text-sm font-bold">Kembali ke Wallet</button></div></div>;
+    return <div className="glass-card rounded-[24px] p-8 text-center"><div className="mx-auto mb-5 flex size-20 items-center justify-center rounded-full border border-emerald-300/40 bg-emerald-300/10 shadow-[0_0_40px_rgba(52,211,153,.3)]"><Check className="size-10 text-emerald-300" /></div><p className="text-xs uppercase tracking-[.2em] text-emerald-300/60">Transaction complete</p><h3 className="mt-2 text-2xl font-black text-zinc-100">Saldo berhasil ditambahkan!</h3><p className="mt-2 text-lg font-bold text-zinc-200">+{formatRupiah(selectedAmount)}</p><div className="my-7 rounded-2xl border border-white/10 bg-white/[0.03] p-4"><span className="text-xs text-zinc-400/50">Saldo baru</span><div className="mt-1 text-2xl font-black gradient-text">{formatRupiah(animatedBalance)}</div></div><div className="flex flex-col gap-3 sm:flex-row"><Link href="/portfolio" className="bg-white text-black hover:bg-zinc-200 transition-colors flex flex-1 items-center justify-center rounded-xl py-3 text-sm font-bold">Lihat Role Shop <ChevronRight className="ml-1 size-4" /></Link><button onClick={() => setStep("choose")} className="bg-white/10 text-white border border-white/10 hover:bg-white/15 transition-colors flex flex-1 items-center justify-center rounded-xl py-3 text-sm font-bold">Kembali ke Wallet</button></div></div>;
   }
 
-  return <div className="flex flex-col gap-5"><BalanceCard balance={balance} /><div className="glass-card rounded-[24px] p-5 sm:p-7"><div className="mb-5 flex items-end justify-between"><div><p className="text-xs uppercase tracking-[.2em] text-cyan-300/45">Auto QRIS</p><h3 className="mt-1 text-xl font-bold text-cyan-50">Pilih nominal top up</h3></div><Zap className="size-5 text-cyan-300" /></div><div className="grid grid-cols-3 gap-2 sm:grid-cols-5">{QUICK_AMOUNTS.map((quick) => <button key={quick} onClick={() => { setAmount(quick); setCustom(""); }} className={`rounded-xl border px-2 py-3 text-sm font-bold transition-all ${!custom && amount === quick ? "border-cyan-300 bg-cyan-300/15 text-cyan-200 shadow-[0_0_18px_rgba(0,229,255,.16)]" : "border-cyan-300/15 bg-cyan-300/5 text-cyan-100/60 hover:border-cyan-300/40 hover:text-cyan-200"}`}>{formatRupiah(quick).replace("Rp", "")}</button>)}</div><label className="mt-5 block text-xs text-cyan-100/45" htmlFor="custom-amount">Nominal custom</label><div className="relative mt-2"><span className="absolute left-4 top-1/2 -translate-y-1/2 text-sm text-cyan-100/45">Rp</span><input id="custom-amount" value={custom ? new Intl.NumberFormat("id-ID").format(Number(custom.replace(/\D/g, ""))) : ""} onChange={(event) => setCustom(event.target.value)} placeholder="Masukkan nominal lain" className="w-full rounded-xl border border-cyan-300/15 bg-cyan-300/5 px-4 py-3 pl-11 text-sm text-cyan-100 outline-none placeholder:text-cyan-100/25 focus:border-cyan-300/50 focus:ring-2 focus:ring-cyan-300/10" inputMode="numeric" /></div><button onClick={async () => {
+  return <div className="flex flex-col gap-5"><BalanceCard balance={balance} /><div className="glass-card rounded-[24px] p-5 sm:p-7"><div className="mb-5 flex items-end justify-between"><div><p className="text-xs uppercase tracking-[.2em] text-zinc-200/45">Auto QRIS</p><h3 className="mt-1 text-xl font-bold text-zinc-100">Pilih nominal top up</h3></div><Zap className="size-5 text-zinc-200" /></div><div className="grid grid-cols-3 gap-2 sm:grid-cols-5">{QUICK_AMOUNTS.map((quick) => <button key={quick} onClick={() => { setAmount(quick); setCustom(""); }} className={`rounded-xl border px-2 py-3 text-sm font-bold transition-all ${!custom && amount === quick ? "border-white/15 bg-white/[.08] text-zinc-200 shadow-none" : "border-white/10 bg-white/[0.03] text-zinc-400/60 hover:border-white/20 hover:text-zinc-200"}`}>{formatRupiah(quick).replace("Rp", "")}</button>)}</div><label className="mt-5 block text-xs text-zinc-400/50" htmlFor="custom-amount">Nominal custom</label><div className="relative mt-2"><span className="absolute left-4 top-1/2 -translate-y-1/2 text-sm text-zinc-400/50">Rp</span><input id="custom-amount" value={custom ? new Intl.NumberFormat("id-ID").format(Number(custom.replace(/\D/g, ""))) : ""} onChange={(event) => setCustom(event.target.value)} placeholder="Masukkan nominal lain" className="w-full rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 pl-11 text-sm text-zinc-200 outline-none placeholder:text-zinc-400/25 focus:border-white/20 focus:ring-2 focus:ring-white/10" inputMode="numeric" /></div><button onClick={async () => {
               if (selectedAmount < 1000) return;
 
               try {
@@ -385,7 +385,7 @@ function TopUpFlow() {
                 setChecking(false);
                 alert(error instanceof Error ? error.message : "Gagal membuat deposit.");
               }
-            }} disabled={selectedAmount < 1000} className="neon-btn-solid mt-5 flex w-full items-center justify-center gap-2 rounded-xl py-3.5 font-bold disabled:cursor-not-allowed disabled:opacity-40">Top Up {formatRupiah(selectedAmount)} <ChevronRight className="size-4" /></button><p className="mt-3 text-center text-[11px] text-cyan-100/35">Minimal Rp1.000 · via QRIS (semua e-wallet & bank)</p></div></div>;
+            }} disabled={selectedAmount < 1000} className="bg-white text-black hover:bg-zinc-200 transition-colors mt-5 flex w-full items-center justify-center gap-2 rounded-xl py-3.5 font-bold disabled:cursor-not-allowed disabled:opacity-40">Top Up {formatRupiah(selectedAmount)} <ChevronRight className="size-4" /></button><p className="mt-3 text-center text-[11px] text-zinc-400/50">Minimal Rp1.000 · via QRIS (semua e-wallet & bank)</p></div></div>;
 }
 
 function PremiumUpgradeCard() {
@@ -443,8 +443,8 @@ function PremiumUpgradeCard() {
     <div className="glass-card rounded-[24px] p-5 sm:p-7">
       <div className="mb-5 flex items-center justify-between">
         <div>
-          <p className="text-xs uppercase tracking-[.2em] text-cyan-300/45">Boost limit harian</p>
-          <h3 className="mt-1 text-xl font-bold text-cyan-50">Upgrade Premium</h3>
+          <p className="text-xs uppercase tracking-[.2em] text-zinc-200/45">Boost limit harian</p>
+          <h3 className="mt-1 text-xl font-bold text-zinc-100">Upgrade Premium</h3>
         </div>
         <Sparkles className="size-5 text-purple-300" />
       </div>
@@ -462,12 +462,12 @@ function PremiumUpgradeCard() {
           const isCurrent = member?.tier === tier.key;
           const isLower = member && !isCurrent && tier.aiBonus <= (member.aiBonus ?? 0);
           return (
-            <div key={tier.key} className="rounded-2xl border border-cyan-300/15 bg-cyan-300/[.03] p-4">
+            <div key={tier.key} className="rounded-2xl border border-white/10 bg-white/[.03] p-4">
               <div className="flex items-center justify-between">
-                <span className="text-sm font-bold text-cyan-50">{tier.label}</span>
-                <span className="text-sm font-black text-cyan-200">{formatRupiah(tier.price)}</span>
+                <span className="text-sm font-bold text-zinc-100">{tier.label}</span>
+                <span className="text-sm font-black text-zinc-200">{formatRupiah(tier.price)}</span>
               </div>
-              <ul className="mt-2 space-y-1 text-[11px] text-cyan-100/55">
+              <ul className="mt-2 space-y-1 text-[11px] text-zinc-400/60">
                 <li>+{tier.aiBonus} limit AI / hari</li>
                 <li>+{tier.toolsBonus} limit Tools / hari</li>
                 <li>Berlaku selamanya, sekali bayar</li>
@@ -486,7 +486,7 @@ function PremiumUpgradeCard() {
           );
         })}
       </div>
-      <p className="mt-3 text-[11px] text-cyan-100/35">Dibayar langsung dari saldo wallet kamu (tab "Top Up Saldo" di atas).</p>
+      <p className="mt-3 text-[11px] text-zinc-400/50">Dibayar langsung dari saldo wallet kamu (tab "Top Up Saldo" di atas).</p>
     </div>
   );
 }
@@ -614,14 +614,14 @@ function ResetKeySection() {
       <div className="glass-card rounded-[24px] p-5 sm:p-7">
         <div className="mb-6 flex items-start justify-between">
           <div>
-            <p className="text-xs uppercase tracking-[.2em] text-cyan-300/45">
+            <p className="text-xs uppercase tracking-[.2em] text-zinc-200/45">
               License Tools
             </p>
-            <h3 className="mt-1 flex items-center gap-2 text-xl font-bold text-cyan-50">
-              <KeyRound className="size-5 text-cyan-300" />
+            <h3 className="mt-1 flex items-center gap-2 text-xl font-bold text-zinc-100">
+              <KeyRound className="size-5 text-zinc-200" />
               Reset Key
             </h3>
-            <p className="mt-2 text-xs leading-5 text-cyan-100/40">
+            <p className="mt-2 text-xs leading-5 text-zinc-400/40">
               Reset license key produk yang didukung DRIP.
             </p>
           </div>
@@ -630,7 +630,7 @@ function ResetKeySection() {
             type="button"
             onClick={loadStatus}
             disabled={loadingStatus}
-            className="rounded-xl border border-cyan-300/15 bg-cyan-300/5 p-2.5 text-cyan-200/60 transition hover:bg-cyan-300/10 hover:text-cyan-200 disabled:opacity-40"
+            className="rounded-xl border border-white/10 bg-white/[0.03] p-2.5 text-zinc-200/60 transition hover:bg-white/[0.05] hover:text-zinc-200 disabled:opacity-40"
             aria-label="Refresh reset status"
           >
             <RefreshCw
@@ -645,11 +645,11 @@ function ResetKeySection() {
               ? "border-purple-400/20 bg-purple-400/5"
               : limitReached
                 ? "border-rose-400/20 bg-rose-400/5"
-                : "border-cyan-300/15 bg-cyan-300/5"
+                : "border-white/10 bg-white/[0.03]"
           }`}
         >
           <div className="flex items-center justify-between">
-            <span className="text-xs text-cyan-100/45">
+            <span className="text-xs text-zinc-400/50">
               Limit reset hari ini
             </span>
 
@@ -659,7 +659,7 @@ function ResetKeySection() {
                   ? "text-purple-300"
                   : limitReached
                     ? "text-rose-300"
-                    : "text-cyan-200"
+                    : "text-zinc-200"
               }`}
             >
               {loadingStatus
@@ -671,9 +671,9 @@ function ResetKeySection() {
           </div>
 
           {!unlimited && (
-            <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-cyan-300/10">
+            <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-white/[0.05]">
               <div
-                className="h-full rounded-full bg-cyan-400 transition-all"
+                className="h-full rounded-full bg-white transition-all"
                 style={{
                   width: `${Math.min(
                     100,
@@ -684,7 +684,7 @@ function ResetKeySection() {
             </div>
           )}
 
-          <p className="mt-2 text-[10px] text-cyan-100/30">
+          <p className="mt-2 text-[10px] text-zinc-400/30">
             {unlimited
               ? "Premium dan Reseller aktif tidak memiliki batas harian."
               : "Member biasa mendapat maksimal 2 reset gabungan DRIP + Fluorite per hari."}
@@ -701,8 +701,8 @@ function ResetKeySection() {
             }}
             className={`rounded-xl border px-3 py-3 text-sm font-bold transition ${
               api === "drip"
-                ? "border-cyan-300/40 bg-cyan-300/10 text-cyan-200"
-                : "border-cyan-300/10 bg-cyan-300/[.03] text-cyan-100/40 hover:text-cyan-100/70"
+                ? "border-white/20 bg-white/[0.05] text-zinc-200"
+                : "border-white/10 bg-white/[.03] text-zinc-400/40 hover:text-zinc-400/70"
             }`}
           >
             DRIP
@@ -718,7 +718,7 @@ function ResetKeySection() {
             className={`rounded-xl border px-3 py-3 text-sm font-bold transition ${
               api === "fluorite"
                 ? "border-purple-400/40 bg-purple-400/10 text-purple-200"
-                : "border-cyan-300/10 bg-cyan-300/[.03] text-cyan-100/40 hover:text-cyan-100/70"
+                : "border-white/10 bg-white/[.03] text-zinc-400/40 hover:text-zinc-400/70"
             }`}
           >
             Fluorite
@@ -734,14 +734,14 @@ function ResetKeySection() {
             className={`rounded-xl border px-3 py-3 text-sm font-bold transition ${
               api === "hg"
                 ? "border-amber-400/40 bg-amber-400/10 text-amber-200"
-                : "border-cyan-300/10 bg-cyan-300/[.03] text-cyan-100/40 hover:text-cyan-100/70"
+                : "border-white/10 bg-white/[.03] text-zinc-400/40 hover:text-zinc-400/70"
             }`}
           >
             HG
           </button>
         </div>
 
-        <label className="mb-2 block text-xs text-cyan-100/45">
+        <label className="mb-2 block text-xs text-zinc-400/50">
           License Key
         </label>
 
@@ -749,7 +749,7 @@ function ResetKeySection() {
           value={key}
           onChange={(e) => setKey(e.target.value)}
           placeholder="Masukkan license key..."
-          className="w-full rounded-xl border border-cyan-300/15 bg-cyan-300/5 px-4 py-3 font-mono text-sm text-cyan-100 outline-none placeholder:text-cyan-100/20 focus:border-cyan-300/50 focus:ring-2 focus:ring-cyan-300/10"
+          className="w-full rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 font-mono text-sm text-zinc-200 outline-none placeholder:text-zinc-400/20 focus:border-white/20 focus:ring-2 focus:ring-white/10"
           autoComplete="off"
           spellCheck={false}
         />
@@ -770,7 +770,7 @@ function ResetKeySection() {
           type="button"
           onClick={resetKey}
           disabled={!key.trim() || resetting || limitReached}
-          className="neon-btn-solid mt-4 flex w-full items-center justify-center gap-2 rounded-xl py-3.5 font-bold disabled:cursor-not-allowed disabled:opacity-40"
+          className="bg-white text-black hover:bg-zinc-200 transition-colors mt-4 flex w-full items-center justify-center gap-2 rounded-xl py-3.5 font-bold disabled:cursor-not-allowed disabled:opacity-40"
         >
           {resetting ? (
             <>
@@ -798,23 +798,23 @@ function ResetKeySection() {
 function RankSection() {
   const current = 6420;
   const next = 1000;
-  return <div className="flex flex-col gap-5"><div className="glass-card rounded-[24px] p-5 sm:p-7"><div className="flex items-center justify-between"><div><p className="text-xs uppercase tracking-[.2em] text-cyan-300/45">Member rank</p><h3 className="mt-1 text-xl font-bold text-cyan-50">Progress kamu</h3></div><RankBadge rank="deep-sea" size="large" /></div><div className="mt-6 flex items-center justify-between"><div><p className="text-xs text-cyan-100/45">Rank saat ini</p><RankBadge rank="deep-sea" showLabel size="medium" /></div><div className="text-right"><p className="text-xs text-cyan-100/45">Next rank</p><RankBadge rank="trench" showLabel size="small" /></div></div><div className="mt-6"><div className="mb-2 flex justify-between text-xs"><span className="text-cyan-200">{current.toLocaleString("id-ID")} XP</span><span className="text-cyan-100/40">10.000 XP</span></div><div className="h-2 overflow-hidden rounded-full bg-cyan-300/10"><div className="h-full rounded-full bg-gradient-to-r from-cyan-400 to-purple-400 shadow-[0_0_14px_rgba(0,229,255,.55)]" style={{ width: `${(current / next) * 100}%` }} /></div><p className="mt-3 flex items-center gap-2 text-xs text-cyan-100/45"><LockKeyhole className="size-3.5 text-purple-300" /> Butuh 3.580 XP lagi · aktifkan streak harian untuk naik rank</p></div></div><PremiumUpgradeCard /><ResellerPlanCard /><div className="glass-card rounded-[24px] p-5 sm:p-7"><div className="mb-5 flex items-center justify-between"><div><p className="text-xs uppercase tracking-[.2em] text-cyan-300/45">Community status</p><h3 className="mt-1 text-xl font-bold text-cyan-50">Deep Divers</h3></div><Trophy className="size-5 text-purple-300" /></div><div className="flex flex-col gap-2">{LEADERBOARD.map((member, index) => <div key={member.name} className={`flex items-center gap-3 rounded-2xl border px-3 py-3 transition-colors hover:bg-cyan-300/5 ${index === 0 ? "border-purple-300/30 bg-purple-300/5" : index === 1 ? "border-cyan-300/25 bg-cyan-300/5" : "border-cyan-300/10 bg-cyan-300/[.02]"}`}><div className="flex w-5 justify-center text-sm font-black text-cyan-100/35">{index === 0 ? <Crown className="size-4 text-yellow-300" /> : `0${index + 1}`}</div><div className="flex size-9 items-center justify-center rounded-full border text-xs font-bold" style={{ borderColor: `${member.color}66`, background: `${member.color}18`, color: member.color }}>{member.initials}</div><div className="min-w-0 flex-1"><p className="truncate text-sm font-semibold text-cyan-50">{member.name}</p><p className="text-[11px] text-cyan-100/35">{member.handle}</p></div><RankBadge rank={member.rank} size="small" /><span className="w-16 text-right font-mono text-xs font-bold text-cyan-200">{member.points}</span></div>)}</div><button className="mt-4 flex w-full items-center justify-center gap-1 text-xs font-semibold text-cyan-300/65 hover:text-cyan-200">Lihat leaderboard lengkap <ChevronRight className="size-3.5" /></button></div></div>;
+  return <div className="flex flex-col gap-5"><div className="glass-card rounded-[24px] p-5 sm:p-7"><div className="flex items-center justify-between"><div><p className="text-xs uppercase tracking-[.2em] text-zinc-200/45">Member rank</p><h3 className="mt-1 text-xl font-bold text-zinc-100">Progress kamu</h3></div><RankBadge rank="deep-sea" size="large" /></div><div className="mt-6 flex items-center justify-between"><div><p className="text-xs text-zinc-400/50">Rank saat ini</p><RankBadge rank="deep-sea" showLabel size="medium" /></div><div className="text-right"><p className="text-xs text-zinc-400/50">Next rank</p><RankBadge rank="trench" showLabel size="small" /></div></div><div className="mt-6"><div className="mb-2 flex justify-between text-xs"><span className="text-zinc-200">{current.toLocaleString("id-ID")} XP</span><span className="text-zinc-400/40">10.000 XP</span></div><div className="h-2 overflow-hidden rounded-full bg-white/[0.05]"><div className="h-full rounded-full bg-gradient-to-r from-white to-zinc-500 shadow-none" style={{ width: `${(current / next) * 100}%` }} /></div><p className="mt-3 flex items-center gap-2 text-xs text-zinc-400/50"><LockKeyhole className="size-3.5 text-purple-300" /> Butuh 3.580 XP lagi · aktifkan streak harian untuk naik rank</p></div></div><PremiumUpgradeCard /><ResellerPlanCard /><div className="glass-card rounded-[24px] p-5 sm:p-7"><div className="mb-5 flex items-center justify-between"><div><p className="text-xs uppercase tracking-[.2em] text-zinc-200/45">Community status</p><h3 className="mt-1 text-xl font-bold text-zinc-100">Top Members</h3></div><Trophy className="size-5 text-purple-300" /></div><div className="flex flex-col gap-2">{LEADERBOARD.map((member, index) => <div key={member.name} className={`flex items-center gap-3 rounded-2xl border px-3 py-3 transition-colors hover:bg-white/[0.03] ${index === 0 ? "border-purple-300/30 bg-purple-300/5" : index === 1 ? "border-white/10 bg-white/[0.03]" : "border-white/10 bg-white/[.02]"}`}><div className="flex w-5 justify-center text-sm font-black text-zinc-400/50">{index === 0 ? <Crown className="size-4 text-yellow-300" /> : `0${index + 1}`}</div><div className="flex size-9 items-center justify-center rounded-full border text-xs font-bold" style={{ borderColor: `${member.color}66`, background: `${member.color}18`, color: member.color }}>{member.initials}</div><div className="min-w-0 flex-1"><p className="truncate text-sm font-semibold text-zinc-100">{member.name}</p><p className="text-[11px] text-zinc-400/50">{member.handle}</p></div><RankBadge rank={member.rank} size="small" /><span className="w-16 text-right font-mono text-xs font-bold text-zinc-200">{member.points}</span></div>)}</div><button className="mt-4 flex w-full items-center justify-center gap-1 text-xs font-semibold text-zinc-200/65 hover:text-zinc-200">Lihat leaderboard lengkap <ChevronRight className="size-3.5" /></button></div></div>;
 }
 
 export default function MemberPage() {
   const [tab, setTab] = useState<"topup" | "rank" | "reset">("topup");
-  return <main className="ocean-bg min-h-screen px-4 pb-28 pt-24"><div className="mx-auto max-w-xl page-enter"><Link href="/" className="mb-7 inline-flex items-center gap-2 text-xs font-semibold text-cyan-100/45 transition-colors hover:text-cyan-200"><ArrowLeft className="size-4" /> Kembali ke home</Link><div className="mb-7">
+  return <main className="zhuu-page-bg min-h-screen px-4 pb-28 pt-24"><div className="mx-auto max-w-xl page-enter"><Link href="/" className="mb-7 inline-flex items-center gap-2 text-xs font-semibold text-zinc-400/50 transition-colors hover:text-zinc-200"><ArrowLeft className="size-4" /> Kembali ke home</Link><div className="mb-7">
 <div className="mb-4 flex items-center justify-between gap-3">
-  <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[.25em] text-cyan-300/55">
+  <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[.25em] text-zinc-200/55">
     <Sparkles className="size-3.5" /> ZhuuSite Member
   </div>
   <Link
     href="/member/settings"
-    className="inline-flex shrink-0 items-center gap-2 rounded-xl border border-cyan-300/15 bg-cyan-300/[.05] px-3 py-2 text-xs font-semibold text-cyan-100/65 transition-all hover:border-cyan-300/30 hover:bg-cyan-300/10 hover:text-cyan-100"
+    className="inline-flex shrink-0 items-center gap-2 rounded-xl border border-white/10 bg-white/[.03] px-3 py-2 text-xs font-semibold text-zinc-400/65 transition-all hover:border-white/15 hover:bg-white/[0.05] hover:text-white"
   >
     ⚙️ Settings
   </Link>
 </div>
-<h1 className="text-balance text-3xl font-black leading-tight text-cyan-50 sm:text-4xl" style={{ fontFamily: "Poppins, Inter, sans-serif" }}>Wallet & <span className="gradient-text">Member Rank</span></h1><p className="mt-3 max-w-md text-sm leading-6 text-cyan-100/45">Isi saldo instan dengan QRIS dan naikkan statusmu di dunia bawah laut ZhuuSite.</p></div><div className="mb-5 grid grid-cols-3 rounded-xl border border-cyan-300/10 bg-cyan-300/[.03] p-1"><button onClick={() => setTab("topup")} className={`rounded-lg py-2.5 text-sm font-bold transition-all ${tab === "topup" ? "bg-cyan-300/15 text-cyan-200 shadow-[0_0_14px_rgba(0,229,255,.1)]" : "text-cyan-100/40 hover:text-cyan-100/70"}`}>Top Up Saldo</button><button onClick={() => setTab("rank")} className={`rounded-lg py-2.5 text-sm font-bold transition-all ${tab === "rank" ? "bg-purple-300/15 text-purple-200 shadow-[0_0_14px_rgba(192,132,252,.12)]" : "text-cyan-100/40 hover:text-cyan-100/70"}`}>Rank Member</button><button onClick={() => setTab("reset")} className={`rounded-lg py-2.5 text-sm font-bold transition-all ${tab === "reset" ? "bg-cyan-300/15 text-cyan-200 shadow-[0_0_14px_rgba(0,229,255,.1)]" : "text-cyan-100/40 hover:text-cyan-100/70"}`}>🔑 Reset Key</button></div>{tab === "topup" ? <TopUpFlow /> : tab === "rank" ? <RankSection /> : <ResetKeySection />}</div></main>;
+<h1 className="text-balance text-3xl font-black leading-tight text-zinc-100 sm:text-4xl" style={{ fontFamily: "Poppins, Inter, sans-serif" }}>Wallet & <span className="gradient-text">Member Rank</span></h1><p className="mt-3 max-w-md text-sm leading-6 text-zinc-400/50">Isi saldo instan dengan QRIS dan naikkan statusmu di komunitas ZhuuSite.</p></div><div className="mb-5 grid grid-cols-3 rounded-xl border border-white/10 bg-white/[.03] p-1"><button onClick={() => setTab("topup")} className={`rounded-lg py-2.5 text-sm font-bold transition-all ${tab === "topup" ? "bg-white/[.08] text-zinc-200 shadow-none" : "text-zinc-400/40 hover:text-zinc-400/70"}`}>Top Up Saldo</button><button onClick={() => setTab("rank")} className={`rounded-lg py-2.5 text-sm font-bold transition-all ${tab === "rank" ? "bg-purple-300/15 text-purple-200 shadow-[0_0_14px_rgba(192,132,252,.12)]" : "text-zinc-400/40 hover:text-zinc-400/70"}`}>Rank Member</button><button onClick={() => setTab("reset")} className={`rounded-lg py-2.5 text-sm font-bold transition-all ${tab === "reset" ? "bg-white/[.08] text-zinc-200 shadow-none" : "text-zinc-400/40 hover:text-zinc-400/70"}`}>Reset Key</button></div>{tab === "topup" ? <TopUpFlow /> : tab === "rank" ? <RankSection /> : <ResetKeySection />}</div></main>;
 }
 

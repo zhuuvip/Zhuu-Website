@@ -25,7 +25,7 @@ const API_BASE = (import.meta.env.VITE_API_URL || "").replace(/\/$/, "");
 
 const RATING_EMOJIS = ["😕", "😐", "🙂", "😊", "🤩"];
 const CATEGORY_COLORS: Record<string, string> = {
-  bug: "#f87171", feature: "#00d4ff", design: "#a78bfa",
+  bug: "#f87171", feature: "#f4f4f5", design: "#a78bfa",
   performance: "#fbbf24", content: "#4ade80", other: "#94a3b8",
 };
 
@@ -106,9 +106,9 @@ const iconOptions = ["SiDiscord","SiYoutube","SiTiktok","SiInstagram","SiTwitch"
 function StatCard({ label, value, icon, color }: { label: string; value: number; icon: React.ReactNode; color: string }) {
 
   return (
-    <div className="glass-card rounded-2xl p-5 hover:border-cyan-400/30 transition-all">
+    <div className="glass-card rounded-2xl p-5 hover:border-white/15 transition-all">
       <div className="flex items-center justify-between mb-3">
-        <span className="text-xs font-medium text-blue-300/50 uppercase tracking-wider">{label}</span>
+        <span className="text-xs font-medium text-zinc-400/50 uppercase tracking-wider">{label}</span>
         <div style={{ color, opacity: 0.7 }}>{icon}</div>
       </div>
       <div className="text-3xl font-black" style={{ color, fontFamily: "Poppins, Inter, sans-serif" }}>
@@ -657,7 +657,7 @@ const [deliveryValue, setDeliveryValue] = useState("");
   const [settingsSaving, setSettingsSaving] = useState(false);
   const [settingsSaved, setSettingsSaved] = useState(false);
   const [announcement, setAnnouncement] = useState("");
-  const [announcementColor, setAnnouncementColor] = useState("#00d4ff");
+  const [announcementColor, setAnnouncementColor] = useState("#f4f4f5");
   const [announcementSaving, setAnnouncementSaving] = useState(false);
   const [currentAnnouncement, setCurrentAnnouncement] = useState<any>(null);
 
@@ -883,7 +883,7 @@ const saveSettings = async () => {
 
   if (!user) return (
     <div className="min-h-screen flex items-center justify-center">
-      <Loader2 size={24} className="text-cyan-400 animate-spin" />
+      <Loader2 size={24} className="text-zinc-200 animate-spin" />
     </div>
   );
 
@@ -891,9 +891,9 @@ const saveSettings = async () => {
     <div className="min-h-screen flex flex-col items-center justify-center px-4 text-center">
       <div className="glass-card rounded-3xl p-10 max-w-sm w-full">
         <Shield size={40} className="text-red-400/60 mx-auto mb-4" />
-        <h2 className="text-xl font-bold text-blue-100 mb-2">Access Denied</h2>
-        <p className="text-blue-300/60 text-sm mb-6">This area is restricted to the site owner.</p>
-        <Link href="/"><button className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-cyan-400/10 border border-cyan-400/20 text-cyan-300 text-sm mx-auto cursor-pointer hover:bg-cyan-400/20 transition-all"><ChevronLeft size={14} />Back to Home</button></Link>
+        <h2 className="text-xl font-bold text-zinc-200 mb-2">Access Denied</h2>
+        <p className="text-zinc-400/60 text-sm mb-6">This area is restricted to the site owner.</p>
+        <Link href="/"><button className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white/[0.05] border border-white/10 text-zinc-200 text-sm mx-auto cursor-pointer hover:bg-white/[0.10] transition-all"><ChevronLeft size={14} />Back to Home</button></Link>
       </div>
     </div>
   );
@@ -907,8 +907,8 @@ const saveSettings = async () => {
           <Shield size={18} className="text-white" />
         </div>
         <div>
-          <h1 className="text-2xl font-bold text-blue-100" style={{ fontFamily: "'Orbitron', sans-serif" }}>Admin Panel</h1>
-          <p className="text-blue-300/50 text-sm">Welcome back, {user.firstName || "Admin"} · {email}</p>
+          <h1 className="text-2xl font-bold text-zinc-200" style={{ fontFamily: "'Orbitron', sans-serif" }}>Admin Panel</h1>
+          <p className="text-zinc-400/50 text-sm">Welcome back, {user.firstName || "Admin"} · {email}</p>
         </div>
       </div>
 
@@ -916,10 +916,10 @@ const saveSettings = async () => {
       <div className="mb-7">
         <div className="mb-3 flex items-center justify-between gap-3">
           <div>
-            <p className="text-[11px] uppercase tracking-[0.2em] text-cyan-300/50 font-semibold">
+            <p className="text-[11px] uppercase tracking-[0.2em] text-zinc-400/50 font-semibold">
               Control Center
             </p>
-            <h2 className="text-sm font-semibold text-blue-100 mt-1">
+            <h2 className="text-sm font-semibold text-zinc-200 mt-1">
               Manage Website
             </h2>
           </div>
@@ -943,8 +943,8 @@ const saveSettings = async () => {
                 data-testid={`tab-${t.id}`}
                 className={`group relative min-h-[64px] rounded-xl px-3 py-2.5 flex flex-col items-center justify-center gap-1.5 text-center transition-all duration-200 ${
                   active
-                    ? "bg-cyan-400/[0.12] border border-cyan-300/25 text-cyan-300 shadow-[0_0_24px_rgba(34,211,238,0.08)]"
-                    : "border border-transparent text-blue-200/50 hover:text-blue-100 hover:bg-white/[0.04] hover:border-white/[0.06]"
+                    ? "bg-white/[0.08] border border-white/15 text-zinc-200 shadow-[0_0_24px_rgba(255,255,255,0.06)]"
+                    : "border border-transparent text-blue-200/50 hover:text-zinc-200 hover:bg-white/[0.04] hover:border-white/[0.06]"
                 }`}
               >
                 <span
@@ -960,7 +960,7 @@ const saveSettings = async () => {
                 </span>
 
                 {active && (
-                  <span className="absolute bottom-1.5 w-5 h-0.5 rounded-full bg-cyan-300 shadow-[0_0_8px_rgba(103,232,249,0.8)]" />
+                  <span className="absolute bottom-1.5 w-5 h-0.5 rounded-full bg-white shadow-[0_0_8px_rgba(255,255,255,0.25)]" />
                 )}
               </button>
             );
@@ -974,17 +974,17 @@ const saveSettings = async () => {
 
           <div className="flex items-center justify-between">
             <div>
-              <h2 className="text-xl font-black text-blue-100 tracking-tight">
+              <h2 className="text-xl font-black text-zinc-200 tracking-tight">
                 Dashboard Overview
               </h2>
-              <p className="text-xs text-blue-300/40 mt-1">
+              <p className="text-xs text-zinc-400/40 mt-1">
                 Ringkasan aktivitas & bisnis ZhuuSite
               </p>
             </div>
 
             <button
               onClick={fetchStats}
-              className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs text-blue-300/60 hover:text-cyan-300 hover:bg-cyan-400/10 border border-transparent hover:border-cyan-400/10 transition-all"
+              className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs text-zinc-400/60 hover:text-zinc-200 hover:bg-white/[0.05] border border-transparent hover:border-white/10 transition-all"
             >
               <RefreshCw size={13} className={statsLoading ? "animate-spin" : ""} />
               Refresh
@@ -993,32 +993,32 @@ const saveSettings = async () => {
 
           {statsLoading && !stats ? (
             <div className="flex justify-center py-16">
-              <Loader2 size={28} className="animate-spin text-cyan-400" />
+              <Loader2 size={28} className="animate-spin text-zinc-200" />
             </div>
           ) : stats ? (
             <>
               {/* Business Overview */}
               <div>
                 <div className="flex items-center gap-2 mb-3">
-                  <div className="w-1 h-5 rounded-full bg-cyan-400 shadow-[0_0_12px_rgba(34,211,238,.6)]" />
-                  <h3 className="text-sm font-bold text-blue-100">
+                  <div className="w-1 h-5 rounded-full bg-white shadow-[0_0_12px_rgba(255,255,255,.18)]" />
+                  <h3 className="text-sm font-bold text-zinc-200">
                     Business Overview
                   </h3>
                 </div>
 
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
 
-                  <div className="col-span-2 md:col-span-1 glass-card rounded-2xl p-4 border border-cyan-400/10 bg-cyan-400/[0.025]">
+                  <div className="col-span-2 md:col-span-1 glass-card rounded-2xl p-4 border border-white/10 bg-white/[0.02]">
                     <div className="flex items-center justify-between mb-3">
                       <span className="text-[10px] uppercase tracking-wider font-bold text-blue-300/45">
                         Revenue
                       </span>
-                      <div className="p-2 rounded-xl bg-cyan-400/10 text-cyan-300">
+                      <div className="p-2 rounded-xl bg-white/[0.05] text-zinc-200">
                         <Wallet size={15} />
                       </div>
                     </div>
 
-                    <div className="text-xl font-black text-cyan-300">
+                    <div className="text-xl font-black text-zinc-200">
                       Rp{(stats.business?.revenue ?? 0).toLocaleString("id-ID")}
                     </div>
 
@@ -1078,7 +1078,7 @@ const saveSettings = async () => {
                       <div className="text-sm font-bold text-amber-200">
                         Ada deposit yang menunggu konfirmasi
                       </div>
-                      <div className="text-xs text-blue-300/40 mt-0.5">
+                      <div className="text-xs text-zinc-400/40 mt-0.5">
                         {(stats.business?.pendingDeposits ?? 0).toLocaleString()} deposit
                         {" · "}
                         Rp{(stats.business?.depositTotal ?? 0).toLocaleString("id-ID")}
@@ -1097,7 +1097,7 @@ const saveSettings = async () => {
               <div>
                 <div className="flex items-center gap-2 mb-3">
                   <div className="w-1 h-5 rounded-full bg-emerald-400 shadow-[0_0_12px_rgba(52,211,153,.5)]" />
-                  <h3 className="text-sm font-bold text-blue-100">
+                  <h3 className="text-sm font-bold text-zinc-200">
                     Revenue Analytics
                   </h3>
                 </div>
@@ -1134,8 +1134,8 @@ const saveSettings = async () => {
               <div className="glass-card rounded-2xl p-5">
                 <div className="flex items-center justify-between mb-5">
                   <div>
-                    <h3 className="font-bold text-blue-100 flex items-center gap-2">
-                      <BarChart3 size={16} className="text-cyan-300" />
+                    <h3 className="font-bold text-zinc-200 flex items-center gap-2">
+                      <BarChart3 size={16} className="text-zinc-200" />
                       Order Analytics
                     </h3>
                     <p className="text-[10px] text-blue-300/35 mt-1">
@@ -1143,9 +1143,9 @@ const saveSettings = async () => {
                     </p>
                   </div>
 
-                  <div className="flex items-center gap-3 text-[9px] text-blue-300/50">
+                  <div className="flex items-center gap-3 text-[9px] text-zinc-400/50">
                     <span className="flex items-center gap-1">
-                      <span className="w-2 h-2 rounded-full bg-cyan-400" />
+                      <span className="w-2 h-2 rounded-full bg-white" />
                       Sukses
                     </span>
                     <span className="flex items-center gap-1">
@@ -1205,7 +1205,7 @@ const saveSettings = async () => {
                             >
                               <div className="w-full max-w-10 h-full flex items-end justify-center gap-1">
                                 <div
-                                  className="w-2.5 sm:w-4 rounded-t-md bg-cyan-400/80 transition-all"
+                                  className="w-2.5 sm:w-4 rounded-t-md bg-white/80 transition-all"
                                   style={{
                                     height: `${Math.max(
                                       successHeight,
@@ -1226,10 +1226,10 @@ const saveSettings = async () => {
                                 />
                               </div>
 
-                              <div className="text-[9px] font-semibold text-blue-300/40">
+                              <div className="text-[9px] font-semibold text-zinc-400/40">
                                 {day.label}
                               </div>
-                              <div className="text-[8px] text-blue-300/25">
+                              <div className="text-[8px] text-zinc-400/25">
                                 {day.data.total_orders}
                               </div>
                             </div>
@@ -1238,11 +1238,11 @@ const saveSettings = async () => {
                       </div>
 
                       <div className="mt-4 pt-4 border-t border-white/[0.05] grid grid-cols-2 gap-3">
-                        <div className="rounded-xl bg-cyan-400/[0.035] border border-cyan-400/10 p-3">
-                          <div className="text-[9px] uppercase tracking-wider text-blue-300/40">
+                        <div className="rounded-xl bg-white/[0.03] border border-white/10 p-3">
+                          <div className="text-[9px] uppercase tracking-wider text-zinc-400/40">
                             Sukses 7 Hari
                           </div>
-                          <div className="text-lg font-black text-cyan-300 mt-1">
+                          <div className="text-lg font-black text-zinc-200 mt-1">
                             {days.reduce(
                               (sum, day) =>
                                 sum + day.data.successful_orders,
@@ -1252,7 +1252,7 @@ const saveSettings = async () => {
                         </div>
 
                         <div className="rounded-xl bg-amber-400/[0.035] border border-amber-400/10 p-3">
-                          <div className="text-[9px] uppercase tracking-wider text-blue-300/40">
+                          <div className="text-[9px] uppercase tracking-wider text-zinc-400/40">
                             Pending 7 Hari
                           </div>
                           <div className="text-lg font-black text-amber-300 mt-1">
@@ -1302,7 +1302,7 @@ const saveSettings = async () => {
                     <>
                       <div className="flex items-center justify-between mb-5">
                         <div>
-                          <h3 className="font-bold text-blue-100 flex items-center gap-2">
+                          <h3 className="font-bold text-zinc-200 flex items-center gap-2">
                             <BarChart3 size={16} className="text-purple-300" />
                             Analytics 30 Hari
                           </h3>
@@ -1351,7 +1351,7 @@ const saveSettings = async () => {
                           <div className="text-[8px] uppercase tracking-wider text-blue-300/35">
                             Total Order
                           </div>
-                          <div className="text-lg font-black text-blue-100 mt-1">
+                          <div className="text-lg font-black text-zinc-200 mt-1">
                             {totalOrders}
                           </div>
                         </div>
@@ -1374,11 +1374,11 @@ const saveSettings = async () => {
                           </div>
                         </div>
 
-                        <div className="rounded-xl bg-cyan-400/[0.035] border border-cyan-400/10 p-3">
+                        <div className="rounded-xl bg-white/[0.03] border border-white/10 p-3">
                           <div className="text-[8px] uppercase tracking-wider text-blue-300/35">
                             Revenue
                           </div>
-                          <div className="text-sm font-black text-cyan-300 mt-1">
+                          <div className="text-sm font-black text-zinc-200 mt-1">
                             Rp{revenue.toLocaleString("id-ID")}
                           </div>
                         </div>
@@ -1411,7 +1411,7 @@ const saveSettings = async () => {
                     <>
                       <div className="flex items-center justify-between mb-5">
                         <div>
-                          <h3 className="font-bold text-blue-100 flex items-center gap-2">
+                          <h3 className="font-bold text-zinc-200 flex items-center gap-2">
                             <BarChart3 size={16} className="text-emerald-300" />
                             Revenue 30 Hari
                           </h3>
@@ -1464,11 +1464,11 @@ const saveSettings = async () => {
                           </div>
                         </div>
 
-                        <div className="rounded-xl bg-cyan-400/[0.035] border border-cyan-400/10 p-3">
+                        <div className="rounded-xl bg-white/[0.03] border border-white/10 p-3">
                           <div className="text-[8px] uppercase tracking-wider text-blue-300/35">
                             Hari Tertinggi
                           </div>
-                          <div className="text-sm font-black text-cyan-300 mt-1">
+                          <div className="text-sm font-black text-zinc-200 mt-1">
                             {peakDay
                               ? `Rp${peakDay.revenue.toLocaleString("id-ID")}`
                               : "Rp0"}
@@ -1491,7 +1491,7 @@ const saveSettings = async () => {
                 <div className="glass-card rounded-2xl p-5">
                   <div className="flex items-center justify-between mb-4">
                     <div>
-                      <h3 className="font-bold text-blue-100 flex items-center gap-2">
+                      <h3 className="font-bold text-zinc-200 flex items-center gap-2">
                         <Star size={16} className="text-yellow-300" />
                         Produk Terlaris
                       </h3>
@@ -1508,12 +1508,12 @@ const saveSettings = async () => {
                           key={`${product.productName}-${index}`}
                           className="flex items-center gap-3 rounded-xl px-3 py-2.5 bg-white/[0.025] border border-white/[0.04]"
                         >
-                          <div className="w-7 h-7 rounded-lg bg-cyan-400/10 text-cyan-300 flex items-center justify-center text-xs font-black">
+                          <div className="w-7 h-7 rounded-lg bg-white/[0.05] text-zinc-200 flex items-center justify-center text-xs font-black">
                             {index + 1}
                           </div>
 
                           <div className="flex-1 min-w-0">
-                            <div className="text-xs font-semibold text-blue-100 truncate">
+                            <div className="text-xs font-semibold text-zinc-200 truncate">
                               {product.productName}
                             </div>
                             <div className="text-[10px] text-blue-300/35">
@@ -1537,7 +1537,7 @@ const saveSettings = async () => {
                 <div className="glass-card rounded-2xl p-5">
                   <div className="flex items-center justify-between mb-4">
                     <div>
-                      <h3 className="font-bold text-blue-100 flex items-center gap-2">
+                      <h3 className="font-bold text-zinc-200 flex items-center gap-2">
                         <AlertTriangle size={16} className="text-amber-300" />
                         Stok Menipis
                       </h3>
@@ -1559,7 +1559,7 @@ const saveSettings = async () => {
                           </div>
 
                           <div className="flex-1 min-w-0">
-                            <div className="text-xs font-semibold text-blue-100 truncate">
+                            <div className="text-xs font-semibold text-zinc-200 truncate">
                               {product.productName}
                             </div>
                             <div className="text-[10px] text-blue-300/35 truncate">
@@ -1586,13 +1586,13 @@ const saveSettings = async () => {
               <div>
                 <div className="flex items-center gap-2 mb-3">
                   <div className="w-1 h-5 rounded-full bg-purple-400 shadow-[0_0_12px_rgba(167,139,250,.5)]" />
-                  <h3 className="text-sm font-bold text-blue-100">
+                  <h3 className="text-sm font-bold text-zinc-200">
                     Website Stats
                   </h3>
                 </div>
 
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                  <StatCard label="Linktree Links" value={stats.links} icon={<Link2 size={17} />} color="#00d4ff" />
+                  <StatCard label="Linktree Links" value={stats.links} icon={<Link2 size={17} />} color="#f4f4f5" />
                   <StatCard label="Songs" value={stats.songs} icon={<Music size={17} />} color="#a78bfa" />
                   <StatCard label="Feedback" value={stats.feedback} icon={<MessageSquare size={17} />} color="#4ade80" />
                   <StatCard label="AI Conversations" value={stats.conversations} icon={<Bot size={17} />} color="#f9a8d4" />
@@ -1603,7 +1603,7 @@ const saveSettings = async () => {
 
               {/* Admin Info */}
               <div className="glass-card rounded-2xl p-5">
-                <h3 className="font-semibold text-blue-100 mb-4 flex items-center gap-2">
+                <h3 className="font-semibold text-zinc-200 mb-4 flex items-center gap-2">
                   <Shield size={16} className="text-purple-400" />
                   Admin Info
                 </h3>
@@ -1615,15 +1615,15 @@ const saveSettings = async () => {
                 ].map((row, i) => (
                   <div
                     key={i}
-                    className="flex items-center justify-between py-2.5 border-b border-cyan-400/5 last:border-0"
+                    className="flex items-center justify-between py-2.5 border-b border-white/5 last:border-0"
                   >
-                    <span className="text-sm text-blue-300/50">{row.label}</span>
+                    <span className="text-sm text-zinc-400/50">{row.label}</span>
 
                     {row.value !== null ? (
                       <span
-                        className={`text-sm text-blue-100 ${
+                        className={`text-sm text-zinc-200 ${
                           row.mono
-                            ? "font-mono text-xs text-blue-100/60"
+                            ? "font-mono text-xs text-zinc-200/60"
                             : "font-medium"
                         }`}
                       >
@@ -1643,7 +1643,7 @@ const saveSettings = async () => {
               Failed to load stats.
               <button
                 onClick={fetchStats}
-                className="text-cyan-400 hover:underline ml-1"
+                className="text-zinc-200 hover:underline ml-1"
               >
                 Try again
               </button>
@@ -1656,9 +1656,9 @@ const saveSettings = async () => {
       {tab === "links" && (
         <div className="space-y-4">
           <div className="flex items-center justify-between">
-            <h2 className="text-lg font-semibold text-blue-100">Linktree Links <span className="text-sm font-normal text-blue-300/40">({links.length})</span></h2>
+            <h2 className="text-lg font-semibold text-zinc-200">Linktree Links <span className="text-sm font-normal text-zinc-400/40">({links.length})</span></h2>
             <button onClick={() => { resetLinkForm(); setShowLinkForm(true); }} data-testid="btn-add-link"
-              className="flex items-center gap-2 px-4 py-2 rounded-xl bg-cyan-400/10 border border-cyan-400/20 text-cyan-300 text-sm hover:bg-cyan-400/20 transition-all">
+              className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/[0.05] border border-white/10 text-zinc-200 text-sm hover:bg-white/[0.10] transition-all">
               <Plus size={14} />Add Link
             </button>
           </div>
@@ -1666,8 +1666,8 @@ const saveSettings = async () => {
           {showLinkForm && (
             <div className="glass-card rounded-2xl p-5" data-testid="link-form">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-sm font-semibold text-cyan-300">{editingLinkId !== null ? "Edit Link" : "New Link"}</h3>
-                <button onClick={resetLinkForm} className="text-blue-300/50 hover:text-blue-300 p-1 rounded-lg hover:bg-white/5 transition-all"><X size={16} /></button>
+                <h3 className="text-sm font-semibold text-zinc-200">{editingLinkId !== null ? "Edit Link" : "New Link"}</h3>
+                <button onClick={resetLinkForm} className="text-zinc-400/50 hover:text-blue-300 p-1 rounded-lg hover:bg-white/5 transition-all"><X size={16} /></button>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
                 {[
@@ -1675,36 +1675,36 @@ const saveSettings = async () => {
                   { label: "URL *", key: "url" as keyof LinkForm, placeholder: "https://discord.gg/...", testid: "input-link-url" },
                 ].map((field) => (
                   <div key={field.key}>
-                    <label className="text-xs text-blue-300/50 mb-1 block">{field.label}</label>
+                    <label className="text-xs text-zinc-400/50 mb-1 block">{field.label}</label>
                     <input value={linkForm[field.key] as string} onChange={(e) => setLinkForm({ ...linkForm, [field.key]: e.target.value })}
                       placeholder={field.placeholder} data-testid={field.testid}
-                      className="w-full bg-white/5 border border-cyan-400/20 rounded-xl px-3 py-2.5 text-sm text-blue-100 placeholder-blue-300/25 focus:outline-none focus:border-cyan-400/50 focus:ring-1 focus:ring-cyan-400/20 transition-all" />
+                      className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2.5 text-sm text-zinc-200 placeholder-blue-300/25 focus:outline-none focus:border-white/50 focus:ring-1 focus:ring-white/10 transition-all" />
                   </div>
                 ))}
                 <div>
-                  <label className="text-xs text-blue-300/50 mb-1 block">Icon</label>
+                  <label className="text-xs text-zinc-400/50 mb-1 block">Icon</label>
                   <select value={linkForm.icon} onChange={(e) => setLinkForm({ ...linkForm, icon: e.target.value })} data-testid="select-link-icon"
-                    className="w-full bg-slate-900 border border-cyan-400/20 rounded-xl px-3 py-2.5 text-sm text-blue-100 focus:outline-none focus:border-cyan-400/50 transition-all">
+                    className="w-full bg-zinc-900 border border-white/10 rounded-xl px-3 py-2.5 text-sm text-zinc-200 focus:outline-none focus:border-white/50 transition-all">
                     <option value="">No icon</option>
                     {iconOptions.map((o) => <option key={o} value={o}>{o.replace("Si", "")}</option>)}
                   </select>
                 </div>
                 <div>
-                  <label className="text-xs text-blue-300/50 mb-1 block">Sort Order</label>
+                  <label className="text-xs text-zinc-400/50 mb-1 block">Sort Order</label>
                   <input type="number" value={linkForm.sortOrder} onChange={(e) => setLinkForm({ ...linkForm, sortOrder: Number(e.target.value) })} data-testid="input-link-sort"
-                    className="w-full bg-white/5 border border-cyan-400/20 rounded-xl px-3 py-2.5 text-sm text-blue-100 focus:outline-none focus:border-cyan-400/50 transition-all" />
+                    className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2.5 text-sm text-zinc-200 focus:outline-none focus:border-white/50 transition-all" />
                 </div>
               </div>
               <div className="flex items-center justify-between">
                 <button onClick={() => setLinkForm({ ...linkForm, isActive: !linkForm.isActive })} data-testid="toggle-link-active"
-                  className={`text-sm flex items-center gap-2 transition-colors ${linkForm.isActive ? "text-cyan-400" : "text-blue-300/40"}`}>
+                  className={`text-sm flex items-center gap-2 transition-colors ${linkForm.isActive ? "text-zinc-200" : "text-zinc-400/40"}`}>
                   {linkForm.isActive ? <ToggleRight size={22} /> : <ToggleLeft size={22} />}
                   {linkForm.isActive ? "Active" : "Inactive"}
                 </button>
                 <div className="flex gap-2">
-                  <button onClick={resetLinkForm} className="px-4 py-2 rounded-xl border border-white/10 text-blue-300/60 text-sm hover:text-blue-300 transition-all">Cancel</button>
+                  <button onClick={resetLinkForm} className="px-4 py-2 rounded-xl border border-white/10 text-zinc-400/60 text-sm hover:text-blue-300 transition-all">Cancel</button>
                   <button onClick={handleSaveLink} disabled={createLink.isPending || updateLink.isPending} data-testid="btn-save-link"
-                    className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-cyan-400 to-purple-500 text-white text-sm font-medium hover:opacity-90 transition-all disabled:opacity-50">
+                    className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white text-black text-white text-sm font-medium hover:opacity-90 transition-all disabled:opacity-50">
                     {(createLink.isPending || updateLink.isPending) ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />}
                     {editingLinkId !== null ? "Update" : "Create"}
                   </button>
@@ -1714,26 +1714,26 @@ const saveSettings = async () => {
           )}
 
           {linksLoading ? (
-            <div className="flex justify-center py-8"><Loader2 size={20} className="animate-spin text-cyan-400" /></div>
+            <div className="flex justify-center py-8"><Loader2 size={20} className="animate-spin text-zinc-200" /></div>
           ) : (
             <div className="flex flex-col gap-2" data-testid="admin-links-list">
               {links.map((link) => (
                 <div key={link.id} data-testid={`admin-link-${link.id}`}
-                  className={`glass-card rounded-xl px-4 py-3.5 flex items-center gap-3 transition-all hover:border-cyan-400/25 ${!link.isActive ? "opacity-50" : ""}`}>
+                  className={`glass-card rounded-xl px-4 py-3.5 flex items-center gap-3 transition-all hover:border-white/15 ${!link.isActive ? "opacity-50" : ""}`}>
                   <GripVertical size={14} className="text-blue-300/20 flex-shrink-0" />
                   <span className="text-xs text-blue-300/30 w-5 text-center">{link.sortOrder}</span>
                   <div className="flex-1 min-w-0">
-                    <div className="text-sm font-medium text-blue-100">{link.title}</div>
-                    <div className="text-xs text-blue-300/40 truncate">{link.url}</div>
-                    <div className="text-xs text-cyan-400/60 mt-0.5">👆 {(link as any).clickCount ?? 0} clicks</div>
+                    <div className="text-sm font-medium text-zinc-200">{link.title}</div>
+                    <div className="text-xs text-zinc-400/40 truncate">{link.url}</div>
+                    <div className="text-xs text-zinc-400/60 mt-0.5">{(link as any).clickCount ?? 0} clicks</div>
                   </div>
                   {link.icon && <span className="text-xs text-purple-400/60 bg-purple-400/10 px-2 py-0.5 rounded-full border border-purple-400/15">{link.icon.replace("Si", "")}</span>}
-                  {link.isActive ? <Eye size={13} className="text-cyan-400/40" /> : <EyeOff size={13} className="text-blue-300/20" />}
+                  {link.isActive ? <Eye size={13} className="text-zinc-400/40" /> : <EyeOff size={13} className="text-blue-300/20" />}
                   <div className="flex gap-1">
                     <button onClick={() => startEditLink(link)} data-testid={`btn-edit-link-${link.id}`}
-                      className="p-1.5 rounded-lg text-blue-300/50 hover:text-cyan-300 hover:bg-cyan-400/10 transition-all"><Edit2 size={13} /></button>
+                      className="p-1.5 rounded-lg text-zinc-400/50 hover:text-zinc-200 hover:bg-white/[0.05] transition-all"><Edit2 size={13} /></button>
                     <button onClick={() => handleDeleteLink(link.id)} data-testid={`btn-delete-link-${link.id}`} disabled={deleteLink.isPending}
-                      className="p-1.5 rounded-lg text-blue-300/50 hover:text-red-400 hover:bg-red-400/10 transition-all"><Trash2 size={13} /></button>
+                      className="p-1.5 rounded-lg text-zinc-400/50 hover:text-red-400 hover:bg-red-400/10 transition-all"><Trash2 size={13} /></button>
                   </div>
                 </div>
               ))}
@@ -1747,7 +1747,7 @@ const saveSettings = async () => {
       {tab === "songs" && (
         <div className="space-y-4">
           <div className="flex items-center justify-between">
-            <h2 className="text-lg font-semibold text-blue-100">Music Playlist <span className="text-sm font-normal text-blue-300/40">({songs.length} songs)</span></h2>
+            <h2 className="text-lg font-semibold text-zinc-200">Music Playlist <span className="text-sm font-normal text-zinc-400/40">({songs.length} songs)</span></h2>
             <button onClick={() => { resetSongForm(); setShowSongForm(true); }}
               className="flex items-center gap-2 px-4 py-2 rounded-xl bg-purple-400/10 border border-purple-400/20 text-purple-300 text-sm hover:bg-purple-400/20 transition-all">
               <Plus size={14} />Add Song
@@ -1758,33 +1758,33 @@ const saveSettings = async () => {
             <div className="glass-card rounded-2xl p-5">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-sm font-semibold text-purple-300">{editingSongId !== null ? "Edit Song" : "Add New Song"}</h3>
-                <button onClick={resetSongForm} className="text-blue-300/50 hover:text-blue-300 p-1 rounded-lg hover:bg-white/5 transition-all"><X size={16} /></button>
+                <button onClick={resetSongForm} className="text-zinc-400/50 hover:text-blue-300 p-1 rounded-lg hover:bg-white/5 transition-all"><X size={16} /></button>
               </div>
-              <div className="space-y-1 mb-3 text-xs text-blue-300/40">
+              <div className="space-y-1 mb-3 text-xs text-zinc-400/40">
                 💡 Paste any direct audio URL, YouTube URL (for display only), or Spotify track link
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
                 {[
-                  { label: "Song Title *", key: "title" as keyof SongForm, placeholder: "Neon Ocean (feat. Wave)" },
+                  { label: "Song Title *", key: "title" as keyof SongForm, placeholder: "ZhuuSite Theme" },
                   { label: "Artist *", key: "artist" as keyof SongForm, placeholder: "Zhuu & DeepBeats" },
                   { label: "Audio URL *", key: "url" as keyof SongForm, placeholder: "https://... (MP3, YouTube, Spotify)" },
                   { label: "Cover Image URL", key: "coverUrl" as keyof SongForm, placeholder: "https://... (optional)" },
                 ].map((field) => (
                   <div key={field.key} className={field.key === "url" ? "sm:col-span-2" : ""}>
-                    <label className="text-xs text-blue-300/50 mb-1 block">{field.label}</label>
+                    <label className="text-xs text-zinc-400/50 mb-1 block">{field.label}</label>
                     <input value={songForm[field.key] as string} onChange={(e) => setSongForm({ ...songForm, [field.key]: e.target.value })}
                       placeholder={field.placeholder}
-                      className="w-full bg-white/5 border border-purple-400/20 rounded-xl px-3 py-2.5 text-sm text-blue-100 placeholder-blue-300/25 focus:outline-none focus:border-purple-400/50 focus:ring-1 focus:ring-purple-400/20 transition-all" />
+                      className="w-full bg-white/5 border border-purple-400/20 rounded-xl px-3 py-2.5 text-sm text-zinc-200 placeholder-blue-300/25 focus:outline-none focus:border-purple-400/50 focus:ring-1 focus:ring-purple-400/20 transition-all" />
                   </div>
                 ))}
                 <div>
-                  <label className="text-xs text-blue-300/50 mb-1 block">Sort Order</label>
+                  <label className="text-xs text-zinc-400/50 mb-1 block">Sort Order</label>
                   <input type="number" value={songForm.sortOrder} onChange={(e) => setSongForm({ ...songForm, sortOrder: Number(e.target.value) })}
-                    className="w-full bg-white/5 border border-purple-400/20 rounded-xl px-3 py-2.5 text-sm text-blue-100 focus:outline-none focus:border-purple-400/50 transition-all" />
+                    className="w-full bg-white/5 border border-purple-400/20 rounded-xl px-3 py-2.5 text-sm text-zinc-200 focus:outline-none focus:border-purple-400/50 transition-all" />
                 </div>
               </div>
               <div className="flex gap-2 justify-end">
-                <button onClick={resetSongForm} className="px-4 py-2 rounded-xl border border-white/10 text-blue-300/60 text-sm hover:text-blue-300 transition-all">Cancel</button>
+                <button onClick={resetSongForm} className="px-4 py-2 rounded-xl border border-white/10 text-zinc-400/60 text-sm hover:text-blue-300 transition-all">Cancel</button>
                 <button onClick={handleSaveSong} disabled={songSaving || !songForm.title || !songForm.artist || !songForm.url}
                   className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-purple-500 to-pink-500 text-white text-sm font-medium hover:opacity-90 transition-all disabled:opacity-50">
                   {songSaving ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />}
@@ -1795,7 +1795,7 @@ const saveSettings = async () => {
           )}
 
           {songsLoading ? (
-            <div className="flex justify-center py-8"><Loader2 size={20} className="animate-spin text-cyan-400" /></div>
+            <div className="flex justify-center py-8"><Loader2 size={20} className="animate-spin text-zinc-200" /></div>
           ) : (
             <div className="flex flex-col gap-2" data-testid="admin-songs-list">
               {songs.map((song, i) => (
@@ -1810,14 +1810,14 @@ const saveSettings = async () => {
                   )}
                   <span className="text-xs text-blue-300/30 w-5 text-center flex-shrink-0">{i + 1}</span>
                   <div className="flex-1 min-w-0">
-                    <div className="text-sm font-medium text-blue-100 truncate">{song.title}</div>
-                    <div className="text-xs text-blue-300/40 truncate">{song.artist}</div>
+                    <div className="text-sm font-medium text-zinc-200 truncate">{song.title}</div>
+                    <div className="text-xs text-zinc-400/40 truncate">{song.artist}</div>
                   </div>
                   <div className="flex gap-1 flex-shrink-0">
                     <button onClick={() => startEditSong(song)}
-                      className="p-1.5 rounded-lg text-blue-300/50 hover:text-purple-300 hover:bg-purple-400/10 transition-all"><Edit2 size={13} /></button>
+                      className="p-1.5 rounded-lg text-zinc-400/50 hover:text-purple-300 hover:bg-purple-400/10 transition-all"><Edit2 size={13} /></button>
                     <button onClick={() => handleDeleteSong(song.id)} disabled={deletingSongId === song.id}
-                      className="p-1.5 rounded-lg text-blue-300/50 hover:text-red-400 hover:bg-red-400/10 transition-all">
+                      className="p-1.5 rounded-lg text-zinc-400/50 hover:text-red-400 hover:bg-red-400/10 transition-all">
                       {deletingSongId === song.id ? <Loader2 size={13} className="animate-spin" /> : <Trash2 size={13} />}
                     </button>
                   </div>
@@ -1837,9 +1837,9 @@ const saveSettings = async () => {
       {tab === "settings" && (
         <div className="space-y-6">
           <div className="flex items-center justify-between">
-            <h2 className="text-lg font-semibold text-blue-100">Site Settings</h2>
+            <h2 className="text-lg font-semibold text-zinc-200">Site Settings</h2>
             <button onClick={saveSettings} disabled={settingsSaving}
-              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all ${settingsSaved ? "bg-green-400/15 border border-green-400/30 text-green-300" : "bg-cyan-400/10 border border-cyan-400/20 text-cyan-300 hover:bg-cyan-400/20"}`}>
+              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all ${settingsSaved ? "bg-green-400/15 border border-green-400/30 text-green-300" : "bg-white/[0.05] border border-white/10 text-zinc-200 hover:bg-white/[0.10]"}`}>
               {settingsSaving ? <Loader2 size={14} className="animate-spin" /> : settingsSaved ? <CheckCircle2 size={14} /> : <Save size={14} />}
               {settingsSaved ? "Saved!" : "Save All"}
             </button>
@@ -1852,7 +1852,7 @@ const saveSettings = async () => {
                 <h3 className="text-sm font-semibold text-red-300 flex items-center gap-2">
                   🔧 Maintenance Mode
                 </h3>
-                <p className="text-xs text-blue-300/40 mt-1">
+                <p className="text-xs text-zinc-400/40 mt-1">
                   Aktifkan saat website sedang diperbaiki atau di-update.
                 </p>
               </div>
@@ -1877,7 +1877,7 @@ const saveSettings = async () => {
             </div>
 
             <div>
-              <label className="text-xs text-blue-300/50 mb-1 block">
+              <label className="text-xs text-zinc-400/50 mb-1 block">
                 Alasan Maintenance
               </label>
               <textarea
@@ -1890,14 +1890,14 @@ const saveSettings = async () => {
                 }
                 placeholder="Contoh: Website sedang melakukan update sistem..."
                 rows={3}
-                className="w-full bg-white/5 border border-red-400/20 rounded-xl px-3 py-2.5 text-sm text-blue-100 placeholder-blue-300/25 focus:outline-none focus:border-red-400/50 resize-none"
+                className="w-full bg-white/5 border border-red-400/20 rounded-xl px-3 py-2.5 text-sm text-zinc-200 placeholder-blue-300/25 focus:outline-none focus:border-red-400/50 resize-none"
               />
             </div>
           </div>
 
           {/* Announcement Banner */}
           <div className="glass-card rounded-2xl p-5 space-y-3">
-            <h3 className="text-sm font-semibold text-cyan-300 flex items-center gap-2">📢 Announcement Banner</h3>
+            <h3 className="text-sm font-semibold text-zinc-200 flex items-center gap-2">Announcement Banner</h3>
             {currentAnnouncement && (
               <div className="flex items-center justify-between px-3 py-2 rounded-xl" style={{ background: currentAnnouncement.color + "22", border: `1px solid ${currentAnnouncement.color}44`, color: currentAnnouncement.color }}>
                 <span className="text-sm">{currentAnnouncement.message}</span>
@@ -1915,36 +1915,36 @@ const saveSettings = async () => {
             <div className="flex flex-col sm:flex-row gap-2 items-stretch sm:items-center">
               <input type="color" value={announcementColor} onChange={e => setAnnouncementColor(e.target.value)} className="w-10 h-10 rounded-lg cursor-pointer" />
               <button onClick={saveAnnouncement} disabled={!announcement.trim() || announcementSaving}
-                className="flex-1 py-2 rounded-xl text-sm font-medium bg-cyan-400/10 border border-cyan-400/20 text-cyan-300 hover:bg-cyan-400/20 transition-all">
+                className="flex-1 py-2 rounded-xl text-sm font-medium bg-white/[0.05] border border-white/10 text-zinc-200 hover:bg-white/[0.10] transition-all">
                 {announcementSaving ? "Saving..." : "Post Announcement"}
               </button>
             </div>
           </div>
 
           {settingsLoading ? (
-            <div className="flex justify-center py-12"><Loader2 size={24} className="animate-spin text-cyan-400" /></div>
+            <div className="flex justify-center py-12"><Loader2 size={24} className="animate-spin text-zinc-200" /></div>
           ) : (
             <div className="space-y-4">
               {/* Profile section */}
               <div className="glass-card rounded-2xl p-5 space-y-4">
-                <h3 className="text-sm font-semibold text-cyan-300 flex items-center gap-2"><Star size={14} />Profile & Identity</h3>
+                <h3 className="text-sm font-semibold text-zinc-200 flex items-center gap-2"><Star size={14} />Profile & Identity</h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   {[
                     { label: "Display Name", key: "profileName" as keyof SiteSettings, placeholder: "Zhuu" },
-                    { label: "Status Text", key: "statusText" as keyof SiteSettings, placeholder: "Active — Deep ocean online" },
+                    { label: "Status Text", key: "statusText" as keyof SiteSettings, placeholder: "Active — Online" },
                   ].map((field) => (
                     <div key={field.key}>
-                      <label className="text-xs text-blue-300/50 mb-1 block">{field.label}</label>
+                      <label className="text-xs text-zinc-400/50 mb-1 block">{field.label}</label>
                       <input value={settings[field.key] ?? ""} onChange={(e) => setSettings({ ...settings, [field.key]: e.target.value })}
                         placeholder={field.placeholder}
-                        className="w-full bg-white/5 border border-cyan-400/20 rounded-xl px-3 py-2.5 text-sm text-blue-100 placeholder-blue-300/25 focus:outline-none focus:border-cyan-400/50 focus:ring-1 focus:ring-cyan-400/20 transition-all" />
+                        className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2.5 text-sm text-zinc-200 placeholder-blue-300/25 focus:outline-none focus:border-white/50 focus:ring-1 focus:ring-white/10 transition-all" />
                     </div>
                   ))}
                   <div className="sm:col-span-2">
-                    <label className="text-xs text-blue-300/50 mb-1 block">Bio / Tagline</label>
+                    <label className="text-xs text-zinc-400/50 mb-1 block">Bio / Tagline</label>
                     <input value={settings.profileBio ?? ""} onChange={(e) => setSettings({ ...settings, profileBio: e.target.value })}
                       placeholder="Creator · Gamer · Builder"
-                      className="w-full bg-white/5 border border-cyan-400/20 rounded-xl px-3 py-2.5 text-sm text-blue-100 placeholder-blue-300/25 focus:outline-none focus:border-cyan-400/50 focus:ring-1 focus:ring-cyan-400/20 transition-all" />
+                      className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2.5 text-sm text-zinc-200 placeholder-blue-300/25 focus:outline-none focus:border-white/50 focus:ring-1 focus:ring-white/10 transition-all" />
                   </div>
                 </div>
               </div>
@@ -1954,11 +1954,11 @@ const saveSettings = async () => {
                 <h3 className="text-sm font-semibold text-purple-300 flex items-center gap-2"><ImageIcon size={14} />Linktree Visuals</h3>
                 <div className="grid grid-cols-1 gap-3">
                   <div>
-                    <label className="text-xs text-blue-300/50 mb-1 block">Logo / Profile Picture URL</label>
+                    <label className="text-xs text-zinc-400/50 mb-1 block">Logo / Profile Picture URL</label>
                     <div className="flex gap-2">
                       <input value={settings.logoUrl ?? ""} onChange={(e) => setSettings({ ...settings, logoUrl: e.target.value })}
                         placeholder="https://... (PNG, JPG, WEBP, SVG, GIF)"
-                        className="flex-1 bg-white/5 border border-purple-400/20 rounded-xl px-3 py-2.5 text-sm text-blue-100 placeholder-blue-300/25 focus:outline-none focus:border-purple-400/50 focus:ring-1 focus:ring-purple-400/20 transition-all" />
+                        className="flex-1 bg-white/5 border border-purple-400/20 rounded-xl px-3 py-2.5 text-sm text-zinc-200 placeholder-blue-300/25 focus:outline-none focus:border-purple-400/50 focus:ring-1 focus:ring-purple-400/20 transition-all" />
                       {settings.logoUrl && (
                         <img src={settings.logoUrl} alt="Logo preview" className="w-10 h-10 rounded-full object-cover border border-purple-400/30 flex-shrink-0" onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
                       )}
@@ -1966,10 +1966,10 @@ const saveSettings = async () => {
                     <p className="text-xs text-blue-300/30 mt-1">Supports PNG, JPG, WEBP, SVG, GIF with transparency</p>
                   </div>
                   <div>
-                    <label className="text-xs text-blue-300/50 mb-1 block">Banner / Background Image URL</label>
+                    <label className="text-xs text-zinc-400/50 mb-1 block">Banner / Background Image URL</label>
                     <input value={settings.bannerUrl ?? ""} onChange={(e) => setSettings({ ...settings, bannerUrl: e.target.value })}
                       placeholder="https://... (optional background image)"
-                      className="w-full bg-white/5 border border-purple-400/20 rounded-xl px-3 py-2.5 text-sm text-blue-100 placeholder-blue-300/25 focus:outline-none focus:border-purple-400/50 focus:ring-1 focus:ring-purple-400/20 transition-all" />
+                      className="w-full bg-white/5 border border-purple-400/20 rounded-xl px-3 py-2.5 text-sm text-zinc-200 placeholder-blue-300/25 focus:outline-none focus:border-purple-400/50 focus:ring-1 focus:ring-purple-400/20 transition-all" />
                   </div>
                 </div>
               </div>
@@ -1978,15 +1978,15 @@ const saveSettings = async () => {
               <div className="glass-card rounded-2xl p-5 space-y-4">
                 <h3 className="text-sm font-semibold text-pink-300 flex items-center gap-2"><Palette size={14} />Theme Accent Color</h3>
                 <div className="flex items-center gap-3">
-                  <input type="color" value={settings.themeColor ?? "#00d4ff"} onChange={(e) => setSettings({ ...settings, themeColor: e.target.value })}
+                  <input type="color" value={settings.themeColor ?? "#f4f4f5"} onChange={(e) => setSettings({ ...settings, themeColor: e.target.value })}
                     className="w-12 h-10 rounded-lg cursor-pointer border border-white/10 bg-transparent" />
-                  <input value={settings.themeColor ?? "#00d4ff"} onChange={(e) => setSettings({ ...settings, themeColor: e.target.value })}
-                    placeholder="#00d4ff"
-                    className="flex-1 bg-white/5 border border-pink-400/20 rounded-xl px-3 py-2.5 text-sm text-blue-100 placeholder-blue-300/25 focus:outline-none focus:border-pink-400/50 transition-all font-mono" />
-                  <div className="w-10 h-10 rounded-lg border border-white/10 flex-shrink-0" style={{ background: settings.themeColor ?? "#00d4ff", opacity: 0.8 }} />
+                  <input value={settings.themeColor ?? "#f4f4f5"} onChange={(e) => setSettings({ ...settings, themeColor: e.target.value })}
+                    placeholder="#f4f4f5"
+                    className="flex-1 bg-white/5 border border-pink-400/20 rounded-xl px-3 py-2.5 text-sm text-zinc-200 placeholder-blue-300/25 focus:outline-none focus:border-pink-400/50 transition-all font-mono" />
+                  <div className="w-10 h-10 rounded-lg border border-white/10 flex-shrink-0" style={{ background: settings.themeColor ?? "#f4f4f5", opacity: 0.8 }} />
                 </div>
                 <div className="flex gap-2 flex-wrap">
-                  {["#00d4ff", "#a78bfa", "#4ade80", "#f9a8d4", "#fbbf24", "#f87171"].map((c) => (
+                  {["#f4f4f5", "#a78bfa", "#4ade80", "#f9a8d4", "#fbbf24", "#f87171"].map((c) => (
                     <button key={c} onClick={() => setSettings({ ...settings, themeColor: c })}
                       className="w-7 h-7 rounded-full border-2 transition-all hover:scale-110"
                       style={{ background: c, borderColor: settings.themeColor === c ? "white" : "transparent" }} />
@@ -2004,11 +2004,11 @@ const saveSettings = async () => {
     <div className="glass-card rounded-2xl p-5">
       <div className="flex items-center justify-between gap-3 mb-5">
         <div>
-          <h2 className="text-lg font-semibold text-blue-100 flex items-center gap-2">
-            <TicketPercent size={18} className="text-cyan-300" />
+          <h2 className="text-lg font-semibold text-zinc-200 flex items-center gap-2">
+            <TicketPercent size={18} className="text-zinc-200" />
             Promo Management
           </h2>
-          <p className="text-xs text-blue-300/50 mt-1">
+          <p className="text-xs text-zinc-400/50 mt-1">
             Kelola kode promo untuk Member dan Reseller
           </p>
         </div>
@@ -2020,7 +2020,7 @@ const saveSettings = async () => {
             loadPromos();
           }}
           disabled={promosLoading}
-          className="px-3 py-2 rounded-lg bg-cyan-400/10 text-cyan-300 text-xs flex items-center gap-2"
+          className="px-3 py-2 rounded-lg bg-white/[0.05] text-zinc-200 text-xs flex items-center gap-2"
         >
           <RefreshCw size={13} className={promosLoading ? "animate-spin" : ""} />
           Refresh
@@ -2029,7 +2029,7 @@ const saveSettings = async () => {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
         <div>
-          <label className="text-xs text-blue-300/50 mb-1 block">
+          <label className="text-xs text-zinc-400/50 mb-1 block">
             Kode Promo
           </label>
           <input
@@ -2041,12 +2041,12 @@ const saveSettings = async () => {
               })
             }
             placeholder="Contoh: ZHUU10"
-            className="w-full bg-white/5 border border-cyan-400/20 rounded-xl px-3 py-2.5 text-sm text-blue-100 placeholder-blue-300/25 focus:outline-none focus:border-cyan-400/50"
+            className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2.5 text-sm text-zinc-200 placeholder-blue-300/25 focus:outline-none focus:border-white/50"
           />
         </div>
 
         <div>
-          <label className="text-xs text-blue-300/50 mb-1 block">
+          <label className="text-xs text-zinc-400/50 mb-1 block">
             Audience
           </label>
           <select
@@ -2057,7 +2057,7 @@ const saveSettings = async () => {
                 audience: e.target.value,
               })
             }
-            className="w-full bg-slate-900 border border-cyan-400/20 rounded-xl px-3 py-2.5 text-sm text-blue-100 focus:outline-none focus:border-cyan-400/50"
+            className="w-full bg-zinc-900 border border-white/10 rounded-xl px-3 py-2.5 text-sm text-zinc-200 focus:outline-none focus:border-white/50"
           >
             <option value="MEMBER">Member</option>
             <option value="RESELLER">Reseller</option>
@@ -2065,7 +2065,7 @@ const saveSettings = async () => {
         </div>
 
         <div>
-          <label className="text-xs text-blue-300/50 mb-1 block">
+          <label className="text-xs text-zinc-400/50 mb-1 block">
             Diskon (Rp)
           </label>
           <input
@@ -2079,12 +2079,12 @@ const saveSettings = async () => {
               })
             }
             placeholder="10000"
-            className="w-full bg-white/5 border border-cyan-400/20 rounded-xl px-3 py-2.5 text-sm text-blue-100 placeholder-blue-300/25 focus:outline-none focus:border-cyan-400/50"
+            className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2.5 text-sm text-zinc-200 placeholder-blue-300/25 focus:outline-none focus:border-white/50"
           />
         </div>
 
         <div>
-          <label className="text-xs text-blue-300/50 mb-1 block">
+          <label className="text-xs text-zinc-400/50 mb-1 block">
             Maksimal Penggunaan
           </label>
           <input
@@ -2098,12 +2098,12 @@ const saveSettings = async () => {
               })
             }
             placeholder="Kosong = tanpa batas"
-            className="w-full bg-white/5 border border-cyan-400/20 rounded-xl px-3 py-2.5 text-sm text-blue-100 placeholder-blue-300/25 focus:outline-none focus:border-cyan-400/50"
+            className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2.5 text-sm text-zinc-200 placeholder-blue-300/25 focus:outline-none focus:border-white/50"
           />
         </div>
 
         <div>
-          <label className="text-xs text-blue-300/50 mb-1 block">
+          <label className="text-xs text-zinc-400/50 mb-1 block">
             Expired
           </label>
           <input
@@ -2115,7 +2115,7 @@ const saveSettings = async () => {
                 expiresAt: e.target.value,
               })
             }
-            className="w-full bg-white/5 border border-cyan-400/20 rounded-xl px-3 py-2.5 text-sm text-blue-100 focus:outline-none focus:border-cyan-400/50"
+            className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2.5 text-sm text-zinc-200 focus:outline-none focus:border-white/50"
           />
         </div>
 
@@ -2130,7 +2130,7 @@ const saveSettings = async () => {
                   active: e.target.checked,
                 })
               }
-              className="accent-cyan-400"
+              className="accent-white"
             />
             Promo aktif
           </label>
@@ -2142,7 +2142,7 @@ const saveSettings = async () => {
           type="button"
           onClick={savePromo}
           disabled={promoSaving}
-          className="px-4 py-2.5 rounded-xl bg-cyan-400/15 text-cyan-300 border border-cyan-400/20 text-sm flex items-center gap-2 hover:bg-cyan-400/20 disabled:opacity-50"
+          className="px-4 py-2.5 rounded-xl bg-white/[0.08] text-zinc-200 border border-white/10 text-sm flex items-center gap-2 hover:bg-white/[0.10] disabled:opacity-50"
         >
           {promoSaving ? (
             <Loader2 size={15} className="animate-spin" />
@@ -2174,21 +2174,21 @@ const saveSettings = async () => {
     <div className="glass-card rounded-2xl p-5">
       <div className="flex items-center justify-between mb-4">
         <div>
-          <h3 className="text-sm font-semibold text-blue-100">
+          <h3 className="text-sm font-semibold text-zinc-200">
             Daftar Promo
           </h3>
-          <p className="text-xs text-blue-300/40 mt-1">
+          <p className="text-xs text-zinc-400/40 mt-1">
             {promos.length} promo terdaftar
           </p>
         </div>
       </div>
 
       {promosLoading ? (
-        <div className="flex items-center justify-center py-10 text-cyan-300">
+        <div className="flex items-center justify-center py-10 text-zinc-200">
           <Loader2 size={20} className="animate-spin" />
         </div>
       ) : promos.length === 0 ? (
-        <div className="text-center py-10 text-sm text-blue-300/40">
+        <div className="text-center py-10 text-sm text-zinc-400/40">
           Belum ada promo.
         </div>
       ) : (
@@ -2211,7 +2211,7 @@ const saveSettings = async () => {
                 <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
                   <div className="min-w-0">
                     <div className="flex flex-wrap items-center gap-2">
-                      <span className="font-mono font-semibold text-cyan-300">
+                      <span className="font-mono font-semibold text-zinc-200">
                         {promo.code}
                       </span>
 
@@ -2234,7 +2234,7 @@ const saveSettings = async () => {
                       </span>
                     </div>
 
-                    <div className="flex flex-wrap gap-x-5 gap-y-1 mt-2 text-xs text-blue-300/50">
+                    <div className="flex flex-wrap gap-x-5 gap-y-1 mt-2 text-xs text-zinc-400/50">
                       <span>
                         Diskon:{" "}
                         <b className="text-blue-200">
@@ -2311,11 +2311,11 @@ const saveSettings = async () => {
           <div className="glass-card rounded-2xl p-5">
             <div className="flex items-center justify-between gap-3 mb-5">
               <div>
-                <h2 className="text-lg font-semibold text-blue-100 flex items-center gap-2">
-                  <History size={18} className="text-cyan-300" />
+                <h2 className="text-lg font-semibold text-zinc-200 flex items-center gap-2">
+                  <History size={18} className="text-zinc-200" />
                   Activity Log
                 </h2>
-                <p className="text-xs text-blue-300/50 mt-1">
+                <p className="text-xs text-zinc-400/50 mt-1">
                   Riwayat aktivitas admin di website
                 </p>
               </div>
@@ -2324,7 +2324,7 @@ const saveSettings = async () => {
                 type="button"
                 onClick={loadActivityLogs}
                 disabled={activityLogsLoading}
-                className="px-3 py-2 rounded-lg bg-cyan-400/10 text-cyan-300 text-xs flex items-center gap-2"
+                className="px-3 py-2 rounded-lg bg-white/[0.05] text-zinc-200 text-xs flex items-center gap-2"
               >
                 <RefreshCw
                   size={13}
@@ -2335,12 +2335,12 @@ const saveSettings = async () => {
             </div>
 
             {activityLogsLoading ? (
-              <div className="flex items-center justify-center py-12 text-blue-300/50">
+              <div className="flex items-center justify-center py-12 text-zinc-400/50">
                 <Loader2 size={22} className="animate-spin mr-2" />
                 Memuat activity log...
               </div>
             ) : activityLogs.length === 0 ? (
-              <div className="text-center py-12 text-blue-300/40 text-sm">
+              <div className="text-center py-12 text-zinc-400/40 text-sm">
                 Belum ada aktivitas admin.
               </div>
             ) : (
@@ -2353,18 +2353,18 @@ const saveSettings = async () => {
                     <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2">
                       <div className="min-w-0">
                         <div className="flex items-center gap-2 flex-wrap">
-                          <span className="text-sm font-semibold text-cyan-300">
+                          <span className="text-sm font-semibold text-zinc-200">
                             {log.action}
                           </span>
 
                           {log.adminEmail && (
-                            <span className="text-xs text-blue-300/40">
+                            <span className="text-xs text-zinc-400/40">
                               {log.adminEmail}
                             </span>
                           )}
                         </div>
 
-                        <p className="text-sm text-blue-100/80 mt-1">
+                        <p className="text-sm text-zinc-200/80 mt-1">
                           {log.description}
                         </p>
                       </div>
@@ -2377,7 +2377,7 @@ const saveSettings = async () => {
                     </div>
 
                     {log.metadata && (
-                      <pre className="mt-3 overflow-x-auto rounded-lg bg-black/20 p-3 text-[11px] text-blue-300/50">
+                      <pre className="mt-3 overflow-x-auto rounded-lg bg-black/20 p-3 text-[11px] text-zinc-400/50">
                         {JSON.stringify(log.metadata, null, 2)}
                       </pre>
                     )}
@@ -2391,20 +2391,20 @@ const saveSettings = async () => {
 
       {tab === "products" && (
   <div className="glass-card rounded-2xl p-5">
-    <h2 className="text-lg font-semibold text-blue-100 mb-4">Products</h2>
+    <h2 className="text-lg font-semibold text-zinc-200 mb-4">Products</h2>
 
-        <div className="mb-5 p-4 rounded-xl bg-black/20 border border-cyan-400/10">
+        <div className="mb-5 p-4 rounded-xl bg-black/20 border border-white/10">
           <div className="flex items-center justify-between gap-3 mb-3">
             <div>
-              <h3 className="text-sm font-semibold text-cyan-300">DRIP Supplier</h3>
-              <p className="text-xs text-blue-300/50">{dripProducts.length} produk supplier tersedia</p>
+              <h3 className="text-sm font-semibold text-zinc-200">DRIP Supplier</h3>
+              <p className="text-xs text-zinc-400/50">{dripProducts.length} produk supplier tersedia</p>
             </div>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
               <button
                 type="button"
                 onClick={loadDrip}
                 disabled={dripLoading}
-                className="min-h-10 px-3 py-2.5 rounded-xl bg-cyan-400/10 border border-cyan-400/15 text-cyan-300 text-xs font-medium hover:bg-cyan-400/15 transition-all disabled:opacity-50"
+                className="min-h-10 px-3 py-2.5 rounded-xl bg-white/[0.05] border border-white/10 text-zinc-200 text-xs font-medium hover:bg-white/[0.08] transition-all disabled:opacity-50"
               >
                 {dripLoading ? "Loading..." : "Refresh"}
               </button>
@@ -2492,7 +2492,7 @@ const saveSettings = async () => {
 
           <div className="mb-3 px-3 py-2 rounded-lg bg-white/5 text-sm">
             Saldo DRIP:{" "}
-            <span className="text-cyan-300 font-semibold">
+            <span className="text-zinc-200 font-semibold">
               {dripBalance?.balance ?? dripBalance?.data?.balance ?? "-"}
             </span>
           </div>
@@ -2502,21 +2502,21 @@ const saveSettings = async () => {
               <div key={item.variant_id}
                 className="flex items-center justify-between gap-3 px-3 py-2 rounded-lg bg-white/5">
                 <div className="min-w-0">
-                  <div className="text-sm text-blue-100 truncate">
+                  <div className="text-sm text-zinc-200 truncate">
                     {item.product_name || item.name}
                   </div>
-                  <div className="text-xs text-blue-300/50">
+                  <div className="text-xs text-zinc-400/50">
                     {item.variant_name || item.duration || "-"} • ID {item.variant_id}
                   </div>
                 </div>
                 <div className="text-right text-xs shrink-0">
-                  <div className="text-cyan-300">${item.price_usd ?? item.price ?? "-"}</div>
-                  <div className="text-blue-300/50">Stock: {item.in_stock ?? item.local_stock ?? item.stock ?? "-"}</div>
+                  <div className="text-zinc-200">${item.price_usd ?? item.price ?? "-"}</div>
+                  <div className="text-zinc-400/50">Stock: {item.in_stock ?? item.local_stock ?? item.stock ?? "-"}</div>
                 </div>
               </div>
             ))}
             {!dripLoading && dripProducts.length === 0 && (
-              <div className="text-xs text-blue-300/40">Belum ada data produk DRIP.</div>
+              <div className="text-xs text-zinc-400/40">Belum ada data produk DRIP.</div>
             )}
           </div>
         </div>
@@ -2534,7 +2534,7 @@ const saveSettings = async () => {
               <img
                 src={imageUrl.trim()}
                 alt="Preview"
-                className="w-10 h-10 rounded-lg object-cover border border-cyan-400/20"
+                className="w-10 h-10 rounded-lg object-cover border border-white/10"
                 onError={(e) => {
                   (e.currentTarget as HTMLImageElement).style.display = "none";
                 }}
@@ -2584,7 +2584,7 @@ const saveSettings = async () => {
             alert(e instanceof Error ? e.message : "Gagal menambahkan produk");
           }
         }}
-        className="px-4 py-2 rounded-lg bg-cyan-400/10 text-cyan-300 text-sm"
+        className="px-4 py-2 rounded-lg bg-white/[0.05] text-zinc-200 text-sm"
       >
         + Add Product
       </button>
@@ -2650,7 +2650,7 @@ const saveSettings = async () => {
             alert(e instanceof Error ? e.message : "Gagal menambahkan durasi");
           }
         }}
-        className="px-4 py-2 rounded-lg bg-cyan-400/10 text-cyan-300 text-sm"
+        className="px-4 py-2 rounded-lg bg-white/[0.05] text-zinc-200 text-sm"
       >
         + Add Duration
       </button>
@@ -2664,9 +2664,9 @@ const saveSettings = async () => {
             value={productSearch}
             onChange={e => setProductSearch(e.target.value)}
             placeholder="Cari nama produk..."
-            className="w-full px-4 py-2.5 pl-10 rounded-xl bg-black/30 border border-white/[0.06] text-sm text-blue-100 placeholder:text-blue-200/30 focus:outline-none focus:border-cyan-400/30"
+            className="w-full px-4 py-2.5 pl-10 rounded-xl bg-black/30 border border-white/[0.06] text-sm text-zinc-200 placeholder:text-zinc-400/30 focus:outline-none focus:border-white/20"
           />
-          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-blue-200/30">
+          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400/30">
             🔎
           </span>
         </div>
@@ -2674,16 +2674,16 @@ const saveSettings = async () => {
         <select
           value={productStockFilter}
           onChange={e => setProductStockFilter(e.target.value as "all" | "available" | "empty")}
-          className="px-4 py-2.5 rounded-xl bg-black/30 border border-white/[0.06] text-sm text-blue-100"
+          className="px-4 py-2.5 rounded-xl bg-black/30 border border-white/[0.06] text-sm text-zinc-200"
         >
           <option value="all">Semua Stock</option>
           <option value="available">Ada Stock</option>
           <option value="empty">Stock Habis</option>
         </select>
 
-        <div className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-cyan-400/[0.05] border border-cyan-400/10">
+        <div className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/[0.03] border border-white/10">
           <span className="text-xs text-blue-200/50">Produk</span>
-          <span className="text-sm font-semibold text-cyan-300">
+          <span className="text-sm font-semibold text-zinc-200">
             {products.filter(p => {
               const nameMatch = !productSearch.trim() ||
                 String(p.name || "").toLowerCase().includes(productSearch.trim().toLowerCase());
@@ -2705,7 +2705,7 @@ const saveSettings = async () => {
 
               return nameMatch && stockMatch;
             }).length}
-            <span className="text-blue-200/30 font-normal"> / {products.length}</span>
+            <span className="text-zinc-400/30 font-normal"> / {products.length}</span>
           </span>
         </div>
       </div>
@@ -2740,7 +2740,7 @@ const saveSettings = async () => {
                             defaultValue={p.name}
                             id={`product-name-${p.id}`}
                             readOnly={editingProductId !== p.id}
-                            className="flex-1 px-3 py-2 rounded-lg bg-black/20 text-cyan-300 font-semibold"
+                            className="flex-1 px-3 py-2 rounded-lg bg-black/20 text-zinc-200 font-semibold"
                           />
 
                           {editingProductId === p.id && (
@@ -2817,7 +2817,7 @@ const saveSettings = async () => {
                                 setEditingProductId(p.id);
                               }
                             }}
-                            className="relative z-10 pointer-events-auto cursor-pointer w-full sm:w-auto px-3 py-2 rounded-lg bg-cyan-400/10 text-cyan-300 text-sm"
+                            className="relative z-10 pointer-events-auto cursor-pointer w-full sm:w-auto px-3 py-2 rounded-lg bg-white/[0.05] text-zinc-200 text-sm"
                           >
                             {editingProductId === p.id ? "Simpan" : "Edit"}
                           </button>
@@ -2939,7 +2939,7 @@ const saveSettings = async () => {
                   <label className="block text-[10px] uppercase tracking-wider text-blue-200/40 mb-1">
                     DRIP Stock
                   </label>
-                  <div className="w-full px-3 py-2.5 rounded-xl bg-black/20 border border-cyan-400/10 text-sm text-cyan-300/80">
+                  <div className="w-full px-3 py-2.5 rounded-xl bg-black/20 border border-white/10 text-sm text-zinc-200/80">
                     {o.dripStock ?? 0}
                   </div>
                 </div>
@@ -2996,7 +2996,7 @@ const saveSettings = async () => {
                       setEditingOptionId(o.id);
                     }
                   }}
-                  className="flex-1 min-h-10 px-4 py-2.5 rounded-xl bg-cyan-400/10 border border-cyan-400/15 text-cyan-300 text-sm font-medium hover:bg-cyan-400/15 transition-all"
+                  className="flex-1 min-h-10 px-4 py-2.5 rounded-xl bg-white/[0.05] border border-white/10 text-zinc-200 text-sm font-medium hover:bg-white/[0.08] transition-all"
                 >
                   {editingOptionId === o.id ? "Simpan" : "Edit"}
                 </button>
@@ -3098,8 +3098,8 @@ const saveSettings = async () => {
       {tab === "wallet" && (
         <div className="space-y-4">
           <div>
-            <h2 className="text-lg font-semibold text-blue-100">Wallet Control</h2>
-            <p className="text-xs text-blue-300/40 mt-1">
+            <h2 className="text-lg font-semibold text-zinc-200">Wallet Control</h2>
+            <p className="text-xs text-zinc-400/40 mt-1">
               Pilih member untuk menambah atau mengurangi saldo secara manual.
             </p>
           </div>
@@ -3107,12 +3107,12 @@ const saveSettings = async () => {
           <div className="glass-card rounded-2xl p-5 space-y-4">
             <div>
               <div className="flex items-center justify-between mb-2">
-                <label className="text-xs text-blue-300/50">
+                <label className="text-xs text-zinc-400/50">
                   Pilih Member
                 </label>
                 <button
                   onClick={() => loadWalletUsers(walletSearch)}
-                  className="text-xs text-blue-300/50 hover:text-cyan-300"
+                  className="text-xs text-zinc-400/50 hover:text-zinc-200"
                 >
                   Refresh
                 </button>
@@ -3126,14 +3126,14 @@ const saveSettings = async () => {
                   loadWalletUsers(value);
                 }}
                 placeholder="Cari email atau username..."
-                className="w-full bg-white/5 border border-cyan-400/20 rounded-xl px-3 py-2.5 text-sm text-blue-100 placeholder-blue-300/25 focus:outline-none focus:border-cyan-400/50"
+                className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2.5 text-sm text-zinc-200 placeholder-blue-300/25 focus:outline-none focus:border-white/50"
               />
             </div>
 
             <div className="max-h-64 overflow-y-auto space-y-2">
               {walletUsersLoading ? (
                 <div className="flex justify-center py-8">
-                  <Loader2 size={22} className="animate-spin text-cyan-400" />
+                  <Loader2 size={22} className="animate-spin text-zinc-200" />
                 </div>
               ) : walletUsers.length === 0 ? (
                 <div className="text-center py-8 text-sm text-blue-300/30">
@@ -3146,17 +3146,17 @@ const saveSettings = async () => {
                     onClick={() => selectWalletUser(member)}
                     className={`w-full text-left rounded-xl p-3 border transition-all ${
                       selectedWalletUser?.id === member.id
-                        ? "border-cyan-400/50 bg-cyan-400/10"
-                        : "border-cyan-400/10 bg-white/[0.02] hover:bg-white/5"
+                        ? "border-white/50 bg-white/[0.05]"
+                        : "border-white/10 bg-white/[0.02] hover:bg-white/5"
                     }`}
                   >
                     <div className="flex items-center justify-between gap-3">
                       <div className="min-w-0">
-                        <div className="text-sm text-blue-100 truncate">
+                        <div className="text-sm text-zinc-200 truncate">
                           {member.username || member.email || member.id}
                         </div>
                         {member.username && member.email && (
-                          <div className="text-xs text-blue-300/40 truncate">
+                          <div className="text-xs text-zinc-400/40 truncate">
                             {member.email}
                           </div>
                         )}
@@ -3174,17 +3174,17 @@ const saveSettings = async () => {
             </div>
 
             {selectedWalletUser && (
-              <div className="rounded-xl border border-cyan-400/20 bg-cyan-400/5 p-3">
-                <div className="text-xs text-blue-300/40 mb-1">
+              <div className="rounded-xl border border-white/10 bg-white/[0.03] p-3">
+                <div className="text-xs text-zinc-400/40 mb-1">
                   Member terpilih
                 </div>
-                <div className="text-sm text-blue-100">
+                <div className="text-sm text-zinc-200">
                   {selectedWalletUser.username ||
                     selectedWalletUser.email ||
                     selectedWalletUser.id}
                 </div>
                 {selectedWalletUser.email && (
-                  <div className="text-xs text-blue-300/40 mt-0.5">
+                  <div className="text-xs text-zinc-400/40 mt-0.5">
                     {selectedWalletUser.email}
                   </div>
                 )}
@@ -3197,7 +3197,7 @@ const saveSettings = async () => {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
-                <label className="text-xs text-blue-300/50 mb-1 block">
+                <label className="text-xs text-zinc-400/50 mb-1 block">
                   Aksi
                 </label>
                 <select
@@ -3205,7 +3205,7 @@ const saveSettings = async () => {
                   onChange={(e) =>
                     setWalletAction(e.target.value as "add" | "subtract")
                   }
-                  className="w-full bg-slate-900 border border-cyan-400/20 rounded-xl px-3 py-2.5 text-sm text-blue-100 focus:outline-none focus:border-cyan-400/50"
+                  className="w-full bg-zinc-900 border border-white/10 rounded-xl px-3 py-2.5 text-sm text-zinc-200 focus:outline-none focus:border-white/50"
                 >
                   <option value="add">+ Tambah Saldo</option>
                   <option value="subtract">− Kurangi Saldo</option>
@@ -3213,7 +3213,7 @@ const saveSettings = async () => {
               </div>
 
               <div>
-                <label className="text-xs text-blue-300/50 mb-1 block">
+                <label className="text-xs text-zinc-400/50 mb-1 block">
                   Nominal (Rp) *
                 </label>
                 <input
@@ -3222,13 +3222,13 @@ const saveSettings = async () => {
                   value={walletAmount}
                   onChange={(e) => setWalletAmount(e.target.value)}
                   placeholder="10000"
-                  className="w-full bg-white/5 border border-cyan-400/20 rounded-xl px-3 py-2.5 text-sm text-blue-100 placeholder-blue-300/25 focus:outline-none focus:border-cyan-400/50"
+                  className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2.5 text-sm text-zinc-200 placeholder-blue-300/25 focus:outline-none focus:border-white/50"
                 />
               </div>
             </div>
 
             <div>
-              <label className="text-xs text-blue-300/50 mb-1 block">
+              <label className="text-xs text-zinc-400/50 mb-1 block">
                 Alasan *
               </label>
               <textarea
@@ -3236,7 +3236,7 @@ const saveSettings = async () => {
                 onChange={(e) => setWalletReason(e.target.value)}
                 placeholder="Contoh: Koreksi deposit yang tidak sengaja di-ACC"
                 rows={3}
-                className="w-full bg-white/5 border border-cyan-400/20 rounded-xl px-3 py-2.5 text-sm text-blue-100 placeholder-blue-300/25 focus:outline-none focus:border-cyan-400/50 resize-none"
+                className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2.5 text-sm text-zinc-200 placeholder-blue-300/25 focus:outline-none focus:border-white/50 resize-none"
               />
             </div>
 
@@ -3263,18 +3263,18 @@ const saveSettings = async () => {
       {tab === "deposits" && (
         <div className="space-y-4">
           <div className="flex items-center justify-between">
-            <h2 className="text-lg font-semibold text-blue-100">Wallet Deposits</h2>
-            <button onClick={loadDeposits} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs text-blue-300/60 hover:text-cyan-300 hover:bg-cyan-400/10">
+            <h2 className="text-lg font-semibold text-zinc-200">Wallet Deposits</h2>
+            <button onClick={loadDeposits} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs text-zinc-400/60 hover:text-zinc-200 hover:bg-white/[0.05]">
               <RefreshCw size={12} className={depositsLoading ? "animate-spin" : ""} /> Refresh
             </button>
           </div>
 
           {depositsLoading ? (
             <div className="flex justify-center py-12">
-              <Loader2 size={24} className="animate-spin text-cyan-400" />
+              <Loader2 size={24} className="animate-spin text-zinc-200" />
             </div>
           ) : deposits.length === 0 ? (
-            <div className="glass-card rounded-2xl p-8 text-center text-blue-300/40 text-sm">
+            <div className="glass-card rounded-2xl p-8 text-center text-zinc-400/40 text-sm">
               Belum ada deposit.
             </div>
           ) : (
@@ -3283,13 +3283,13 @@ const saveSettings = async () => {
                 <div key={d.id} className="glass-card rounded-2xl p-4">
                   <div className="flex items-center justify-between gap-3">
                     <div>
-                      <div className="font-semibold text-blue-100">
+                      <div className="font-semibold text-zinc-200">
                         Rp{Number(d.amount).toLocaleString("id-ID")}
                       </div>
-                      <div className="text-xs text-blue-300/50 mt-1">
+                      <div className="text-xs text-zinc-400/50 mt-1">
                         {d.reference} · User: {d.userId}
                       </div>
-                      <div className="text-xs mt-1 text-blue-300/40">
+                      <div className="text-xs mt-1 text-zinc-400/40">
                         Status: {d.status}
                       </div>
                     </div>
@@ -3349,10 +3349,10 @@ const saveSettings = async () => {
           <div className="space-y-5">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div>
-                <p className="text-[11px] uppercase tracking-[0.2em] text-cyan-300/50 font-semibold">
+                <p className="text-[11px] uppercase tracking-[0.2em] text-zinc-400/50 font-semibold">
                   Order Management
                 </p>
-                <h2 className="text-lg font-semibold text-blue-100 mt-1">
+                <h2 className="text-lg font-semibold text-zinc-200 mt-1">
                   Orders
                 </h2>
               </div>
@@ -3360,7 +3360,7 @@ const saveSettings = async () => {
               <button
                 type="button"
                 onClick={loadOrders}
-                className="flex items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-2 text-sm text-blue-100 hover:bg-white/5 transition"
+                className="flex items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-2 text-sm text-zinc-200 hover:bg-white/5 transition"
               >
                 ↻ Refresh
               </button>
@@ -3369,7 +3369,7 @@ const saveSettings = async () => {
             <div className="grid grid-cols-3 gap-2">
               <div className="rounded-2xl border border-white/[0.06] bg-white/[0.03] p-3">
                 <div className="text-[10px] uppercase tracking-wider text-blue-200/40">Total</div>
-                <div className="mt-1 text-xl font-bold text-blue-100">{orders.length}</div>
+                <div className="mt-1 text-xl font-bold text-zinc-200">{orders.length}</div>
               </div>
 
               <div className="rounded-2xl border border-yellow-400/10 bg-yellow-400/[0.04] p-3">
@@ -3391,7 +3391,7 @@ const saveSettings = async () => {
                   e.currentTarget.form?.requestSubmit();
                 }}
                 placeholder="Cari produk, invoice, WhatsApp..."
-                className="flex-1 rounded-xl border border-white/10 bg-black/20 px-4 py-2.5 text-sm text-blue-100 outline-none focus:border-cyan-400/30"
+                className="flex-1 rounded-xl border border-white/10 bg-black/20 px-4 py-2.5 text-sm text-zinc-200 outline-none focus:border-white/20"
               />
 
               <select
@@ -3400,7 +3400,7 @@ const saveSettings = async () => {
                   (window as any).__zhuuOrderStatus = e.target.value;
                   e.currentTarget.form?.requestSubmit();
                 }}
-                className="rounded-xl border border-white/10 bg-black/20 px-4 py-2.5 text-sm text-blue-100"
+                className="rounded-xl border border-white/10 bg-black/20 px-4 py-2.5 text-sm text-zinc-200"
               >
                 <option value="ALL">Semua Status</option>
                 <option value="PENDING">Pending</option>
@@ -3428,7 +3428,7 @@ const saveSettings = async () => {
                     >
                       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                         <div className="min-w-0 space-y-1.5">
-                          <div className="font-semibold text-blue-100 truncate">
+                          <div className="font-semibold text-zinc-200 truncate">
                             {order.productName}
                           </div>
 
@@ -3447,7 +3447,7 @@ const saveSettings = async () => {
                           )}
 
                           {order.createdAt && (
-                            <div className="text-[11px] text-blue-200/30">
+                            <div className="text-[11px] text-zinc-400/30">
                               {new Date(order.createdAt).toLocaleString("id-ID")}
                             </div>
                           )}
@@ -3468,7 +3468,7 @@ const saveSettings = async () => {
                             <button
                               type="button"
                               onClick={() => confirmOrder(order.id)}
-                              className="rounded-xl bg-cyan-400/15 px-4 py-2 text-sm font-semibold text-cyan-300 hover:bg-cyan-400/25 transition"
+                              className="rounded-xl bg-white/[0.08] px-4 py-2 text-sm font-semibold text-zinc-200 hover:bg-white/10 transition"
                             >
                               ✓ Konfirmasi
                             </button>
@@ -3487,19 +3487,19 @@ const saveSettings = async () => {
       {tab === "feedback" && (
         <div className="space-y-4">
           <div className="flex items-center justify-between">
-            <h2 className="text-lg font-semibold text-blue-100">User Feedback <span className="text-sm font-normal text-blue-300/40">({feedback.length})</span></h2>
-            <button onClick={fetchFeedback} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs text-blue-300/60 hover:text-cyan-300 hover:bg-cyan-400/10 transition-all">
+            <h2 className="text-lg font-semibold text-zinc-200">User Feedback <span className="text-sm font-normal text-zinc-400/40">({feedback.length})</span></h2>
+            <button onClick={fetchFeedback} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs text-zinc-400/60 hover:text-zinc-200 hover:bg-white/[0.05] transition-all">
               <RefreshCw size={12} className={feedbackLoading ? "animate-spin" : ""} /> Refresh
             </button>
           </div>
           {feedbackLoading ? (
-            <div className="flex justify-center py-12"><Loader2 size={24} className="animate-spin text-cyan-400" /></div>
+            <div className="flex justify-center py-12"><Loader2 size={24} className="animate-spin text-zinc-200" /></div>
           ) : feedback.length === 0 ? (
             <div className="text-center py-12 text-blue-300/30 text-sm glass-card rounded-2xl">No feedback received yet.</div>
           ) : (
             <div className="flex flex-col gap-3">
               {feedback.map((item) => (
-                <div key={item.id} className="glass-card rounded-2xl p-4 hover:border-cyan-400/20 transition-all">
+                <div key={item.id} className="glass-card rounded-2xl p-4 hover:border-white/10 transition-all">
                   <div className="flex items-start justify-between gap-3 mb-3">
                     <div className="flex items-center gap-2 flex-wrap">
                       {item.category && (
@@ -3509,8 +3509,8 @@ const saveSettings = async () => {
                         </span>
                       )}
                       {typeof item.rating === "number" && <span className="text-base">{RATING_EMOJIS[item.rating]}</span>}
-                      {item.name && <span className="text-xs text-blue-100/70 font-medium">{item.name}</span>}
-                      {item.email && <span className="text-xs text-blue-300/40">{item.email}</span>}
+                      {item.name && <span className="text-xs text-zinc-200/70 font-medium">{item.name}</span>}
+                      {item.email && <span className="text-xs text-zinc-400/40">{item.email}</span>}
                     </div>
                     <div className="flex items-center gap-2 flex-shrink-0">
                       <span className="text-xs text-blue-300/30">{new Date(item.createdAt).toLocaleDateString()}</span>

@@ -215,17 +215,17 @@ export default function NotificationsPage() {
       <div className="max-w-3xl mx-auto">
           {pushSupported && (
             <div className="glass-card rounded-2xl p-4 mb-4 flex items-center gap-3">
-              <div className="w-10 h-10 shrink-0 rounded-2xl bg-cyan-300/10 border border-cyan-300/10 flex items-center justify-center">
-                <Smartphone className="w-5 h-5 text-cyan-300" />
+              <div className="w-10 h-10 shrink-0 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center">
+                <Smartphone className="w-5 h-5 text-zinc-200" />
               </div>
 
               <div className="min-w-0 flex-1">
-                <p className="text-sm font-bold text-cyan-50">
+                <p className="text-sm font-bold text-zinc-100">
                   {pushEnabled
                     ? "Notifikasi HP aktif"
                     : "Aktifkan notifikasi HP"}
                 </p>
-                <p className="text-xs text-cyan-100/40 mt-0.5">
+                <p className="text-xs text-zinc-400/40 mt-0.5">
                   {pushEnabled
                     ? "ZHUU bisa mengirim notifikasi langsung ke perangkat kamu."
                     : "Terima notifikasi meskipun website sedang tidak dibuka."}
@@ -236,7 +236,7 @@ export default function NotificationsPage() {
                 <button
                   onClick={enablePush}
                   disabled={pushLoading}
-                  className="shrink-0 rounded-xl bg-cyan-300 px-3 py-2 text-xs font-black text-slate-950 disabled:opacity-50"
+                  className="shrink-0 rounded-xl bg-white px-3 py-2 text-xs font-black text-slate-950 disabled:opacity-50"
                 >
                   {pushLoading ? "Memproses..." : "Aktifkan"}
                 </button>
@@ -246,12 +246,12 @@ export default function NotificationsPage() {
         <div className="flex items-center justify-between gap-3 mb-6">
           <div>
             <div className="flex items-center gap-2">
-              <Bell className="w-6 h-6 text-cyan-300" />
+              <Bell className="w-6 h-6 text-zinc-200" />
               <h1 className="text-2xl sm:text-3xl font-black gradient-text">
                 Notifications
               </h1>
             </div>
-            <p className="text-sm text-cyan-100/40 mt-1">
+            <p className="text-sm text-zinc-400/40 mt-1">
               Semua aktivitas penting dari akun ZHUU kamu.
             </p>
           </div>
@@ -259,7 +259,7 @@ export default function NotificationsPage() {
           {unread > 0 && (
             <button
               onClick={markAllRead}
-              className="shrink-0 inline-flex items-center gap-2 rounded-xl border border-cyan-300/15 bg-cyan-300/5 px-3 py-2 text-xs font-bold text-cyan-100 hover:bg-cyan-300/10"
+              className="shrink-0 inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2 text-xs font-bold text-zinc-200 hover:bg-white/5"
             >
               <CheckCheck className="w-4 h-4" />
               Tandai semua
@@ -269,16 +269,16 @@ export default function NotificationsPage() {
 
         <div className="glass-card rounded-3xl overflow-hidden">
           {loading ? (
-            <div className="p-10 text-center text-sm text-cyan-100/40">
+            <div className="p-10 text-center text-sm text-zinc-400/40">
               Memuat notifikasi...
             </div>
           ) : items.length === 0 ? (
             <div className="p-12 text-center">
-              <Bell className="w-10 h-10 mx-auto text-cyan-100/20 mb-3" />
-              <p className="font-bold text-cyan-100/70">
+              <Bell className="w-10 h-10 mx-auto text-zinc-400/20 mb-3" />
+              <p className="font-bold text-zinc-200">
                 Belum ada notifikasi
               </p>
-              <p className="text-xs text-cyan-100/30 mt-1">
+              <p className="text-xs text-zinc-400/30 mt-1">
                 Notifikasi baru akan muncul di sini.
               </p>
             </div>
@@ -294,11 +294,11 @@ export default function NotificationsPage() {
                     className={`w-full text-left p-4 sm:p-5 flex gap-3 transition ${
                       item.read
                         ? "bg-transparent"
-                        : "bg-cyan-300/[0.045]"
+                        : "bg-white/[0.03]"
                     } hover:bg-white/[0.035]`}
                   >
-                    <div className="w-10 h-10 shrink-0 rounded-2xl bg-cyan-300/10 border border-cyan-300/10 flex items-center justify-center">
-                      <Icon className="w-5 h-5 text-cyan-300" />
+                    <div className="w-10 h-10 shrink-0 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center">
+                      <Icon className="w-5 h-5 text-zinc-200" />
                     </div>
 
                     <div className="min-w-0 flex-1">
@@ -306,23 +306,23 @@ export default function NotificationsPage() {
                         <h2
                           className={`text-sm ${
                             item.read
-                              ? "font-semibold text-cyan-100/65"
-                              : "font-black text-cyan-50"
+                              ? "font-semibold text-zinc-400"
+                              : "font-black text-zinc-100"
                           }`}
                         >
                           {item.title}
                         </h2>
 
                         {!item.read && (
-                          <span className="w-2 h-2 shrink-0 rounded-full bg-cyan-300 mt-1.5" />
+                          <span className="w-2 h-2 shrink-0 rounded-full bg-white mt-1.5" />
                         )}
                       </div>
 
-                      <p className="text-xs sm:text-sm text-cyan-100/45 mt-1 leading-relaxed">
+                      <p className="text-xs sm:text-sm text-zinc-400/50 mt-1 leading-relaxed">
                         {item.message}
                       </p>
 
-                      <span className="text-[10px] text-cyan-100/25 mt-2 block">
+                      <span className="text-[10px] text-zinc-400/30 mt-2 block">
                         {formatDate(item.createdAt)}
                       </span>
                     </div>

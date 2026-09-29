@@ -10,7 +10,6 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { setBaseUrl, setAuthTokenGetter } from "@workspace/api-client-react";
 
-import OceanCanvas from "@/components/OceanCanvas";
 import Navigation from "@/components/Navigation";
 import NotificationsPage from "@/pages/NotificationsPage";
 import Footer from "@/components/Footer";
@@ -83,7 +82,7 @@ export const clerkAppearance = {
     socialButtonsVariant: "blockButton" as const,
   },
   variables: {
-    colorPrimary: "#00d4ff",
+    colorPrimary: "#f4f4f5",
     colorForeground: "#d0eef8",
     colorMutedForeground: "#6ba3be",
     colorDanger: "#f87171",
@@ -96,28 +95,28 @@ export const clerkAppearance = {
   },
   elements: {
     rootBox: "w-full flex justify-center",
-    cardBox: "!bg-[#070e1c] border border-cyan-400/20 rounded-2xl w-[440px] max-w-full overflow-hidden shadow-2xl shadow-cyan-400/10",
+    cardBox: "!bg-zinc-950 border border-white/10 rounded-2xl w-[440px] max-w-full overflow-hidden shadow-2xl shadow-black/30",
     card: "!shadow-none !border-0 !bg-transparent !rounded-none",
     footer: "!shadow-none !border-0 !bg-transparent !rounded-none",
-    headerTitle: "text-blue-100 font-bold",
+    headerTitle: "text-zinc-200 font-bold",
     headerSubtitle: "text-blue-300/60",
     socialButtonsBlockButtonText: "text-blue-200 font-medium",
     formFieldLabel: "text-blue-300/70 text-sm",
-    footerActionLink: "text-cyan-400 hover:text-cyan-300 font-medium",
+    footerActionLink: "text-zinc-200 hover:text-zinc-300 font-medium",
     footerActionText: "text-blue-300/50",
     dividerText: "text-blue-300/40",
-    identityPreviewEditButton: "text-cyan-400",
+    identityPreviewEditButton: "text-zinc-200",
     formFieldSuccessText: "text-green-400",
     alertText: "text-red-300",
     logoBox: "flex justify-center",
     logoImage: "h-12 w-12 rounded-full object-cover",
-    socialButtonsBlockButton: "border border-cyan-400/20 bg-white/5 hover:bg-cyan-400/10 transition-all rounded-xl",
-    formButtonPrimary: "bg-gradient-to-r from-cyan-400 to-purple-500 hover:opacity-90 transition-all text-white font-semibold shadow-lg shadow-cyan-400/20 rounded-xl",
-    formFieldInput: "bg-[#0d1a2e] border border-cyan-400/25 text-blue-100 rounded-xl focus:border-cyan-400/60 focus:ring-1 focus:ring-cyan-400/30",
-    footerAction: "border-t border-cyan-400/10 bg-transparent",
-    dividerLine: "bg-cyan-400/10",
+    socialButtonsBlockButton: "border border-white/10 bg-white/5 hover:bg-white/5 transition-all rounded-xl",
+    formButtonPrimary: "bg-white hover:opacity-90 transition-all text-white font-semibold shadow-lg shadow-black/30 rounded-xl",
+    formFieldInput: "bg-zinc-900 border border-white/10 text-zinc-200 rounded-xl focus:border-white/20 focus:ring-1 focus:ring-white/10",
+    footerAction: "border-t border-white/10 bg-transparent",
+    dividerLine: "bg-white/5",
     alert: "bg-red-500/10 border border-red-500/20 rounded-xl",
-    otpCodeFieldInput: "bg-[#0d1a2e] border border-cyan-400/25 text-blue-100 rounded-xl",
+    otpCodeFieldInput: "bg-zinc-900 border border-white/10 text-zinc-200 rounded-xl",
     formFieldRow: "gap-2",
     main: "gap-4",
     formField__phoneNumber: "!hidden",
@@ -217,7 +216,6 @@ function AppRouter() {
 
   return (
     <div className="min-h-screen relative">
-      <OceanCanvas />
       <Navigation />
       <AnnouncementBanner />
 

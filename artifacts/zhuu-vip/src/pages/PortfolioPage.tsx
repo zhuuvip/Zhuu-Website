@@ -3,26 +3,26 @@ const PROJECTS = [
     title: "ZhuuSite Platform",
     desc: "A full-featured VIP community platform with speed test, AI chat, portfolio, and more. Built with React, TypeScript, and Claude AI.",
     tags: ["React", "TypeScript", "Claude AI", "Vite"],
-    icon: "🌊", color: "#00ffff", status: "Live",
+    icon: "◈", color: "#e4e4e7", status: "Live",
     link: "/",
   },
   {
     title: "Zhuu AI Assistant",
-    desc: "Deep-sea AI companion powered by Anthropic Claude. Handles coding, questions, creative writing with streaming responses and chat history.",
+    desc: "AI companion powered by Anthropic Claude. Handles coding, questions, creative writing with streaming responses and chat history.",
     tags: ["Anthropic", "SSE", "Node.js", "Streaming"],
     icon: "✨", color: "#a78bfa", status: "Live",
     link: "/ai",
   },
   {
-    title: "Ocean Speed Test",
+    title: "Zhuu Speed Test",
     desc: "Real-time internet speed testing with download, upload, ping and jitter measurement. No third-party APIs.",
     tags: ["Web APIs", "Performance", "TypeScript"],
     icon: "⚡", color: "#34d399", status: "Live",
     link: "/speedtest",
   },
   {
-    title: "Deep Sea Community",
-    desc: "Online community hub for creators, developers, and ocean enthusiasts. Share, connect, and grow together.",
+    title: "Zhuu Community",
+    desc: "Online community hub for creators and developers. Share, connect, and grow together.",
     tags: ["Community", "Social", "Discord"],
     icon: "👥", color: "#60a5fa", status: "Growing",
     link: "/community",
@@ -36,7 +36,7 @@ const PROJECTS = [
   },
   {
     title: "Zhuu Brand Design",
-    desc: "The visual identity and branding system for ZhuuSite — deep ocean colors, neon cyan palette, immersive ocean animations.",
+    desc: "The visual identity and branding system for ZhuuSite — clean dark visuals, refined accents, and smooth animations.",
     tags: ["Design", "Branding", "CSS", "Animation"],
     icon: "🎨", color: "#fcd34d", status: "v2.0",
     link: "#",
@@ -44,7 +44,7 @@ const PROJECTS = [
 ];
 
 const SKILLS = [
-  { label: "React / TypeScript", pct: 95, color: "#00ffff" },
+  { label: "React / TypeScript", pct: 95, color: "#e4e4e7" },
   { label: "AI Integration (Claude)", pct: 90, color: "#a78bfa" },
   { label: "UI/UX Design", pct: 85, color: "#34d399" },
   { label: "Node.js / Express", pct: 88, color: "#60a5fa" },
@@ -56,17 +56,17 @@ import logoPath from "@assets/file_000000003e9c72078d0f388bef03af6a_177846239463
 
 export default function PortfolioPage() {
   return (
-    <div className="ocean-bg min-h-screen pt-6 pb-28 px-4">
+    <div className="zhuu-page-bg min-h-screen pt-6 pb-28 px-4">
       <div className="max-w-5xl mx-auto">
         <div className="text-center mb-12">
           <div className="inline-flex items-center gap-3 mb-6">
-            <div style={{ width: 70, height: 70, borderRadius: "50%", overflow: "hidden", border: "3px solid rgba(0,255,255,0.4)", boxShadow: "0 0 25px rgba(0,255,255,0.3)" }}>
+            <div style={{ width: 70, height: 70, borderRadius: "50%", overflow: "hidden", border: "3px solid rgba(255,255,255,0.16)", boxShadow: "0 0 25px rgba(255,255,255,0.08)" }}>
               <img src={logoPath} alt="Zhuu" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
             </div>
           </div>
           <h1 className="text-4xl font-black gradient-text mb-2" style={{ fontFamily: "Poppins, Inter, sans-serif" }}>Portfolio</h1>
-          <p style={{ color: "rgba(0,200,220,0.5)", maxWidth: 500, margin: "0 auto" }}>
-            Projects, creations, and digital works from the deep ocean of Zhuu's imagination.
+          <p style={{ color: "rgba(255,255,255,0.5)", maxWidth: 500, margin: "0 auto" }}>
+            Projects, creations, and digital works from Zhuu's imagination.
           </p>
         </div>
 
@@ -82,11 +82,11 @@ export default function PortfolioPage() {
                   </span>
                 </div>
                 <h3 className="font-bold text-base mb-2" style={{ color: p.color, fontFamily: "Poppins, Inter, sans-serif" }}>{p.title}</h3>
-                <p className="text-sm flex-1 mb-4" style={{ color: "rgba(0,200,220,0.55)", lineHeight: 1.6 }}>{p.desc}</p>
+                <p className="text-sm flex-1 mb-4" style={{ color: "rgba(255,255,255,0.5)", lineHeight: 1.6 }}>{p.desc}</p>
                 <div className="flex flex-wrap gap-1.5">
                   {p.tags.map((tag) => (
                     <span key={tag} className="text-xs px-2 py-0.5 rounded"
-                      style={{ background: "rgba(0,200,220,0.08)", color: "rgba(0,200,220,0.6)", border: "1px solid rgba(0,200,220,0.1)" }}>
+                      style={{ background: "rgba(255,255,255,0.04)", color: "rgba(255,255,255,0.55)", border: "1px solid rgba(255,255,255,0.08)" }}>
                       {tag}
                     </span>
                   ))}
@@ -104,10 +104,10 @@ export default function PortfolioPage() {
             {SKILLS.map((s) => (
               <div key={s.label}>
                 <div className="flex justify-between mb-2">
-                  <span className="text-sm font-medium" style={{ color: "rgba(0,220,240,0.8)" }}>{s.label}</span>
+                  <span className="text-sm font-medium" style={{ color: "rgba(255,255,255,0.72)" }}>{s.label}</span>
                   <span className="text-sm font-bold" style={{ color: s.color }}>{s.pct}%</span>
                 </div>
-                <div style={{ height: 6, background: "rgba(0,200,220,0.1)", borderRadius: 3, overflow: "hidden" }}>
+                <div style={{ height: 6, background: "rgba(255,255,255,0.08)", borderRadius: 3, overflow: "hidden" }}>
                   <div style={{
                     height: "100%", width: `${s.pct}%`,
                     background: `linear-gradient(90deg, ${s.color}80, ${s.color})`,
@@ -122,14 +122,14 @@ export default function PortfolioPage() {
         </div>
 
         <div className="glass-card p-8 text-center rounded-2xl">
-          <div className="text-4xl mb-4">🤝</div>
+          <div className="text-4xl mb-4 text-white/70">+</div>
           <h2 className="text-2xl font-black gradient-text mb-3" style={{ fontFamily: "Poppins, Inter, sans-serif" }}>Want to Collaborate?</h2>
-          <p className="mb-6" style={{ color: "rgba(0,200,220,0.55)" }}>
+          <p className="mb-6" style={{ color: "rgba(255,255,255,0.5)" }}>
             Open for creative projects, collaborations, and community building.
           </p>
           <a href="/community">
-            <button className="neon-btn-solid px-10 py-4 rounded-full font-bold text-base">
-              Get in Touch 🌊
+            <button className="inline-flex items-center justify-center px-10 py-4 rounded-full bg-white text-black font-bold text-base transition-transform hover:scale-[1.02]">
+              Get in Touch
             </button>
           </a>
         </div>

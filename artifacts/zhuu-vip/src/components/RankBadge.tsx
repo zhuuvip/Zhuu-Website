@@ -1,4 +1,5 @@
 import React from "react";
+import { Shield, ShieldCheck, Crown } from "lucide-react";
 
 export type RankType = "surface" | "deep-sea" | "trench";
 export type BadgeSize = "small" | "medium" | "large";
@@ -12,30 +13,30 @@ interface RankBadgeProps {
 const RANK_CONFIG = {
   surface: {
     label: "Surface",
-    icon: "🌊",
-    color: "rgba(0, 150, 180, 0.7)",
-    glowColor: "rgba(0, 150, 180, 0.2)",
-    borderColor: "rgba(0, 150, 180, 0.5)",
-    bgColor: "rgba(0, 150, 180, 0.08)",
-    textColor: "#4dd9ff",
+    icon: Shield,
+    color: "rgba(255, 255, 255, 0.65)",
+    glowColor: "rgba(255, 255, 255, 0.12)",
+    borderColor: "rgba(255, 255, 255, 0.16)",
+    bgColor: "rgba(255, 255, 255, 0.04)",
+    textColor: "#d4d4d8",
   },
   "deep-sea": {
-    label: "Deep Sea",
-    icon: "🐠",
-    color: "rgba(0, 229, 255, 0.9)",
-    glowColor: "rgba(0, 229, 255, 0.3)",
-    borderColor: "rgba(0, 229, 255, 0.7)",
-    bgColor: "rgba(0, 229, 255, 0.1)",
-    textColor: "#00e5ff",
+    label: "Advanced",
+    icon: ShieldCheck,
+    color: "rgba(255, 255, 255, 0.8)",
+    glowColor: "rgba(255, 255, 255, 0.16)",
+    borderColor: "rgba(255, 255, 255, 0.22)",
+    bgColor: "rgba(255, 255, 255, 0.06)",
+    textColor: "#f4f4f5",
   },
   trench: {
     label: "Trench",
-    icon: "🦑",
-    color: "rgba(192, 132, 252, 1)",
-    glowColor: "rgba(192, 132, 252, 0.4)",
-    borderColor: "rgba(192, 132, 252, 0.8)",
-    bgColor: "rgba(192, 132, 252, 0.12)",
-    textColor: "#e9d5ff",
+    icon: Crown,
+    color: "rgba(255, 255, 255, 0.95)",
+    glowColor: "rgba(255, 255, 255, 0.2)",
+    borderColor: "rgba(255, 255, 255, 0.3)",
+    bgColor: "rgba(255, 255, 255, 0.08)",
+    textColor: "#ffffff",
   },
 };
 
@@ -68,7 +69,7 @@ export default function RankBadge({
         animation: rank === "trench" ? "rank-shimmer 3s ease-in-out infinite" : "none",
       }}
     >
-      <span className={sizeConfig.icon}>{config.icon}</span>
+      <config.icon className={sizeConfig.icon} size={size === "small" ? 12 : size === "medium" ? 15 : 19} />
       {rank === "trench" && (
         <div
           className="absolute inset-0 rounded-full"

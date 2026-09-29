@@ -85,11 +85,11 @@ const config = {
   },
   info: {
     icon: Info,
-    iconClass: "text-cyan-300",
-    iconBg: "bg-cyan-400/[.08]",
+    iconClass: "text-zinc-200",
+    iconBg: "bg-white/[.06]",
     glow: "shadow-[0_0_80px_rgba(34,211,238,.16)]",
     label: "Informasi",
-    accent: "from-cyan-300/0 via-cyan-300/70 to-cyan-300/0",
+    accent: "from-white/0 via-white/50 to-white/0",
   },
 };
 
@@ -184,7 +184,7 @@ export default function ZhuuAlertProvider({
           <div className="absolute inset-0 bg-[#01050c]/80 backdrop-blur-[18px] animate-[zh-alert-backdrop_.25s_ease-out]" />
 
           {/* Ambient glow */}
-          <div className="pointer-events-none absolute left-1/2 top-1/2 size-[320px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-cyan-400/[.055] blur-[90px]" />
+          <div className="pointer-events-none absolute left-1/2 top-1/2 size-[320px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-white/[.035] blur-[90px]" />
 
           {/* iOS-style card */}
           <div
@@ -201,15 +201,15 @@ export default function ZhuuAlertProvider({
             {/* Top reflection */}
             <div className="pointer-events-none absolute inset-x-0 top-0 h-[120px] bg-gradient-to-b from-white/[.055] to-transparent" />
 
-            {/* Top cyan line */}
+            {/* Top accent line */}
             <div
               className={`absolute inset-x-8 top-0 h-px bg-gradient-to-r ${current.accent}`}
             />
 
             {/* Tiny brand indicator */}
             <div className="absolute left-1/2 top-4 flex -translate-x-1/2 items-center gap-1.5">
-              <Sparkles className="size-3 text-cyan-300/60" />
-              <span className="text-[9px] font-bold tracking-[.22em] text-cyan-100/35">
+              <Sparkles className="size-3 text-zinc-200/60" />
+              <span className="text-[9px] font-bold tracking-[.22em] text-zinc-400/40">
                 ZHUU
               </span>
             </div>
@@ -261,7 +261,7 @@ export default function ZhuuAlertProvider({
                   ZhuuSite
                 </h3>
 
-                <span className="rounded-full border border-cyan-300/15 bg-cyan-300/[.06] px-2 py-0.5 text-[8px] font-bold tracking-[.14em] text-cyan-200/55">
+                <span className="rounded-full border border-white/10 bg-white/[.04] px-2 py-0.5 text-[8px] font-bold tracking-[.14em] text-zinc-300/60">
                   VIP
                 </span>
               </div>
@@ -311,7 +311,7 @@ export default function ZhuuAlertProvider({
                         };
                       })
                     }
-                    className="rounded-[18px] border border-cyan-300/[.16] bg-cyan-300/[.07] py-3.5 text-[14px] font-bold text-cyan-200 transition-all hover:bg-cyan-300/[.11] active:scale-[.975]"
+                    className="rounded-[18px] border border-white/10 bg-white/[.05] py-3.5 text-[14px] font-bold text-zinc-200 transition-all hover:bg-white/[.08] active:scale-[.975]"
                   >
                     Lanjut
                   </button>
@@ -326,11 +326,11 @@ export default function ZhuuAlertProvider({
                       open: false,
                     }))
                   }
-                  className="group relative w-full overflow-hidden rounded-[18px] border border-cyan-300/[.12] bg-cyan-300/[.055] py-3.5 text-[15px] font-bold text-cyan-200 transition-all duration-200 hover:border-cyan-300/20 hover:bg-cyan-300/[.09] active:scale-[.975]"
+                  className="group relative w-full overflow-hidden rounded-[18px] border border-white/10 bg-white/[.04] py-3.5 text-[15px] font-bold text-zinc-200 transition-all duration-200 hover:border-white/15 hover:bg-white/[.07] active:scale-[.975]"
                 >
                   <span className="relative z-10">Oke</span>
 
-                  <span className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-cyan-300/50 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
+                  <span className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-white/30 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
                 </button>
               )}
             </div>

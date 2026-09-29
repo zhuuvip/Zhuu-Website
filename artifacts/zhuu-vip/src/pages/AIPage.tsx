@@ -131,7 +131,7 @@ function DailyLimitCard({
         <button
           type="button"
           onClick={() => onWatchAd?.("lootlabs")}
-          className="rounded-xl border border-cyan-400/20 bg-cyan-400/10 px-3 py-2 text-xs font-medium text-cyan-300 transition hover:bg-cyan-400/20"
+          className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-xs font-medium text-zinc-200 transition hover:bg-white/[0.08]"
         >
           🎬 LootLabs
         </button>
@@ -139,7 +139,7 @@ function DailyLimitCard({
         <button
           type="button"
           onClick={() => onWatchAd?.("move2link")}
-          className="rounded-xl border border-cyan-400/20 bg-cyan-400/10 px-3 py-2 text-xs font-medium text-cyan-300 transition hover:bg-cyan-400/20"
+          className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-xs font-medium text-zinc-200 transition hover:bg-white/[0.08]"
         >
           🎬 Move2link
         </button>
@@ -178,14 +178,14 @@ function formatContent(text: string): React.ReactNode {
   for (const m of allMatches) {
     if (m.index > lastIndex) {
       const seg = text.slice(lastIndex, m.index);
-      parts.push(<span key={lastIndex} dangerouslySetInnerHTML={{ __html: seg.replace(inlineCodeRe, '<code style="background:rgba(0,255,255,0.1);padding:2px 5px;border-radius:4px;color:#00e5ff;font-size:0.9em">$1</code>').replace(/\n/g, "<br/>") }} />);
+      parts.push(<span key={lastIndex} dangerouslySetInnerHTML={{ __html: seg.replace(inlineCodeRe, '<code style="background:rgba(255,255,255,0.06);padding:2px 5px;border-radius:4px;color:#e4e4e7;font-size:0.9em">$1</code>').replace(/\n/g, "<br/>") }} />);
     }
     parts.push(m.node);
     lastIndex = m.end;
   }
   if (lastIndex < text.length) {
     const seg = text.slice(lastIndex);
-    parts.push(<span key={lastIndex} dangerouslySetInnerHTML={{ __html: seg.replace(inlineCodeRe, '<code style="background:rgba(0,255,255,0.1);padding:2px 5px;border-radius:4px;color:#00e5ff;font-size:0.9em">$1</code>').replace(/\n/g, "<br/>") }} />);
+    parts.push(<span key={lastIndex} dangerouslySetInnerHTML={{ __html: seg.replace(inlineCodeRe, '<code style="background:rgba(255,255,255,0.06);padding:2px 5px;border-radius:4px;color:#e4e4e7;font-size:0.9em">$1</code>').replace(/\n/g, "<br/>") }} />);
   }
   return parts;
 }
@@ -532,13 +532,13 @@ function AIChat() {
   return (
     <div className="flex h-[calc(100vh-64px)]" data-testid="ai-page">
       {/* Sidebar */}
-      <div className="w-64 flex-shrink-0 border-r border-cyan-400/10 flex-col bg-slate-950/60 backdrop-blur-xl hidden md:flex">
-        <div className="p-4 border-b border-cyan-400/10">
+      <div className="w-64 flex-shrink-0 border-r border-white/10 flex-col bg-zinc-950/60 backdrop-blur-xl hidden md:flex">
+        <div className="p-4 border-b border-white/10">
           <button
             onClick={newConversation}
             disabled={createConv.isPending}
             data-testid="btn-new-conversation"
-            className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-cyan-400/15 to-purple-500/15 border border-cyan-400/20 text-cyan-300 text-sm font-medium hover:from-cyan-400/25 hover:to-purple-500/25 transition-all"
+            className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-white/[0.06] to-zinc-500/[0.06] border border-white/10 text-zinc-200 text-sm font-medium hover:from-white/25 hover:to-zinc-500/25 transition-all"
           >
             {createConv.isPending ? <Loader2 size={14} className="animate-spin" /> : <Plus size={14} />}
             New Chat
@@ -546,11 +546,11 @@ function AIChat() {
         </div>
         <div className="flex-1 overflow-y-auto p-2">
           {conversations.length === 0 ? (
-            <div className="text-center py-8 text-blue-300/30 text-xs px-4">Start a conversation to save your history</div>
+            <div className="text-center py-8 text-zinc-400/30 text-xs px-4">Start a conversation to save your history</div>
           ) : (
             conversations.map((conv) => (
               <div key={conv.id} data-testid={`conversation-item-${conv.id}`}
-                className={`group flex items-center gap-2 px-3 py-2.5 rounded-xl mb-1 cursor-pointer transition-all ${activeConvId === conv.id ? "bg-cyan-400/10 border border-cyan-400/20 text-cyan-300" : "text-blue-200/60 hover:bg-white/5"}`}
+                className={`group flex items-center gap-2 px-3 py-2.5 rounded-xl mb-1 cursor-pointer transition-all ${activeConvId === conv.id ? "bg-white/5 border border-white/10 text-zinc-200" : "text-zinc-400/60 hover:bg-white/5"}`}
                 onClick={() => { setActiveConvId(conv.id); setMessages([]); }}>
                 <MessageSquare size={13} className="flex-shrink-0" />
                 <span className="flex-1 text-xs truncate">{conv.title}</span>
@@ -563,8 +563,8 @@ function AIChat() {
             ))
           )}
         </div>
-        <div className="p-3 border-t border-cyan-400/10">
-          <div className="text-xs text-blue-300/30 text-center">
+        <div className="p-3 border-t border-white/10">
+          <div className="text-xs text-zinc-400/30 text-center">
             {activeConvId ? "Saving history ✓" : "Select a chat to save history"}
           </div>
         </div>
@@ -572,12 +572,12 @@ function AIChat() {
 
       {/* Chat area */}
       <div className="flex-1 flex flex-col min-w-0">
-        <div className="px-6 py-4 border-b border-cyan-400/10 flex items-center gap-3 bg-slate-950/40 backdrop-blur-xl flex-shrink-0">
-          <div className="w-8 h-8 rounded-full bg-gradient-to-r from-cyan-400 to-purple-500 flex items-center justify-center">
+        <div className="px-6 py-4 border-b border-white/10 flex items-center gap-3 bg-zinc-950/40 backdrop-blur-xl flex-shrink-0">
+          <div className="w-8 h-8 rounded-full bg-gradient-to-r from-white to-zinc-500 flex items-center justify-center">
             <Cpu size={16} className="text-white" />
           </div>
           <div>
-            <div className="text-sm font-semibold text-blue-100">Zhuu AI</div>
+            <div className="text-sm font-semibold text-zinc-200">Zhuu AI</div>
             <div className="text-xs text-blue-300/40">Powered by Claude · File upload & voice enabled</div>
           </div>
         </div>
@@ -598,17 +598,17 @@ function AIChat() {
         <div className="flex-1 overflow-y-auto px-4 md:px-6 py-6 space-y-4" data-testid="messages-container">
           {messages.length === 0 && (
             <div className="flex flex-col items-center justify-center h-full text-center py-12">
-              <div className="w-16 h-16 rounded-2xl bg-gradient-to-r from-cyan-400/20 to-purple-500/20 border border-cyan-400/20 flex items-center justify-center mb-4">
-                <Cpu size={28} className="text-cyan-400" />
+              <div className="w-16 h-16 rounded-2xl bg-gradient-to-r from-white/[0.08] to-zinc-500/[0.08] border border-white/10 flex items-center justify-center mb-4">
+                <Cpu size={28} className="text-zinc-200" />
               </div>
-              <h2 className="text-xl font-bold text-blue-100 mb-2" style={{ fontFamily: "'Orbitron', sans-serif" }}>Zhuu AI</h2>
-              <p className="text-blue-300/50 text-sm max-w-sm mb-4">
+              <h2 className="text-xl font-bold text-zinc-200 mb-2" style={{ fontFamily: "'Orbitron', sans-serif" }}>Zhuu AI</h2>
+              <p className="text-zinc-400/50 text-sm max-w-sm mb-4">
                 Ask me anything — coding, math, writing, or just have a conversation. Upload images or files, or use your voice!
               </p>
               <div className="flex flex-wrap gap-2 justify-center">
-                {["Write some Python code", "Explain quantum computing", "Help me debug my code", "Give me a deep ocean fun fact 🌊"].map((s) => (
+                {["Write some Python code", "Explain quantum computing", "Help me debug my code", "Give me an interesting fun fact"].map((s) => (
                   <button key={s} onClick={() => setInput(s)}
-                    className="px-3 py-1.5 rounded-full border border-cyan-400/20 text-cyan-300/70 text-xs hover:bg-cyan-400/10 hover:text-cyan-300 transition-all">
+                    className="px-3 py-1.5 rounded-full border border-white/10 text-zinc-400 text-xs hover:bg-white/5 hover:text-zinc-200 transition-all">
                     {s}
                   </button>
                 ))}
@@ -619,7 +619,7 @@ function AIChat() {
           {messages.map((msg, i) => (
             <div key={i} className={`flex gap-3 msg-fade-in ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
               {msg.role === "assistant" && (
-                <div className="w-7 h-7 rounded-full bg-gradient-to-r from-cyan-400 to-purple-500 flex items-center justify-center flex-shrink-0 mt-1">
+                <div className="w-7 h-7 rounded-full bg-gradient-to-r from-white to-zinc-500 flex items-center justify-center flex-shrink-0 mt-1">
                   <Bot size={13} className="text-white" />
                 </div>
               )}
@@ -627,7 +627,7 @@ function AIChat() {
                 {msg.attachments && msg.attachments.length > 0 && (
                   <div className="flex flex-wrap gap-2 justify-end">
                     {msg.attachments.map((att, ai) => (
-                      <div key={ai} className="rounded-lg overflow-hidden border border-cyan-400/20">
+                      <div key={ai} className="rounded-lg overflow-hidden border border-white/10">
                         {att.preview ? (
                           <img src={att.preview} alt={att.name} style={{ maxWidth: 180, maxHeight: 120, objectFit: "cover", display: "block" }} />
                         ) : (
@@ -641,13 +641,13 @@ function AIChat() {
                   </div>
                 )}
                 <div data-testid={`message-${i}`}
-                  className={`rounded-2xl px-4 py-3 text-sm leading-relaxed ${msg.role === "user" ? "bg-gradient-to-r from-cyan-400/15 to-blue-500/15 border border-cyan-400/20 text-blue-100" : "glass-card text-blue-100"}`}>
+                  className={`rounded-2xl px-4 py-3 text-sm leading-relaxed ${msg.role === "user" ? "bg-gradient-to-r from-white/[0.06] to-blue-500/15 border border-white/10 text-zinc-200" : "glass-card text-zinc-200"}`}>
                   {msg.role === "assistant" ? formatContent(msg.content) : <pre className="whitespace-pre-wrap font-sans">{msg.content}</pre>}
-                  {msg.streaming && <span className="inline-block w-1.5 h-4 bg-cyan-400 ml-1 animate-pulse rounded-sm" />}
+                  {msg.streaming && <span className="inline-block w-1.5 h-4 bg-white ml-1 animate-pulse rounded-sm" />}
                 </div>
               </div>
               {msg.role === "user" && (
-                <div className="w-7 h-7 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center flex-shrink-0 mt-1">
+                <div className="w-7 h-7 rounded-full bg-gradient-to-r from-blue-500 to-zinc-500 flex items-center justify-center flex-shrink-0 mt-1">
                   <User size={13} className="text-white" />
                 </div>
               )}
@@ -657,7 +657,7 @@ function AIChat() {
         </div>
 
         {/* Input area */}
-        <div className="px-4 md:px-6 py-4 border-t border-cyan-400/10 bg-slate-950/40 backdrop-blur-xl flex-shrink-0">
+        <div className="px-4 md:px-6 py-4 border-t border-white/10 bg-zinc-950/40 backdrop-blur-xl flex-shrink-0">
           {!activeConvId && (
             <div className="mb-2 text-xs text-amber-400/60 text-center">
               💡 Create a new chat in the sidebar to save your conversation history
@@ -668,7 +668,7 @@ function AIChat() {
           {attachments.length > 0 && (
             <div className="flex flex-wrap gap-2 mb-3">
               {attachments.map((att, i) => (
-                <div key={i} className="relative group rounded-lg overflow-hidden border border-cyan-400/20">
+                <div key={i} className="relative group rounded-lg overflow-hidden border border-white/10">
                   {att.preview ? (
                     <img src={att.preview} alt={att.name} style={{ width: 56, height: 56, objectFit: "cover" }} />
                   ) : (
@@ -692,7 +692,7 @@ function AIChat() {
               onChange={handleFileSelect} className="hidden" />
             <button onClick={() => fileInputRef.current?.click()}
               title="Attach file or image"
-              className="flex-shrink-0 w-10 h-10 rounded-xl flex items-center justify-center transition-all border border-cyan-400/20 hover:bg-cyan-400/10 hover:border-cyan-400/40 text-blue-300/50 hover:text-cyan-300">
+              className="flex-shrink-0 w-10 h-10 rounded-xl flex items-center justify-center transition-all border border-white/10 hover:bg-white/5 hover:border-white/20 text-zinc-400/50 hover:text-zinc-200">
               <ImageIcon size={17} />
             </button>
 
@@ -700,7 +700,7 @@ function AIChat() {
             {voiceSupported && (
               <button onClick={recording ? stopRecording : startRecording}
                 title={recording ? "Stop recording" : "Start voice input"}
-                className={`flex-shrink-0 w-10 h-10 rounded-xl flex items-center justify-center transition-all border ${recording ? "border-red-400/60 bg-red-400/10 text-red-400 animate-pulse" : "border-cyan-400/20 hover:bg-cyan-400/10 hover:border-cyan-400/40 text-blue-300/50 hover:text-cyan-300"}`}>
+                className={`flex-shrink-0 w-10 h-10 rounded-xl flex items-center justify-center transition-all border ${recording ? "border-red-400/60 bg-red-400/10 text-red-400 animate-pulse" : "border-white/10 hover:bg-white/5 hover:border-white/20 text-zinc-400/50 hover:text-zinc-200"}`}>
                 {recording ? <MicOff size={17} /> : <Mic size={17} />}
               </button>
             )}
@@ -713,7 +713,7 @@ function AIChat() {
               placeholder={recording ? "🎙️ Listening..." : "Ask Zhuu AI anything..."}
               data-testid="input-message"
               rows={1}
-              className="flex-1 bg-white/5 border border-cyan-400/20 rounded-xl px-4 py-3 text-sm text-blue-100 placeholder-blue-300/30 focus:outline-none focus:border-cyan-400/50 focus:ring-1 focus:ring-cyan-400/30 resize-none transition-all"
+              className="flex-1 bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-zinc-200 placeholder-blue-300/30 focus:outline-none focus:border-white/20 focus:ring-1 focus:ring-white/10 resize-none transition-all"
               style={{ minHeight: "48px", maxHeight: "160px", overflowY: "auto" }}
             />
 
@@ -721,7 +721,7 @@ function AIChat() {
               onClick={sendMessage}
               disabled={streaming || (!input.trim() && attachments.length === 0)}
               data-testid="btn-send-message"
-              className="flex-shrink-0 w-12 h-12 rounded-xl bg-gradient-to-r from-cyan-400 to-purple-500 flex items-center justify-center text-white shadow-lg hover:shadow-cyan-400/30 disabled:opacity-40 disabled:cursor-not-allowed transition-all hover:scale-105">
+              className="flex-shrink-0 w-12 h-12 rounded-xl bg-gradient-to-r from-white to-zinc-500 flex items-center justify-center text-white shadow-lg hover:shadow-black/20 disabled:opacity-40 disabled:cursor-not-allowed transition-all hover:scale-105">
               {streaming ? <Loader2 size={18} className="animate-spin" /> : <Send size={18} />}
             </button>
           </div>
@@ -741,12 +741,12 @@ export default function AIPage() {
         <AIChat />
       </Show>
       <Show when="signed-out">
-        <div className="ocean-bg min-h-[calc(100vh-64px)] flex flex-col items-center justify-center px-4 text-center">
+        <div className="zhuu-page-bg min-h-[calc(100vh-64px)] flex flex-col items-center justify-center px-4 text-center">
           <div className="glass-card rounded-3xl p-10 max-w-md w-full">
-            <div className="w-16 h-16 rounded-2xl bg-gradient-to-r from-cyan-400/20 to-purple-500/20 border border-cyan-400/20 flex items-center justify-center mx-auto mb-6">
-              <Cpu size={28} className="text-cyan-400" />
+            <div className="w-16 h-16 rounded-2xl bg-gradient-to-r from-white/[0.08] to-zinc-500/[0.08] border border-white/10 flex items-center justify-center mx-auto mb-6">
+              <Cpu size={28} className="text-zinc-200" />
             </div>
-            <h2 className="text-2xl font-bold text-blue-100 mb-3" style={{ fontFamily: "'Orbitron', sans-serif" }}>
+            <h2 className="text-2xl font-bold text-zinc-200 mb-3" style={{ fontFamily: "'Orbitron', sans-serif" }}>
               Zhuu AI
             </h2>
             <p className="text-blue-300/60 text-sm mb-6">
@@ -754,17 +754,17 @@ export default function AIPage() {
             </p>
             <div className="flex flex-col gap-2">
               <Link href="/sign-in">
-                <button className="w-full flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-cyan-400 to-purple-500 text-white font-semibold hover:opacity-90 transition-all cursor-pointer">
+                <button className="w-full flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-white to-zinc-500 text-white font-semibold hover:opacity-90 transition-all cursor-pointer">
                   <LogIn size={16} /> Sign In
                 </button>
               </Link>
               <Link href="/sign-up">
-                <button className="w-full px-6 py-3 rounded-xl border border-cyan-400/30 text-cyan-300 font-medium text-sm hover:bg-cyan-400/10 transition-all cursor-pointer">
+                <button className="w-full px-6 py-3 rounded-xl border border-white/15 text-zinc-200 font-medium text-sm hover:bg-white/5 transition-all cursor-pointer">
                   Create an Account
                 </button>
               </Link>
             </div>
-            <div className="mt-4 border-t border-cyan-400/10 pt-4">
+            <div className="mt-4 border-t border-white/10 pt-4">
               <p className="text-xs text-blue-300/40 mb-3">Or try without saving:</p>
               <AIGuestQuick />
             </div>
@@ -778,7 +778,7 @@ export default function AIPage() {
 function AIGuestQuick() {
   const [show, setShow] = useState(false);
   if (!show) return (
-    <button onClick={() => setShow(true)} className="text-xs text-cyan-400/60 hover:text-cyan-400 transition-colors">
+    <button onClick={() => setShow(true)} className="text-xs text-zinc-400/60 hover:text-zinc-200 transition-colors">
       Continue as guest →
     </button>
   );
@@ -840,9 +840,9 @@ function AIGuestChat() {
     <div className="flex flex-col gap-2 w-full text-left">
       <div className="max-h-48 overflow-y-auto space-y-2">
         {messages.map((m, i) => (
-          <div key={i} className={`text-xs rounded-lg px-3 py-2 ${m.role === "user" ? "bg-cyan-400/10 text-cyan-200 ml-4" : "bg-white/5 text-blue-200 mr-4"}`}>
+          <div key={i} className={`text-xs rounded-lg px-3 py-2 ${m.role === "user" ? "bg-white/5 text-zinc-200 ml-4" : "bg-white/5 text-zinc-400 mr-4"}`}>
             <pre className="whitespace-pre-wrap font-sans">{m.content}</pre>
-            {m.streaming && <span className="inline-block w-1 h-3 bg-cyan-400 ml-1 animate-pulse rounded-sm" />}
+            {m.streaming && <span className="inline-block w-1 h-3 bg-white ml-1 animate-pulse rounded-sm" />}
           </div>
         ))}
         <div ref={messagesEndRef} />
@@ -850,9 +850,9 @@ function AIGuestChat() {
       <div className="flex gap-2">
         <input value={input} onChange={(e) => setInput(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") send(); }}
           placeholder="Ask anything..."
-          className="flex-1 bg-white/5 border border-cyan-400/20 rounded-lg px-3 py-2 text-xs text-blue-100 placeholder-blue-300/30 focus:outline-none focus:border-cyan-400/40" />
+          className="flex-1 bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-xs text-zinc-200 placeholder-blue-300/30 focus:outline-none focus:border-white/20" />
         <button onClick={send} disabled={streaming || !input.trim()}
-          className="w-8 h-8 rounded-lg bg-gradient-to-r from-cyan-400 to-purple-500 flex items-center justify-center disabled:opacity-40">
+          className="w-8 h-8 rounded-lg bg-gradient-to-r from-white to-zinc-500 flex items-center justify-center disabled:opacity-40">
           {streaming ? <Loader2 size={12} className="animate-spin text-white" /> : <Send size={12} className="text-white" />}
         </button>
       </div>

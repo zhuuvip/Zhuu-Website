@@ -27,7 +27,7 @@ const colorMap: Record<string, string> = {
   SiReddit:    "from-orange-600 to-orange-700",
   SiWhatsapp:  "from-green-400 to-green-600",
   SiHeart:     "from-pink-500 to-rose-600",
-  SiWrench:    "from-cyan-500 to-blue-600",
+  SiWrench:    "from-white to-zinc-500",
 };
 
 function stripEmoji(title: string): string {
@@ -58,15 +58,15 @@ export default function LinktreePage() {
       .catch(() => {});
   }, []);
 
-  const accentColor = settings.themeColor || "#00d4ff";
+  const accentColor = settings.themeColor || "#f4f4f5";
   const logoUrl = settings.logoUrl || logoPath;
   const profileName = settings.profileName || "Zhuu";
   const profileBio = settings.profileBio || "Creator · Gamer · Builder";
-  const statusText = settings.statusText || "Active — Deep ocean online";
+  const statusText = settings.statusText || "Active — Online";
 
   return (
     <div
-      className="ocean-bg min-h-screen flex flex-col items-center px-4 pt-8 pb-24 relative"
+      className="zhuu-page-bg min-h-screen flex flex-col items-center px-4 pt-8 pb-24 relative"
       style={settings.bannerUrl ? {
         backgroundImage: `linear-gradient(to bottom, rgba(1,10,15,0.85) 0%, rgba(2,15,26,0.9) 100%), url(${settings.bannerUrl})`,
         backgroundSize: "cover",
@@ -111,7 +111,7 @@ export default function LinktreePage() {
             fontFamily: "'Orbitron', sans-serif",
             background: `linear-gradient(135deg, ${accentColor} 0%, #9b59b6 50%, ${accentColor} 100%)`,
             backgroundSize: "200% 200%",
-            animation: "ocean-shimmer 4s ease infinite",
+            animation: "zhuu-shimmer 4s ease infinite",
             WebkitBackgroundClip: "text",
             WebkitTextFillColor: "transparent",
             backgroundClip: "text",
@@ -138,13 +138,13 @@ export default function LinktreePage() {
             <Loader2 size={24} className="animate-spin" style={{ color: accentColor }} />
           </div>
         ) : activeLinks.length === 0 ? (
-          <div className="glass-card rounded-2xl p-8 text-center text-blue-300/40 text-sm">
+          <div className="glass-card rounded-2xl p-8 text-center text-zinc-400/40 text-sm">
             No links configured yet.
           </div>
         ) : (
           activeLinks.map((link) => {
             const IconComponent = link.icon ? iconMap[link.icon] : null;
-            const gradient = link.icon ? (colorMap[link.icon] || "from-cyan-500 to-blue-600") : "from-cyan-500 to-blue-600";
+            const gradient = link.icon ? (colorMap[link.icon] || "from-white to-zinc-500") : "from-white to-zinc-500";
             const displayTitle = stripEmoji(link.title);
             const emoji = link.title.match(/^([\p{Emoji}]+)/u)?.[1] ?? null;
 
@@ -204,7 +204,7 @@ export default function LinktreePage() {
                   <ExternalLink
                     size={15}
                     style={{ color: `${accentColor}50`, flexShrink: 0, transition: "color 0.2s" }}
-                    className="group-hover:!text-cyan-300"
+                    className="group-hover:!text-zinc-200"
                   />
                 </div>
               </a>
@@ -213,7 +213,7 @@ export default function LinktreePage() {
         )}
       </div>
 
-      <p className="mt-12 text-blue-300/20 text-xs">
+      <p className="mt-12 text-zinc-300/20 text-xs">
         ZhuuSite · All links are official
       </p>
     </div>

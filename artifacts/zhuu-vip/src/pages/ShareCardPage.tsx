@@ -2,15 +2,14 @@ import { useState, useRef } from "react";
 import { useUser } from "@clerk/react";
 
 const CARD_THEMES = [
-  { id: "ocean", label: "🌊 Ocean", bg: "linear-gradient(135deg, #000d1a 0%, #001a33 50%, #002244 100%)", accent: "#00d4ff" },
-  { id: "void", label: "🖤 Void", bg: "linear-gradient(135deg, #0a0a0a 0%, #1a0a2e 50%, #0d0d0d 100%)", accent: "#a855f7" },
-  { id: "fire", label: "🔥 Fire", bg: "linear-gradient(135deg, #1a0000 0%, #2d0a00 50%, #1a0505 100%)", accent: "#ff6b35" },
-  { id: "cyber", label: "⚡ Cyber", bg: "linear-gradient(135deg, #000a1a 0%, #001a0d 50%, #000d1a 100%)", accent: "#00ff88" },
+  { id: "void", label: "Void", bg: "linear-gradient(135deg, #0a0a0a 0%, #1a0a2e 50%, #0d0d0d 100%)", accent: "#a855f7" },
+  { id: "fire", label: "Fire", bg: "linear-gradient(135deg, #1a0000 0%, #2d0a00 50%, #1a0505 100%)", accent: "#ff6b35" },
+  { id: "cyber", label: "Cyber", bg: "linear-gradient(135deg, #000a1a 0%, #001a0d 50%, #000d1a 100%)", accent: "#00ff88" },
 ];
 
 const TITLES = [
   "ZhuuSite Member",
-  "Deep Ocean Explorer",
+  "ZhuuSite Explorer",
   "Void Walker",
   "Zhuu Community OG",
   "AI Enthusiast",
@@ -36,9 +35,9 @@ export default function ShareCardPage() {
 
     // Background
     const gradient = ctx.createLinearGradient(0, 0, 800, 450);
-    gradient.addColorStop(0, "#000d1a");
-    gradient.addColorStop(0.5, "#001a33");
-    gradient.addColorStop(1, "#002244");
+    gradient.addColorStop(0, "#09090b");
+    gradient.addColorStop(0.5, "#18181b");
+    gradient.addColorStop(1, "#09090b");
     ctx.fillStyle = gradient;
     ctx.fillRect(0, 0, 800, 450);
 
@@ -62,7 +61,7 @@ export default function ShareCardPage() {
     // Emoji as avatar
     ctx.font = "80px serif";
     ctx.textAlign = "center";
-    ctx.fillText("🌊", 130, 210);
+    ctx.fillText("Z", 130, 210);
 
     // ZhuuSite title
     ctx.font = "bold 48px Arial";
@@ -94,7 +93,7 @@ export default function ShareCardPage() {
     // Website
     ctx.font = "18px Arial";
     ctx.fillStyle = theme.accent + "99";
-    ctx.fillText("zhuusite.vercel.app", 240, 295);
+    ctx.fillText("zhuusite.my.id", 240, 295);
 
     // Bottom tag
     ctx.font = "bold 16px Arial";
@@ -128,33 +127,33 @@ export default function ShareCardPage() {
   };
 
   return (
-    <div className="ocean-bg min-h-screen pt-6 pb-28 px-4">
+    <div className="zhuu-page-bg min-h-screen pt-6 pb-28 px-4">
       <div className="max-w-2xl mx-auto">
         <div className="text-center mb-8">
-          <div className="text-4xl mb-3">🎴</div>
+          <div className="text-3xl font-bold text-white/70 mb-3">Z</div>
           <h1 className="text-4xl font-black gradient-text mb-2" style={{ fontFamily: "Poppins, Inter, sans-serif" }}>
             Share Card
           </h1>
-          <p style={{ color: "rgba(0,200,220,0.5)" }}>Generate your ZhuuSite card and share it!</p>
+          <p style={{ color: "rgba(255,255,255,0.5)" }}>Generate your ZhuuSite card and share it!</p>
         </div>
 
         {/* Options */}
         <div className="space-y-4 mb-6">
           {/* Name */}
           <div className="glass-card p-4 rounded-2xl">
-            <label className="text-sm font-semibold mb-2 block" style={{ color: "rgba(0,200,220,0.8)" }}>Your Name</label>
+            <label className="text-sm font-semibold mb-2 block" style={{ color: "rgba(255,255,255,0.72)" }}>Your Name</label>
             <input
               value={customName}
               onChange={e => setCustomName(e.target.value)}
               placeholder="Enter your name..."
               className="w-full px-4 py-3 rounded-xl text-sm outline-none"
-              style={{ background: "rgba(0,20,40,0.6)", border: "1px solid rgba(0,200,220,0.15)", color: "rgba(200,240,255,0.9)" }}
+              style={{ background: "rgba(10,10,12,0.8)", border: "1px solid rgba(255,255,255,0.08)", color: "rgba(255,255,255,0.9)" }}
             />
           </div>
 
           {/* Title */}
           <div className="glass-card p-4 rounded-2xl">
-            <label className="text-sm font-semibold mb-2 block" style={{ color: "rgba(0,200,220,0.8)" }}>Title</label>
+            <label className="text-sm font-semibold mb-2 block" style={{ color: "rgba(255,255,255,0.72)" }}>Title</label>
             <div className="grid grid-cols-2 gap-2">
               {TITLES.map(t => (
                 <button
@@ -162,9 +161,9 @@ export default function ShareCardPage() {
                   onClick={() => setTitle(t)}
                   className="px-3 py-2 rounded-xl text-xs text-left transition-all"
                   style={{
-                    background: title === t ? "rgba(0,200,220,0.15)" : "rgba(0,20,40,0.5)",
-                    border: title === t ? "1px solid rgba(0,200,220,0.4)" : "1px solid rgba(0,200,220,0.1)",
-                    color: title === t ? "#00e5ff" : "rgba(0,220,240,0.6)",
+                    background: title === t ? "rgba(255,255,255,0.08)" : "rgba(255,255,255,0.035)",
+                    border: title === t ? "1px solid rgba(255,255,255,0.16)" : "1px solid rgba(255,255,255,0.06)",
+                    color: title === t ? "#ffffff" : "rgba(255,255,255,0.55)",
                   }}
                 >
                   {t}
@@ -175,7 +174,7 @@ export default function ShareCardPage() {
 
           {/* Theme */}
           <div className="glass-card p-4 rounded-2xl">
-            <label className="text-sm font-semibold mb-2 block" style={{ color: "rgba(0,200,220,0.8)" }}>Theme</label>
+            <label className="text-sm font-semibold mb-2 block" style={{ color: "rgba(255,255,255,0.72)" }}>Theme</label>
             <div className="flex gap-2">
               {CARD_THEMES.map(t => (
                 <button
@@ -183,8 +182,8 @@ export default function ShareCardPage() {
                   onClick={() => setTheme(t)}
                   className="flex-1 px-3 py-2 rounded-xl text-xs transition-all"
                   style={{
-                    background: theme.id === t.id ? "rgba(0,200,220,0.15)" : "rgba(0,20,40,0.5)",
-                    border: theme.id === t.id ? `1px solid ${t.accent}` : "1px solid rgba(0,200,220,0.1)",
+                    background: theme.id === t.id ? "rgba(255,255,255,0.08)" : "rgba(255,255,255,0.035)",
+                    border: theme.id === t.id ? `1px solid ${t.accent}` : "1px solid rgba(255,255,255,0.06)",
                     color: t.accent,
                   }}
                 >
@@ -198,9 +197,9 @@ export default function ShareCardPage() {
         {/* Generate Button */}
         <button
           onClick={generateCard}
-          className="w-full py-4 rounded-full font-bold text-base neon-btn-solid mb-6"
+          className="w-full py-4 rounded-full font-bold text-base bg-white text-black hover:bg-zinc-200 transition-colors mb-6"
         >
-          Generate Card ✨
+          Generate Card
         </button>
 
         {/* Canvas Preview */}
@@ -211,7 +210,7 @@ export default function ShareCardPage() {
             style={{ display: "block" }}
           />
           {!generated && (
-            <div className="text-center py-8" style={{ color: "rgba(0,200,220,0.3)" }}>
+            <div className="text-center py-8" style={{ color: "rgba(255,255,255,0.35)" }}>
               Click Generate to preview your card
             </div>
           )}
@@ -221,9 +220,9 @@ export default function ShareCardPage() {
         {generated && (
           <button
             onClick={downloadCard}
-            className="w-full py-4 rounded-full font-bold text-base neon-btn"
+            className="w-full py-4 rounded-full font-bold text-base bg-white/10 text-white border border-white/10 hover:bg-white/15 transition-colors"
           >
-            Download Card 📥
+            Download Card
           </button>
         )}
       </div>

@@ -94,10 +94,10 @@ export default function MusicPlayer() {
       >
         {/* Playlist panel */}
         {showPlaylist && !isCollapsed && (
-          <div className="pointer-events-auto glass-card rounded-2xl p-2 w-[min(18rem,calc(100vw-1rem))] max-h-[50vh] overflow-y-auto shadow-2xl shadow-cyan-950/30 border border-cyan-400/10 backdrop-blur-xl">
+          <div className="pointer-events-auto glass-card rounded-2xl p-2 w-[min(18rem,calc(100vw-1rem))] max-h-[50vh] overflow-y-auto shadow-2xl shadow-black/30 border border-white/10 backdrop-blur-xl">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-xs font-semibold text-cyan-300 uppercase tracking-wider">Playlist</span>
-              <button onClick={() => setShowPlaylist(false)} className="text-blue-300/50 hover:text-blue-300">
+              <span className="text-xs font-semibold text-white/80 uppercase tracking-wider">Playlist</span>
+              <button onClick={() => setShowPlaylist(false)} className="text-white/60/50 hover:text-white/60">
                 <X size={14} />
               </button>
             </div>
@@ -109,24 +109,23 @@ export default function MusicPlayer() {
                   onClick={() => { playSong(i); setShowPlaylist(false); }}
                   className={`flex items-center gap-2 px-3 py-2 rounded-lg text-left transition-all w-full ${
                     i === currentIndex
-                      ? "bg-cyan-400/15 border border-cyan-400/30 text-cyan-300"
-                      : "text-blue-200/70 hover:bg-white/5 hover:text-blue-200"
+                      ? "bg-white/[0.08] border border-white/15 text-white/80"
+                      : "text-white/70/70 hover:bg-white/5 hover:text-white/70"
                   }`}
                 >
-                  <Music size={12} className={i === currentIndex && isPlaying ? "animate-pulse text-cyan-400" : "text-blue-400/50"} />
+                  <Music size={12} className={i === currentIndex && isPlaying ? "animate-pulse text-white/70" : "text-white/35"} />
                   <div className="flex-1 min-w-0">
                     <div className="text-xs font-medium truncate">{song.title}</div>
-                    <div className="text-[10px] text-blue-300/50 truncate">{song.artist}</div>
+                    <div className="text-[10px] text-white/60/50 truncate">{song.artist}</div>
                   </div>
                   {i === currentIndex && isPlaying && (
                     <div className="flex gap-0.5 items-end h-4">
                       {[...Array(3)].map((_, j) => (
                         <div
                           key={j}
-                          className="w-1 bg-cyan-400 rounded-full"
+                          className="w-1 bg-white/70 rounded-full"
                           style={{
-                            height: `${Math.random() * 12 + 4}px`,
-                            animation: `glow-pulse ${0.5 + j * 0.2}s ease-in-out infinite`
+                            height: `${Math.random() * 12 + 4}px`
                           }}
                         />
                       ))}
@@ -139,16 +138,16 @@ export default function MusicPlayer() {
         )}
 
         {/* Main player */}
-        <div className="pointer-events-auto glass-card rounded-2xl overflow-hidden w-[min(18rem,calc(100vw-1rem))] shadow-2xl shadow-cyan-950/30 border border-cyan-400/10 backdrop-blur-xl transition-all duration-200">
+        <div className="pointer-events-auto glass-card rounded-2xl overflow-hidden w-[min(18rem,calc(100vw-1rem))] shadow-2xl shadow-black/30 border border-white/10 backdrop-blur-xl transition-all duration-200">
           {/* Header */}
-          <div className="flex items-center justify-between px-2.5 py-2 border-b border-cyan-400/10 bg-white/[0.025]">
+          <div className="flex items-center justify-between px-2.5 py-2 border-b border-white/10 bg-white/[0.025]">
             <div className="flex items-center gap-2 min-w-0">
-              <Music size={14} className="shrink-0 text-cyan-400 animate-glow-pulse" />
+              <Music size={14} className="shrink-0 text-white/70" />
               <div className="min-w-0">
-                <span className="block text-[10px] font-medium uppercase tracking-wider text-cyan-300/70">
+                <span className="block text-[10px] font-medium uppercase tracking-wider text-white/80/70">
                   Now Playing
                 </span>
-                <span className="block max-w-[10rem] truncate text-xs font-semibold text-blue-100">
+                <span className="block max-w-[10rem] truncate text-xs font-semibold text-white/90">
                   {currentSong?.title ?? "—"}
                 </span>
               </div>
@@ -157,14 +156,14 @@ export default function MusicPlayer() {
               <button
                 onClick={() => setShowPlaylist(!showPlaylist)}
                 data-testid="btn-toggle-playlist"
-                className={`p-1.5 rounded-lg transition-all ${showPlaylist ? "text-cyan-400 bg-cyan-400/10" : "text-blue-300/50 hover:text-cyan-300"}`}
+                className={`p-1.5 rounded-lg transition-all ${showPlaylist ? "text-white/70 bg-white/[0.06]" : "text-white/60/50 hover:text-white/80"}`}
               >
                 <List size={14} />
               </button>
               <button
                 onClick={() => setIsCollapsed(!isCollapsed)}
                 data-testid="btn-collapse-player"
-                className="p-1.5 rounded-lg text-blue-300/50 hover:text-cyan-300 transition-all"
+                className="p-1.5 rounded-lg text-white/60/50 hover:text-white/80 transition-all"
               >
                 {isCollapsed ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
               </button>
@@ -175,10 +174,10 @@ export default function MusicPlayer() {
             <div className="px-3 py-2.5">
               {/* Song info */}
               <div className="mb-2.5">
-                <div className="text-sm font-semibold text-blue-100 truncate" data-testid="text-song-title">
+                <div className="text-sm font-semibold text-white/90 truncate" data-testid="text-song-title">
                   {currentSong?.title ?? "—"}
                 </div>
-                <div className="text-xs text-blue-300/60 truncate" data-testid="text-song-artist">
+                <div className="text-xs text-white/60/60 truncate" data-testid="text-song-artist">
                   {currentSong?.artist ?? "—"}
                 </div>
               </div>
@@ -190,13 +189,13 @@ export default function MusicPlayer() {
                 data-testid="progress-bar"
               >
                 <div
-                  className="h-full bg-gradient-to-r from-cyan-400 to-purple-500 rounded-full relative transition-all"
+                  className="h-full bg-white/80 rounded-full relative transition-all"
                   style={{ width: `${progress * 100}%` }}
                 >
                   <div className="absolute right-0 top-1/2 -translate-y-1/2 w-3 h-3 bg-white rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-opacity" />
                 </div>
               </div>
-              <div className="flex justify-between text-[10px] text-blue-300/40 mb-3">
+              <div className="flex justify-between text-[10px] text-white/60/40 mb-3">
                 <span>{formatTime(progress * duration)}</span>
                 <span>{formatTime(duration)}</span>
               </div>
@@ -206,7 +205,7 @@ export default function MusicPlayer() {
                 <button
                   onClick={prevSong}
                   data-testid="btn-prev-song"
-                  className="p-2.5 rounded-xl text-blue-300/60 hover:text-cyan-300 hover:bg-cyan-400/10 transition-all"
+                  className="p-2.5 rounded-xl text-white/60/60 hover:text-white/80 hover:bg-white/[0.06] transition-all"
                 >
                   <SkipBack size={16} />
                 </button>
@@ -214,7 +213,7 @@ export default function MusicPlayer() {
                 <button
                   onClick={() => setIsPlaying(!isPlaying)}
                   data-testid="btn-play-pause"
-                  className="w-11 h-11 rounded-full bg-gradient-to-r from-cyan-400 to-purple-500 flex items-center justify-center text-white shadow-lg hover:shadow-cyan-400/30 transition-all hover:scale-105"
+                  className="w-11 h-11 rounded-full bg-white/80 flex items-center justify-center text-white shadow-lg hover:shadow-black/30 transition-all hover:scale-105"
                 >
                   {isPlaying ? <Pause size={16} /> : <Play size={16} className="ml-0.5" />}
                 </button>
@@ -222,7 +221,7 @@ export default function MusicPlayer() {
                 <button
                   onClick={nextSong}
                   data-testid="btn-next-song"
-                  className="p-2.5 rounded-xl text-blue-300/60 hover:text-cyan-300 hover:bg-cyan-400/10 transition-all"
+                  className="p-2.5 rounded-xl text-white/60/60 hover:text-white/80 hover:bg-white/[0.06] transition-all"
                 >
                   <SkipForward size={16} />
                 </button>
@@ -233,7 +232,7 @@ export default function MusicPlayer() {
                 <button
                   onClick={() => setIsMuted(!isMuted)}
                   data-testid="btn-mute"
-                  className="text-blue-300/50 hover:text-cyan-300 transition-colors"
+                  className="text-white/60/50 hover:text-white/80 transition-colors"
                 >
                   {isMuted ? <VolumeX size={14} /> : <Volume2 size={14} />}
                 </button>
@@ -245,7 +244,7 @@ export default function MusicPlayer() {
                   value={isMuted ? 0 : volume}
                   onChange={(e) => { setVolume(Number(e.target.value)); setIsMuted(false); }}
                   data-testid="volume-slider"
-                  className="flex-1 h-1 rounded-full accent-cyan-400 cursor-pointer"
+                  className="flex-1 h-1 rounded-full accent-white cursor-pointer"
                 />
               </div>
             </div>

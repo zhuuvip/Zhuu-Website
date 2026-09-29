@@ -138,8 +138,8 @@ export default function FreeHubPage() {
   if (!isSignedIn) {
     return (
       <div className="min-h-[60vh] flex items-center justify-center px-4">
-        <div className="w-full max-w-md rounded-3xl border border-cyan-400/20 bg-white/[0.04] p-6 text-center shadow-2xl backdrop-blur-xl">
-          <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-cyan-400/10 text-2xl">
+        <div className="w-full max-w-md rounded-3xl border border-white/10 bg-white/[0.04] p-6 text-center shadow-2xl backdrop-blur-xl">
+          <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-white/5 text-2xl">
             🔒
           </div>
           <h2 className="text-xl font-bold text-white">Free Hub</h2>
@@ -148,7 +148,7 @@ export default function FreeHubPage() {
           </p>
           <a
             href="/sign-in"
-            className="mt-5 inline-flex rounded-xl bg-cyan-400 px-5 py-2.5 text-sm font-bold text-black transition hover:bg-cyan-300"
+            className="mt-5 inline-flex rounded-xl bg-white px-5 py-2.5 text-sm font-bold text-black transition hover:bg-zinc-200"
           >
             Login
           </a>
@@ -171,7 +171,7 @@ export default function FreeHubPage() {
               <h1 className="text-3xl sm:text-4xl font-black gradient-text">
                 Free Hub
               </h1>
-              <p className="text-sm text-cyan-100/45 mt-1">
+              <p className="text-sm text-zinc-400/50 mt-1">
                 Tempat berbagi produk, source, key, giveaway, tools, dan hal gratis.
               </p>
             </div>
@@ -179,7 +179,7 @@ export default function FreeHubPage() {
             {isSignedIn && (
               <button
                 onClick={() => setShowForm((v) => !v)}
-                className="shrink-0 rounded-2xl px-4 py-2.5 bg-cyan-400 text-black font-bold hover:bg-cyan-300 transition"
+                className="shrink-0 rounded-2xl px-4 py-2.5 bg-white text-black font-bold hover:bg-zinc-200 transition"
               >
                 + Bagikan
               </button>
@@ -196,7 +196,7 @@ export default function FreeHubPage() {
                 Syarat & Ketentuan Free Hub
               </p>
 
-              <ul className="mt-2 space-y-1 text-xs leading-relaxed text-cyan-100/55">
+              <ul className="mt-2 space-y-1 text-xs leading-relaxed text-zinc-400/60">
                 <li>• Hanya bagikan sesuatu yang benar-benar gratis.</li>
                 <li>• Dilarang promosi atau iklan produk/jasa berbayar.</li>
                 <li>• Dilarang konten pornografi, seksual, atau 18+.</li>
@@ -221,20 +221,20 @@ export default function FreeHubPage() {
           <section className="mb-7">
             <div className="flex items-end justify-between gap-3 mb-3">
               <div>
-                <div className="text-[11px] font-black tracking-[0.18em] text-cyan-300 uppercase">
+                <div className="text-[11px] font-black tracking-[0.18em] text-zinc-200 uppercase">
                   Paid Promotion
                 </div>
                 <h2 className="text-xl sm:text-2xl font-black text-white">
                   Promosi Berbayar
                 </h2>
-                <p className="text-xs text-cyan-100/40 mt-1">
+                <p className="text-xs text-zinc-400/40 mt-1">
                   Konten dari member yang membeli slot promosi.
                 </p>
               </div>
 
               <a
                 href="/promote"
-                className="shrink-0 rounded-xl px-3 py-2 bg-cyan-400/10 border border-cyan-300/20 text-cyan-300 text-xs font-bold"
+                className="shrink-0 rounded-xl px-3 py-2 bg-white/5 border border-white/10 text-zinc-200 text-xs font-bold"
               >
                 Promosikan →
               </a>
@@ -244,7 +244,7 @@ export default function FreeHubPage() {
               {promotions.map((promotion) => (
                 <article
                   key={promotion.id}
-                  className="glass-card rounded-3xl overflow-hidden border border-cyan-300/15"
+                  className="glass-card rounded-3xl overflow-hidden border border-white/10"
                 >
                   {promotion.imageUrl && (
                     <img
@@ -256,10 +256,10 @@ export default function FreeHubPage() {
 
                   <div className="p-4">
                     <div className="flex items-center gap-2 mb-3">
-                      <span className="text-[10px] font-black px-2.5 py-1 rounded-full bg-cyan-400/10 text-cyan-300">
+                      <span className="text-[10px] font-black px-2.5 py-1 rounded-full bg-white/5 text-zinc-200">
                         PROMOTED
                       </span>
-                      <span className="text-[10px] font-bold text-cyan-100/40">
+                      <span className="text-[10px] font-bold text-zinc-400/40">
                         {promotion.category}
                       </span>
                     </div>
@@ -269,13 +269,13 @@ export default function FreeHubPage() {
                     </h2>
 
                     {promotion.description && (
-                      <p className="text-sm text-cyan-100/50 mt-2 whitespace-pre-wrap line-clamp-4">
+                      <p className="text-sm text-zinc-400/50 mt-2 whitespace-pre-wrap line-clamp-4">
                         {promotion.description}
                       </p>
                     )}
 
                     <div className="mt-4 flex items-center justify-between gap-3">
-                      <span className="text-xs text-cyan-100/30">
+                      <span className="text-xs text-zinc-400/30">
                         {promotion.durationDays} hari
                       </span>
 
@@ -284,7 +284,7 @@ export default function FreeHubPage() {
                           href={promotion.link}
                           target="_blank"
                           rel="noreferrer"
-                          className="rounded-xl px-3 py-2 bg-cyan-400 text-black text-sm font-bold"
+                          className="rounded-xl px-3 py-2 bg-white text-black text-sm font-bold"
                         >
                           Buka →
                         </a>
@@ -307,7 +307,7 @@ export default function FreeHubPage() {
                 onChange={(e) => setTitle(e.target.value)}
                 maxLength={150}
                 placeholder="Judul"
-                className="w-full rounded-2xl bg-black/20 border border-cyan-200/10 px-4 py-3 outline-none focus:border-cyan-300/40"
+                className="w-full rounded-2xl bg-black/20 border border-white/10 px-4 py-3 outline-none focus:border-white/20"
               />
 
               <textarea
@@ -316,14 +316,14 @@ export default function FreeHubPage() {
                 maxLength={2000}
                 placeholder="Deskripsi"
                 rows={4}
-                className="w-full rounded-2xl bg-black/20 border border-cyan-200/10 px-4 py-3 outline-none focus:border-cyan-300/40 resize-none"
+                className="w-full rounded-2xl bg-black/20 border border-white/10 px-4 py-3 outline-none focus:border-white/20 resize-none"
               />
 
               <div className="grid sm:grid-cols-2 gap-3">
                 <select
                   value={postCategory}
                   onChange={(e) => setPostCategory(e.target.value)}
-                  className="rounded-2xl bg-black/30 border border-cyan-200/10 px-4 py-3"
+                  className="rounded-2xl bg-black/30 border border-white/10 px-4 py-3"
                 >
                   {categories.map((item) => (
                     <option key={item} value={item}>
@@ -341,7 +341,7 @@ export default function FreeHubPage() {
                   value={link}
                   onChange={(e) => setLink(e.target.value)}
                   placeholder="Link (opsional)"
-                  className="rounded-2xl bg-black/20 border border-cyan-200/10 px-4 py-3 outline-none"
+                  className="rounded-2xl bg-black/20 border border-white/10 px-4 py-3 outline-none"
                 />
               </div>
 
@@ -349,14 +349,14 @@ export default function FreeHubPage() {
                 value={imageUrl}
                 onChange={(e) => setImageUrl(e.target.value)}
                 placeholder="URL gambar (opsional)"
-                className="w-full rounded-2xl bg-black/20 border border-cyan-200/10 px-4 py-3 outline-none"
+                className="w-full rounded-2xl bg-black/20 border border-white/10 px-4 py-3 outline-none"
               />
 
               <div className="flex justify-end">
                 <button
                   onClick={createPost}
                   disabled={posting}
-                  className="rounded-2xl px-5 py-3 bg-cyan-400 text-black font-bold disabled:opacity-50"
+                  className="rounded-2xl px-5 py-3 bg-white text-black font-bold disabled:opacity-50"
                 >
                   {posting ? "Mengirim..." : "Publish"}
                 </button>
@@ -370,8 +370,8 @@ export default function FreeHubPage() {
             onClick={() => setCategory("ALL")}
             className={`shrink-0 rounded-full px-4 py-2 text-sm font-bold ${
               category === "ALL"
-                ? "bg-cyan-400 text-black"
-                : "bg-white/5 text-cyan-100/60"
+                ? "bg-white text-black"
+                : "bg-white/5 text-zinc-400"
             }`}
           >
             Semua
@@ -388,8 +388,8 @@ export default function FreeHubPage() {
               onClick={() => setCategory(item)}
               className={`shrink-0 rounded-full px-4 py-2 text-sm font-bold ${
                 category === item
-                  ? "bg-cyan-400 text-black"
-                  : "bg-white/5 text-cyan-100/60"
+                  ? "bg-white text-black"
+                  : "bg-white/5 text-zinc-400"
               }`}
             >
               {item
@@ -403,11 +403,11 @@ export default function FreeHubPage() {
         </div>
 
         {loading ? (
-          <div className="text-center py-16 text-cyan-100/40">
+          <div className="text-center py-16 text-zinc-400/40">
             Memuat Free Hub...
           </div>
         ) : filtered.length === 0 ? (
-          <div className="glass-card rounded-3xl p-10 text-center text-cyan-100/40">
+          <div className="glass-card rounded-3xl p-10 text-center text-zinc-400/40">
             Belum ada postingan.
           </div>
         ) : (
@@ -427,7 +427,7 @@ export default function FreeHubPage() {
 
                 <div className="p-4">
                   <div className="flex items-center gap-2 mb-3">
-                    <span className="text-[11px] font-black px-2.5 py-1 rounded-full bg-cyan-400/10 text-cyan-300">
+                    <span className="text-[11px] font-black px-2.5 py-1 rounded-full bg-white/5 text-zinc-200">
                       {post.category
       .replace("FREE_PRODUCT", "Free Product")
       .replace("FREE_SOURCE", "Free Source")
@@ -446,13 +446,13 @@ export default function FreeHubPage() {
                   <h2 className="font-bold text-lg">{post.title}</h2>
 
                   {post.description && (
-                    <p className="text-sm text-cyan-100/50 mt-2 whitespace-pre-wrap line-clamp-4">
+                    <p className="text-sm text-zinc-400/50 mt-2 whitespace-pre-wrap line-clamp-4">
                       {post.description}
                     </p>
                   )}
 
                   <div className="mt-4 flex items-center justify-between gap-3">
-                    <span className="text-xs text-cyan-100/30">
+                    <span className="text-xs text-zinc-400/30">
                       {post.username || "Member"}
                     </span>
 
@@ -461,7 +461,7 @@ export default function FreeHubPage() {
                         href={post.link}
                         target="_blank"
                         rel="noreferrer"
-                        className="rounded-xl px-3 py-2 bg-white/5 text-cyan-300 text-sm font-bold"
+                        className="rounded-xl px-3 py-2 bg-white/5 text-zinc-200 text-sm font-bold"
                       >
                         Buka →
                       </a>

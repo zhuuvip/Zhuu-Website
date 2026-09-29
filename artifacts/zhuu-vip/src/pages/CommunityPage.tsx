@@ -10,7 +10,7 @@ const PLATFORMS = [
 ];
 
 const RULES = [
-  { icon: "🌊", title: "Be respectful", desc: "Treat everyone with kindness and respect. No harassment or hate speech." },
+  { icon: "", title: "Be respectful", desc: "Treat everyone with kindness and respect. No harassment or hate speech." },
   { icon: "💡", title: "Share & inspire", desc: "Share your work, ideas, and knowledge to inspire others in the community." },
   { icon: "🤝", title: "Collaborate", desc: "Reach out, team up, and help others. We grow together." },
   { icon: "🌐", title: "Stay on topic", desc: "Keep discussions relevant and constructive. Use the right channels." },
@@ -18,13 +18,13 @@ const RULES = [
 
 export default function CommunityPage() {
   return (
-    <div className="ocean-bg min-h-screen pt-6 pb-28 px-4">
+    <div className="zhuu-page-bg min-h-screen pt-6 pb-28 px-4">
       <div className="max-w-5xl mx-auto">
         <div className="text-center mb-12">
-          <div className="text-5xl mb-4">🌊</div>
+          <div className="text-5xl mb-4"></div>
           <h1 className="text-4xl font-black gradient-text mb-3" style={{ fontFamily: "Poppins, Inter, sans-serif" }}>Join the Community</h1>
           <p style={{ color: "rgba(0,200,220,0.5)", maxWidth: 500, margin: "0 auto", lineHeight: 1.7 }}>
-            Dive into ZhuuSite's ocean community. A space for creators, developers, and dreamers to connect and grow.
+            A space for creators, developers, and dreamers to connect and grow.
           </p>
         </div>
 
@@ -33,7 +33,7 @@ export default function CommunityPage() {
           <h2 className="text-2xl font-black gradient-text mb-2" style={{ fontFamily: "Poppins, Inter, sans-serif" }}>Discord Server</h2>
           <p className="mb-6" style={{ color: "rgba(0,200,220,0.6)" }}>Our main community hub. Meet the crew, share work, get feedback, and have fun!</p>
           <a href={DISCORD_INVITE} target="_blank" rel="noopener noreferrer">
-            <button className="neon-btn-solid px-10 py-4 rounded-full font-bold text-base">
+            <button className="bg-white text-black hover:bg-zinc-200 transition-colors px-10 py-4 rounded-full font-bold text-base">
               Join Discord Now →
             </button>
           </a>
@@ -67,7 +67,7 @@ export default function CommunityPage() {
               <div className="flex items-center justify-between">
                 <span className="text-xs" style={{ color: "rgba(0,200,220,0.4)" }}>{p.members} followers</span>
                 <a href={p.link} target="_blank" rel="noopener noreferrer">
-                  <button className="neon-btn px-4 py-2 rounded-full text-sm font-semibold"
+                  <button className="bg-white/10 text-white border border-white/10 hover:bg-white/15 transition-colors px-4 py-2 rounded-full text-sm font-semibold"
                     style={{ borderColor: `${p.color}50`, color: p.color }}>
                     {p.btn} →
                   </button>

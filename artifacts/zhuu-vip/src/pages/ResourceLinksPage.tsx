@@ -71,35 +71,35 @@ export default function ResourceLinksPage() {
     .filter(cat => cat.items.length > 0);
 
   return (
-    <div className="ocean-bg min-h-screen pt-6 pb-28 px-4">
+    <div className="zhuu-page-bg min-h-screen pt-6 pb-28 px-4">
       <div className="max-w-5xl mx-auto">
         <div className="text-center mb-10">
           <div className="text-4xl mb-3">🔗</div>
           <h1 className="text-4xl font-black gradient-text mb-2" style={{ fontFamily: "Poppins, Inter, sans-serif" }}>Resources</h1>
-          <p style={{ color: "rgba(0,200,220,0.5)" }}>Curated links, tools, and resources for creators & developers</p>
+          <p style={{ color: "rgba(244,244,245,0.55)" }}>Curated links, tools, and resources for creators & developers</p>
         </div>
 
         <div className="flex flex-col sm:flex-row gap-3 mb-8">
           <div className="relative flex-1">
-            <span className="absolute left-3.5 top-1/2 -translate-y-1/2" style={{ color: "rgba(0,200,220,0.5)" }}>🔍</span>
+            <span className="absolute left-3.5 top-1/2 -translate-y-1/2" style={{ color: "rgba(244,244,245,0.55)" }}>🔍</span>
             <input
               value={search}
               onChange={e => setSearch(e.target.value)}
               placeholder="Search links..."
               className="w-full pl-9 pr-4 py-3 rounded-xl text-sm outline-none"
-              style={{ background: "rgba(0,20,40,0.6)", border: "1px solid rgba(0,200,220,0.2)", color: "rgba(200,240,255,0.9)" }}
+              style={{ background: "rgba(0,20,40,0.6)", border: "1px solid rgba(255,255,255,0.10)", color: "rgba(200,240,255,0.9)" }}
             />
           </div>
           <div className="flex flex-wrap gap-2">
             <button onClick={() => setActiveCategory(null)}
               className="px-3 py-2 rounded-xl text-sm font-medium transition-all duration-200"
-              style={{ background: activeCategory === null ? "rgba(0,200,220,0.15)" : "rgba(0,20,40,0.5)", border: "1px solid rgba(0,200,220,0.2)", color: activeCategory === null ? "#00ffff" : "rgba(0,200,220,0.5)", cursor: "pointer" }}>
+              style={{ background: activeCategory === null ? "rgba(255,255,255,0.06)" : "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.10)", color: activeCategory === null ? "#f4f4f5" : "rgba(244,244,245,0.55)", cursor: "pointer" }}>
               All
             </button>
             {LINKS.map(cat => (
               <button key={cat.category} onClick={() => setActiveCategory(activeCategory === cat.category ? null : cat.category)}
                 className="px-3 py-2 rounded-xl text-sm font-medium transition-all duration-200"
-                style={{ background: activeCategory === cat.category ? "rgba(0,200,220,0.15)" : "rgba(0,20,40,0.5)", border: "1px solid rgba(0,200,220,0.2)", color: activeCategory === cat.category ? "#00ffff" : "rgba(0,200,220,0.5)", cursor: "pointer" }}>
+                style={{ background: activeCategory === cat.category ? "rgba(255,255,255,0.06)" : "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.10)", color: activeCategory === cat.category ? "#f4f4f5" : "rgba(244,244,245,0.55)", cursor: "pointer" }}>
                 {cat.category.split(" ")[0]}
               </button>
             ))}
@@ -132,8 +132,8 @@ export default function ResourceLinksPage() {
           ))}
           {filtered.length === 0 && (
             <div className="text-center py-16">
-              <div className="text-4xl mb-3">🌊</div>
-              <p style={{ color: "rgba(0,200,220,0.5)" }}>No links found for "{search}"</p>
+              <div className="text-4xl mb-3"></div>
+              <p style={{ color: "rgba(244,244,245,0.55)" }}>No links found for "{search}"</p>
             </div>
           )}
         </div>
