@@ -61,7 +61,7 @@ export default function AdminResellerTab() {
       setPrices(map);
       setPlan({ monthly: String(set.monthly ?? ""), lifetime: String(set.lifetime ?? "") });
       setPromotions(Array.isArray(promos) ? promos : []);
-      setFreePosts(Array.isArray(free) ? free : []);
+      setFreePosts(Array.isArray(free?.posts) ? free.posts : []);
     } catch (e) {
       setMsg(e instanceof Error ? e.message : "Gagal memuat");
     }
