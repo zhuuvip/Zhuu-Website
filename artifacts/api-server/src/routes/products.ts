@@ -503,7 +503,7 @@ router.post(
               ? raw.products
               : [];
 
-      if (String(_req.query.debug ?? "") === "1") {
+      if (String(_req.query.debug ?? "") === "__disabled__") {
         return res.json({
           debug: true,
           rawType: Array.isArray(raw) ? "array" : typeof raw,
@@ -637,34 +637,19 @@ router.post(
         }
       }
 
-      const getApiMemberPrice = (variant: any): number | null =>
-        getNumber(
-          variant?.member_price,
-          variant?.memberPrice,
-          variant?.customer_price,
-          variant?.customerPrice,
-          variant?.price,
-        );
+      // DRIP mengirim harga dalam USD.
+      // Kurs kerja mengikuti rumus katalog sebelumnya.
+      const DRIP_USD_TO_IDR = 18000;
 
-      const getApiResellerPrice = (variant: any): number | null =>
-        getNumber(
-          variant?.reseller_price,
-          variant?.resellerPrice,
-        );
+      const getApiMemberPrice = (_variant: any): number | null => null;
 
-      const getApiModal = (variant: any): number | null =>
-        getNumber(
-          variant?.modal,
-          variant?.modal_price,
-          variant?.modalPrice,
-          variant?.cost,
-          variant?.buy_price,
-          variant?.buyPrice,
-          variant?.purchase_price,
-          variant?.purchasePrice,
-          variant?.base_price,
-          variant?.basePrice,
-        );
+      const getApiResellerPrice = (_variant: any): number | null => null;
+
+      const getApiModal = (variant: any): number | null => {
+        const usd = getNumber(variant?.price);
+        if (usd === null || usd <= 0) return null;
+        return usd * DRIP_USD_TO_IDR;
+      };
 
       const ceil1000 = (value: number): number =>
         Math.ceil(value / 1000) * 1000;
@@ -676,14 +661,14 @@ router.post(
         resellerPrice: number;
         memberPrice: number;
       } => {
-        const match = duration.match(/(\\d+)/);
+        const match = duration.match(/(\d+)/);
         const days = match ? Number(match[1]) : null;
         const base = ceil1000(modal);
 
         if (days === null || days <= 3) {
           return {
-            resellerPrice: base,
-            memberPrice: base,
+            resellerPrice: Math.max(base, 5000),
+            memberPrice: Math.max(base + 2000, 7000),
           };
         }
 
@@ -735,89 +720,96 @@ router.post(
         };
       };
 
-      const imageByVariant = new Map<number, string>();
+      // API DRIP mengembalikan SATU ROW untuk setiap varian.
+      // Kelompokkan berdasarkan product_id agar 184 varian tidak
+      // dianggap sebagai 184 produk.
+      const productGroups = new Map<
+        number,
+        {
+          name: string;
+          variants: any[];
+        }
+      >();
 
       for (const item of dripProducts) {
-        const image = findImageUrl(item);
+        const productId = getNumber(item?.product_id);
+        const name = getText(
+          item?.product_name,
+          item?.productName,
+          item?.name,
+        );
 
-        if (!image) continue;
+        if (productId === null || !name) continue;
 
-        for (const variant of getVariants(item)) {
-          const id = getVariantId(variant);
+        let group = productGroups.get(productId);
 
-          if (id) {
-            imageByVariant.set(id, image);
-          }
+        if (!group) {
+          group = {
+            name,
+            variants: [],
+          };
+          productGroups.set(productId, group);
         }
+
+        group.variants.push(item);
       }
 
-      const liveCatalog = dripProducts
-        .map((item: any) => {
-          const name = getProductName(item);
-
-          if (!name) return null;
-
-          const variants = getVariants(item)
+      const liveCatalog = Array.from(productGroups.values())
+        .map((product) => {
+          const variants = product.variants
             .map((variant: any) => {
               const id = getVariantId(variant);
-
               if (!id) return null;
 
               const old = catalogByVariant.get(id);
-              const duration = getDuration(variant);
+
+              const duration =
+                getText(
+                  variant?.variant_name,
+                  variant?.duration,
+                  variant?.period,
+                  variant?.name,
+                ) ?? "1 Days";
+
               const modal = getApiModal(variant);
 
-              let memberPrice =
-                getApiMemberPrice(variant) ??
-                old?.memberPrice ??
-                null;
+              // Untuk varian lama, pertahankan harga katalog yang sudah
+              // terbukti benar. Varian baru dihitung otomatis dari modal.
+              let memberPrice = old?.memberPrice ?? null;
+              let resellerPrice = old?.resellerPrice ?? null;
 
-              let resellerPrice =
-                getApiResellerPrice(variant) ??
-                old?.resellerPrice ??
-                null;
-
-              /*
-               * Variant baru:
-               * kalau DRIP mengirim modal/cost, harga otomatis dihitung.
-               */
-              if (
-                !old &&
-                modal !== null &&
-                (
-                  memberPrice === null ||
-                  resellerPrice === null
-                )
-              ) {
+              if (!old && modal !== null) {
                 const calculated = calculateNewPrices(
                   modal,
                   duration,
                 );
 
-                resellerPrice ??= calculated.resellerPrice;
-                memberPrice ??= calculated.memberPrice;
+                resellerPrice = calculated.resellerPrice;
+                memberPrice = calculated.memberPrice;
               }
 
-              /*
-               * Jangan membuat harga 0/NULL.
-               */
-              if (
-                memberPrice === null ||
-                resellerPrice === null
-              ) {
+              if (memberPrice === null || resellerPrice === null) {
                 console.warn(
                   `Variant DRIP ${id} dilewati: harga tidak ditemukan.`,
                 );
-
                 return null;
               }
+
+              const stock = getNumber(
+                variant?.in_stock,
+                variant?.local_stock,
+                variant?.stock,
+              );
 
               return {
                 id,
                 duration,
                 memberPrice: Math.round(memberPrice),
                 resellerPrice: Math.round(resellerPrice),
-                stock: getStock(variant),
+                stock:
+                  stock !== null && stock >= 0
+                    ? Math.floor(stock)
+                    : 0,
               };
             })
             .filter(
@@ -833,7 +825,10 @@ router.post(
             );
 
           return variants.length
-            ? { name, variants }
+            ? {
+                name: product.name,
+                variants,
+              }
             : null;
         })
         .filter(
@@ -850,6 +845,22 @@ router.post(
             }>;
           } => Boolean(value),
         );
+
+      const imageByVariant = new Map<number, string>();
+
+      for (const item of dripProducts) {
+        const image = findImageUrl(item);
+
+        if (!image) continue;
+
+        for (const variant of getVariants(item)) {
+          const id = getVariantId(variant);
+
+          if (id) {
+            imageByVariant.set(id, image);
+          }
+        }
+      }
 
       const groups = [
         "DRIP",
