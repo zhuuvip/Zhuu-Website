@@ -18,6 +18,7 @@ const NAV_ITEMS = [
   { path: "/free", label: "Free Hub", highlight: "cyan" },
   { path: "/promote", label: "Promotion", highlight: "purple" },
   { path: "/member", label: "Member", highlight: "cyan" },
+  { path: "/reseller", label: "◈ Reseller", highlight: "purple" },
   { path: "/feedback", label: "Feedback" },
   { path: "/sharecard", label: "Share Card", highlight: "cyan" },
   { path: "/products", label: "🛒 Products", highlight: "cyan" },
@@ -28,7 +29,33 @@ export default function Navigation() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const { user } = useUser();
+  const [isReseller, setIsReseller] = useState(false);
+  const API = (import.meta.env.VITE_API_URL || "").replace(/\/$/, "");
 
+
+  useEffect(() => {
+    let cancelled = false;
+
+    if (!user) {
+      setIsReseller(false);
+      return;
+    }
+
+    fetch(`${API}/api/reseller/plans`)
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (!cancelled) {
+          setIsReseller(Boolean(data?.member?.active));
+        }
+      })
+      .catch(() => {
+        if (!cancelled) setIsReseller(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [user, API]);
 
   const isActive = (href: string) =>
     href === "/" ? location === "/" : location.startsWith(href);
@@ -89,7 +116,9 @@ export default function Navigation() {
 
           {/* Desktop Nav */}
           <div className="hidden lg:flex items-center gap-0.5">
-            {NAV_ITEMS.map((item) => {
+            {NAV_ITEMS.filter(
+              (item) => item.path !== "/reseller" || isReseller,
+            ).map((item) => {
               const active = isActive(item.path);
               if (item.highlight === "ai") {
                 return (
@@ -229,7 +258,9 @@ export default function Navigation() {
                   "0 -12px 35px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.025)",
               }}
             >
-              {NAV_ITEMS.map((item) => {
+              {NAV_ITEMS.filter(
+                (item) => item.path !== "/reseller" || isReseller,
+              ).map((item) => {
                 const active = isActive(item.path);
 
                 const Icon =
@@ -255,7 +286,9 @@ export default function Navigation() {
                     ? MessageSquare
                     : item.path === "/sharecard"
                     ? Share2
-                    : ShoppingCart;
+                    : item.path === "/reseller"
+                                                ? ShoppingCart
+                                                : ShoppingCart;
 
                 return (
                   <Link key={item.path} href={item.path}>

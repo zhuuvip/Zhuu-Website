@@ -59,8 +59,8 @@ export default function FreeHubPage() {
       setLoading(true);
 
       const [postsRes, promotionsRes] = await Promise.all([
-        fetch(`${API}/free/posts`),
-        fetch(`${API}/promotions`),
+        fetch(`${API}/api/free/posts`),
+        fetch(`${API}/api/promotions`),
       ]);
 
       const postsData = await postsRes.json();
@@ -87,7 +87,7 @@ export default function FreeHubPage() {
       setPosting(true);
       const token = await getToken();
 
-      const res = await fetch(`${API}/free/posts`, {
+      const res = await fetch(`${API}/api/free/posts`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -150,6 +150,36 @@ export default function FreeHubPage() {
                 + Bagikan
               </button>
             )}
+          </div>
+        </div>
+
+        <div className="mt-4 rounded-2xl border border-amber-300/15 bg-amber-300/[0.04] p-4">
+          <div className="flex items-start gap-3">
+            <div className="text-lg">📜</div>
+
+            <div className="min-w-0">
+              <p className="text-sm font-bold text-amber-200">
+                Syarat & Ketentuan Free Hub
+              </p>
+
+              <ul className="mt-2 space-y-1 text-xs leading-relaxed text-cyan-100/55">
+                <li>• Hanya bagikan sesuatu yang benar-benar gratis.</li>
+                <li>• Dilarang promosi atau iklan produk/jasa berbayar.</li>
+                <li>• Dilarang konten pornografi, seksual, atau 18+.</li>
+                <li>• Dilarang konten kekerasan, ancaman, atau eksploitasi.</li>
+                <li>• Dilarang penipuan, phishing, malware, scam, dan link berbahaya.</li>
+                <li>• Dilarang spam, flood, atau posting berulang yang mengganggu.</li>
+                <li>• Jangan membagikan data pribadi atau informasi sensitif orang lain.</li>
+                <li>• Postingan yang melanggar aturan dapat dihapus.</li>
+              </ul>
+
+              <a
+                href="/promote"
+                className="inline-flex mt-3 rounded-xl px-3 py-2 bg-purple-400/10 border border-purple-300/20 text-purple-200 text-xs font-bold hover:bg-purple-400/20 transition"
+              >
+                📢 Mau promosi? Buka Promotion →
+              </a>
+            </div>
           </div>
         </div>
 
@@ -262,23 +292,13 @@ export default function FreeHubPage() {
                   className="rounded-2xl bg-black/30 border border-cyan-200/10 px-4 py-3"
                 >
                   {categories.map((item) => (
-                    <option key={item
-                      .replace("FREE_PRODUCT", "Free Product")
-                      .replace("FREE_SOURCE", "Free Source")
-                      .replace("FREE_KEY", "Free Key")
-                      .replace("FREE_PROMO_CODE", "Free Promo Code")
-                      .replace("GIVEAWAY", "Giveaway")} value={item
-                      .replace("FREE_PRODUCT", "Free Product")
-                      .replace("FREE_SOURCE", "Free Source")
-                      .replace("FREE_KEY", "Free Key")
-                      .replace("FREE_PROMO_CODE", "Free Promo Code")
-                      .replace("GIVEAWAY", "Giveaway")}>
+                    <option key={item} value={item}>
                       {item
-                      .replace("FREE_PRODUCT", "Free Product")
-                      .replace("FREE_SOURCE", "Free Source")
-                      .replace("FREE_KEY", "Free Key")
-                      .replace("FREE_PROMO_CODE", "Free Promo Code")
-                      .replace("GIVEAWAY", "Giveaway")}
+                        .replace("FREE_PRODUCT", "Free Product")
+                        .replace("FREE_SOURCE", "Free Source")
+                        .replace("FREE_KEY", "Free Key")
+                        .replace("FREE_PROMO_CODE", "Free Promo Code")
+                        .replace("GIVEAWAY", "Giveaway")}
                     </option>
                   ))}
                 </select>

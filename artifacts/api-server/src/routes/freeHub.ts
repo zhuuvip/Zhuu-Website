@@ -6,6 +6,19 @@ import { isAdmin } from "../lib/auth.js";
 
 const router = Router();
 
+const MODERATION_PATTERN =
+  /\b(jual|dijual|jualan|checkout|berbayar|harga|reseller|porn|porno|bokep|hentai|nsfw|nude|naked|sex|seksual|pembunuhan|membunuh|murder|torture|penyiksaan|ancaman|scam|penipuan|phishing|malware|keylogger|stealer|carding|ransomware)\b/i;
+
+function moderateFreePost(
+  title: string,
+  description: string | null,
+  link: string | null,
+): boolean {
+  const content = [title, description ?? "", link ?? ""].join(" ");
+  return MODERATION_PATTERN.test(content);
+}
+
+
 function requireAuth(req: any, res: any): string | null {
   const userId = getAuth(req)?.userId;
 
@@ -114,6 +127,14 @@ router.post("/free/posts", async (req, res): Promise<void> => {
     res.status(400).json({ error: "Invalid category" });
     return;
   }
+
+    if (moderateFreePost(title, description, link)) {
+      res.status(400).json({
+        error: "Posting ditolak. Free Hub hanya untuk konten gratis, aman, dan bukan promosi berbayar.",
+        moderation: true,
+      });
+      return;
+    }
 
   try {
     const [post] = await db
