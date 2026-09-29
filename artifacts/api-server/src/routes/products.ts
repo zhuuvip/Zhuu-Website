@@ -467,6 +467,33 @@ router.post(
 
       const raw: any = await getDripProducts();
 
+      console.log(
+        "DRIP RAW STRUCTURE:",
+        JSON.stringify(
+          raw,
+          (_key, value) =>
+            typeof value === "string" && value.length > 200
+              ? value.slice(0, 200) + "..."
+              : value,
+          2,
+        ).slice(0, 12000),
+      );
+
+      console.log(
+        "DRIP FIRST ITEM:",
+        JSON.stringify(
+          Array.isArray(raw)
+            ? raw[0]
+            : raw?.data?.[0] ??
+              raw?.products?.[0] ??
+              raw?.data ??
+              raw?.products ??
+              raw,
+          null,
+          2,
+        ).slice(0, 8000),
+      );
+
       const dripProducts: any[] =
         Array.isArray(raw)
           ? raw
@@ -479,6 +506,18 @@ router.post(
       if (!dripProducts.length) {
         return res.status(502).json({
           error: "DRIP API tidak mengembalikan produk",
+          dripResponseKeys:
+            raw && typeof raw === "object"
+              ? Object.keys(raw)
+              : [],
+          dripSuccess:
+            raw && typeof raw === "object"
+              ? raw.success ?? null
+              : null,
+          dripError:
+            raw && typeof raw === "object"
+              ? raw.error ?? null
+              : null,
         });
       }
 
