@@ -1,7 +1,7 @@
 import { Link, useLocation } from "wouter";
 import { Show, UserButton, useUser } from "@clerk/react";
 import { useState, useEffect } from "react";
-import { Menu, X, LogIn, Home, Gauge, Wrench, Sparkles, Link2, BriefcaseBusiness, Users, UserRound, MessageSquare, Share2, ShoppingCart } from "lucide-react";
+import { Menu, X, LogIn, Home, Gauge, Wrench, Sparkles, Link2, BriefcaseBusiness, Users, UserRound, MessageSquare, Share2, ShoppingCart, Gift, Megaphone } from "lucide-react";
 import logoPath from "@assets/file_000000003e9c72078d0f388bef03af6a_1778462394630.png";
 
 
@@ -15,6 +15,8 @@ const NAV_ITEMS = [
   { path: "/portfolio", label: "Portfolio" },
   { path: "/community", label: "Community" },
   { path: "/zhuu-chat", label: "Chat" },
+  { path: "/free", label: "Free Hub", highlight: "cyan" },
+  { path: "/promote", label: "Promotion", highlight: "purple" },
   { path: "/member", label: "Member", highlight: "cyan" },
   { path: "/feedback", label: "Feedback" },
   { path: "/sharecard", label: "Share Card", highlight: "cyan" },
