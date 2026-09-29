@@ -2,7 +2,8 @@ import { Router } from "express";
 import { getAuth } from "@clerk/express";
 import { createClerkClient } from "@clerk/backend";
 import { desc } from "drizzle-orm";
-import { db, publicChatMessages } from "@workspace/db";
+import { db, publicChatMessages, pushSubscriptions } from "@workspace/db";
+import { createNotification } from "./notifications.js";
 
 const router = Router();
 
@@ -153,6 +154,38 @@ router.post("/public-chat/messages", async (req, res): Promise<void> => {
       .returning();
 
     const [enrichedMessage] = await enrichMessages([created]);
+
+    const subscriptions = await db
+      .select({ userId: pushSubscriptions.userId })
+      .from(pushSubscriptions);
+
+    const recipientIds = [
+      ...new Set(
+        subscriptions
+          .map((item) => item.userId)
+          .filter((recipientId) => recipientId !== userId),
+      ),
+    ];
+
+    await Promise.all(
+      recipientIds.map((recipientId) =>
+        createNotification({
+          userId: recipientId,
+          type: "chat",
+          title: `${enrichedMessage.username} mengirim pesan`,
+          message:
+            message.length > 120
+              ? `${message.slice(0, 117)}...`
+              : message,
+          link: "/public-chat",
+        }).catch((error) => {
+          console.error(
+            `Public chat push notification failed for ${recipientId}:`,
+            error,
+          );
+        }),
+      ),
+    );
 
     res.status(201).json({
       message: enrichedMessage,

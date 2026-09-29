@@ -1,4 +1,5 @@
 import { Router } from "express";
+import { broadcastNotification } from "./notifications.js";
 import { getAuth } from "@clerk/express";
 import { desc, eq } from "drizzle-orm";
 import { db, freePosts } from "@workspace/db";

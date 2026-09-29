@@ -387,4 +387,45 @@ router.post("/admin/notifications/test-push", async (req, res): Promise<void> =>
   }
 });
 
+export async function broadcastNotification(input: {
+  type: NotificationType;
+  title: string;
+  message: string;
+  link?: string;
+  icon?: string;
+  badge?: string;
+  excludeUserId?: string;
+}) {
+  const subscriptions = await db
+    .select({ userId: pushSubscriptions.userId })
+    .from(pushSubscriptions);
+
+  const recipientIds = [
+    ...new Set(
+      subscriptions
+        .map((item) => item.userId)
+        .filter((userId) => userId !== input.excludeUserId),
+    ),
+  ];
+
+  await Promise.all(
+    recipientIds.map((userId) =>
+      createNotification({
+        userId,
+        type: input.type,
+        title: input.title,
+        message: input.message,
+        link: input.link,
+        icon: input.icon,
+        badge: input.badge,
+      }).catch((error) => {
+        console.error(
+          `Broadcast notification failed for ${userId}:`,
+          error,
+        );
+      }),
+    ),
+  );
+}
+
 export default router;

@@ -1,4 +1,5 @@
 import { Router } from "express";
+import { createNotification } from "./notifications.js";
 import { db } from "@workspace/db";
 import { walletsTable, walletTransactionsTable } from "@workspace/db";
 import { eq, and, desc, sql, like } from "drizzle-orm";
@@ -221,6 +222,16 @@ router.patch("/admin/wallet/deposits/:id/reject", requireAdmin, async (req, res)
       .where(eq(walletTransactionsTable.id, id))
       .returning();
 
+    await createNotification({
+      userId: transaction.userId,
+      type: "wallet",
+      title: "Deposit ditolak",
+      message: `Deposit Rp${Number(transaction.amount).toLocaleString("id-ID")} ditolak oleh admin.`,
+      link: "/member",
+    }).catch((error) => {
+      console.error("Deposit rejection notification failed:", error);
+    });
+
     return res.json({ transaction: updated });
   } catch (err) {
     console.error(err);
@@ -296,6 +307,16 @@ router.patch("/admin/wallet/deposits/:id/confirm", requireAdmin, async (req, res
       })
       .where(eq(walletTransactionsTable.id, transaction.id))
       .returning();
+
+    await createNotification({
+      userId: transaction.userId,
+      type: "wallet",
+      title: "Deposit berhasil 💰",
+      message: `Saldo Rp${Number(transaction.amount).toLocaleString("id-ID")} sudah masuk ke wallet kamu.`,
+      link: "/member",
+    }).catch((error) => {
+      console.error("Deposit confirmation notification failed:", error);
+    });
 
     return res.json({
       wallet: updatedWallet,

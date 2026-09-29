@@ -1,4 +1,5 @@
 import { Router } from "express";
+import { createNotification } from "./notifications.js";
 import { db } from "@workspace/db";
 import {
   ordersTable,
@@ -482,6 +483,16 @@ router.post("/orders", async (req, res) => {
       })
       .where(eq(ordersTable.id, prepared.order.id))
       .returning();
+
+    await createNotification({
+      userId,
+      type: "orders",
+      title: "Order berhasil 🎉",
+      message: `${order.productName} berhasil diproses.`,
+      link: "/orders",
+    }).catch((error) => {
+      console.error("Order notification failed:", error);
+    });
 
     return res.json({
       ...order,
