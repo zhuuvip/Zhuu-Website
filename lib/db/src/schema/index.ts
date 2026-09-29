@@ -17,3 +17,5 @@ export * from "./premium.js";
 export * from "./promos.js";
 export * from "./adminActivityLogs.js";
 export * from "./resetKey.js";
+
+export * from "./publicChat.js";

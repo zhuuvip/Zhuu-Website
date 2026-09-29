@@ -1,3 +1,4 @@
+import publicChatRouter from "./publicChat.js";
 import wablasRouter from "./wablas.js";
 import walletRouter from "./wallet.js";
 import { Router } from "express";
@@ -43,5 +44,6 @@ router.use(dripRouter);
 router.use(promosRouter);
 router.use(adminActivityLogsRouter);
 router.use(resetKeyRouter);
+router.use(publicChatRouter);
 
 export default router;
