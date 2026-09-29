@@ -5,6 +5,26 @@ import { db, publicChatMessages } from "@workspace/db";
 
 const router = Router();
 
+const RATE_LIMIT_MAX = 5;
+const RATE_LIMIT_WINDOW_MS = 10_000;
+const messageRateLimit = new Map<string, number[]>();
+
+function isRateLimited(userId: string): boolean {
+  const now = Date.now();
+  const recent = (messageRateLimit.get(userId) || []).filter(
+    (timestamp) => now - timestamp < RATE_LIMIT_WINDOW_MS,
+  );
+
+  if (recent.length >= RATE_LIMIT_MAX) {
+    messageRateLimit.set(userId, recent);
+    return true;
+  }
+
+  recent.push(now);
+  messageRateLimit.set(userId, recent);
+  return false;
+}
+
 function requireAuth(req: any, res: any): string | null {
   const userId = getAuth(req)?.userId;
 
@@ -41,6 +61,13 @@ router.get("/public-chat/messages", async (req, res): Promise<void> => {
 router.post("/public-chat/messages", async (req, res): Promise<void> => {
   const userId = requireAuth(req, res);
   if (!userId) return;
+
+  if (isRateLimited(userId)) {
+    res.status(429).json({
+      error: "Terlalu banyak pesan. Tunggu beberapa detik.",
+    });
+    return;
+  }
 
   const message =
     typeof req.body?.message === "string"
