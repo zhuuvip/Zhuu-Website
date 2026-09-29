@@ -2420,11 +2420,6 @@ const saveSettings = async () => {
 
                     const data = await r.json();
 
-      if (data?.debug) {
-        alert(JSON.stringify(data, null, 2));
-        return;
-      }
-
                     if (!r.ok) {
                       alert(data?.error || "Gagal sync stock DRIP");
                       return;
@@ -2455,6 +2450,11 @@ const saveSettings = async () => {
                     );
 
                     const data = await r.json();
+
+                    if (data?.debug) {
+                      alert(JSON.stringify(data, null, 2));
+                      return;
+                    }
 
                     if (!r.ok) {
                       alert(data?.error || "Gagal import DRIP catalog");
