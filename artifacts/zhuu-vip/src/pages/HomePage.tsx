@@ -259,19 +259,8 @@ export default function HomePage() {
                   Open Zhuu AI ✨ <ChevronRight size={16} />
                 </button>
               </Link>
-              {isAdmin && (
-                <Link href="/admin">
-                  <button
-                    className="neon-btn px-6 py-3.5 rounded-full font-bold text-base flex items-center gap-2 transition-all hover:scale-105"
-                    style={{
-                      borderColor: "rgba(150,80,255,0.45)",
-                      color: "#c084fc",
-                    }}
-                  >
-                    <Shield size={15} /> Admin
-                  </button>
-                </Link>
-              )}
+
+
             </Show>
           </div>
         </div>

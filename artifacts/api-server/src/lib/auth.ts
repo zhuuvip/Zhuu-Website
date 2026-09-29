@@ -1,16 +1,14 @@
 import type { Request } from "express";
 import { getAuth } from "@clerk/express";
 
-const ADMIN_EMAIL = process.env.ADMIN_EMAIL || "zhuusite@gmail.com";
+
 const ADMIN_USER_ID = process.env.ADMIN_USER_ID;
 
 export function isAdmin(req: Request): boolean {
   const auth = getAuth(req);
   const userId = auth?.userId;
-  const email = auth?.sessionClaims?.email as string | undefined;
-  if (ADMIN_USER_ID && userId === ADMIN_USER_ID) return true;
-  if (email && email === ADMIN_EMAIL) return true;
-  return false;
+  if (!ADMIN_USER_ID) return false;
+  return userId === ADMIN_USER_ID;
 }
 
 export function requireAdmin(req: Request, res: any, next: any): void {

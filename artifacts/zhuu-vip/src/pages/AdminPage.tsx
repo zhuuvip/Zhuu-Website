@@ -20,7 +20,7 @@ import {
   Wallet, Clock3, CreditCard, AlertTriangle, ChevronRight, Package
 } from "lucide-react";
 
-const ADMIN_EMAIL = import.meta.env.VITE_ADMIN_EMAIL || "zhuusite@gmail.com";
+
 const API_BASE = (import.meta.env.VITE_API_URL || "").replace(/\/$/, "");
 
 const RATING_EMOJIS = ["😕", "😐", "🙂", "😊", "🤩"];
@@ -126,7 +126,7 @@ export default function AdminPage() {
 
   const email = user?.primaryEmailAddress?.emailAddress;
   const externalEmail = user?.externalAccounts?.[0]?.emailAddress;
-  const isAdmin = email === ADMIN_EMAIL || externalEmail === ADMIN_EMAIL;
+  const isAdmin = user?.id === "user_3E6HUwONim1oE7ALnAcTK7uOzF6";
 
   const { data: links = [], isLoading: linksLoading } = useListLinks();
   const { data: songs = [], isLoading: songsLoading } = useListSongs();

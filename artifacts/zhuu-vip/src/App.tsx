@@ -154,7 +154,7 @@ function AppRouter() {
   const [maintenanceReason, setMaintenanceReason] = React.useState("");
   const [maintenanceLoading, setMaintenanceLoading] = React.useState(true);
 
-  const isAdminPage = location.startsWith("/admin");
+  const isAdminPage = location.startsWith("/zhuu-control-x7k9");
   const isAuthPage =
     location.startsWith("/sign-in") ||
     location.startsWith("/sign-up");
@@ -231,7 +231,7 @@ function AppRouter() {
         <Route path="/products" component={ProductsPage} />
         <Route path="/reseller-login" component={ResellerLoginPage} />
         <Route path="/reseller" component={ResellerDashboardPage} />
-        <Route path="/admin" component={AdminPage} />
+        <Route path="/zhuu-control-x7k9" component={AdminPage} />
         <Route path="/sharecard" component={ShareCardPage} />
         <Route path="/sign-in/*?" component={SignInPage} />
         <Route path="/sign-up/*?" component={SignUpPage} />

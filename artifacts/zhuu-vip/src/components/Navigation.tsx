@@ -1,10 +1,10 @@
 import { Link, useLocation } from "wouter";
 import { Show, UserButton, useUser } from "@clerk/react";
 import { useState, useEffect } from "react";
-import { Menu, X, Shield, LogIn, Home, Gauge, Wrench, Sparkles, Link2, BriefcaseBusiness, Users, UserRound, MessageSquare, Share2, ShoppingCart } from "lucide-react";
+import { Menu, X, LogIn, Home, Gauge, Wrench, Sparkles, Link2, BriefcaseBusiness, Users, UserRound, MessageSquare, Share2, ShoppingCart } from "lucide-react";
 import logoPath from "@assets/file_000000003e9c72078d0f388bef03af6a_1778462394630.png";
 
-const ADMIN_EMAIL = import.meta.env.VITE_ADMIN_EMAIL || "zhuusite@gmail.com";
+
 
 const NAV_ITEMS = [
   { path: "/", label: "Home" },
@@ -26,9 +26,6 @@ export default function Navigation() {
   const [scrolled, setScrolled] = useState(false);
   const { user } = useUser();
 
-  const userEmail = user?.primaryEmailAddress?.emailAddress;
-  const externalEmail = user?.externalAccounts?.[0]?.emailAddress;
-  const isAdmin = userEmail === ADMIN_EMAIL || externalEmail === ADMIN_EMAIL;
 
   const isActive = (href: string) =>
     href === "/" ? location === "/" : location.startsWith(href);
@@ -150,20 +147,6 @@ export default function Navigation() {
                 </Link>
               );
             })}
-            {isAdmin && (
-              <Link href="/admin">
-                <div
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium cursor-pointer transition-all ml-1 ${
-                    isActive("/admin")
-                      ? "bg-purple-400/15 text-purple-300"
-                      : "text-purple-300/55 hover:text-purple-300 hover:bg-purple-400/8"
-                  }`}
-                >
-                  <Shield size={13} />
-                  Admin
-                </div>
-              </Link>
-            )}
           </div>
 
           {/* Auth + Mobile toggle */}
@@ -311,46 +294,6 @@ export default function Navigation() {
                 );
               })}
 
-              {isAdmin && (
-                <Link href="/admin">
-                  <div
-                    className="relative flex-shrink-0 min-w-[74px] h-[54px] px-3 rounded-2xl flex flex-col items-center justify-center gap-1 cursor-pointer select-none transition-all duration-200 active:scale-90"
-                    style={{
-                      color: isActive("/admin")
-                        ? "#d8b4fe"
-                        : "rgba(192,132,252,0.62)",
-                      background: isActive("/admin")
-                        ? "linear-gradient(145deg, rgba(168,85,247,0.14), rgba(80,40,130,0.10))"
-                        : "rgba(168,85,247,0.025)",
-                      border: isActive("/admin")
-                        ? "1px solid rgba(192,132,252,0.25)"
-                        : "1px solid rgba(192,132,252,0.05)",
-                      boxShadow: isActive("/admin")
-                        ? "0 0 20px rgba(168,85,247,0.14)"
-                        : "none",
-                    }}
-                  >
-                    {isActive("/admin") && (
-                      <div
-                        className="absolute -top-[1px] left-1/2 -translate-x-1/2 w-7 h-[2px] rounded-full"
-                        style={{
-                          background: "#c084fc",
-                          boxShadow: "0 0 10px #c084fc",
-                        }}
-                      />
-                    )}
-
-                    <Shield
-                      size={17}
-                      strokeWidth={isActive("/admin") ? 2.3 : 1.7}
-                    />
-
-                    <span className="text-[10px] font-medium whitespace-nowrap tracking-wide">
-                      Admin
-                    </span>
-                  </div>
-                </Link>
-              )}
             </div>
           </div>
         </div>
