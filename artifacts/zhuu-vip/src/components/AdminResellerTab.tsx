@@ -30,6 +30,7 @@ export default function AdminResellerTab() {
   const [manualDuration, setManualDuration] = useState("30");
   const [addingReseller, setAddingReseller] = useState(false);
   const [promotions, setPromotions] = useState<any[]>([]);
+  const [freePosts, setFreePosts] = useState<any[]>([]);
 
   const call = async (path: string, init: RequestInit = {}) => {
     const token = await getToken();
@@ -45,12 +46,13 @@ export default function AdminResellerTab() {
 
   const load = async () => {
     try {
-      const [mem, prods, pr, set, promos] = await Promise.all([
+      const [mem, prods, pr, set, promos, free] = await Promise.all([
         call("/api/admin/resellers"),
         fetch(`${API_BASE}/api/products`, { cache: "no-store" }).then((r) => r.json()),
         call("/api/admin/reseller-prices"),
         call("/api/admin/reseller-settings"),
         call("/api/admin/promotions"),
+        call("/api/free/posts"),
       ]);
       setMembers(Array.isArray(mem) ? mem : []);
       setProducts(Array.isArray(prods) ? prods : []);
@@ -59,6 +61,7 @@ export default function AdminResellerTab() {
       setPrices(map);
       setPlan({ monthly: String(set.monthly ?? ""), lifetime: String(set.lifetime ?? "") });
       setPromotions(Array.isArray(promos) ? promos : []);
+      setFreePosts(Array.isArray(free) ? free : []);
     } catch (e) {
       setMsg(e instanceof Error ? e.message : "Gagal memuat");
     }
@@ -195,7 +198,69 @@ export default function AdminResellerTab() {
       </section>
 
       {/* Kelola Promotion */}
-      <section className="rounded-2xl border border-purple-400/20 bg-purple-400/[0.03] p-4">
+
+      {/* Free Hub Manager */}
+      <section className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
+        <div className="mb-4 flex items-center justify-between gap-3">
+          <div>
+            <h3 className="font-bold">Free Hub</h3>
+            <p className="text-xs text-white/40">
+              Kelola postingan Free Hub yang sedang tampil.
+            </p>
+          </div>
+          <span className="rounded-full bg-white/5 px-3 py-1 text-xs text-white/50">
+            {freePosts.length} posting
+          </span>
+        </div>
+
+        <div className="space-y-2">
+          {freePosts.map((post) => (
+            <div
+              key={post.id}
+              className="flex items-center justify-between gap-3 rounded-xl border border-white/10 bg-black/20 p-3"
+            >
+              <div className="min-w-0">
+                <p className="truncate text-sm font-semibold text-white">
+                  {post.title || "Tanpa judul"}
+                </p>
+                <p className="mt-1 text-xs text-white/40">
+                  {post.category || "FREE"} · ID #{post.id}
+                </p>
+              </div>
+
+              <button
+                type="button"
+                className="shrink-0 rounded-lg border border-red-400/20 bg-red-400/10 px-3 py-2 text-xs font-semibold text-red-300 hover:bg-red-400/20"
+                onClick={() =>
+                  run(
+                    async () => {
+                      const ok = await window.zhuuConfirm?.(
+                        `Hapus posting Free Hub "${post.title || "Tanpa judul"}"?`,
+                      );
+                      if (ok === false) return;
+
+                      await call(`/api/free/posts/${post.id}`, {
+                        method: "DELETE",
+                      });
+                    },
+                    "Posting Free Hub dihapus",
+                  )
+                }
+              >
+                Hapus
+              </button>
+            </div>
+          ))}
+
+          {freePosts.length === 0 && (
+            <div className="rounded-xl border border-white/10 bg-black/10 px-4 py-6 text-center text-sm text-white/35">
+              Tidak ada posting Free Hub.
+            </div>
+          )}
+        </div>
+      </section>
+
+<section className="rounded-2xl border border-purple-400/20 bg-purple-400/[0.03] p-4">
         <div className="flex items-center justify-between gap-3 mb-3">
           <div>
             <h3 className="font-bold">Kelola Promotion</h3>
