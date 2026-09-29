@@ -1,4 +1,7 @@
 import publicChatRouter from "./publicChat.js";
+import freeHubRouter from "./freeHub.js";
+import notificationsRouter from "./notifications.js";
+import promotionsRouter from "./promotions.js";
 import wablasRouter from "./wablas.js";
 import walletRouter from "./wallet.js";
 import { Router } from "express";
@@ -45,5 +48,8 @@ router.use(promosRouter);
 router.use(adminActivityLogsRouter);
 router.use(resetKeyRouter);
 router.use(publicChatRouter);
+router.use(freeHubRouter);
+router.use(notificationsRouter);
+router.use(promotionsRouter);
 
 export default router;

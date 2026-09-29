@@ -19,3 +19,9 @@ export * from "./adminActivityLogs.js";
 export * from "./resetKey.js";
 
 export * from "./publicChat.js";
+export * from "./freeHub.js";
+export * from "./notifications.js";
+export * from "./pushSubscriptions.js";
+export * from "./notificationPreferences.js";
+
+export * from "./promotions.js";
