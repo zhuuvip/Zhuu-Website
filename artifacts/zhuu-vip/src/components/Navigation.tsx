@@ -8,6 +8,7 @@ import {
   Gift,
   Home,
   Link2,
+  LogIn,
   Menu,
   MessageSquare,
   MoreHorizontal,
@@ -249,14 +250,21 @@ export default function Navigation() {
             </div>
           </div>
 
+          <Link href="/reseller-login">
+            <span
+              title="Login Reseller"
+              className={`zs-nav-link inline-flex items-center gap-1.5 ${
+                isActive("/reseller-login") ? "zs-nav-link-active" : ""
+              }`}
+            >
+              <LogIn size={15} />
+              Reseller
+            </span>
+          </Link>
+
           <div className="flex items-center gap-2">
             <Show when="signed-in">
-              <Link href="/reseller-login">
-                              <span className="inline-flex items-center rounded-xl border border-purple-300/15 bg-purple-300/[0.06] px-3.5 py-2 text-sm font-semibold text-purple-200/80 transition hover:border-purple-300/30 hover:bg-purple-300/[0.1] hover:text-purple-100">
-                                Login Reseller
-                              </span>
-                            </Link>
-                            <NotificationBell unread={unreadNotifications} />
+              <NotificationBell unread={unreadNotifications} />
               <UserButton />
             </Show>
 

@@ -47,6 +47,7 @@ function ensureResellerTables(): Promise<void> {
         )
       `);
       await db.execute(sql`ALTER TABLE product_options ADD COLUMN IF NOT EXISTS reseller_price INTEGER`);
+      await db.execute(sql`ALTER TABLE reseller_members ADD COLUMN IF NOT EXISTS credential_version INTEGER NOT NULL DEFAULT 0`);
       await db.execute(sql`
         CREATE TABLE IF NOT EXISTS wallets (
           id SERIAL PRIMARY KEY,
@@ -97,22 +98,43 @@ function secret() {
 function sign(body: string) {
   return crypto.createHmac("sha256", secret()).update(body).digest("base64url");
 }
-function signToken(userId: string) {
+function signToken(userId: string, credentialVersion = 0) {
   const body = Buffer.from(
-    JSON.stringify({ u: userId, exp: Date.now() + 7 * 24 * 3600 * 1000 }),
+    JSON.stringify({
+      u: userId,
+      v: credentialVersion,
+      exp: Date.now() + 7 * 24 * 3600 * 1000,
+    }),
   ).toString("base64url");
+
   return `${body}.${sign(body)}`;
 }
-function readToken(token: string): string | null {
+
+function readToken(
+  token: string,
+): { userId: string; credentialVersion: number } | null {
   const [body, sig] = token.split(".");
   if (!body || !sig) return null;
+
   const a = Buffer.from(sig);
   const b = Buffer.from(sign(body));
-  if (a.length !== b.length || !crypto.timingSafeEqual(a, b)) return null;
+
+  if (a.length !== b.length || !crypto.timingSafeEqual(a, b)) {
+    return null;
+  }
+
   try {
     const p = JSON.parse(Buffer.from(body, "base64url").toString());
-    if (typeof p.u !== "string" || p.exp < Date.now()) return null;
-    return p.u;
+
+    if (typeof p.u !== "string" || p.exp < Date.now()) {
+      return null;
+    }
+
+    return {
+      userId: p.u,
+      credentialVersion:
+        Number.isInteger(p.v) && p.v >= 0 ? p.v : 0,
+    };
   } catch {
     return null;
   }
@@ -174,16 +196,44 @@ function tooMany(ip: string) {
 async function requireReseller(req: Request, res: Response, next: NextFunction) {
   try {
     await ensureResellerTables();
-    const token = String(req.headers.authorization || "").replace(/^Bearer\s+/i, "");
-    const userId = token ? readToken(token) : null;
-    if (!userId) return res.status(401).json({ error: "Login reseller diperlukan" });
+
+    const token = String(req.headers.authorization || "").replace(
+      /^Bearer\s+/i,
+      "",
+    );
+
+    const tokenData = token ? readToken(token) : null;
+
+    if (!tokenData) {
+      return res.status(401).json({
+        error: "Login reseller diperlukan",
+      });
+    }
+
+    const userId = tokenData.userId;
 
     const row = rowsOf(
-      await db.execute(sql`SELECT * FROM reseller_members WHERE user_id = ${userId}`),
+      await db.execute(
+        sql`SELECT * FROM reseller_members WHERE user_id = ${userId}`,
+      ),
     )[0];
+
     if (!isActiveMember(row) || !row.username) {
-      return res.status(401).json({ error: "Paket reseller tidak aktif atau sudah habis" });
+      return res.status(401).json({
+        error: "Paket reseller tidak aktif atau sudah habis",
+      });
     }
+
+    const currentCredentialVersion = Number(
+      row.credential_version ?? 0,
+    );
+
+    if (currentCredentialVersion !== tokenData.credentialVersion) {
+      return res.status(401).json({
+        error: "Sesi reseller sudah tidak berlaku. Silakan login kembali.",
+      });
+    }
+
     (req as any).reseller = {
       userId,
       username: row.username,
@@ -191,10 +241,13 @@ async function requireReseller(req: Request, res: Response, next: NextFunction) 
       expiresAt: row.expires_at,
       balance: await walletBalance(db, userId),
     };
+
     return next();
   } catch (e) {
     console.error(e);
-    return res.status(500).json({ error: "Terjadi kesalahan server" });
+    return res.status(500).json({
+      error: "Terjadi kesalahan server",
+    });
   }
 }
 
@@ -290,43 +343,50 @@ router.post(
     const password = String(req.body.password || "");
 
     if (!/^[a-z0-9_]{3,24}$/.test(username)) {
-      throw new HttpError(400, "Username 3-24 karakter: huruf kecil, angka, atau _");
+      throw new HttpError(
+        400,
+        "Username 3-24 karakter: huruf kecil, angka, atau _",
+      );
     }
+
     if (password.length < 6 || password.length > 72) {
       throw new HttpError(400, "Password 6-72 karakter");
     }
 
-    const member = rowsOf(
-      await db.execute(sql`SELECT * FROM reseller_members WHERE user_id = ${userId}`),
-    )[0];
-    if (!isActiveMember(member)) {
-      throw new HttpError(403, "Kamu belum punya paket reseller aktif");
-    }
-
-    const taken = rowsOf(
-      await db.execute(
-        sql`SELECT 1 FROM reseller_members WHERE username = ${username} AND user_id <> ${userId}`,
-      ),
-    )[0];
-    if (taken) throw new HttpError(400, "Username sudah dipakai, pilih yang lain");
-
     try {
-      await db.execute(sql`
-        UPDATE reseller_members
-        SET username = ${username}, password_hash = ${hashPassword(password)}
-        WHERE user_id = ${userId}
-      `);
+      const updated = rowsOf(
+        await db.execute(sql`
+          UPDATE reseller_members
+          SET
+            username = ${username},
+            password_hash = ${hashPassword(password)},
+            credential_version = credential_version + 1
+          WHERE user_id = ${userId}
+          RETURNING credential_version
+        `),
+      );
+
+      const credentialVersion = Number(
+        updated[0]?.credential_version ?? 0,
+      );
+
+      return res.json({
+        ok: true,
+        username,
+        token: signToken(userId, credentialVersion),
+      });
     } catch (e: any) {
       if (e?.code === "23505" || e?.cause?.code === "23505") {
-        throw new HttpError(400, "Username sudah dipakai, pilih yang lain");
+        throw new HttpError(
+          400,
+          "Username sudah dipakai, pilih yang lain",
+        );
       }
       throw e;
     }
-    return res.json({ ok: true, username });
   }),
 );
 
-/* ================= RESELLER (login sendiri) ================= */
 router.post(
   "/reseller/login",
   h(async (req, res) => {
@@ -346,7 +406,13 @@ router.post(
       throw new HttpError(403, "Paket reseller kamu habis atau dinonaktifkan. Perpanjang di halaman Member.");
     }
     attempts.delete(ip);
-    return res.json({ token: signToken(acc.user_id), username: acc.username });
+    return res.json({
+      token: signToken(
+        acc.user_id,
+        Number(acc.credential_version ?? 0),
+      ),
+      username: acc.username,
+    });
   }),
 );
 

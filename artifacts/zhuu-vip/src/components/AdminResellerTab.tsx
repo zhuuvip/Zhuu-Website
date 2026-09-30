@@ -175,12 +175,18 @@ export default function AdminResellerTab() {
                     }),
                   });
 
-                  setGiveawayAccount({
-                    username: result.username,
-                    password: result.password,
-                    duration: result.duration,
-                  });
-                  setMsg("Akun reseller berhasil dibuat.");
+                  const account = {
+                                                    username: result.username,
+                                                    password: result.password,
+                                                    duration: result.duration,
+                                                  };
+
+                                                  setGiveawayAccount(account);
+                                                  localStorage.setItem(
+                                                    "zhuu_admin_last_reseller_account",
+                                                    JSON.stringify(account),
+                                                  );
+                                                  setMsg("Akun reseller berhasil dibuat.");
 
                   await load();
                 } catch (e: any) {

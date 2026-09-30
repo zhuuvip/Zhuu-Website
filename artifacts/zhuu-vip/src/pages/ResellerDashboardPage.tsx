@@ -200,6 +200,15 @@ export default function ResellerDashboardPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  useEffect(() => {
+    const checkSession = window.setInterval(() => {
+      resellerApi("/api/reseller/me").catch(() => {});
+    }, 10000);
+
+    return () => window.clearInterval(checkSession);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const getProductLogo = (product: Product) =>
     product.imageUrl || product.image || product.logo || "";
 
@@ -443,6 +452,10 @@ export default function ResellerDashboardPage() {
           password: newPassword || undefined,
         }),
       });
+
+      if (data.token) {
+        localStorage.setItem("reseller_token", String(data.token));
+      }
 
       setUsername(String(data.username || cleanUsername || username));
       setNewPassword("");
