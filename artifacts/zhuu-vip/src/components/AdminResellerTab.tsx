@@ -29,6 +29,11 @@ export default function AdminResellerTab() {
   const [manualEmail, setManualEmail] = useState("");
   const [manualDuration, setManualDuration] = useState("30");
   const [addingReseller, setAddingReseller] = useState(false);
+  const [giveawayAccount, setGiveawayAccount] = useState<{
+    username: string;
+    password: string;
+    duration: string;
+  } | null>(null);
   const [promotions, setPromotions] = useState<any[]>([]);
   const [freePosts, setFreePosts] = useState<any[]>([]);
 
@@ -133,6 +138,127 @@ export default function AdminResellerTab() {
 
       {/* Add reseller manual */}
       <section className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
+        <div className="mb-6 rounded-xl border border-white/10 bg-white/[0.03] p-4">
+          <h3 className="mb-1 font-bold">Buat Akun Reseller</h3>
+          <p className="mb-4 text-sm text-white/50">
+            Buat akun reseller dengan username dan password otomatis.
+          </p>
+
+          <div className="grid gap-2 sm:grid-cols-[180px_auto]">
+            <select
+              className={inputCls}
+              value={manualDuration}
+              onChange={(e) => setManualDuration(e.target.value)}
+            >
+              <option value="1">1 Day</option>
+              <option value="3">3 Days</option>
+              <option value="7">7 Days</option>
+              <option value="10">10 Days</option>
+              <option value="15">15 Days</option>
+              <option value="30">30 Days</option>
+              <option value="lifetime">Lifetime</option>
+            </select>
+
+            <button
+              type="button"
+              className="rounded-lg bg-white px-4 py-2 text-sm font-semibold text-black transition hover:bg-white/90 disabled:opacity-50"
+              disabled={addingReseller}
+              onClick={async () => {
+                try {
+                  setAddingReseller(true);
+                  setMsg("");
+
+                  const result = await call("/api/admin/resellers/giveaway", {
+                    method: "POST",
+                    body: JSON.stringify({
+                      duration: manualDuration,
+                    }),
+                  });
+
+                  setGiveawayAccount({
+                    username: result.username,
+                    password: result.password,
+                    duration: result.duration,
+                  });
+                  setMsg("Akun reseller berhasil dibuat.");
+
+                  await load();
+                } catch (e: any) {
+                  setMsg(e?.message || "Gagal membuat akun giveaway");
+                } finally {
+                  setAddingReseller(false);
+                }
+              }}
+            >
+              {addingReseller ? "Generating..." : "Buat Akun Reseller"}
+            </button>
+          </div>
+        </div>
+
+        {giveawayAccount && (
+          <div className="mb-6 rounded-xl border border-white/10 bg-white/[0.03] p-4">
+            <div className="mb-3 flex items-center justify-between gap-3">
+              <div>
+                <h3 className="font-bold">Akun Reseller Berhasil Dibuat</h3>
+                <p className="text-xs text-white/40">
+                  Simpan credential ini sebelum menutup halaman.
+                </p>
+              </div>
+              <button
+                type="button"
+                className="text-xs text-white/50 hover:text-white"
+                onClick={() => setGiveawayAccount(null)}
+              >
+                Tutup
+              </button>
+            </div>
+
+            <div className="grid gap-3 sm:grid-cols-2">
+              <div className="rounded-lg border border-white/10 bg-black/20 p-3">
+                <div className="mb-1 text-xs text-white/40">Username</div>
+                <div className="flex items-center justify-between gap-2">
+                  <code className="text-sm font-semibold">
+                    {giveawayAccount.username}
+                  </code>
+                  <button
+                    type="button"
+                    className="rounded-md border border-white/10 px-2 py-1 text-xs hover:bg-white/10"
+                    onClick={() =>
+                      navigator.clipboard.writeText(giveawayAccount.username)
+                    }
+                  >
+                    Copy
+                  </button>
+                </div>
+              </div>
+
+              <div className="rounded-lg border border-white/10 bg-black/20 p-3">
+                <div className="mb-1 text-xs text-white/40">Password</div>
+                <div className="flex items-center justify-between gap-2">
+                  <code className="text-sm font-semibold">
+                    {giveawayAccount.password}
+                  </code>
+                  <button
+                    type="button"
+                    className="rounded-md border border-white/10 px-2 py-1 text-xs hover:bg-white/10"
+                    onClick={() =>
+                      navigator.clipboard.writeText(giveawayAccount.password)
+                    }
+                  >
+                    Copy
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-3 text-xs text-white/40">
+              Durasi: {giveawayAccount.duration === "lifetime"
+                ? "Lifetime"
+                : `${giveawayAccount.duration} hari`}
+            </div>
+          </div>
+        )}
+
         <h3 className="mb-1 font-bold">Tambah Reseller Manual</h3>
         <p className="mb-3 text-xs text-white/40">
           Masukkan email user yang sudah terdaftar di website.

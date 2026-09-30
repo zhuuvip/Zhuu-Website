@@ -42,6 +42,11 @@ export default function ResellerDashboardPage() {
   const [balance, setBalance] = useState(0);
   const [username, setUsername] = useState("");
   const [history, setHistory] = useState<any[]>([]);
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const [newUsername, setNewUsername] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [settingsLoading, setSettingsLoading] = useState(false);
+  const [settingsMsg, setSettingsMsg] = useState("");
   const [loading, setLoading] = useState(true);
   const [walletLoading, setWalletLoading] = useState(true);
   const [error, setError] = useState("");
@@ -402,6 +407,55 @@ export default function ResellerDashboardPage() {
     window.location.href = "/reseller-login";
   };
 
+  const openSettings = () => {
+    setNewUsername(username);
+    setNewPassword("");
+    setSettingsMsg("");
+    setSettingsOpen(true);
+  };
+
+  const saveSettings = async () => {
+    const cleanUsername = newUsername.trim().toLowerCase();
+
+    if (!cleanUsername && !newPassword) {
+      setSettingsMsg("Isi username atau password yang ingin diubah.");
+      return;
+    }
+
+    if (cleanUsername && !/^[a-z0-9_]{3,24}$/.test(cleanUsername)) {
+      setSettingsMsg("Username 3-24 karakter: huruf kecil, angka, atau underscore.");
+      return;
+    }
+
+    if (newPassword && (newPassword.length < 6 || newPassword.length > 72)) {
+      setSettingsMsg("Password harus 6-72 karakter.");
+      return;
+    }
+
+    try {
+      setSettingsLoading(true);
+      setSettingsMsg("");
+
+      const data = await resellerApi("/api/reseller/credentials", {
+        method: "POST",
+        body: JSON.stringify({
+          username: cleanUsername || username,
+          password: newPassword || undefined,
+        }),
+      });
+
+      setUsername(String(data.username || cleanUsername || username));
+      setNewPassword("");
+      setSettingsMsg("Pengaturan berhasil disimpan.");
+    } catch (err) {
+      setSettingsMsg(
+        err instanceof Error ? err.message : "Gagal menyimpan pengaturan.",
+      );
+    } finally {
+      setSettingsLoading(false);
+    }
+  };
+
   const copyKey = async () => {
     if (!purchaseResult?.deliveryKey) return;
 
@@ -727,7 +781,10 @@ export default function ResellerDashboardPage() {
 
         {/* HISTORY */}
       {history.length > 0 && (
-        <section className="relative mx-auto max-w-7xl px-4 pb-10 sm:px-4 sm:px-6 lg:px-8">
+        <section
+            id="riwayat-pembelian"
+            className="relative mx-auto max-w-7xl px-4 pb-10 sm:px-4 sm:px-6 lg:px-8"
+          >
           <div className="mx-auto mt-10 max-w-4xl">
             <div className="mb-4">
               <h2 className="text-xl font-bold sm:text-2xl">
@@ -1169,6 +1226,88 @@ export default function ResellerDashboardPage() {
           </div>
         </div>
       )}
+      {settingsOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4 backdrop-blur-sm">
+          <div className="w-full max-w-md rounded-3xl border border-white/10 bg-[#0b0b0f] p-6 shadow-2xl">
+            <div className="mb-6 flex items-start justify-between gap-4">
+              <div>
+                <h2 className="text-xl font-bold">Pengaturan Akun</h2>
+                <p className="mt-1 text-sm text-white/40">
+                  Ubah username atau password reseller.
+                </p>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setSettingsOpen(false)}
+                className="rounded-lg px-2 py-1 text-white/40 transition hover:bg-white/10 hover:text-white"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              <div>
+                <label className="mb-2 block text-xs font-semibold text-white/50">
+                  Username
+                </label>
+                <input
+                  value={newUsername}
+                  onChange={(e) => setNewUsername(e.target.value)}
+                  maxLength={24}
+                  className="w-full rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3 text-sm outline-none transition focus:border-purple-400/50"
+                  placeholder="username"
+                />
+              </div>
+
+              <div>
+                <label className="mb-2 block text-xs font-semibold text-white/50">
+                  Password Baru
+                </label>
+                <input
+                  type="password"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  maxLength={72}
+                  className="w-full rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3 text-sm outline-none transition focus:border-purple-400/50"
+                  placeholder="Kosongkan jika tidak ingin mengubah"
+                />
+              </div>
+
+              {settingsMsg && (
+                <div className="rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 text-sm text-white/60">
+                  {settingsMsg}
+                </div>
+              )}
+
+              <button
+                type="button"
+                onClick={() => {
+                  setSettingsOpen(false);
+                  window.setTimeout(() => {
+                    document
+                      .getElementById("riwayat-pembelian")
+                      ?.scrollIntoView({ behavior: "smooth", block: "start" });
+                  }, 100);
+                }}
+                className="w-full rounded-xl border border-white/10 px-4 py-3 text-sm font-bold text-white/70 transition hover:bg-white/[0.06] hover:text-white"
+              >
+                Riwayat Pembelian
+              </button>
+
+              <button
+                type="button"
+                onClick={saveSettings}
+                disabled={settingsLoading}
+                className="w-full rounded-xl bg-white px-4 py-3 text-sm font-bold text-black transition hover:bg-white/90 disabled:opacity-50"
+              >
+                {settingsLoading ? "Menyimpan..." : "Simpan Perubahan"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
     </main>
   );
 }

@@ -283,8 +283,9 @@ router.post(
 
 router.post(
   "/reseller/credentials",
+  requireReseller,
   h(async (req, res) => {
-    const userId = clerkUser(req);
+    const userId = (req as any).reseller.userId;
     const username = String(req.body.username || "").trim().toLowerCase();
     const password = String(req.body.password || "");
 
@@ -849,6 +850,68 @@ router.post(
       email,
       duration: days,
       expiresAt: base.toISOString(),
+    });
+  }),
+);
+
+router.post(
+  "/admin/resellers/giveaway",
+  requireAdmin,
+  h(async (req, res) => {
+    const duration = String(req.body.duration || "30");
+
+    const allowedDays: Record<string, number> = {
+      "1": 1,
+      "3": 3,
+      "7": 7,
+      "10": 10,
+      "15": 15,
+      "30": 30,
+    };
+
+    if (duration !== "lifetime" && !allowedDays[duration]) {
+      throw new HttpError(400, "Durasi reseller tidak valid");
+    }
+
+    const userId = `giveaway_${crypto.randomBytes(12).toString("hex")}`;
+
+    const username = `zhuu_${crypto.randomBytes(4).toString("hex")}`;
+    const password = crypto.randomBytes(6).toString("base64url");
+
+    const passwordHash = hashPassword(password);
+
+    let expiresIso: string | null = null;
+    let plan = "lifetime";
+
+    if (duration !== "lifetime") {
+      const days = allowedDays[duration];
+      plan = `${days}_days`;
+
+      const expires = new Date();
+      expires.setUTCDate(expires.getUTCDate() + days);
+      expiresIso = expires.toISOString();
+    }
+
+    await db.execute(sql`
+      INSERT INTO reseller_members
+        (user_id, plan, expires_at, username, password_hash, active)
+      VALUES
+        (
+          ${userId},
+          ${plan},
+          ${expiresIso}::timestamptz,
+          ${username},
+          ${passwordHash},
+          TRUE
+        )
+    `);
+
+    return res.json({
+      ok: true,
+      username,
+      password,
+      duration,
+      expiresAt: expiresIso,
     });
   }),
 );
