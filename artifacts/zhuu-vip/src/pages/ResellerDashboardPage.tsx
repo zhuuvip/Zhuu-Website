@@ -595,6 +595,13 @@ export default function ResellerDashboardPage() {
               </span>
 
               <button
+                  onClick={openSettings}
+                  className="rounded-xl border border-white/[0.07] px-4 py-3 text-sm font-bold text-white/60 transition hover:bg-white/[0.06] hover:text-white"
+                  title="Pengaturan akun"
+                >
+                  ⚙ Pengaturan
+                </button>
+                <button
                 onClick={logout}
                 className="rounded-xl border border-red-400/20 px-4 py-3 text-sm font-bold text-red-300 transition hover:bg-red-500/10"
               >
