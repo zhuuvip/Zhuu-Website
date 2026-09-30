@@ -153,29 +153,38 @@ export default function PublicChatPage() {
   }
 
   return (
-    <div className="min-h-screen px-3 sm:px-4 pt-4 pb-28">
+    <div className="relative min-h-screen overflow-hidden px-3 sm:px-4 pt-5 pb-28">
+      <div className="pointer-events-none fixed inset-0 -z-10">
+        <div className="absolute left-[10%] top-16 h-56 w-56 rounded-full bg-white/[0.025] blur-3xl" />
+        <div className="absolute right-[8%] top-[35%] h-72 w-72 rounded-full bg-indigo-500/[0.025] blur-3xl" />
+        <div className="absolute bottom-20 left-[35%] h-64 w-64 rounded-full bg-cyan-400/[0.018] blur-3xl" />
+      </div>
       <div className="max-w-4xl mx-auto">
 
         {/* Header */}
-        <div className="glass-card rounded-3xl p-5 mb-4">
-          <div className="flex items-center gap-3">
-            <div className="text-3xl">💬</div>
+        <div className="relative overflow-hidden rounded-[26px] border border-white/[0.08] bg-white/[0.025] p-4 sm:p-5 mb-4 shadow-[0_20px_70px_rgba(0,0,0,0.22)] backdrop-blur-xl">
+          <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-white/[0.035] via-transparent to-indigo-400/[0.025]" />
+          <div className="relative flex items-center gap-3">
+            <div className="relative flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-white/[0.09] bg-white/[0.045] shadow-inner">
+              <span className="text-xl">💬</span>
+              <span className="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full border-2 border-[#090c12] bg-emerald-400" />
+            </div>
 
             <div className="min-w-0">
-              <h1 className="text-xl sm:text-2xl font-black gradient-text">
+              <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-white">
                 Zhuu Public Chat
               </h1>
 
-              <p className="text-xs text-zinc-400/40 truncate">
+              <p className="text-[11px] sm:text-xs text-zinc-400/55 truncate">
                 Semua user ZhuuSite bisa ngobrol di sini
               </p>
             </div>
 
-            <div className="ml-auto text-right hidden sm:block">
-              <div className="text-xs text-zinc-400/40">
+            <div className="ml-auto hidden text-right sm:block">
+              <div className="text-[10px] uppercase tracking-[0.14em] text-zinc-500/80">
                 Signed in as
               </div>
-              <div className="text-sm font-semibold text-zinc-200">
+              <div className="text-sm font-semibold text-zinc-100">
                 {user?.firstName ||
                   user?.username ||
                   user?.primaryEmailAddress?.emailAddress ||
@@ -186,23 +195,23 @@ export default function PublicChatPage() {
         </div>
 
         {/* Chat */}
-        <div className="glass-card rounded-3xl overflow-hidden">
+        <div className="overflow-hidden rounded-[28px] border border-white/[0.08] bg-[#090c12]/80 shadow-[0_25px_90px_rgba(0,0,0,0.3)] backdrop-blur-2xl">
 
           <div
             ref={chatScrollRef}
-            className="h-[60vh] min-h-[420px] overflow-y-auto p-4 sm:p-6 space-y-3"
+            className="h-[60vh] min-h-[420px] overflow-y-auto p-3.5 sm:p-6 space-y-3.5 scroll-smooth [scrollbar-width:thin] [scrollbar-color:rgba(255,255,255,0.08)_transparent]"
           >
             {loading ? (
-              <div className="h-full flex items-center justify-center text-zinc-400/40">
+              <div className="h-full flex items-center justify-center text-zinc-500/50">
                 Memuat pesan...
               </div>
             ) : messages.length === 0 ? (
-              <div className="h-full flex flex-col items-center justify-center text-center">
-                <div className="text-5xl mb-3"></div>
-                <div className="font-bold text-zinc-200">
+              <div className="h-full flex flex-col items-center justify-center px-6 text-center">
+                <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-3xl border border-white/[0.07] bg-white/[0.025] text-3xl shadow-inner">💬</div>
+                <div className="font-semibold text-zinc-100">
                   Belum ada pesan
                 </div>
-                <div className="text-sm text-zinc-400/30 mt-1">
+                <div className="mt-1 text-sm text-zinc-500/65">
                   Jadilah orang pertama yang menyapa 👋
                 </div>
               </div>
@@ -218,21 +227,21 @@ export default function PublicChatPage() {
                     }`}
                   >
                     <div
-                      className={`max-w-[85%] sm:max-w-[70%] ${
+                      className={`group max-w-[88%] sm:max-w-[70%] ${
                         mine
                           ? "items-end"
                           : "items-start"
                       } flex flex-col`}
                     >
-                      <div className="flex items-center gap-1.5 text-[10px] text-zinc-400/40 mb-1 px-2">
+                      <div className="mb-1 flex items-center gap-1.5 px-2 text-[10px] text-zinc-500/65">
                         {item.imageUrl ? (
                           <img
                             src={item.imageUrl}
                             alt=""
-                            className="w-4 h-4 rounded-full object-cover border border-white/10"
+                            className="h-5 w-5 rounded-full object-cover border border-white/[0.09] shadow-sm"
                           />
                         ) : (
-                          <div className="w-4 h-4 rounded-full bg-white/5 border border-white/10" />
+                          <div className="h-5 w-5 rounded-full border border-white/[0.08] bg-white/[0.045]" />
                         )}
                         <span>
                           {mine ? "You" : item.username || "User"}
@@ -240,7 +249,7 @@ export default function PublicChatPage() {
                       </div>
 
                       <div
-                        className={`px-4 py-3 rounded-2xl text-sm leading-relaxed ${
+                        className={`px-4 py-3.5 rounded-[20px] text-sm leading-relaxed shadow-sm transition-all duration-200 group-hover:border-white/[0.12] ${
                           mine
                             ? "bg-white/[0.08] border border-white/10 text-zinc-100 rounded-br-md"
                             : "bg-white/[0.04] border border-white/[0.07] text-zinc-100/90 rounded-bl-md"
@@ -249,7 +258,7 @@ export default function PublicChatPage() {
                         {item.message}
                       </div>
 
-                      <div className="text-[9px] text-zinc-400/20 mt-1 px-2">
+                      <div className="mt-1 px-2 text-[9px] text-zinc-500/35">
                         {new Date(item.createdAt).toLocaleTimeString(
                           "id-ID",
                           {
@@ -268,14 +277,14 @@ export default function PublicChatPage() {
           </div>
 
           {/* Composer */}
-          <div className="border-t border-white/[0.06] p-3 sm:p-4">
+          <div className="border-t border-white/[0.07] bg-white/[0.012] p-3 sm:p-4">
             {error && (
-              <div className="text-xs text-red-300/80 mb-2 px-2">
+              <div className="mb-2 px-2 text-xs text-red-300/85">
                 {error}
               </div>
             )}
 
-            <div className="flex gap-2 items-end">
+            <div className="flex items-end gap-2">
               <textarea
                 value={message}
                 onChange={(event) => setMessage(event.target.value)}
@@ -283,19 +292,19 @@ export default function PublicChatPage() {
                 maxLength={500}
                 rows={1}
                 placeholder="Tulis pesan..."
-                className="flex-1 resize-none rounded-2xl bg-white/[0.04] border border-white/[0.08] px-4 py-3 text-sm text-white outline-none focus:border-white/15 placeholder:text-zinc-400/30"
+                className="min-h-[46px] max-h-32 flex-1 resize-none rounded-[18px] border border-white/[0.08] bg-white/[0.035] px-4 py-3 text-sm text-white outline-none transition-all duration-200 placeholder:text-zinc-500/50 focus:border-white/[0.16] focus:bg-white/[0.05] focus:ring-2 focus:ring-white/[0.025]"
               />
 
               <button
                 onClick={sendMessage}
                 disabled={!message.trim() || sending}
-                className="bg-white text-black hover:bg-zinc-200 transition-colors px-5 py-3 rounded-2xl font-bold disabled:opacity-30 disabled:cursor-not-allowed"
+                className="flex h-[46px] shrink-0 items-center justify-center rounded-[18px] border border-white/[0.08] bg-white px-3.5 sm:px-5 font-bold text-black shadow-[0_8px_25px_rgba(255,255,255,0.08)] transition-all duration-200 hover:-translate-y-0.5 hover:bg-zinc-100 hover:shadow-[0_10px_30px_rgba(255,255,255,0.12)] disabled:cursor-not-allowed disabled:opacity-30"
               >
                 {sending ? "..." : "Kirim"}
               </button>
             </div>
 
-            <div className="text-[10px] text-zinc-400/20 mt-2 px-2">
+            <div className="mt-2 px-2 text-[10px] text-zinc-500/40">
               Enter untuk kirim • Shift + Enter untuk baris baru
             </div>
           </div>
