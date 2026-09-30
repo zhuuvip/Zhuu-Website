@@ -50,6 +50,7 @@ function ensureResellerTables(): Promise<void> {
       await db.execute(sql`ALTER TABLE reseller_members ADD COLUMN IF NOT EXISTS credential_version INTEGER NOT NULL DEFAULT 0`);
       await db.execute(sql`ALTER TABLE reseller_members ADD COLUMN IF NOT EXISTS wallet_user_id TEXT`);
       await db.execute(sql`ALTER TABLE reseller_members ADD COLUMN IF NOT EXISTS wallet_email TEXT`);
+  await db.execute(sql`ALTER TABLE reseller_members ADD COLUMN IF NOT EXISTS wallet_username TEXT`);
       await db.execute(sql`
         CREATE TABLE IF NOT EXISTS wallets (
           id SERIAL PRIMARY KEY,
