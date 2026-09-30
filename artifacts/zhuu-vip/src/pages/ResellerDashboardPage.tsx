@@ -440,15 +440,15 @@ export default function ResellerDashboardPage() {
       <main className="min-h-screen bg-black px-4 py-10 text-white">
         <div className="mx-auto max-w-7xl">
           <div className="mb-10 space-y-3">
-            <div className="mx-auto h-10 w-56 animate-pulse rounded-xl bg-white/10" />
-            <div className="mx-auto h-4 w-72 animate-pulse rounded bg-white/5" />
+            <div className="mx-auto h-10 w-56 animate-pulse rounded-xl bg-white/[0.035]" />
+            <div className="mx-auto h-4 w-72 animate-pulse rounded bg-white/[0.018]" />
           </div>
 
-          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-4 sm:p-5 sm:grid-cols-2 lg:grid-cols-3">
             {[1, 2, 3, 4, 5, 6].map((item) => (
               <div
                 key={item}
-                className="h-80 animate-pulse rounded-3xl border border-white/10 bg-white/[0.03]"
+                className="h-80 animate-pulse rounded-3xl border border-white/[0.07] bg-white/[0.03]"
               />
             ))}
           </div>
@@ -474,7 +474,7 @@ export default function ResellerDashboardPage() {
               setLoading(true);
               loadProducts();
             }}
-            className="mt-6 rounded-xl bg-white px-6 py-3 font-bold text-black transition hover:scale-[1.02] active:scale-[0.98]"
+            className="mt-6 rounded-xl bg-white px-4 sm:px-6 py-3 font-bold text-black transition hover:scale-[1.02] active:scale-[0.98]"
           >
             Coba Lagi
           </button>
@@ -491,15 +491,15 @@ export default function ResellerDashboardPage() {
         <div className="absolute bottom-0 right-0 h-[400px] w-[500px] rounded-full bg-blue-600/[0.05] blur-[140px]" />
       </div>
 
-      <div className="relative mx-auto max-w-7xl px-4 py-8 sm:px-6 sm:py-12 lg:px-8">
+      <div className="relative mx-auto max-w-7xl px-4 py-8 sm:px-4 sm:px-6 sm:py-12 lg:px-8">
         {/* Header */}
         <section className="mb-8 text-center sm:mb-12">
-          <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 text-xs font-semibold tracking-widest text-white/60">
+          <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-white/[0.07] bg-white/[0.04] px-4 py-2 text-xs font-semibold tracking-widest text-white/60">
             <span className="size-1.5 rounded-full bg-emerald-400 shadow-[0_0_10px_rgba(52,211,153,.8)]" />
             ZHUU STORE
           </div>
 
-          <h1 className="text-4xl font-black tracking-tight sm:text-5xl lg:text-6xl">
+          <h1 className="text-4xl font-bold tracking-tight sm:text-5xl lg:text-6xl">
             Reseller{" "}
             <span className="bg-gradient-to-r from-purple-400 via-fuchsia-300 to-blue-400 bg-clip-text text-transparent">
               Products
@@ -513,21 +513,21 @@ export default function ResellerDashboardPage() {
         </section>
 
         {/* Wallet */}
-        <section className="mb-8 overflow-hidden rounded-3xl border border-white/10 bg-white/[0.035] shadow-2xl shadow-black/30 backdrop-blur-xl">
-          <div className="flex flex-col gap-5 p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6">
+        <section className="mb-8 overflow-hidden rounded-3xl border border-white/[0.07] bg-white/[0.035] shadow-2xl shadow-black/30 backdrop-blur-xl">
+          <div className="flex flex-col gap-4 sm:p-5 p-4 sm:p-5 sm:flex-row sm:items-center sm:justify-between sm:p-4 sm:p-6">
             <div className="flex items-center gap-4">
               <div className="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-purple-500/20 to-blue-500/20 ring-1 ring-white/10">
                 <span className="text-xl">◈</span>
               </div>
 
               <div>
-                <p className="text-xs font-semibold uppercase tracking-wider text-white/40">
+                <p className="text-xs font-semibold uppercase tracking-[0.12em] text-white/40">
                   Saldo Reseller
                 </p>
 
-                <div className="mt-1 text-2xl font-black tracking-tight sm:text-3xl">
+                <div className="mt-1 text-2xl font-bold tracking-tight sm:text-3xl">
                   {walletLoading ? (
-                    <span className="inline-block h-8 w-36 animate-pulse rounded-lg bg-white/10" />
+                    <span className="inline-block h-8 w-36 animate-pulse rounded-lg bg-white/[0.035]" />
                   ) : (
                     formatRupiah(balance)
                   )}
@@ -550,7 +550,7 @@ export default function ResellerDashboardPage() {
               <button
                 onClick={loadWallet}
                 disabled={walletLoading}
-                className="rounded-xl border border-white/10 px-4 py-3 text-sm font-bold text-white/60 transition hover:bg-white/[0.06] hover:text-white disabled:opacity-40"
+                className="rounded-xl border border-white/[0.07] px-4 py-3 text-sm font-bold text-white/60 transition hover:bg-white/[0.06] hover:text-white disabled:opacity-40"
                 title="Refresh saldo"
               >
                 ↻
@@ -564,7 +564,7 @@ export default function ResellerDashboardPage() {
           <div className="mb-5 flex flex-col gap-4">
             <div className="flex items-end justify-between gap-3">
               <div>
-                <h2 className="text-xl font-black sm:text-2xl">
+                <h2 className="text-xl font-bold sm:text-2xl">
                   Product Catalog
                 </h2>
                 <p className="mt-1 text-xs text-white/35">
@@ -574,7 +574,7 @@ export default function ResellerDashboardPage() {
 
               <button
                 onClick={loadProducts}
-                className="rounded-xl border border-white/10 px-3 py-2 text-xs font-semibold text-white/50 transition hover:bg-white/[0.06] hover:text-white"
+                className="rounded-xl border border-white/[0.07] px-3 py-2 text-xs font-semibold text-white/50 transition hover:bg-white/[0.06] hover:text-white"
               >
                 ↻ Refresh
               </button>
@@ -586,7 +586,7 @@ export default function ResellerDashboardPage() {
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="Cari produk..."
-                className="w-full rounded-2xl border border-white/10 bg-white/[0.035] px-4 py-3.5 pl-11 text-sm text-white outline-none transition placeholder:text-white/25 focus:border-purple-400/40 focus:bg-white/[0.05]"
+                className="w-full rounded-2xl border border-white/[0.07] bg-white/[0.035] px-4 py-3.5 pl-11 text-sm text-white outline-none transition placeholder:text-white/25 focus:border-purple-400/40 focus:bg-white/[0.05]"
               />
 
               <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-white/35">
@@ -596,7 +596,7 @@ export default function ResellerDashboardPage() {
               {search && (
                 <button
                   onClick={() => setSearch("")}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 rounded-lg px-2 py-1 text-xs text-white/35 hover:bg-white/10 hover:text-white"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 rounded-lg px-2 py-1 text-xs text-white/35 hover:bg-white/[0.035] hover:text-white"
                 >
                   ✕
                 </button>
@@ -612,7 +612,7 @@ export default function ResellerDashboardPage() {
                   className={`shrink-0 rounded-xl border px-3.5 py-2 text-[11px] font-bold transition ${
                     category === item
                       ? "border-purple-400/30 bg-purple-500/15 text-purple-200"
-                      : "border-white/10 bg-white/[0.025] text-white/45 hover:bg-white/[0.06] hover:text-white"
+                      : "border-white/[0.07] bg-white/[0.025] text-white/45 hover:bg-white/[0.06] hover:text-white"
                   }`}
                 >
                   {item === "ALL" ? "SEMUA" : item}
@@ -622,7 +622,7 @@ export default function ResellerDashboardPage() {
           </div>
 
           {filteredProducts.length === 0 ? (
-            <div className="rounded-3xl border border-white/10 bg-white/[0.025] p-12 text-center">
+            <div className="rounded-3xl border border-white/[0.07] bg-white/[0.025] p-12 text-center">
               <div className="text-4xl">⌕</div>
               <h2 className="mt-4 text-lg font-bold">
                 Produk tidak ditemukan
@@ -657,7 +657,7 @@ export default function ResellerDashboardPage() {
                     key={product.id}
                     type="button"
                     onClick={() => selectProduct(product)}
-                    className="group relative flex min-h-[250px] flex-col overflow-hidden rounded-2xl border border-white/10 bg-white/[0.025] p-3 text-left transition duration-300 hover:-translate-y-1 hover:border-purple-400/25 hover:bg-white/[0.045] active:scale-[0.98] sm:min-h-[280px] sm:rounded-3xl sm:p-4"
+                    className="group relative flex min-h-[250px] flex-col overflow-hidden rounded-2xl border border-white/[0.07] bg-white/[0.025] p-3 text-left transition duration-300 hover:-translate-y-1 hover:border-purple-400/25 hover:bg-white/[0.045] active:scale-[0.98] sm:min-h-[280px] sm:rounded-3xl sm:p-4"
                   >
                     {/* Logo */}
                     <div className="relative flex h-32 w-full items-center justify-center overflow-hidden rounded-xl border border-white/8 bg-black/30 sm:h-40 sm:rounded-2xl">
@@ -665,7 +665,7 @@ export default function ResellerDashboardPage() {
                         <img
                           src={logo.trim()}
                           alt={product.name}
-                          className="h-full w-full object-contain p-5 transition duration-500 group-hover:scale-105 sm:p-7"
+                          className="h-full w-full object-contain p-4 sm:p-5 transition duration-500 group-hover:scale-105 sm:p-7"
                           loading="lazy"
                           referrerPolicy="no-referrer"
                           onError={(e) => {
@@ -678,22 +678,22 @@ export default function ResellerDashboardPage() {
                         </div>
                       )}
 
-                      <div className="absolute left-2 top-2 rounded-lg border border-white/10 bg-black/60 px-2 py-1 text-[9px] font-bold tracking-wider text-white/60 backdrop-blur">
+                      <div className="absolute left-2 top-2 rounded-lg border border-white/[0.07] bg-black/60 px-2 py-1 text-[9px] font-bold tracking-[0.12em] text-white/60 backdrop-blur">
                         {productCategory}
                       </div>
                     </div>
 
                     {/* Info */}
                     <div className="mt-3 min-w-0 flex-1">
-                      <h3 className="line-clamp-2 text-sm font-black leading-5 sm:text-base">
+                      <h3 className="line-clamp-2 text-sm font-bold leading-5 sm:text-base">
                         {product.name}
                       </h3>
 
-                      <p className="mt-2 text-[10px] uppercase tracking-wider text-white/30">
+                      <p className="mt-2 text-[10px] uppercase tracking-[0.12em] text-white/30">
                         Harga mulai dari
                       </p>
 
-                      <p className="mt-0.5 text-sm font-black text-white sm:text-base">
+                      <p className="mt-0.5 text-sm font-bold text-white sm:text-base">
                         {startingPrice > 0
                           ? formatRupiah(startingPrice)
                           : "Hubungi Admin"}
@@ -727,10 +727,10 @@ export default function ResellerDashboardPage() {
 
         {/* HISTORY */}
       {history.length > 0 && (
-        <section className="relative mx-auto max-w-7xl px-4 pb-10 sm:px-6 lg:px-8">
+        <section className="relative mx-auto max-w-7xl px-4 pb-10 sm:px-4 sm:px-6 lg:px-8">
           <div className="mx-auto mt-10 max-w-4xl">
             <div className="mb-4">
-              <h2 className="text-xl font-black sm:text-2xl">
+              <h2 className="text-xl font-bold sm:text-2xl">
                 Riwayat Pembelian
               </h2>
               <p className="mt-1 text-xs text-white/35">
@@ -742,7 +742,7 @@ export default function ResellerDashboardPage() {
               {history.slice(0, 20).map((order: any) => (
                 <div
                   key={order.id}
-                  className="rounded-2xl border border-white/10 bg-white/[0.025] p-4"
+                  className="rounded-2xl border border-white/[0.07] bg-white/[0.025] p-4"
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0">
@@ -759,7 +759,7 @@ export default function ResellerDashboardPage() {
                       </p>
                     </div>
 
-                    <p className="shrink-0 text-sm font-black text-emerald-300">
+                    <p className="shrink-0 text-sm font-bold text-emerald-300">
                       {formatRupiah(Number(order.amount || 0))}
                     </p>
                   </div>
@@ -785,7 +785,7 @@ export default function ResellerDashboardPage() {
                             alert("Gagal menyalin.");
                           }
                         }}
-                        className="shrink-0 rounded-lg bg-white px-3 py-1.5 text-xs font-black text-black"
+                        className="shrink-0 rounded-lg bg-white px-3 py-1.5 text-xs font-bold text-black"
                       >
                         Salin
                       </button>
@@ -809,23 +809,23 @@ export default function ResellerDashboardPage() {
               }
             }}
           >
-            <div className="w-full max-w-lg overflow-hidden rounded-3xl border border-white/10 bg-[#09090b] shadow-2xl shadow-black/80">
+            <div className="w-full max-w-lg overflow-hidden rounded-3xl border border-white/[0.07] bg-[#09090b] shadow-2xl shadow-black/80">
               <div className="max-h-[90vh] overflow-y-auto">
                 {/* Header */}
-                <div className="relative p-5 sm:p-6">
+                <div className="relative p-4 sm:p-5 sm:p-4 sm:p-6">
                   <button
                     type="button"
                     onClick={() => {
                       setSelectedProduct(null);
                       setSelectedOption(null);
                     }}
-                    className="absolute right-4 top-4 z-10 flex size-9 items-center justify-center rounded-xl border border-white/10 bg-black/50 text-sm text-white/50 transition hover:bg-white/10 hover:text-white"
+                    className="absolute right-4 top-4 z-10 flex size-9 items-center justify-center rounded-xl border border-white/[0.07] bg-black/50 text-sm text-white/50 transition hover:bg-white/[0.035] hover:text-white"
                   >
                     ✕
                   </button>
 
                   <div className="flex gap-4 pr-10">
-                    <div className="flex size-20 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-white/10 bg-black/40 sm:size-24">
+                    <div className="flex size-20 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-white/[0.07] bg-black/40 sm:size-24">
                       {getProductLogo(selectedProduct) ? (
                         <img
                           src={getProductLogo(selectedProduct)}
@@ -839,11 +839,11 @@ export default function ResellerDashboardPage() {
                     </div>
 
                     <div className="min-w-0">
-                      <span className="inline-flex rounded-lg bg-purple-500/10 px-2 py-1 text-[9px] font-bold tracking-wider text-purple-200">
+                      <span className="inline-flex rounded-lg bg-purple-500/10 px-2 py-1 text-[9px] font-bold tracking-[0.12em] text-purple-200">
                         {getCategory(selectedProduct.name)}
                       </span>
 
-                      <h2 className="mt-2 text-lg font-black leading-6 sm:text-xl">
+                      <h2 className="mt-2 text-lg font-bold leading-6 sm:text-xl">
                         {selectedProduct.name}
                       </h2>
 
@@ -857,7 +857,7 @@ export default function ResellerDashboardPage() {
                 </div>
 
                 {/* Duration */}
-                <div className="border-t border-white/8 px-5 py-5 sm:px-6">
+                <div className="border-t border-white/8 px-5 py-5 sm:px-4 sm:px-6">
                   <div className="mb-3 flex items-center justify-between">
                     <div>
                       <p className="text-sm font-bold">Pilih Durasi</p>
@@ -901,12 +901,12 @@ export default function ResellerDashboardPage() {
                             </div>
 
                             <div className="text-right">
-                              <p className="text-sm font-black">
+                              <p className="text-sm font-bold">
                                 {formatRupiah(option.price)}
                               </p>
 
                               {active && (
-                                <p className="mt-1 text-[9px] font-bold uppercase tracking-wider text-purple-300">
+                                <p className="mt-1 text-[9px] font-bold uppercase tracking-[0.12em] text-purple-300">
                                   Dipilih ✓
                                 </p>
                               )}
@@ -920,13 +920,13 @@ export default function ResellerDashboardPage() {
 
                 {/* Wallet + Checkout */}
                 {selectedOption && (
-                  <div className="border-t border-white/8 bg-white/[0.018] p-5 sm:p-6">
+                  <div className="border-t border-white/8 bg-white/[0.018] p-4 sm:p-5 sm:p-4 sm:p-6">
                     <div className="mb-4 flex items-center justify-between rounded-2xl border border-white/8 bg-black/20 p-3.5">
                       <div>
-                        <p className="text-[10px] uppercase tracking-wider text-white/30">
+                        <p className="text-[10px] uppercase tracking-[0.12em] text-white/30">
                           Saldo Reseller
                         </p>
-                        <p className="mt-1 text-sm font-black">
+                        <p className="mt-1 text-sm font-bold">
                           {walletLoading
                             ? "Memuat..."
                             : formatRupiah(balance)}
@@ -935,14 +935,14 @@ export default function ResellerDashboardPage() {
 
                       <a
                         href="/member"
-                        className="rounded-xl border border-white/10 px-3 py-2 text-xs font-bold text-white/60 transition hover:bg-white/10 hover:text-white"
+                        className="rounded-xl border border-white/[0.07] px-3 py-2 text-xs font-bold text-white/60 transition hover:bg-white/[0.035] hover:text-white"
                       >
                         + Deposit
                       </a>
                     </div>
 
                                           <div className="mb-4 rounded-2xl border border-white/8 bg-black/20 p-4">
-                        <p className="mb-2 text-[10px] font-bold uppercase tracking-wider text-white/35">
+                        <p className="mb-2 text-[10px] font-bold uppercase tracking-[0.12em] text-white/35">
                           Kode Promo
                         </p>
 
@@ -962,14 +962,14 @@ export default function ResellerDashboardPage() {
                               }
                             }}
                             placeholder="Masukkan kode promo"
-                            className="min-w-0 flex-1 rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2.5 text-xs font-bold uppercase outline-none transition placeholder:text-white/20 focus:border-purple-400/50"
+                            className="min-w-0 flex-1 rounded-xl border border-white/[0.07] bg-white/[0.04] px-3 py-2.5 text-xs font-bold uppercase outline-none transition placeholder:text-white/20 focus:border-purple-400/50"
                           />
 
                           <button
                             type="button"
                             onClick={applyPromoCode}
                             disabled={!promoCode.trim() || promoLoading}
-                            className="rounded-xl bg-white/10 px-4 py-2.5 text-xs font-black transition hover:bg-white/15 disabled:cursor-not-allowed disabled:opacity-30"
+                            className="rounded-xl bg-white/[0.035] px-4 py-2.5 text-xs font-bold transition hover:bg-white/15 disabled:cursor-not-allowed disabled:opacity-30"
                           >
                             {promoLoading ? "..." : "Gunakan"}
                           </button>
@@ -995,7 +995,7 @@ export default function ResellerDashboardPage() {
                               <span>-{formatRupiah(promoApplied.discount)}</span>
                             </div>
 
-                            <div className="flex justify-between border-t border-white/8 pt-2 text-sm font-black text-white">
+                            <div className="flex justify-between border-t border-white/8 pt-2 text-sm font-bold text-white">
                               <span>Total bayar</span>
                               <span>{formatRupiah(promoApplied.finalPrice)}</span>
                             </div>
@@ -1018,7 +1018,7 @@ export default function ResellerDashboardPage() {
                       type="button"
                       onClick={buyProduct}
                       disabled={!canBuy}
-                      className="w-full rounded-2xl bg-gradient-to-r from-purple-500 to-blue-500 px-5 py-4 text-sm font-black shadow-lg shadow-purple-950/30 transition hover:brightness-110 active:scale-[0.98] disabled:cursor-not-allowed disabled:bg-white/10 disabled:bg-none disabled:text-white/30 disabled:shadow-none"
+                      className="w-full rounded-2xl bg-gradient-to-r from-purple-500 to-blue-500 px-5 py-4 text-sm font-bold shadow-lg shadow-purple-950/30 transition hover:brightness-110 active:scale-[0.98] disabled:cursor-not-allowed disabled:bg-white/[0.035] disabled:bg-none disabled:text-white/30 disabled:shadow-none"
                     >
                       {buying
                         ? "Memproses..."
@@ -1032,7 +1032,7 @@ export default function ResellerDashboardPage() {
                     <button
                       type="button"
                       onClick={contactAdmin}
-                      className="mt-2 w-full rounded-xl border border-white/10 px-4 py-3 text-xs font-bold text-white/50 transition hover:bg-white/[0.06] hover:text-white"
+                      className="mt-2 w-full rounded-xl border border-white/[0.07] px-4 py-3 text-xs font-bold text-white/50 transition hover:bg-white/[0.06] hover:text-white"
                     >
                       Tanya Admin via WhatsApp
                     </button>
@@ -1054,7 +1054,7 @@ export default function ResellerDashboardPage() {
 
           <button
             onClick={contactAdmin}
-            className="rounded-xl border border-white/10 px-4 py-2.5 text-xs font-bold transition hover:bg-white/[0.06]"
+            className="rounded-xl border border-white/[0.07] px-4 py-2.5 text-xs font-bold transition hover:bg-white/[0.06]"
           >
             WhatsApp Admin
           </button>
@@ -1065,13 +1065,13 @@ export default function ResellerDashboardPage() {
       {purchaseResult && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 p-4 backdrop-blur-md">
           <div className="w-full max-w-md overflow-hidden rounded-3xl border border-emerald-400/20 bg-[#09090b] shadow-2xl shadow-black/70">
-            <div className="p-6 sm:p-7">
+            <div className="p-4 sm:p-6 sm:p-7">
               <div className="mx-auto flex size-16 items-center justify-center rounded-2xl bg-emerald-400/10 text-3xl ring-1 ring-emerald-400/20">
                 ✓
               </div>
 
               <div className="mt-5 text-center">
-                <h2 className="text-2xl font-black">Pembelian Berhasil</h2>
+                <h2 className="text-2xl font-bold">Pembelian Berhasil</h2>
                 <p className="mt-2 text-sm text-white/40">
                   Pesanan kamu berhasil diproses.
                 </p>
@@ -1095,7 +1095,7 @@ export default function ResellerDashboardPage() {
 
               {purchaseResult.deliveryKey && (
                 <div className="mt-4">
-                  <p className="mb-2 text-xs font-bold uppercase tracking-wider text-white/40">
+                  <p className="mb-2 text-xs font-bold uppercase tracking-[0.12em] text-white/40">
                     Delivery Key
                   </p>
 
@@ -1106,7 +1106,7 @@ export default function ResellerDashboardPage() {
 
                     <button
                       onClick={copyKey}
-                      className="mt-4 w-full rounded-xl bg-white px-4 py-3 text-sm font-black text-black transition hover:bg-white/90 active:scale-[0.98]"
+                      className="mt-4 w-full rounded-xl bg-white px-4 py-3 text-sm font-bold text-black transition hover:bg-white/90 active:scale-[0.98]"
                     >
                       {copied ? "✓ Berhasil Disalin" : "Salin Key"}
                     </button>
@@ -1116,11 +1116,11 @@ export default function ResellerDashboardPage() {
 
               {purchaseResult.deliveryLink && (
                 <div className="mt-4">
-                  <p className="mb-2 text-xs font-bold uppercase tracking-wider text-white/40">
+                  <p className="mb-2 text-xs font-bold uppercase tracking-[0.12em] text-white/40">
                     Delivery Link
                   </p>
 
-                  <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-4">
+                  <div className="rounded-2xl border border-white/[0.07] bg-white/[0.04] p-4">
                     <a
                       href={purchaseResult.deliveryLink}
                       target="_blank"
@@ -1142,7 +1142,7 @@ export default function ResellerDashboardPage() {
                           alert("Gagal menyalin link. Silakan salin secara manual.");
                         }
                       }}
-                      className="mt-4 w-full rounded-xl bg-white px-4 py-3 text-sm font-black text-black transition hover:bg-white/90 active:scale-[0.98]"
+                      className="mt-4 w-full rounded-xl bg-white px-4 py-3 text-sm font-bold text-black transition hover:bg-white/90 active:scale-[0.98]"
                     >
                       {copied ? "✓ Berhasil Disalin" : "Salin Link"}
                     </button>
@@ -1151,7 +1151,7 @@ export default function ResellerDashboardPage() {
                       href={purchaseResult.deliveryLink}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="mt-2 block w-full rounded-xl bg-white px-4 py-3 text-center text-sm font-black text-black transition hover:bg-zinc-200 active:scale-[0.98]"
+                      className="mt-2 block w-full rounded-xl bg-white px-4 py-3 text-center text-sm font-bold text-black transition hover:bg-zinc-200 active:scale-[0.98]"
                     >
                       Buka Link
                     </a>
@@ -1161,7 +1161,7 @@ export default function ResellerDashboardPage() {
 
               <button
                 onClick={() => setPurchaseResult(null)}
-                className="mt-4 w-full rounded-xl border border-white/10 px-4 py-3 text-sm font-bold text-white/70 transition hover:bg-white/[0.06] hover:text-white"
+                className="mt-4 w-full rounded-xl border border-white/[0.07] px-4 py-3 text-sm font-bold text-white/70 transition hover:bg-white/[0.06] hover:text-white"
               >
                 Selesai
               </button>

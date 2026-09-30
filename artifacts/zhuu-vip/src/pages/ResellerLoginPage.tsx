@@ -31,12 +31,12 @@ export default function ResellerLoginPage() {
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-black px-4 text-white">
-      <div className="w-full max-w-sm rounded-3xl border border-white/10 bg-white/[0.035] p-6 shadow-2xl shadow-black/40 backdrop-blur-xl sm:p-8">
+      <div className="w-full max-w-sm rounded-3xl border border-white/[0.07] bg-white/[0.035] p-4 sm:p-6 shadow-2xl shadow-black/40 backdrop-blur-xl sm:p-8">
         <div className="mb-6 text-center">
           <div className="mx-auto mb-4 flex size-14 items-center justify-center rounded-2xl bg-gradient-to-br from-purple-500/20 to-blue-500/20 text-2xl ring-1 ring-white/10">
             ◈
           </div>
-          <h1 className="text-2xl font-black">Reseller Login</h1>
+          <h1 className="text-2xl font-bold">Reseller Login</h1>
           <p className="mt-1 text-xs text-white/40">Masuk untuk melihat harga reseller</p>
         </div>
 
@@ -47,7 +47,7 @@ export default function ResellerLoginPage() {
             placeholder="Username"
             autoCapitalize="none"
             autoComplete="username"
-            className="w-full rounded-xl border border-white/10 bg-black/40 px-4 py-3 text-sm outline-none focus:border-purple-400/50"
+            className="w-full rounded-xl border border-white/[0.07] bg-black/40 px-4 py-3 text-sm outline-none focus:border-purple-400/50"
           />
           <input
             value={password}
@@ -56,7 +56,7 @@ export default function ResellerLoginPage() {
             type="password"
             placeholder="Password"
             autoComplete="current-password"
-            className="w-full rounded-xl border border-white/10 bg-black/40 px-4 py-3 text-sm outline-none focus:border-purple-400/50"
+            className="w-full rounded-xl border border-white/[0.07] bg-black/40 px-4 py-3 text-sm outline-none focus:border-purple-400/50"
           />
         </div>
 
@@ -67,7 +67,7 @@ export default function ResellerLoginPage() {
         <button
           onClick={submit}
           disabled={loading || !username || !password}
-          className="mt-5 w-full rounded-2xl bg-gradient-to-r from-purple-500 to-blue-500 px-6 py-3.5 text-sm font-black transition hover:brightness-110 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-40"
+          className="mt-5 w-full rounded-2xl bg-gradient-to-r from-purple-500 to-blue-500 px-4 sm:px-6 py-3.5 text-sm font-bold transition hover:brightness-110 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-40"
         >
           {loading ? "Memproses..." : "Masuk"}
         </button>

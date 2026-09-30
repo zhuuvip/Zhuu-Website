@@ -47,7 +47,7 @@ function NotificationBell({ unread }: { unread: number }) {
     <Link
       href="/notifications"
       aria-label="Notifications"
-      className="relative flex h-9 w-9 items-center justify-center rounded-xl border border-white/10 bg-white/[0.04] text-white/60 transition hover:border-white/15 hover:bg-white/[0.07] hover:text-white"
+      className="relative flex h-9 w-9 items-center justify-center rounded-xl border border-white/[0.07] bg-white/[0.04] text-white/60 transition hover:border-white/15 hover:bg-white/[0.07] hover:text-white"
     >
       <Bell size={17} />
       {unread > 0 && (
@@ -169,10 +169,10 @@ export default function Navigation() {
     <>
       <nav
         className={`zs-nav fixed left-0 right-0 top-0 z-50 transition-all duration-300 ${
-          scrolled ? "border-white/10 bg-[#080b10]/95 shadow-lg" : "bg-[#080b10]/80"
+          scrolled ? "border-white/[0.07] bg-[#080b10]/95 shadow-lg" : "bg-[#080b10]/80"
         }`}
       >
-        <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-3 sm:h-16 sm:px-6">
+        <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-3 sm:h-16 sm:px-4 sm:px-6">
           <Link href="/" className="shrink-0">
             <div className="flex items-center gap-2.5">
               <div className="h-8 w-8 overflow-hidden rounded-full border border-white/15 bg-white/[0.05] sm:h-9 sm:w-9">
@@ -229,7 +229,7 @@ export default function Navigation() {
               </button>
 
               {moreOpen && (
-                <div className="absolute right-0 top-[calc(100%+10px)] w-56 rounded-2xl border border-white/10 bg-[#0b0f15]/98 p-1.5 shadow-2xl backdrop-blur-xl">
+                <div className="absolute right-0 top-[calc(100%+10px)] w-56 rounded-2xl border border-white/[0.07] bg-[#0b0f15]/98 p-1.5 shadow-2xl backdrop-blur-xl">
                   {moreItems.map(({ path, label, Icon }) => (
                     <Link key={path} href={path}>
                       <span
@@ -257,7 +257,7 @@ export default function Navigation() {
 
             <Show when="signed-out">
               <Link href="/sign-in">
-                <button className="hidden rounded-xl border border-white/10 bg-white/[0.04] px-3.5 py-2 text-sm font-medium text-white/80 transition hover:bg-white/[0.08] hover:text-white sm:block">
+                <button className="hidden rounded-xl border border-white/[0.07] bg-white/[0.04] px-3.5 py-2 text-sm font-medium text-white/80 transition hover:bg-white/[0.08] hover:text-white sm:block">
                   Sign in
                 </button>
               </Link>
@@ -267,7 +267,7 @@ export default function Navigation() {
               type="button"
               aria-label="Open menu"
               onClick={() => setMobileOpen((value) => !value)}
-              className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/10 bg-white/[0.04] text-white/70 lg:hidden"
+              className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/[0.07] bg-white/[0.04] text-white/70 lg:hidden"
             >
               {mobileOpen ? <X size={18} /> : <Menu size={18} />}
             </button>
@@ -275,7 +275,7 @@ export default function Navigation() {
         </div>
 
         {mobileOpen && (
-          <div className="border-t border-white/10 bg-[#080b10]/98 px-3 pb-4 pt-2 shadow-2xl lg:hidden">
+          <div className="border-t border-white/[0.07] bg-[#080b10]/98 px-3 pb-4 pt-2 shadow-2xl lg:hidden">
             {[...MAIN_ITEMS, ...moreItems].map(({ path, label, Icon }) => (
               <Link key={path} href={path}>
                 <span
@@ -293,7 +293,7 @@ export default function Navigation() {
 
             <Show when="signed-out">
               <Link href="/sign-in">
-                <span className="mt-1 flex items-center gap-3 rounded-xl border-t border-white/10 px-3 py-3 text-sm text-white/60">
+                <span className="mt-1 flex items-center gap-3 rounded-xl border-t border-white/[0.07] px-3 py-3 text-sm text-white/60">
                   Sign in
                 </span>
               </Link>
@@ -305,7 +305,7 @@ export default function Navigation() {
       <div className="h-14 sm:h-16" />
 
       <div className="fixed bottom-3 left-3 right-3 z-40 lg:hidden">
-        <div className="flex items-center justify-around rounded-2xl border border-white/10 bg-[#090c12]/95 p-1.5 shadow-2xl backdrop-blur-xl">
+        <div className="flex items-center justify-around rounded-2xl border border-white/[0.07] bg-[#090c12]/95 p-1.5 shadow-2xl backdrop-blur-xl">
           {MAIN_ITEMS.map(({ path, label, Icon }) => (
             <Link key={path} href={path}>
               <span

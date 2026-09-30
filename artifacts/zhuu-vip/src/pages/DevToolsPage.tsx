@@ -23,7 +23,7 @@ function CopyBtn({ text, className = "" }: { text: string; className?: string })
     <button
       onClick={() => copy(text)}
       title="Copy to clipboard"
-      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${className}`}
+      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-200 ${className}`}
       style={{
         background: copied ? "rgba(0,220,100,0.15)" : "rgba(255,255,255,0.05)",
         border: copied ? "1px solid rgba(0,220,100,0.4)" : "1px solid rgba(0,200,220,0.25)",
@@ -141,9 +141,9 @@ function JsonFormatter() {
         style={inputStyle({ resize: "vertical" })}
       />
       <div className="flex flex-wrap gap-2">
-        <button onClick={format} className="px-4 py-2 rounded-lg text-sm font-semibold transition-all" style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.12)", color: "#f4f4f5", cursor: "pointer" }}>Format</button>
-        <button onClick={minify} className="px-4 py-2 rounded-lg text-sm font-semibold transition-all" style={{ background: "rgba(0,200,220,0.08)", border: "1px solid rgba(255,255,255,0.08)", color: "rgba(0,200,220,0.7)", cursor: "pointer" }}>Minify</button>
-        <button onClick={validate} className="px-4 py-2 rounded-lg text-sm font-semibold transition-all" style={{ background: "rgba(0,200,220,0.08)", border: "1px solid rgba(255,255,255,0.08)", color: "rgba(0,200,220,0.7)", cursor: "pointer" }}>Validate</button>
+        <button onClick={format} className="px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-200" style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.12)", color: "#f4f4f5", cursor: "pointer" }}>Format</button>
+        <button onClick={minify} className="px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-200" style={{ background: "rgba(0,200,220,0.08)", border: "1px solid rgba(255,255,255,0.08)", color: "rgba(0,200,220,0.7)", cursor: "pointer" }}>Minify</button>
+        <button onClick={validate} className="px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-200" style={{ background: "rgba(0,200,220,0.08)", border: "1px solid rgba(255,255,255,0.08)", color: "rgba(0,200,220,0.7)", cursor: "pointer" }}>Validate</button>
         {output && <div className="ml-auto"><CopyBtn text={output} /></div>}
       </div>
       {status && (
@@ -223,7 +223,7 @@ function ColorConverter() {
 
       <button
         onClick={convert}
-        className="w-full py-2.5 rounded-xl text-sm font-bold cursor-pointer transition-all"
+        className="w-full py-2.5 rounded-xl text-sm font-bold cursor-pointer transition-all duration-200"
         style={{
           background: "rgba(255,255,255,0.06)",
           border: "1px solid rgba(255,255,255,0.12)",
@@ -339,7 +339,7 @@ function TextUtils() {
     if (!allowed) return;
     setText(fn());
   }}
-  className="px-3 py-1.5 rounded-lg text-xs font-medium transition-all cursor-pointer"
+  className="px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-200 cursor-pointer"
             style={{ background: "rgba(0,200,220,0.08)", border: "1px solid rgba(255,255,255,0.08)", color: "rgba(0,200,220,0.8)" }}>
             {label}
           </button>
@@ -460,7 +460,7 @@ function Base64Tool() {
     <div className="space-y-4">
       <div className="flex gap-2 mb-2">
         {(["encode", "decode"] as const).map(m => (
-          <button key={m} onClick={() => setMode(m)} className="px-4 py-1.5 rounded-full text-xs font-semibold transition-all capitalize cursor-pointer"
+          <button key={m} onClick={() => setMode(m)} className="px-4 py-1.5 rounded-full text-xs font-semibold transition-all duration-200 capitalize cursor-pointer"
             style={{ background: mode === m ? "rgba(255,255,255,0.08)" : "rgba(255,255,255,0.03)", border: mode === m ? "1px solid rgba(255,255,255,0.2)" : "1px solid rgba(255,255,255,0.06)", color: mode === m ? "#f4f4f5" : "rgba(255,255,255,0.2)" }}>
             {m}
           </button>
@@ -528,7 +528,7 @@ function PasswordGenerator() {
     <div className="space-y-5">
       <div className="p-4 rounded-xl flex items-center gap-3" style={{ background: "rgba(0,10,25,0.8)", border: "1px solid rgba(255,255,255,0.08)" }}>
         <code className="flex-1 text-sm font-mono break-all" style={{ color: "#e0f2fe", letterSpacing: "0.03em" }}>{password || "Click Generate"}</code>
-        <button onClick={() => password && copy(password)} className="shrink-0 flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium cursor-pointer transition-all"
+        <button onClick={() => password && copy(password)} className="shrink-0 flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium cursor-pointer transition-all duration-200"
           style={{ background: copied ? "rgba(0,220,100,0.15)" : "rgba(255,255,255,0.05)", border: `1px solid ${copied ? "rgba(0,220,100,0.4)" : "rgba(0,200,220,0.25)"}`, color: copied ? "#4ade80" : "rgba(0,200,220,0.9)" }}>
           {copied ? <Check size={12} /> : <Copy size={12} />}
           {copied ? "Copied" : "Copy"}
@@ -538,7 +538,7 @@ function PasswordGenerator() {
         <div className="flex items-center gap-3">
           <div className="flex gap-1 flex-1">
             {Array.from({ length: 5 }, (_, i) => (
-              <div key={i} className="h-1.5 flex-1 rounded-full transition-all" style={{ background: i < strength ? strengthInfo.color : "rgba(255,255,255,0.08)" }} />
+              <div key={i} className="h-1.5 flex-1 rounded-full transition-all duration-200" style={{ background: i < strength ? strengthInfo.color : "rgba(255,255,255,0.08)" }} />
             ))}
           </div>
           <span className="text-xs font-semibold" style={{ color: strengthInfo.color }}>{strengthInfo.label}</span>
@@ -553,7 +553,7 @@ function PasswordGenerator() {
       </div>
       <div className="grid grid-cols-3 gap-3">
         {(Object.keys(opts) as (keyof typeof opts)[]).map(k => (
-          <button key={k} onClick={() => setOpts(o => ({ ...o, [k]: !o[k] }))} className="flex items-center gap-2 p-3 rounded-xl text-sm font-medium capitalize cursor-pointer transition-all"
+          <button key={k} onClick={() => setOpts(o => ({ ...o, [k]: !o[k] }))} className="flex items-center gap-2 p-3 rounded-xl text-sm font-medium capitalize cursor-pointer transition-all duration-200"
             style={{ background: opts[k] ? "rgba(255,255,255,0.05)" : "rgba(255,255,255,0.03)", border: opts[k] ? "1px solid rgba(255,255,255,0.12)" : "1px solid rgba(255,255,255,0.05)", color: opts[k] ? "#f4f4f5" : "rgba(255,255,255,0.45)" }}>
             <div style={{ width: 14, height: 14, borderRadius: 4, background: opts[k] ? "#f4f4f5" : "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.12)" }} />
             {k}
@@ -564,7 +564,7 @@ function PasswordGenerator() {
             const allowed = await trackToolUse?.("password");
             if (!allowed) return;
             generate();
-          }} className="w-full flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-bold cursor-pointer transition-all"
+          }} className="w-full flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-bold cursor-pointer transition-all duration-200"
         style={{ background: "linear-gradient(135deg, rgba(255,255,255,0.08), rgba(155,89,182,0.2))", border: "1px solid rgba(255,255,255,0.12)", color: "#f4f4f5" }}>
         <Shuffle size={15} /> Generate New Password
       </button>
@@ -637,7 +637,7 @@ function QrCodeTool() {
           const allowed = await trackToolUse?.("qr");
           if (!allowed) return;
           generate();
-        }} className="w-full py-2.5 rounded-xl text-sm font-bold cursor-pointer transition-all"
+        }} className="w-full py-2.5 rounded-xl text-sm font-bold cursor-pointer transition-all duration-200"
         style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.12)", color: "#f4f4f5" }}>
         Generate QR Code
       </button>
@@ -653,7 +653,7 @@ function QrCodeTool() {
             />
           </div>
           {loading && <p className="text-xs" style={{ color: "rgba(255,255,255,0.2)" }}>Generating…</p>}
-          <button onClick={download} className="flex items-center gap-2 px-6 py-3 rounded-full text-sm font-bold cursor-pointer transition-all w-full justify-center"
+          <button onClick={download} className="flex items-center gap-2 px-4 sm:px-6 py-3 rounded-full text-sm font-bold cursor-pointer transition-all duration-200 w-full justify-center"
             style={{ background: "linear-gradient(135deg, rgba(0,200,220,0.25), rgba(0,100,255,0.2))", border: "1px solid rgba(255,255,255,0.15)", color: "#f4f4f5" }}>
             <Download size={14} /> Download PNG
           </button>
@@ -741,7 +741,7 @@ function MarkdownPreview() {
 
           <button
             onClick={preview}
-            className="w-full mt-3 py-2.5 rounded-xl text-sm font-bold cursor-pointer transition-all"
+            className="w-full mt-3 py-2.5 rounded-xl text-sm font-bold cursor-pointer transition-all duration-200"
             style={{
               background: "rgba(255,255,255,0.06)",
               border: "1px solid rgba(255,255,255,0.12)",
@@ -940,7 +940,7 @@ function RandomGenerator() {
         🎲 Generate Random Number
       </button>
       {result && (
-        <div className="text-center text-4xl font-black font-mono py-6" style={{ color: "#f4f4f5" }}>
+        <div className="text-center text-4xl font-bold font-mono py-4 sm:py-6" style={{ color: "#f4f4f5" }}>
           {result}
         </div>
       )}
@@ -1051,7 +1051,7 @@ function NumberBaseConverter() {
 
       <button
         onClick={convert}
-        className="w-full py-2.5 rounded-xl text-sm font-bold cursor-pointer transition-all"
+        className="w-full py-2.5 rounded-xl text-sm font-bold cursor-pointer transition-all duration-200"
         style={{
           background: "rgba(255,255,255,0.06)",
           border: "1px solid rgba(255,255,255,0.12)",
@@ -1330,7 +1330,7 @@ export default function DevToolsPage() {
       <div className="max-w-3xl mx-auto">
         {/* Header */}
         <div className="text-center mb-10">
-          <h1 className="text-4xl font-black gradient-text mb-2" style={{ fontFamily: "Poppins, Inter, sans-serif" }}>
+          <h1 className="text-4xl font-bold gradient-text mb-2" style={{ fontFamily: "Poppins, Inter, sans-serif" }}>
             Developer Tools
           </h1>
           <p style={{ color: "rgba(255,255,255,0.2)" }}>
@@ -1382,7 +1382,7 @@ export default function DevToolsPage() {
               </div>
             </div>
 
-            <div className="mt-3 h-2 overflow-hidden rounded-full bg-white/10">
+            <div className="mt-3 h-2 overflow-hidden rounded-full bg-white/[0.035]">
               <div
                 className="h-full rounded-full bg-white transition-all duration-300"
                 style={{
@@ -1406,7 +1406,7 @@ export default function DevToolsPage() {
               <button
                 type="button"
                 onClick={() => watchAd("lootlabs")}
-                className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-xs font-medium text-zinc-200 transition hover:bg-white/10"
+                className="rounded-xl border border-white/[0.07] bg-white/[0.018] px-3 py-2 text-xs font-medium text-zinc-200 transition hover:bg-white/[0.035]"
               >
                 🎬 LootLabs
               </button>
@@ -1414,7 +1414,7 @@ export default function DevToolsPage() {
               <button
                 type="button"
                 onClick={() => watchAd("move2link")}
-                className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-xs font-medium text-zinc-200 transition hover:bg-white/10"
+                className="rounded-xl border border-white/[0.07] bg-white/[0.018] px-3 py-2 text-xs font-medium text-zinc-200 transition hover:bg-white/[0.035]"
               >
                 🎬 Move2link
               </button>
@@ -1433,7 +1433,7 @@ export default function DevToolsPage() {
         {/* Active Tool Panel */}
         <div
           ref={panelRef}
-          className="rounded-2xl p-6"
+          className="rounded-2xl p-4 sm:p-6"
           style={{
             background: "rgba(0,15,35,0.7)",
             border: "1px solid rgba(255,255,255,0.08)",
