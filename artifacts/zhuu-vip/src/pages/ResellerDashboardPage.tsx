@@ -45,6 +45,7 @@ export default function ResellerDashboardPage() {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [newUsername, setNewUsername] = useState("");
   const [newPassword, setNewPassword] = useState("");
+  const [walletEmail, setWalletEmail] = useState("");
   const [settingsLoading, setSettingsLoading] = useState(false);
   const [settingsMsg, setSettingsMsg] = useState("");
   const [loading, setLoading] = useState(true);
@@ -169,6 +170,7 @@ export default function ResellerDashboardPage() {
 
       setUsername(String(me.username || ""));
       setBalance(Number(me.balance || 0));
+      setWalletEmail(String(me.walletEmail || ""));
     } catch {
       setBalance(0);
     } finally {
@@ -419,6 +421,7 @@ export default function ResellerDashboardPage() {
   const openSettings = () => {
     setNewUsername(username);
     setNewPassword("");
+    setWalletEmail(walletEmail);
     setSettingsMsg("");
     setSettingsOpen(true);
   };
@@ -426,8 +429,8 @@ export default function ResellerDashboardPage() {
   const saveSettings = async () => {
     const cleanUsername = newUsername.trim().toLowerCase();
 
-    if (!cleanUsername && !newPassword) {
-      setSettingsMsg("Isi username atau password yang ingin diubah.");
+    if (!cleanUsername && !newPassword && !walletEmail.trim()) {
+      setSettingsMsg("Isi username, password, atau email Member.");
       return;
     }
 
@@ -450,6 +453,7 @@ export default function ResellerDashboardPage() {
         body: JSON.stringify({
           username: cleanUsername || username,
           password: newPassword || undefined,
+          walletEmail: walletEmail.trim().toLowerCase() || undefined,
         }),
       });
 
@@ -458,6 +462,9 @@ export default function ResellerDashboardPage() {
       }
 
       setUsername(String(data.username || cleanUsername || username));
+      setWalletEmail(
+        String(data.walletEmail || walletEmail.trim().toLowerCase() || ""),
+      );
       setNewPassword("");
       setSettingsMsg("Pengaturan berhasil disimpan.");
     } catch (err) {
@@ -1253,7 +1260,7 @@ export default function ResellerDashboardPage() {
               <div>
                 <h2 className="text-xl font-bold">Pengaturan Akun</h2>
                 <p className="mt-1 text-sm text-white/40">
-                  Ubah username atau password reseller.
+                  Kelola username, password, dan wallet Member reseller.
                 </p>
               </div>
 
@@ -1278,6 +1285,22 @@ export default function ResellerDashboardPage() {
                   className="w-full rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3 text-sm outline-none transition focus:border-purple-400/50"
                   placeholder="username"
                 />
+              </div>
+
+              <div>
+                <label className="mb-2 block text-xs font-semibold text-white/50">
+                  Email Wallet Member
+                </label>
+                <input
+                  type="email"
+                  value={walletEmail}
+                  onChange={(e) => setWalletEmail(e.target.value)}
+                  className="w-full rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3 text-sm outline-none transition focus:border-purple-400/50"
+                  placeholder="email Member kamu"
+                />
+                <p className="mt-2 text-xs leading-relaxed text-white/35">
+                  Saldo reseller akan mengikuti wallet dari akun Member dengan email ini.
+                </p>
               </div>
 
               <div>

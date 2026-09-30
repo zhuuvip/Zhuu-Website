@@ -48,6 +48,8 @@ function ensureResellerTables(): Promise<void> {
       `);
       await db.execute(sql`ALTER TABLE product_options ADD COLUMN IF NOT EXISTS reseller_price INTEGER`);
       await db.execute(sql`ALTER TABLE reseller_members ADD COLUMN IF NOT EXISTS credential_version INTEGER NOT NULL DEFAULT 0`);
+      await db.execute(sql`ALTER TABLE reseller_members ADD COLUMN IF NOT EXISTS wallet_user_id TEXT`);
+      await db.execute(sql`ALTER TABLE reseller_members ADD COLUMN IF NOT EXISTS wallet_email TEXT`);
       await db.execute(sql`
         CREATE TABLE IF NOT EXISTS wallets (
           id SERIAL PRIMARY KEY,
@@ -171,7 +173,20 @@ async function getPlanPrices() {
 }
 
 async function walletBalance(ex: any, userId: string) {
-  const r = rowsOf(await ex.execute(sql`SELECT balance FROM wallets WHERE user_id = ${userId}`))[0];
+  const member = rowsOf(
+    await ex.execute(
+      sql`SELECT wallet_user_id FROM reseller_members WHERE user_id = ${userId}`,
+    ),
+  )[0];
+
+  const walletUserId = String(member?.wallet_user_id || userId);
+
+  const r = rowsOf(
+    await ex.execute(
+      sql`SELECT balance FROM wallets WHERE user_id = ${walletUserId}`,
+    ),
+  )[0];
+
   return r ? Number(r.balance) : 0;
 }
 
@@ -240,6 +255,7 @@ async function requireReseller(req: Request, res: Response, next: NextFunction) 
       plan: row.plan,
       expiresAt: row.expires_at,
       balance: await walletBalance(db, userId),
+      walletEmail: row.wallet_email || null,
     };
 
     return next();
@@ -339,18 +355,69 @@ router.post(
   requireReseller,
   h(async (req, res) => {
     const userId = (req as any).reseller.userId;
+
     const username = String(req.body.username || "").trim().toLowerCase();
     const password = String(req.body.password || "");
+    const walletEmail = String(req.body.walletEmail || "").trim().toLowerCase();
 
-    if (!/^[a-z0-9_]{3,24}$/.test(username)) {
+    if (!username && !password && !walletEmail) {
       throw new HttpError(
         400,
-        "Username 3-24 karakter: huruf kecil, angka, atau _",
+        "Isi username, password, atau email Member.",
       );
     }
 
-    if (password.length < 6 || password.length > 72) {
-      throw new HttpError(400, "Password 6-72 karakter");
+    if (username && !/^[a-z0-9_]{3,24}$/.test(username)) {
+      throw new HttpError(
+        400,
+        "Username 3-24 karakter: huruf kecil, angka, atau underscore.",
+      );
+    }
+
+    if (password && (password.length < 6 || password.length > 72)) {
+      throw new HttpError(400, "Password harus 6-72 karakter.");
+    }
+
+    let walletUserId: string | null = null;
+    let savedWalletEmail: string | null = null;
+
+    if (walletEmail) {
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(walletEmail)) {
+        throw new HttpError(400, "Format email Member tidak valid.");
+      }
+
+      const secretKey = process.env.CLERK_SECRET_KEY;
+
+      if (!secretKey) {
+        throw new HttpError(
+          500,
+          "CLERK_SECRET_KEY belum dikonfigurasi di server.",
+        );
+      }
+
+      const clerk = createClerkClient({ secretKey });
+
+      const result = await clerk.users.getUserList({
+        emailAddress: [walletEmail],
+        limit: 100,
+      });
+
+      const user = result.data.find((item) =>
+        item.emailAddresses.some(
+          (email) =>
+            email.emailAddress.toLowerCase() === walletEmail,
+        ),
+      );
+
+      if (!user) {
+        throw new HttpError(
+          404,
+          "Akun Member dengan email tersebut tidak ditemukan.",
+        );
+      }
+
+      walletUserId = user.id;
+      savedWalletEmail = walletEmail;
     }
 
     try {
@@ -358,11 +425,25 @@ router.post(
         await db.execute(sql`
           UPDATE reseller_members
           SET
-            username = ${username},
-            password_hash = ${hashPassword(password)},
+            username = COALESCE(${username || null}, username),
+            password_hash = COALESCE(
+              ${password ? hashPassword(password) : null},
+              password_hash
+            ),
+            wallet_user_id = COALESCE(
+              ${walletUserId},
+              wallet_user_id
+            ),
+            wallet_email = COALESCE(
+              ${savedWalletEmail},
+              wallet_email
+            ),
             credential_version = credential_version + 1
           WHERE user_id = ${userId}
-          RETURNING credential_version
+          RETURNING
+            credential_version,
+            username,
+            wallet_email
         `),
       );
 
@@ -372,16 +453,18 @@ router.post(
 
       return res.json({
         ok: true,
-        username,
+        username: updated[0]?.username || username,
+        walletEmail: updated[0]?.wallet_email || null,
         token: signToken(userId, credentialVersion),
       });
     } catch (e: any) {
       if (e?.code === "23505" || e?.cause?.code === "23505") {
         throw new HttpError(
           400,
-          "Username sudah dipakai, pilih yang lain",
+          "Username sudah dipakai, pilih yang lain.",
         );
       }
+
       throw e;
     }
   }),
@@ -418,7 +501,13 @@ router.post(
 
 router.get("/reseller/me", requireReseller, (req, res) => {
   const a = (req as any).reseller;
-  res.json({ username: a.username, balance: a.balance, plan: a.plan, expiresAt: a.expiresAt });
+  res.json({
+    username: a.username,
+    balance: a.balance,
+    plan: a.plan,
+    expiresAt: a.expiresAt,
+    walletEmail: a.walletEmail || null,
+  });
 });
 
 router.get(
@@ -587,10 +676,12 @@ router.post(
         if (!deliveryLink) throw new HttpError(400, "Link delivery belum diatur oleh admin");
       }
 
+      const walletUserId = String(acc.wallet_user_id || acc.userId);
+
       const debit = rowsOf(
         await tx.execute(sql`
           UPDATE wallets SET balance = balance - ${finalPrice}, updated_at = NOW()
-          WHERE user_id = ${acc.userId} AND balance >= ${finalPrice}
+          WHERE user_id = ${walletUserId} AND balance >= ${finalPrice}
           RETURNING balance
         `),
       )[0];
@@ -630,7 +721,7 @@ router.post(
 
       await tx.execute(sql`
         INSERT INTO wallet_transactions (user_id, type, amount, reference, description, status)
-        VALUES (${acc.userId}, 'PURCHASE', ${-finalPrice}, ${invoice},
+        VALUES (${walletUserId}, 'PURCHASE', ${-finalPrice}, ${invoice},
                 ${`[Reseller] ${product.name} - ${option.duration}`},
           ${isDrip ? "PENDING" : "PAID"})
       `);
@@ -715,11 +806,22 @@ router.post(
         console.error("Reseller DRIP generate error:", error);
 
         await db.transaction(async (tx) => {
+          const refundWallet = rowsOf(
+            await tx.execute(
+              sql`SELECT wallet_user_id FROM reseller_members WHERE user_id = ${(req as any).reseller.userId}`,
+            ),
+          )[0];
+
+          const refundWalletUserId = String(
+            refundWallet?.wallet_user_id ||
+              (req as any).reseller.userId,
+          );
+
           await tx.execute(sql`
             UPDATE wallets
             SET balance = balance + ${result.order.amount},
                 updated_at = NOW()
-            WHERE user_id = ${(req as any).reseller.userId}
+            WHERE user_id = ${refundWalletUserId}
           `);
 
           await tx.execute(sql`
