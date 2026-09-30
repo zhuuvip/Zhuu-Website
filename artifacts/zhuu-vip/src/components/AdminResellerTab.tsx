@@ -462,8 +462,18 @@ export default function AdminResellerTab() {
             <div key={m.id} className="rounded-xl border border-white/10 bg-black/20 p-3">
               <div className="flex items-center justify-between gap-2">
                 <div className="min-w-0">
-                  <p className="truncate font-bold">{m.username || "(belum buat username)"}</p>
-                  <p className="truncate text-[11px] text-white/35">{m.user_id}</p>
+                  <p className="truncate font-bold">
+                    {m.wallet_username || m.username || "(belum terhubung)"}
+                  </p>
+                  {m.wallet_email ? (
+                    <p className="truncate text-[11px] text-white/40">
+                      {m.wallet_email}
+                    </p>
+                  ) : (
+                    <p className="text-[11px] text-white/30">
+                      Belum terhubung ke Member
+                    </p>
+                  )}
                 </div>
                 <div className="shrink-0 text-right text-xs">
                   <p className={m.valid ? "font-bold text-emerald-300" : "font-bold text-red-300"}>
@@ -491,7 +501,7 @@ export default function AdminResellerTab() {
                 <button
                   className="rounded-lg border border-red-400/30 px-3 py-1.5 text-red-300"
                   onClick={async () => {
-                    if (await window.zhuuConfirm(`Cabut akses reseller ${m.username || m.user_id}?`))
+                    if (await window.zhuuConfirm(`Cabut akses reseller ${m.wallet_username || m.wallet_email || m.username || "ini"}?`))
                       run(() => call(`/api/admin/resellers/${m.id}`, { method: "DELETE" }));
                   }}
                 >

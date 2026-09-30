@@ -250,19 +250,20 @@ export default function Navigation() {
             </div>
           </div>
 
-          <Link href="/reseller-login">
-            <span
-              title="Login Reseller"
-              className={`zs-nav-link inline-flex items-center gap-1.5 ${
-                isActive("/reseller-login") ? "zs-nav-link-active" : ""
-              }`}
-            >
-              <LogIn size={15} />
-              Reseller
-            </span>
-          </Link>
-
           <div className="flex items-center gap-2">
+            <Link href="/reseller-login">
+              <span
+                title="Login Reseller"
+                className={`inline-flex items-center gap-1.5 rounded-xl border px-3 py-2 text-sm font-medium transition ${
+                  isActive("/reseller-login")
+                    ? "border-white/20 bg-white/10 text-white"
+                    : "border-white/[0.07] bg-white/[0.04] text-white/70 hover:bg-white/[0.08] hover:text-white"
+                }`}
+              >
+                <LogIn size={15} />
+                <span className="hidden sm:inline">Reseller</span>
+              </span>
+            </Link>
             <Show when="signed-in">
               <NotificationBell unread={unreadNotifications} />
               <UserButton />

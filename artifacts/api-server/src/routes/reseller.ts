@@ -380,6 +380,7 @@ router.post(
 
     let walletUserId: string | null = null;
     let savedWalletEmail: string | null = null;
+  let savedWalletUsername: string | null = null;
 
     if (walletEmail) {
       if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(walletEmail)) {
@@ -418,6 +419,10 @@ router.post(
 
       walletUserId = user.id;
       savedWalletEmail = walletEmail;
+      savedWalletUsername =
+        typeof user.username === "string" && user.username.trim()
+          ? user.username.trim()
+          : null;
     }
 
     try {
@@ -438,12 +443,17 @@ router.post(
               ${savedWalletEmail},
               wallet_email
             ),
+            wallet_username = COALESCE(
+              ${savedWalletUsername},
+              wallet_username
+            ),
             credential_version = credential_version + 1
           WHERE user_id = ${userId}
           RETURNING
             credential_version,
             username,
-            wallet_email
+            wallet_email,
+            wallet_username
         `),
       );
 
@@ -455,6 +465,7 @@ router.post(
         ok: true,
         username: updated[0]?.username || username,
         walletEmail: updated[0]?.wallet_email || null,
+        walletUsername: updated[0]?.wallet_username || null,
         token: signToken(userId, credentialVersion),
       });
     } catch (e: any) {
@@ -1090,8 +1101,17 @@ router.get(
   h(async (_req, res) => {
     const rows = rowsOf(
       await db.execute(sql`
-        SELECT id, user_id, plan, expires_at, username, active, created_at
-        FROM reseller_members ORDER BY id DESC
+        SELECT
+          id,
+          plan,
+          expires_at,
+          username,
+          active,
+          created_at,
+          wallet_email,
+          wallet_username
+        FROM reseller_members
+        ORDER BY id DESC
       `),
     );
     return res.json(rows.map((r) => ({ ...r, valid: isActiveMember(r) })));
