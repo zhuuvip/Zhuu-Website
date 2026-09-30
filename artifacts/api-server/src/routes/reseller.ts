@@ -5,7 +5,7 @@ import { getAuth } from "@clerk/express";
 import { createClerkClient } from "@clerk/backend";
 import { db } from "@workspace/db";
 import { productsTable, productOptionsTable, ordersTable } from "@workspace/db";
-import { eq, sql, desc } from "drizzle-orm";
+import { and, eq, sql, desc } from "drizzle-orm";
 import { requireAdmin } from "../lib/auth.js";
 import { generateDripKey } from "../lib/dripApi.js";
 import {
@@ -15,6 +15,31 @@ import {
 } from "../lib/promo.js";
 
 const router = Router();
+
+let ordersIdempotencyReady: Promise<void> | null = null;
+
+function ensureOrdersIdempotencySchema(): Promise<void> {
+  if (!ordersIdempotencyReady) {
+    ordersIdempotencyReady = (async () => {
+      await db.execute(sql`
+        ALTER TABLE orders
+        ADD COLUMN IF NOT EXISTS idempotency_key TEXT
+      `);
+
+      await db.execute(sql`
+        CREATE UNIQUE INDEX IF NOT EXISTS orders_idempotency_key_unique
+        ON orders (idempotency_key)
+        WHERE idempotency_key IS NOT NULL
+      `);
+    })().catch((e) => {
+      ordersIdempotencyReady = null;
+      throw e;
+    });
+  }
+
+  return ordersIdempotencyReady;
+}
+
 const rowsOf = (r: any): any[] => r?.rows ?? r ?? [];
 const PLAN_DAYS = 30;
 
@@ -22,6 +47,17 @@ class HttpError extends Error {
   constructor(public status: number, message: string) {
     super(message);
   }
+}
+
+function isIdempotencyConflict(error: unknown): boolean {
+  const e = error as any;
+  return (
+    e?.code === "23505" &&
+    (
+      e?.constraint === "orders_idempotency_key_unique" ||
+      String(e?.detail || "").includes("idempotency_key")
+    )
+  );
 }
 
 let tablesReady: Promise<void> | null = null;
@@ -152,6 +188,29 @@ const h =
       return await fn(req, res);
     } catch (e) {
       if (e instanceof HttpError) return res.status(e.status).json({ error: e.message });
+
+      if (isIdempotencyConflict(e)) {
+        const idempotencyKey =
+          typeof req.body?.idempotencyKey === "string"
+            ? req.body.idempotencyKey.trim()
+            : "";
+
+        if (idempotencyKey) {
+          const [existingOrder] = await db
+            .select()
+            .from(ordersTable)
+            .where(eq(ordersTable.idempotencyKey, idempotencyKey))
+            .limit(1);
+
+          if (existingOrder) {
+            return res.json({
+              ...existingOrder,
+              duplicate: true,
+            });
+          }
+        }
+      }
+
       console.error(e);
       return res.status(500).json({ error: "Terjadi kesalahan server" });
     }
@@ -622,253 +681,657 @@ router.post(
   requireReseller,
   h(async (req, res) => {
     const acc = (req as any).reseller;
+
+    await ensureOrdersIdempotencySchema();
+
+    const idempotencyKey =
+      typeof req.body.idempotencyKey === "string"
+        ? req.body.idempotencyKey.trim()
+        : "";
+
+    if (!idempotencyKey || idempotencyKey.length < 16 || idempotencyKey.length > 128) {
+      throw new HttpError(
+        400,
+        "Request pembelian tidak valid. Silakan coba lagi.",
+      );
+    }
+
     const productId = Number(req.body.productId);
     const optionId = Number(req.body.optionId);
-    const promoCode = req.body.promoCode;
+    const promoCode =
+      typeof req.body.promoCode === "string"
+        ? req.body.promoCode.trim()
+        : undefined;
 
-    const result = await db.transaction(async (tx) => {
-      const [product] = await tx.select().from(productsTable).where(eq(productsTable.id, productId));
+    if (
+      !Number.isInteger(productId) ||
+      productId <= 0 ||
+      !Number.isInteger(optionId) ||
+      optionId <= 0
+    ) {
+      throw new HttpError(400, "Produk atau durasi tidak valid");
+    }
+
+    /*
+     * IDEMPOTENCY
+     * Request dengan key yang sama tidak boleh membuat order/debit kedua.
+     */
+    const [existingOrder] = await db
+      .select()
+      .from(ordersTable)
+      .where(eq(ordersTable.idempotencyKey, idempotencyKey))
+      .limit(1);
+
+    if (existingOrder) {
+      return res.json({
+        ...existingOrder,
+        duplicate: true,
+      });
+    }
+
+    /*
+     * ============================================================
+     * STEP 1 — VALIDATE + DEBIT + CREATE PENDING ORDER
+     * ============================================================
+     *
+     * Semua harga dan stock dipercaya dari database.
+     * Tidak ada harga dari frontend yang digunakan.
+     */
+    const prepared = await db.transaction(async (tx) => {
+      const [product] = await tx
+        .select()
+        .from(productsTable)
+        .where(eq(productsTable.id, productId))
+        .limit(1);
+
       const [option] = await tx
         .select()
         .from(productOptionsTable)
-        .where(eq(productOptionsTable.id, optionId));
+        .where(eq(productOptionsTable.id, optionId))
+        .limit(1);
 
       if (!product || !option || option.productId !== product.id) {
         throw new HttpError(400, "Produk atau durasi tidak valid");
       }
+
       const isDrip = Boolean(option.dripVariantId);
-    const availableStock = isDrip
-      ? Number(option.dripStock ?? 0)
-      : Number(option.stock ?? 0);
 
-    if (availableStock <= 0) throw new HttpError(400, "Stok habis");
-
-      const price = option.resellerPrice ?? option.price;
-        let promoResult;
-        try {
-          promoResult = await applyPromo(tx, {
-            code: promoCode,
-            audience: "RESELLER",
-            userId: acc.userId,
-            basePrice: price,
-          });
-        } catch (error) {
-          const message =
-            error instanceof Error
-              ? error.message
-              : "Kode promo tidak valid";
-
-          throw new HttpError(400, message);
+      /*
+       * DRIP memakai stock supplier.
+       * Produk lokal memakai stock database.
+       */
+      if (isDrip) {
+        if (Number(option.dripStock ?? 0) <= 0) {
+          throw new HttpError(400, "Stok DRIP habis");
         }
+      } else if (Number(option.stock ?? 0) <= 0) {
+        throw new HttpError(400, "Stok habis");
+      }
 
-        const finalPrice = promoResult.finalPrice;
+      /*
+       * Harga reseller selalu dihitung dari database.
+       */
+      const basePrice = Number(
+        option.resellerPrice ?? option.price ?? 0,
+      );
 
+      if (!Number.isFinite(basePrice) || basePrice < 0) {
+        throw new HttpError(400, "Harga produk tidak valid");
+      }
 
-      let deliveryKey: string | null = null;
+      let promoResult;
+
+      try {
+        promoResult = await applyPromo(tx, {
+          code: promoCode,
+          audience: "RESELLER",
+          userId: acc.userId,
+          basePrice,
+        });
+      } catch (error) {
+        const message =
+          error instanceof Error
+            ? error.message
+            : "Kode promo tidak valid";
+
+        throw new HttpError(400, message);
+      }
+
+      const finalPrice = Number(promoResult.finalPrice);
+
+      if (
+        !Number.isFinite(finalPrice) ||
+        finalPrice < 0 ||
+        finalPrice > basePrice
+      ) {
+        throw new HttpError(400, "Harga akhir tidak valid");
+      }
+
+      /*
+       * LINK harus tersedia sebelum wallet didebit.
+       */
       let deliveryLink: string | null = null;
 
-      if (!isDrip && product.deliveryType === "KEY") {
-        const claimed = rowsOf(
-          await tx.execute(sql`
-            UPDATE product_keys SET status = 'SOLD'
-            WHERE id = (
-              SELECT id FROM product_keys
-              WHERE product_id = ${product.id} AND option_id = ${option.id} AND status = 'READY'
-              ORDER BY id ASC LIMIT 1 FOR UPDATE SKIP LOCKED
-            )
-            RETURNING id, key
-          `),
-        );
-        if (!claimed[0]) throw new HttpError(400, "Key untuk durasi ini habis");
-        deliveryKey = claimed[0].key;
-      }
-
       if (product.deliveryType === "LINK") {
-        deliveryLink = product.deliveryValue || null;
-        if (!deliveryLink) throw new HttpError(400, "Link delivery belum diatur oleh admin");
+        deliveryLink = product.deliveryValue?.trim() || null;
+
+        if (!deliveryLink) {
+          throw new HttpError(
+            400,
+            "Link delivery belum diatur oleh admin",
+          );
+        }
       }
 
-      const walletUserId = String(acc.wallet_user_id || acc.userId);
+      /*
+       * Wallet reseller harus menggunakan wallet Member
+       * yang sudah terhubung.
+       */
+      const walletUserId = String(
+        acc.wallet_user_id || acc.userId,
+      );
 
+      if (!walletUserId) {
+        throw new HttpError(
+          400,
+          "Wallet reseller belum terhubung",
+        );
+      }
+
+      /*
+       * ATOMIC DEBIT
+       *
+       * Walaupun dua request datang bersamaan,
+       * database hanya mengizinkan saldo yang benar-benar cukup.
+       */
       const debit = rowsOf(
         await tx.execute(sql`
-          UPDATE wallets SET balance = balance - ${finalPrice}, updated_at = NOW()
-          WHERE user_id = ${walletUserId} AND balance >= ${finalPrice}
+          UPDATE wallets
+          SET
+            balance = balance - ${finalPrice},
+            updated_at = NOW()
+          WHERE user_id = ${walletUserId}
+            AND balance >= ${finalPrice}
           RETURNING balance
         `),
       )[0];
-      if (!debit) throw new HttpError(400, "Saldo tidak cukup. Top up di halaman Member.");
 
+      if (!debit) {
+        throw new HttpError(
+          400,
+          "Saldo tidak cukup. Top up di halaman Member.",
+        );
+      }
+
+      /*
+       * ATOMIC LOCAL STOCK DEBIT.
+       *
+       * Kalau stock berubah menjadi 0 di request lain,
+       * request ini otomatis gagal dan seluruh transaction rollback,
+       * termasuk debit wallet.
+       */
       if (!isDrip) {
         const stockRow = rowsOf(
           await tx.execute(sql`
-            UPDATE product_options SET stock = stock - 1
-            WHERE id = ${option.id} AND stock > 0 RETURNING id
+            UPDATE product_options
+            SET stock = stock - 1
+            WHERE id = ${option.id}
+              AND stock > 0
+            RETURNING id
           `),
         )[0];
 
         if (!stockRow) {
-          throw new HttpError(400, "Stok habis, coba lagi");
+          throw new HttpError(
+            400,
+            "Stok habis atau stok berubah, silakan coba lagi",
+          );
         }
       }
 
       const invoice =
-        `RSL-${new Date().toISOString().slice(0, 10).replace(/-/g, "")}-` +
-        Math.random().toString(36).slice(2, 7).toUpperCase();
+        `RSL-${new Date()
+          .toISOString()
+          .slice(0, 10)
+          .replace(/-/g, "")}-` +
+        crypto.randomBytes(5).toString("hex").toUpperCase();
 
+      /*
+       * SEMUA pembelian dibuat PENDING dahulu.
+       * Baru menjadi PAID setelah delivery benar-benar berhasil.
+       */
       const [order] = await tx
         .insert(ordersTable)
         .values({
           invoice,
+          idempotencyKey,
           productId: product.id,
           optionId: option.id,
           productName: product.name,
           duration: option.duration,
           amount: finalPrice,
           whatsapp: `reseller:${acc.username}`,
-          status: isDrip ? "PENDING" : "PAID",
-          paymentRef: deliveryKey || deliveryLink || null,
+          status: "PENDING",
+          paymentRef: null,
         })
         .returning();
 
       await tx.execute(sql`
-        INSERT INTO wallet_transactions (user_id, type, amount, reference, description, status)
-        VALUES (${walletUserId}, 'PURCHASE', ${-finalPrice}, ${invoice},
-                ${`[Reseller] ${product.name} - ${option.duration}`},
-          ${isDrip ? "PENDING" : "PAID"})
+        INSERT INTO wallet_transactions
+          (user_id, type, amount, reference, description, status)
+        VALUES
+          (
+            ${walletUserId},
+            'PURCHASE',
+            ${-finalPrice},
+            ${invoice},
+            ${`[Reseller] ${product.name} - ${option.duration}`},
+            'PENDING'
+          )
       `);
 
       if (promoResult.promo) {
-          await recordPromoUsage(tx, {
-            promoId: promoResult.promo.id,
-            userId: acc.userId,
-            audience: "RESELLER",
-            orderId: order.id,
-            discount: promoResult.discount,
-          });
-        }
+        await recordPromoUsage(tx, {
+          promoId: promoResult.promo.id,
+          userId: acc.userId,
+          audience: "RESELLER",
+          orderId: order.id,
+          discount: promoResult.discount,
+        });
+      }
 
-        return {
-          order,
-          deliveryKey,
-          deliveryLink,
-          balance: Number(debit.balance),
-          promoId: promoResult.promo?.id ?? null,
-          promo: promoResult.promo
-            ? {
-                id: promoResult.promo.id,
-                code: promoResult.promo.code,
-                discount: promoResult.discount,
-                originalPrice: price,
-                finalPrice,
-              }
-            : null,
-        };
+      return {
+        order,
+        product,
+        option,
+        isDrip,
+        walletUserId,
+        balance: Number(debit.balance),
+        deliveryLink,
+        promoId: promoResult.promo?.id ?? null,
+        promo: promoResult.promo
+          ? {
+              id: promoResult.promo.id,
+              code: promoResult.promo.code,
+              discount: promoResult.discount,
+              originalPrice: basePrice,
+              finalPrice,
+            }
+          : null,
+      };
     });
 
-    if (result.order.status === "PENDING" && result.order.optionId) {
-      try {
-        const drip = await generateDripKey(
-          Number(
-            (
-              await db
-                .select({ dripVariantId: productOptionsTable.dripVariantId })
-                .from(productOptionsTable)
-                .where(eq(productOptionsTable.id, result.order.optionId))
-                .limit(1)
-            )[0]?.dripVariantId,
-          ),
-          1,
+    /*
+     * ============================================================
+     * STEP 2 — DELIVERY
+     * ============================================================
+     */
+
+    try {
+      /*
+       * ----------------------------------------------------------
+       * DRIP
+       * ----------------------------------------------------------
+       */
+      if (prepared.isDrip) {
+        const variantId = Number(
+          prepared.option.dripVariantId,
         );
 
+        if (!Number.isInteger(variantId) || variantId <= 0) {
+          throw new Error("DRIP variant tidak valid");
+        }
+
+        let drip: any;
+
+        try {
+          drip = await generateDripKey(variantId, 1);
+        } catch (error) {
+          console.error(
+            "Reseller DRIP generate request failed:",
+            error,
+          );
+          throw new Error("Gagal menghubungi server DRIP");
+        }
+
         if (
-          !drip?.success ||
-          !Array.isArray(drip?.keys) ||
+          !drip ||
+          drip.success !== true ||
+          !Array.isArray(drip.keys) ||
           !drip.keys[0]
         ) {
-          throw new Error(drip?.error || drip?.message || "DRIP gagal membuat key");
+          throw new Error(
+            drip?.error ||
+              drip?.message ||
+              "DRIP gagal membuat key",
+          );
         }
 
         const deliveryKey = String(drip.keys[0]);
 
-        const [completed] = await db
-          .update(ordersTable)
-          .set({
-            status: "PAID",
-            paymentRef: deliveryKey,
-          })
-          .where(eq(ordersTable.id, result.order.id))
-          .returning();
+        /*
+         * Finalize order + transaction secara atomic.
+         */
+        const [completed] = await db.transaction(async (tx) => {
+          const [lockedOrder] = await tx
+            .select()
+            .from(ordersTable)
+            .where(eq(ordersTable.id, prepared.order.id))
+            .limit(1);
 
-        await db.execute(sql`
-          UPDATE wallet_transactions
-          SET status = 'PAID'
-          WHERE reference = ${result.order.invoice}
-        `);
+          if (
+            !lockedOrder ||
+            lockedOrder.status !== "PENDING"
+          ) {
+            throw new Error(
+              "Order sudah diproses atau status tidak valid",
+            );
+          }
+
+          const [updatedOrder] = await tx
+            .update(ordersTable)
+            .set({
+              status: "PAID",
+              paymentRef: deliveryKey,
+            })
+            .where(
+              and(
+                eq(ordersTable.id, prepared.order.id),
+                eq(ordersTable.status, "PENDING"),
+              ),
+            )
+            .returning();
+
+          if (!updatedOrder) {
+            throw new Error(
+              "Order gagal difinalisasi",
+            );
+          }
+
+          const txRows = rowsOf(
+            await tx.execute(sql`
+              UPDATE wallet_transactions
+              SET status = 'PAID'
+              WHERE reference = ${prepared.order.invoice}
+                AND status = 'PENDING'
+              RETURNING id
+            `),
+          );
+
+          if (!txRows[0]) {
+            throw new Error(
+              "Transaksi wallet tidak ditemukan",
+            );
+          }
+
+          return [updatedOrder];
+        });
 
         return res.json({
           ...completed,
           deliveryKey,
           deliveryLink: null,
-          balance: result.balance,
+          balance: prepared.balance,
           drip: true,
           dripOrderId: drip.order_id ?? null,
+          promo: prepared.promo,
         });
-      } catch (error) {
-        console.error("Reseller DRIP generate error:", error);
+      }
 
-        await db.transaction(async (tx) => {
-          const refundWallet = rowsOf(
-            await tx.execute(
-              sql`SELECT wallet_user_id FROM reseller_members WHERE user_id = ${(req as any).reseller.userId}`,
-            ),
-          )[0];
-
-          const refundWalletUserId = String(
-            refundWallet?.wallet_user_id ||
-              (req as any).reseller.userId,
+      /*
+       * ----------------------------------------------------------
+       * LOCAL KEY
+       * ----------------------------------------------------------
+       *
+       * Key baru di-claim setelah wallet + stock berhasil.
+       * Claim + finalize order dilakukan dalam satu transaction.
+       */
+      if (prepared.product.deliveryType === "KEY") {
+        const finalized = await db.transaction(async (tx) => {
+          const claimed = rowsOf(
+            await tx.execute(sql`
+              UPDATE product_keys
+              SET status = 'SOLD'
+              WHERE id = (
+                SELECT id
+                FROM product_keys
+                WHERE product_id = ${prepared.product.id}
+                  AND option_id = ${prepared.option.id}
+                  AND status = 'READY'
+                ORDER BY id ASC
+                LIMIT 1
+                FOR UPDATE SKIP LOCKED
+              )
+              RETURNING id, key
+            `),
           );
 
-          await tx.execute(sql`
-            UPDATE wallets
-            SET balance = balance + ${result.order.amount},
-                updated_at = NOW()
-            WHERE user_id = ${refundWalletUserId}
-          `);
-
-          await tx.execute(sql`
-            UPDATE wallet_transactions
-            SET status = 'REFUNDED'
-            WHERE reference = ${result.order.invoice}
-          `);
-
-          await tx
-            .update(ordersTable)
-            .set({ status: "CANCELLED" })
-            .where(eq(ordersTable.id, result.order.id));
-
-          if (result.promoId !== null) {
-            await rollbackPromoUsage(tx, {
-              promoId: result.promoId,
-              userId: acc.userId,
-              orderId: result.order.id,
-            });
+          if (!claimed[0]) {
+            throw new HttpError(
+              400,
+              "Key untuk durasi ini habis",
+            );
           }
+
+          const deliveryKey = String(claimed[0].key);
+
+          const [updatedOrder] = await tx
+            .update(ordersTable)
+            .set({
+              status: "PAID",
+              paymentRef: deliveryKey,
+            })
+            .where(
+              and(
+                eq(ordersTable.id, prepared.order.id),
+                eq(ordersTable.status, "PENDING"),
+              ),
+            )
+            .returning();
+
+          if (!updatedOrder) {
+            throw new Error(
+              "Order gagal difinalisasi",
+            );
+          }
+
+          const txRows = rowsOf(
+            await tx.execute(sql`
+              UPDATE wallet_transactions
+              SET status = 'PAID'
+              WHERE reference = ${prepared.order.invoice}
+                AND status = 'PENDING'
+              RETURNING id
+            `),
+          );
+
+          if (!txRows[0]) {
+            throw new Error(
+              "Transaksi wallet tidak ditemukan",
+            );
+          }
+
+          return {
+            order: updatedOrder,
+            deliveryKey,
+          };
         });
 
-        throw new HttpError(502, "Gagal generate key DRIP. Saldo sudah dikembalikan.");
+        return res.json({
+          ...finalized.order,
+          deliveryKey: finalized.deliveryKey,
+          deliveryLink: null,
+          balance: prepared.balance,
+          drip: false,
+          promo: prepared.promo,
+        });
       }
-    }
 
-    return res.json({
-      ...result.order,
-      deliveryKey: result.deliveryKey,
-      deliveryLink: result.deliveryLink,
-      balance: result.balance,
-    });
+      /*
+       * ----------------------------------------------------------
+       * LOCAL LINK
+       * ----------------------------------------------------------
+       */
+      if (prepared.product.deliveryType === "LINK") {
+        if (!prepared.deliveryLink) {
+          throw new Error(
+            "Link delivery belum diatur oleh admin",
+          );
+        }
+
+        const [completed] = await db.transaction(
+          async (tx) => {
+            const [updatedOrder] = await tx
+              .update(ordersTable)
+              .set({
+                status: "PAID",
+                paymentRef: prepared.deliveryLink,
+              })
+              .where(
+                and(
+                  eq(ordersTable.id, prepared.order.id),
+                  eq(ordersTable.status, "PENDING"),
+                ),
+              )
+              .returning();
+
+            if (!updatedOrder) {
+              throw new Error(
+                "Order gagal difinalisasi",
+              );
+            }
+
+            const txRows = rowsOf(
+              await tx.execute(sql`
+                UPDATE wallet_transactions
+                SET status = 'PAID'
+                WHERE reference = ${prepared.order.invoice}
+                  AND status = 'PENDING'
+                RETURNING id
+              `),
+            );
+
+            if (!txRows[0]) {
+              throw new Error(
+                "Transaksi wallet tidak ditemukan",
+              );
+            }
+
+            return [updatedOrder];
+          },
+        );
+
+        return res.json({
+          ...completed,
+          deliveryKey: null,
+          deliveryLink: prepared.deliveryLink,
+          balance: prepared.balance,
+          drip: false,
+          promo: prepared.promo,
+        });
+      }
+
+      throw new Error(
+        "Tipe delivery produk tidak valid",
+      );
+    } catch (error) {
+      /*
+       * ==========================================================
+       * STEP 3 — FULL REFUND
+       * ==========================================================
+       *
+       * Hanya refund kalau order masih PENDING.
+       * Ini mencegah double refund.
+       */
+      console.error(
+        "Reseller purchase delivery error:",
+        error,
+      );
+
+      await db.transaction(async (tx) => {
+        const [pending] = await tx
+          .select()
+          .from(ordersTable)
+          .where(eq(ordersTable.id, prepared.order.id))
+          .limit(1);
+
+        if (!pending || pending.status !== "PENDING") {
+          return;
+        }
+
+        /*
+         * Restore wallet secara atomic.
+         */
+        const refund = rowsOf(
+          await tx.execute(sql`
+            UPDATE wallets
+            SET
+              balance = balance + ${prepared.order.amount},
+              updated_at = NOW()
+            WHERE user_id = ${prepared.walletUserId}
+            RETURNING balance
+          `),
+        )[0];
+
+        if (!refund) {
+          throw new Error(
+            "Refund gagal: wallet reseller tidak ditemukan",
+          );
+        }
+
+        /*
+         * Restore local stock.
+         * DRIP tidak pernah mengurangi local stock.
+         */
+        if (!prepared.isDrip) {
+          await tx.execute(sql`
+            UPDATE product_options
+            SET stock = stock + 1
+            WHERE id = ${prepared.option.id}
+          `);
+        }
+
+        await tx.execute(sql`
+          UPDATE wallet_transactions
+          SET status = 'REFUNDED'
+          WHERE reference = ${prepared.order.invoice}
+            AND status = 'PENDING'
+        `);
+
+        await tx
+          .update(ordersTable)
+          .set({
+            status: "CANCELLED",
+          })
+          .where(
+            and(
+              eq(ordersTable.id, prepared.order.id),
+              eq(ordersTable.status, "PENDING"),
+            ),
+          );
+
+        if (prepared.promoId !== null) {
+          await rollbackPromoUsage(tx, {
+            promoId: prepared.promoId,
+            userId: acc.userId,
+            orderId: prepared.order.id,
+          });
+        }
+      });
+
+      if (error instanceof HttpError) {
+        throw error;
+      }
+
+      throw new HttpError(
+        502,
+        error instanceof Error
+          ? error.message
+          : "Pembelian gagal. Saldo sudah dikembalikan.",
+      );
+    }
   }),
 );
-
 router.get(
   "/reseller/orders",
   requireReseller,

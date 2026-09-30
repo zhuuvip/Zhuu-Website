@@ -372,12 +372,18 @@ export default function ResellerDashboardPage() {
     try {
       setBuying(true);
 
+      const idempotencyKey =
+        typeof crypto !== "undefined" && crypto.randomUUID
+          ? crypto.randomUUID()
+          : `${Date.now()}-${Math.random().toString(36).slice(2)}-${Math.random().toString(36).slice(2)}`;
+
       const data = await resellerApi("/api/reseller/orders", {
         method: "POST",
         body: JSON.stringify({
           productId: selectedProduct.id,
           optionId: selectedOption.id,
           promoCode: promoApplied?.code || undefined,
+          idempotencyKey,
         }),
       });
 
@@ -885,7 +891,7 @@ export default function ResellerDashboardPage() {
       {/* Product Detail Modal */}
         {selectedProduct && !purchaseResult && (
           <div
-            className="fixed inset-0 z-40 flex items-center justify-center bg-black/75 p-4 backdrop-blur-md"
+            className="fixed inset-0 z-40 flex items-start justify-center overflow-y-auto overscroll-contain bg-black/75 p-2 backdrop-blur-md sm:items-center sm:p-4"
             onMouseDown={(e) => {
               if (e.target === e.currentTarget) {
                 setSelectedProduct(null);
@@ -893,17 +899,17 @@ export default function ResellerDashboardPage() {
               }
             }}
           >
-            <div className="w-full max-w-lg overflow-hidden rounded-3xl border border-white/[0.07] bg-[#09090b] shadow-2xl shadow-black/80">
-              <div className="max-h-[90vh] overflow-y-auto">
+            <div className="relative my-auto flex max-h-[calc(100dvh-1rem)] w-full max-w-[min(100%,32rem)] flex-col overflow-hidden rounded-3xl border border-white/[0.07] bg-[#09090b] shadow-2xl shadow-black/80 sm:max-h-[calc(100dvh-2rem)]">
+              <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain">
                 {/* Header */}
-                <div className="relative p-4 sm:p-5 sm:p-4 sm:p-6">
+                <div className="relative p-5 sm:p-6">
                   <button
                     type="button"
                     onClick={() => {
                       setSelectedProduct(null);
                       setSelectedOption(null);
                     }}
-                    className="absolute right-4 top-4 z-10 flex size-9 items-center justify-center rounded-xl border border-white/[0.07] bg-black/50 text-sm text-white/50 transition hover:bg-white/[0.035] hover:text-white"
+                    className="absolute right-3 top-3 z-50 flex size-9 shrink-0 items-center justify-center rounded-xl border border-white/[0.07] bg-black/80 text-sm text-white/70 shadow-lg backdrop-blur-md transition hover:bg-white/[0.035] hover:text-white"
                   >
                     ✕
                   </button>
@@ -1004,7 +1010,7 @@ export default function ResellerDashboardPage() {
 
                 {/* Wallet + Checkout */}
                 {selectedOption && (
-                  <div className="border-t border-white/8 bg-white/[0.018] p-4 sm:p-5 sm:p-4 sm:p-6">
+                  <div className="border-t border-white/8 bg-white/[0.018] p-5 sm:p-6">
                     <div className="mb-4 flex items-center justify-between rounded-2xl border border-white/8 bg-black/20 p-3.5">
                       <div>
                         <p className="text-[10px] uppercase tracking-[0.12em] text-white/30">

@@ -21,6 +21,30 @@ import {
 
 const router = Router();
 
+let ordersSchemaReady: Promise<void> | null = null;
+
+function ensureOrdersIdempotencySchema(): Promise<void> {
+  if (!ordersSchemaReady) {
+    ordersSchemaReady = (async () => {
+      await db.execute(sql`
+        ALTER TABLE orders
+        ADD COLUMN IF NOT EXISTS idempotency_key TEXT
+      `);
+
+      await db.execute(sql`
+        CREATE UNIQUE INDEX IF NOT EXISTS orders_idempotency_key_unique
+        ON orders (idempotency_key)
+        WHERE idempotency_key IS NOT NULL
+      `);
+    })().catch((e) => {
+      ordersSchemaReady = null;
+      throw e;
+    });
+  }
+
+  return ordersSchemaReady;
+}
+
 function makeInvoice() {
   return (
     `INV-${new Date().toISOString().slice(0, 10).replace(/-/g, "")}-` +
@@ -108,6 +132,8 @@ router.post("/orders", async (req, res) => {
   let pendingUserId: string | null = null;
   let pendingAmount: number | null = null;
   let pendingPromoId: number | null = null;
+  let pendingIsDrip = false;
+  let pendingOptionId: number | null = null;
 
   try {
     const userId = getAuth(req)?.userId;
@@ -116,7 +142,40 @@ router.post("/orders", async (req, res) => {
       return res.status(401).json({ error: "Login diperlukan" });
     }
 
+    await ensureOrdersIdempotencySchema();
+
+    const idempotencyKey =
+      typeof req.body.idempotencyKey === "string"
+        ? req.body.idempotencyKey.trim()
+        : "";
+
+    if (!idempotencyKey || idempotencyKey.length < 16 || idempotencyKey.length > 128) {
+      return res.status(400).json({
+        error: "Request pembelian tidak valid. Silakan coba lagi.",
+      });
+    }
+
     const { productId, optionId, whatsapp, promoCode } = req.body;
+
+    /*
+     * IDEMPOTENCY
+     * Request dengan key yang sama tidak boleh membuat order/debit kedua.
+     */
+    const [existingOrder] = await db
+      .select()
+      .from(ordersTable)
+      .where(eq(ordersTable.idempotencyKey, idempotencyKey))
+      .limit(1);
+
+    if (existingOrder) {
+      return res.json({
+        ...existingOrder,
+        balance: undefined,
+        deliveryKey: undefined,
+        deliveryLink: undefined,
+        duplicate: true,
+      });
+    }
 
     /*
      * STEP 1
@@ -258,13 +317,14 @@ router.post("/orders", async (req, res) => {
         .insert(ordersTable)
         .values({
           invoice,
+          idempotencyKey,
           productId: product.id,
           optionId: option.id,
           productName: product.name,
           duration: option.duration,
           amount: finalPrice,
           whatsapp: whatsapp || null,
-          status: isDrip ? "PENDING" : "PAID",
+          status: "PENDING",
           paymentRef: null,
         })
         .returning();
@@ -275,7 +335,7 @@ router.post("/orders", async (req, res) => {
         amount: -finalPrice,
         reference: invoice,
         description: `${product.name} - ${option.duration}`,
-        status: isDrip ? "PENDING" : "PAID",
+        status: "PENDING",
       });
 
       if (promoResult.promo) {
@@ -310,7 +370,9 @@ router.post("/orders", async (req, res) => {
     pendingInvoice = prepared.order.invoice;
     pendingUserId = userId;
     pendingAmount = prepared.order.amount;
-  pendingPromoId = prepared.promo?.id ?? null;
+    pendingPromoId = prepared.promo?.id ?? null;
+    pendingIsDrip = prepared.isDrip;
+    pendingOptionId = prepared.option.id;
 
     /*
      * ============================================================
@@ -444,6 +506,13 @@ router.post("/orders", async (req, res) => {
             .where(eq(walletTransactionsTable.reference, prepared.order.invoice));
 
           await tx
+            .update(productOptionsTable)
+            .set({
+              stock: sql`${productOptionsTable.stock} + 1`,
+            })
+          .where(eq(productOptionsTable.id, prepared.option.id));
+
+          await tx
             .update(ordersTable)
             .set({
               status: "CANCELLED",
@@ -504,6 +573,37 @@ router.post("/orders", async (req, res) => {
   } catch (err) {
     console.error("Order error:", err);
 
+    if (
+      (err as any)?.code === "23505" &&
+      (
+        (err as any)?.constraint === "orders_idempotency_key_unique" ||
+        String((err as any)?.detail || "").includes("idempotency_key")
+      )
+    ) {
+      const duplicateKey =
+        typeof req.body?.idempotencyKey === "string"
+          ? req.body.idempotencyKey.trim()
+          : "";
+
+      if (duplicateKey) {
+        const [existingOrder] = await db
+          .select()
+          .from(ordersTable)
+          .where(eq(ordersTable.idempotencyKey, duplicateKey))
+          .limit(1);
+
+        if (existingOrder) {
+          return res.json({
+            ...existingOrder,
+            balance: undefined,
+            deliveryKey: undefined,
+            deliveryLink: undefined,
+            duplicate: true,
+          });
+        }
+      }
+    }
+
     /*
      * DRIP gagal setelah wallet sudah didebit.
      * Refund otomatis.
@@ -545,6 +645,15 @@ router.post("/orders", async (req, res) => {
                 status: "REFUNDED",
               })
               .where(eq(walletTransactionsTable.reference, refundInvoice));
+
+            if (!pendingIsDrip && pendingOptionId !== null) {
+              await tx
+                .update(productOptionsTable)
+                .set({
+                  stock: sql`${productOptionsTable.stock} + 1`,
+                })
+                .where(eq(productOptionsTable.id, pendingOptionId));
+            }
 
             await tx
               .update(ordersTable)

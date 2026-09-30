@@ -10,6 +10,8 @@ type Member = {
   plan: string;
   expires_at: string | null;
   username: string | null;
+  wallet_username: string | null;
+  wallet_email: string | null;
   active: boolean;
   valid: boolean;
 };
