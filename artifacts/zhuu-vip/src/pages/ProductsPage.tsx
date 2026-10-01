@@ -1031,7 +1031,7 @@ export default function ProductsPage() {
         )}
 
         {/* Purchase History */}
-        <section className="mx-auto mt-8 max-w-5xl rounded-3xl border border-white/8 bg-white/[0.025] p-5 shadow-2xl shadow-black/20 sm:p-6">
+        <section id="purchase-history" className="mx-auto mt-8 max-w-5xl rounded-3xl border border-white/8 bg-white/[0.025] p-5 shadow-2xl shadow-black/20 sm:p-6">
           <div className="mb-5 flex items-center justify-between gap-4">
             <div>
               <h2 className="text-xl font-black tracking-tight">

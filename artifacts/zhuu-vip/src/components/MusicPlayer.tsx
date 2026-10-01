@@ -21,6 +21,7 @@ export default function MusicPlayer() {
   const [isMuted, setIsMuted] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
   const [showPlaylist, setShowPlaylist] = useState(false);
+  const [hideOnHistory, setHideOnHistory] = useState(false);
   const audioRef = useRef<HTMLAudioElement>(null);
 
   const currentSong = songs[currentIndex];
@@ -48,6 +49,20 @@ export default function MusicPlayer() {
 
     audio.volume = isMuted ? 0 : volume;
   }, [volume, isMuted]);
+
+  useEffect(() => {
+    const history = document.getElementById("purchase-history");
+    if (!history) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => setHideOnHistory(entry.isIntersecting),
+      { threshold: 0.08 },
+    );
+
+    observer.observe(history);
+
+    return () => observer.disconnect();
+  }, []);
 
   const handleTimeUpdate = () => {
     const audio = audioRef.current;
@@ -108,7 +123,7 @@ export default function MusicPlayer() {
         />
       )}
 
-      <div className="fixed left-3 bottom-32 sm:left-5 sm:bottom-5 z-40 pointer-events-none">
+      <div className={`fixed right-3 bottom-32 sm:right-5 sm:bottom-5 z-40 pointer-events-none transition-all duration-300 ${hideOnHistory ? "translate-y-4 opacity-0 pointer-events-none" : "translate-y-0 opacity-100"}`}>
         <div className="flex flex-col items-end gap-2">
 
           {showPlaylist && (
