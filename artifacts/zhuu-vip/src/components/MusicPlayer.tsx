@@ -108,7 +108,7 @@ export default function MusicPlayer() {
         />
       )}
 
-      <div className="fixed right-3 bottom-32 sm:right-5 sm:bottom-5 z-40 pointer-events-none">
+      <div className="fixed left-3 bottom-32 sm:left-5 sm:bottom-5 z-40 pointer-events-none">
         <div className="flex flex-col items-end gap-2">
 
           {showPlaylist && (
