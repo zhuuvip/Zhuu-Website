@@ -1,8 +1,14 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { useListSongs } from "@workspace/api-client-react";
 import {
-  Play, Pause, SkipBack, SkipForward, Volume2, VolumeX,
-  Music, ChevronUp, ChevronDown, List, X
+  Play,
+  Pause,
+  SkipBack,
+  SkipForward,
+  Volume2,
+  VolumeX,
+  Music,
+  List,
 } from "lucide-react";
 
 export default function MusicPlayer() {
@@ -13,12 +19,9 @@ export default function MusicPlayer() {
   const [duration, setDuration] = useState(0);
   const [volume, setVolume] = useState(0.5);
   const [isMuted, setIsMuted] = useState(false);
-  const [isCollapsed, setIsCollapsed] = useState(true);
+  const [isExpanded, setIsExpanded] = useState(false);
   const [showPlaylist, setShowPlaylist] = useState(false);
-  const [showWelcome, setShowWelcome] = useState(true);
   const audioRef = useRef<HTMLAudioElement>(null);
-  const welcomeAudioRef = useRef<HTMLAudioElement>(null);
-  const welcomeStartedRef = useRef(false);
 
   const currentSong = songs[currentIndex];
 
@@ -29,53 +32,9 @@ export default function MusicPlayer() {
   }, []);
 
   useEffect(() => {
-    const welcome = welcomeAudioRef.current;
-    if (!welcome || welcomeStartedRef.current) return;
-
-    welcomeStartedRef.current = true;
-    welcome.volume = 0.28;
-
-    const startWelcome = () => {
-      welcome.currentTime = 0;
-
-      welcome.play()
-        .then(() => {
-          setTimeout(() => setShowWelcome(false), 1800);
-        })
-        .catch(() => {
-          setShowWelcome(false);
-        });
-    };
-
-    startWelcome();
-
-    const unlock = () => {
-      welcome.play()
-        .then(() => {
-          setShowWelcome(false);
-        })
-        .catch(() => {});
-
-      setIsPlaying(true);
-    };
-
-    window.addEventListener("pointerdown", unlock, { once: true });
-    window.addEventListener("keydown", unlock, { once: true });
-
-    const hideTimer = window.setTimeout(() => {
-      setShowWelcome(false);
-    }, 1800);
-
-    return () => {
-      window.clearTimeout(hideTimer);
-      window.removeEventListener("pointerdown", unlock);
-      window.removeEventListener("keydown", unlock);
-    };
-  }, []);
-
-  useEffect(() => {
     const audio = audioRef.current;
     if (!audio) return;
+
     if (isPlaying) {
       audio.play().catch(() => setIsPlaying(false));
     } else {
@@ -86,64 +45,57 @@ export default function MusicPlayer() {
   useEffect(() => {
     const audio = audioRef.current;
     if (!audio) return;
+
     audio.volume = isMuted ? 0 : volume;
   }, [volume, isMuted]);
 
   const handleTimeUpdate = () => {
     const audio = audioRef.current;
     if (!audio || !audio.duration) return;
+
     setProgress(audio.currentTime / audio.duration);
     setDuration(audio.duration);
   };
 
   const handleEnded = () => {
-    const next = (currentIndex + 1) % songs.length;
-    playSong(next);
+    if (!songs.length) return;
+    playSong((currentIndex + 1) % songs.length);
   };
 
   const handleSeek = (e: React.MouseEvent<HTMLDivElement>) => {
     const audio = audioRef.current;
-    if (!audio) return;
+    if (!audio || !audio.duration) return;
+
     const rect = e.currentTarget.getBoundingClientRect();
-    const pct = (e.clientX - rect.left) / rect.width;
+    const pct = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+
     audio.currentTime = pct * audio.duration;
     setProgress(pct);
   };
 
-  const formatTime = (s: number) => {
-    if (!s || isNaN(s)) return "0:00";
-    const m = Math.floor(s / 60);
-    const sec = Math.floor(s % 60);
-    return `${m}:${sec.toString().padStart(2, "0")}`;
+  const formatTime = (seconds: number) => {
+    if (!seconds || Number.isNaN(seconds)) return "0:00";
+
+    const minutes = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+
+    return `${minutes}:${secs.toString().padStart(2, "0")}`;
   };
 
-  const prevSong = () => playSong((currentIndex - 1 + songs.length) % songs.length);
-  const nextSong = () => playSong((currentIndex + 1) % songs.length);
+  const prevSong = () => {
+    if (!songs.length) return;
+    playSong((currentIndex - 1 + songs.length) % songs.length);
+  };
+
+  const nextSong = () => {
+    if (!songs.length) return;
+    playSong((currentIndex + 1) % songs.length);
+  };
 
   if (songs.length === 0) return null;
 
   return (
     <>
-      <style>{`
-        @keyframes welcomeSimple {
-          0% {
-            opacity: 0;
-            transform: scale(0.96);
-          }
-          25% {
-            opacity: 1;
-            transform: scale(1);
-          }
-          75% {
-            opacity: 1;
-            transform: scale(1);
-          }
-          100% {
-            opacity: 0;
-            transform: scale(1.02);
-          }
-        }
-      `}</style>
       {currentSong && (
         <audio
           ref={audioRef}
@@ -156,189 +108,151 @@ export default function MusicPlayer() {
         />
       )}
 
-      <audio
-        ref={welcomeAudioRef}
-        src="https://files.catbox.moe/xw6708.mp3"
-        preload="auto"
-      />
+      <div className="fixed right-3 bottom-20 sm:right-5 sm:bottom-5 z-40 pointer-events-none">
+        <div className="flex flex-col items-end gap-2">
 
-      {showWelcome && (
-        <div
-          className="fixed inset-0 z-[55] pointer-events-none flex items-center justify-center"
-          aria-hidden="true"
-        >
-          <div className="text-center animate-[welcomeSimple_1800ms_ease-out_forwards]">
-            <div className="text-[10px] uppercase tracking-[0.45em] text-white/45">
-              Welcome to
-            </div>
-            <div className="mt-2 text-3xl sm:text-4xl font-semibold tracking-[0.16em] text-white/90">
-              ZHUUSITE
-            </div>
-          </div>
-        </div>
-      )}
-
-      <div
-        data-testid="music-player"
-        className="fixed bottom-20 left-3 sm:bottom-6 sm:left-4 z-40 flex flex-col items-start gap-2 max-w-[calc(100vw-1.5rem)] pointer-events-none"
-      >
-        {/* Playlist panel */}
-        {showPlaylist && !isCollapsed && (
-          <div className="pointer-events-auto glass-card rounded-2xl p-2 w-[min(18rem,calc(100vw-1rem))] max-h-[50vh] overflow-y-auto shadow-2xl shadow-black/30 border border-white/10 backdrop-blur-xl">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-xs font-semibold text-white/80 uppercase tracking-wider">Playlist</span>
-              <button onClick={() => setShowPlaylist(false)} className="text-white/60/50 hover:text-white/60">
-                <X size={14} />
-              </button>
-            </div>
-            <div className="flex flex-col gap-1">
-              {songs.map((song, i) => (
+          {showPlaylist && (
+            <div className="pointer-events-auto w-[min(17rem,calc(100vw-1.5rem))] max-h-60 overflow-y-auto rounded-xl border border-white/[0.08] bg-black/70 p-1.5 shadow-xl backdrop-blur-xl">
+              {songs.map((song, index) => (
                 <button
                   key={song.id}
                   data-testid={`playlist-song-${song.id}`}
-                  onClick={() => { playSong(i); setShowPlaylist(false); }}
-                  className={`flex items-center gap-2 px-3 py-2 rounded-lg text-left transition-all w-full ${
-                    i === currentIndex
-                      ? "bg-white/[0.08] border border-white/15 text-white/80"
-                      : "text-white/70/70 hover:bg-white/5 hover:text-white/70"
+                  onClick={() => {
+                    playSong(index);
+                    setShowPlaylist(false);
+                  }}
+                  className={`flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-left transition-colors ${
+                    index === currentIndex
+                      ? "bg-white/[0.08] text-white"
+                      : "text-white/50 hover:bg-white/[0.05] hover:text-white/80"
                   }`}
                 >
-                  <Music size={12} className={i === currentIndex && isPlaying ? "animate-pulse text-white/70" : "text-white/35"} />
-                  <div className="flex-1 min-w-0">
-                    <div className="text-xs font-medium truncate">{song.title}</div>
-                    <div className="text-[10px] text-white/60/50 truncate">{song.artist}</div>
-                  </div>
-                  {i === currentIndex && isPlaying && (
-                    <div className="flex gap-0.5 items-end h-4">
-                      {[...Array(3)].map((_, j) => (
-                        <div
-                          key={j}
-                          className="w-1 bg-white/70 rounded-full"
-                          style={{
-                            height: `${Math.random() * 12 + 4}px`
-                          }}
-                        />
-                      ))}
-                    </div>
-                  )}
+                  <Music size={12} className="shrink-0" />
+                  <span className="truncate text-[11px]">
+                    {song.title}
+                  </span>
                 </button>
               ))}
             </div>
-          </div>
-        )}
+          )}
 
-        {/* Main player */}
-        <div className="pointer-events-auto glass-card rounded-2xl overflow-hidden w-[min(18rem,calc(100vw-1rem))] shadow-2xl shadow-black/30 border border-white/10 backdrop-blur-xl transition-all duration-200">
-          {/* Header */}
-          <div className="flex items-center justify-between px-2.5 py-2 border-b border-white/10 bg-white/[0.025]">
-            <div className="flex items-center gap-2 min-w-0">
-              <Music size={14} className="shrink-0 text-white/70" />
-              <div className="min-w-0">
-                <span className="block text-[10px] font-medium uppercase tracking-wider text-white/80/70">
-                  Now Playing
-                </span>
-                <span className="block max-w-[10rem] truncate text-xs font-semibold text-white/90">
-                  {currentSong?.title ?? "—"}
+          {isExpanded && (
+            <div className="pointer-events-auto w-[min(17rem,calc(100vw-1.5rem))] rounded-xl border border-white/[0.08] bg-black/65 p-3 shadow-xl backdrop-blur-xl">
+              <div className="mb-2 flex items-center justify-between gap-2">
+                <div className="min-w-0">
+                  <div
+                    data-testid="text-song-title"
+                    className="truncate text-xs font-medium text-white/85"
+                  >
+                    {currentSong.title}
+                  </div>
+                  <div
+                    data-testid="text-song-artist"
+                    className="truncate text-[10px] text-white/35"
+                  >
+                    {currentSong.artist}
+                  </div>
+                </div>
+
+                <span className="shrink-0 text-[9px] text-white/30">
+                  {formatTime(progress * duration)}
                 </span>
               </div>
-            </div>
-            <div className="flex items-center gap-1">
-              <button
-                onClick={() => setShowPlaylist(!showPlaylist)}
-                data-testid="btn-toggle-playlist"
-                className={`p-1.5 rounded-lg transition-all ${showPlaylist ? "text-white/70 bg-white/[0.06]" : "text-white/60/50 hover:text-white/80"}`}
-              >
-                <List size={14} />
-              </button>
-              <button
-                onClick={() => setIsCollapsed(!isCollapsed)}
-                data-testid="btn-collapse-player"
-                className="p-1.5 rounded-lg text-white/60/50 hover:text-white/80 transition-all"
-              >
-                {isCollapsed ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
-              </button>
-            </div>
-          </div>
 
-          {!isCollapsed && (
-            <div className="px-3 py-2.5">
-              {/* Song info */}
-              <div className="mb-2.5">
-                <div className="text-sm font-semibold text-white/90 truncate" data-testid="text-song-title">
-                  {currentSong?.title ?? "—"}
-                </div>
-                <div className="text-xs text-white/60/60 truncate" data-testid="text-song-artist">
-                  {currentSong?.artist ?? "—"}
-                </div>
-              </div>
-
-              {/* Progress bar */}
               <div
-                className="h-1.5 bg-white/10 rounded-full mb-2 cursor-pointer group"
-                onClick={handleSeek}
                 data-testid="progress-bar"
+                onClick={handleSeek}
+                className="h-1 cursor-pointer overflow-hidden rounded-full bg-white/[0.08]"
               >
                 <div
-                  className="h-full bg-white/80 rounded-full relative transition-all"
+                  className="h-full rounded-full bg-white/60 transition-all"
                   style={{ width: `${progress * 100}%` }}
-                >
-                  <div className="absolute right-0 top-1/2 -translate-y-1/2 w-3 h-3 bg-white rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-opacity" />
-                </div>
-              </div>
-              <div className="flex justify-between text-[10px] text-white/60/40 mb-3">
-                <span>{formatTime(progress * duration)}</span>
-                <span>{formatTime(duration)}</span>
+                />
               </div>
 
-              {/* Controls */}
-              <div className="flex items-center justify-between">
+              <div className="mt-3 flex items-center justify-center gap-4">
                 <button
                   onClick={prevSong}
                   data-testid="btn-prev-song"
-                  className="p-2.5 rounded-xl text-white/60/60 hover:text-white/80 hover:bg-white/[0.06] transition-all"
+                  className="text-white/35 transition hover:text-white/80"
                 >
-                  <SkipBack size={16} />
+                  <SkipBack size={14} />
                 </button>
 
                 <button
                   onClick={() => setIsPlaying(!isPlaying)}
-                  data-testid="btn-play-pause"
-                  className="w-11 h-11 rounded-full bg-white/80 flex items-center justify-center text-white shadow-lg hover:shadow-black/30 transition-all hover:scale-105"
+                  className="flex h-9 w-9 items-center justify-center rounded-full bg-white text-black transition hover:scale-105"
                 >
-                  {isPlaying ? <Pause size={16} /> : <Play size={16} className="ml-0.5" />}
+                  {isPlaying ? <Pause size={14} /> : <Play size={14} />}
                 </button>
 
                 <button
                   onClick={nextSong}
                   data-testid="btn-next-song"
-                  className="p-2.5 rounded-xl text-white/60/60 hover:text-white/80 hover:bg-white/[0.06] transition-all"
+                  className="text-white/35 transition hover:text-white/80"
                 >
-                  <SkipForward size={16} />
+                  <SkipForward size={14} />
                 </button>
-              </div>
 
-              {/* Volume */}
-              <div className="flex items-center gap-2 mt-2.5">
                 <button
                   onClick={() => setIsMuted(!isMuted)}
                   data-testid="btn-mute"
-                  className="text-white/60/50 hover:text-white/80 transition-colors"
+                  className="text-white/35 transition hover:text-white/80"
                 >
                   {isMuted ? <VolumeX size={14} /> : <Volume2 size={14} />}
                 </button>
+              </div>
+
+              <div className="mt-2 flex items-center gap-2">
+                <Volume2 size={11} className="text-white/25" />
+
                 <input
                   type="range"
                   min={0}
                   max={1}
                   step={0.01}
                   value={isMuted ? 0 : volume}
-                  onChange={(e) => { setVolume(Number(e.target.value)); setIsMuted(false); }}
+                  onChange={(event) => {
+                    setVolume(Number(event.target.value));
+                    setIsMuted(false);
+                  }}
                   data-testid="volume-slider"
-                  className="flex-1 h-1 rounded-full accent-white cursor-pointer"
+                  className="h-1 flex-1 cursor-pointer accent-white"
                 />
               </div>
             </div>
           )}
+
+          <div className="pointer-events-auto flex items-center rounded-full border border-white/[0.08] bg-black/55 p-1 shadow-lg backdrop-blur-xl">
+            <button
+              onClick={() => setIsPlaying(!isPlaying)}
+              data-testid="btn-play-pause"
+              aria-label={isPlaying ? "Pause music" : "Play music"}
+              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white/[0.08] text-white/75 transition hover:bg-white/[0.14] hover:text-white"
+            >
+              {isPlaying ? <Pause size={13} /> : <Play size={13} />}
+            </button>
+
+            <button
+              onClick={() => setIsExpanded(!isExpanded)}
+              data-testid="btn-collapse-player"
+              className="flex min-w-0 max-w-[9rem] items-center gap-1.5 px-2 text-left"
+            >
+              <Music size={12} className="shrink-0 text-white/30" />
+              <span className="truncate text-[10px] font-medium text-white/60">
+                {currentSong.title}
+              </span>
+            </button>
+
+            <button
+              onClick={() => setShowPlaylist(!showPlaylist)}
+              data-testid="btn-toggle-playlist"
+              aria-label="Open playlist"
+              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-white/30 transition hover:bg-white/[0.06] hover:text-white/75"
+            >
+              <List size={13} />
+            </button>
+          </div>
         </div>
       </div>
     </>
