@@ -899,9 +899,9 @@ export default function ResellerDashboardPage() {
               }
             }}
           >
-            <div className="relative my-auto flex max-h-[calc(100dvh-1rem)] w-full max-w-[min(100%,32rem)] flex-col overflow-hidden rounded-3xl border border-white/[0.07] bg-[#09090b] shadow-2xl shadow-black/80 sm:max-h-[calc(100dvh-2rem)]">
+            <div className="relative my-auto flex h-[calc(100dvh-1rem)] max-h-[calc(100dvh-1rem)] w-full max-w-[min(100%,32rem)] flex-col overflow-hidden rounded-3xl border border-white/[0.07] bg-[#09090b] shadow-2xl shadow-black/80 sm:h-[calc(100dvh-2rem)] sm:max-h-[calc(100dvh-2rem)]">
                 {/* Header */}
-                <div className="relative p-5 sm:p-6">
+                <div className="relative shrink-0 p-5 sm:p-6">
                   <button
                     type="button"
                     onClick={() => {
@@ -958,7 +958,7 @@ export default function ResellerDashboardPage() {
                     </div>
                   </div>
 
-                  <div className="max-h-[min(38vh,20rem)] space-y-2 overflow-y-auto overscroll-contain pr-1">
+                  <div className="min-h-0 flex-1 space-y-2 overflow-y-auto overscroll-contain pr-1">
                     {selectedProduct.options.map((option) => {
                       const stock = getAvailableStock(option);
                       const active = selectedOption?.id === option.id;
