@@ -201,8 +201,10 @@ export default function Navigation() {
               return (
                 <Link key={path} href={path}>
                   <span
-                    className={`zs-nav-link inline-flex items-center gap-1.5 ${
-                      active ? "zs-nav-link-active" : ""
+                    className={`zs-nav-link inline-flex h-9 items-center gap-1.5 rounded-xl px-3 text-[12px] font-medium transition-all duration-200 ${
+                      active
+                        ? "zs-nav-link-active bg-white/[0.09] text-white shadow-sm"
+                        : "text-white/50 hover:bg-white/[0.055] hover:text-white"
                     }`}
                   >
                     <Icon size={15} />
@@ -251,7 +253,7 @@ export default function Navigation() {
             </div>
           </div>
 
-          <div className="mx-4 hidden min-w-0 flex-1 lg:flex">
+          <div className="mx-2 flex min-w-0 flex-1 lg:mx-4">
             <MusicPlayer />
           </div>
 
@@ -259,7 +261,7 @@ export default function Navigation() {
             <Link href="/reseller">
               <span
                 title="Reseller"
-                className={`inline-flex items-center gap-1.5 rounded-xl border px-3 py-2 text-sm font-medium transition ${
+                className={`inline-flex h-9 items-center gap-1.5 rounded-xl border px-3 text-[12px] font-medium transition-all duration-200 ${
                   isActive("/reseller") || isActive("/reseller-login")
                     ? "border-white/20 bg-white/10 text-white"
                     : "border-white/[0.07] bg-white/[0.04] text-white/70 hover:bg-white/[0.08] hover:text-white"
@@ -276,7 +278,7 @@ export default function Navigation() {
 
             <Show when="signed-out">
               <Link href="/sign-in">
-                <button className="hidden rounded-xl border border-white/[0.07] bg-white/[0.04] px-3.5 py-2 text-sm font-medium text-white/80 transition hover:bg-white/[0.08] hover:text-white sm:block">
+                <button className="hidden h-9 rounded-xl border border-white/[0.07] bg-white/[0.04] px-3.5 text-[12px] font-medium text-white/75 transition-all duration-200 hover:border-white/[0.12] hover:bg-white/[0.075] hover:text-white sm:block">
                   Sign in
                 </button>
               </Link>
@@ -286,7 +288,7 @@ export default function Navigation() {
               type="button"
               aria-label="Open menu"
               onClick={() => setMobileOpen((value) => !value)}
-              className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/[0.07] bg-white/[0.04] text-white/70 lg:hidden"
+              className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/[0.07] bg-white/[0.04] text-white/65 transition-all duration-200 hover:border-white/[0.12] hover:bg-white/[0.075] hover:text-white lg:hidden"
             >
               {mobileOpen ? <X size={18} /> : <Menu size={18} />}
             </button>
