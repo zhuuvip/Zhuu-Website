@@ -180,7 +180,7 @@ export default function MusicPlayer() {
 
       <div
         data-testid="music-player"
-        className="fixed top-[calc(4.5rem+var(--announcement-height,0px))] left-1/2 -translate-x-1/2 sm:top-[calc(5rem+var(--announcement-height,0px))] sm:left-1/2 sm:right-auto sm:-translate-x-1/2 z-40 flex flex-col items-end gap-2 max-w-[calc(100vw-1rem)] pointer-events-none"
+        className="fixed bottom-20 left-3 sm:bottom-6 sm:left-4 z-40 flex flex-col items-start gap-2 max-w-[calc(100vw-1.5rem)] pointer-events-none"
       >
         {/* Playlist panel */}
         {showPlaylist && !isCollapsed && (
