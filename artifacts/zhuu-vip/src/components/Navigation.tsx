@@ -20,7 +20,6 @@ import {
 } from "lucide-react";
 import logoPath from "@assets/file_000000003e9c72078d0f388bef03af6a_1778462394630.png";
 import VerifiedBadge from "@/components/ui/VerifiedBadge";
-import RecentPurchaseTicker from "@/components/RecentPurchaseTicker";
 
 const API = (import.meta.env.VITE_API_URL || "").replace(/\/$/, "");
 
@@ -253,9 +252,6 @@ export default function Navigation() {
             </div>
           </div>
 
-          <div className="mx-2 flex min-w-0 flex-1 items-center justify-center lg:mx-4">
-            <RecentPurchaseTicker />
-          </div>
 
           <div className="flex items-center gap-2">
             <Link href="/reseller">
