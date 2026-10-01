@@ -15,7 +15,10 @@ export default function MusicPlayer() {
   const [isMuted, setIsMuted] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(true);
   const [showPlaylist, setShowPlaylist] = useState(false);
+  const [showWelcome, setShowWelcome] = useState(true);
   const audioRef = useRef<HTMLAudioElement>(null);
+  const welcomeAudioRef = useRef<HTMLAudioElement>(null);
+  const welcomePlayedRef = useRef(false);
 
   const currentSong = songs[currentIndex];
 
@@ -26,14 +29,116 @@ export default function MusicPlayer() {
   }, []);
 
   useEffect(() => {
+    if (welcomePlayedRef.current) return;
+    welcomePlayedRef.current = true;
+
+    const welcomeAudio = welcomeAudioRef.current;
+
+    const playWelcome = () => {
+      if (!welcomeAudio) return;
+
+      welcomeAudio.currentTime = 0;
+      welcomeAudio.volume = 0.28;
+
+      welcomeAudio.onended = () => {
+        setIsPlaying(true);
+        setShowWelcome(false);
+      };
+
+      welcomeAudio.play().catch(() => {
+        setShowWelcome(false);
+        setIsPlaying(true);
+      });
+
+      window.setTimeout(() => {
+        setShowWelcome(false);
+        setIsPlaying(true);
+      }, 3000);
+    };
+
+    const unlock = () => {
+      playWelcome();
+    };
+
+    playWelcome();
+
+    window.addEventListener("pointerdown", unlock, { once: true });
+    window.addEventListener("keydown", unlock, { once: true });
+    window.addEventListener("touchstart", unlock, { once: true });
+
+    return () => {
+      window.removeEventListener("pointerdown", unlock);
+      window.removeEventListener("keydown", unlock);
+      window.removeEventListener("touchstart", unlock);
+    };
+  }, []);
+
+  useEffect(() => {
     const audio = audioRef.current;
     if (!audio) return;
+
     if (isPlaying) {
-      audio.play().catch(() => setIsPlaying(false));
+      audio.play().catch(() => {
+        const unlock = () => {
+          audio.play().then(() => {
+            setIsPlaying(true);
+          }).catch(() => {});
+          window.removeEventListener("pointerdown", unlock);
+          window.removeEventListener("keydown", unlock);
+          window.removeEventListener("touchstart", unlock);
+        };
+
+        window.addEventListener("pointerdown", unlock, { once: true });
+        window.addEventListener("keydown", unlock, { once: true });
+        window.addEventListener("touchstart", unlock, { once: true });
+      });
     } else {
       audio.pause();
     }
   }, [isPlaying, currentIndex]);
+
+  useEffect(() => {
+    if (welcomePlayedRef.current) return;
+    welcomePlayedRef.current = true;
+
+    const speakWelcome = () => {
+      if (!("speechSynthesis" in window)) return;
+
+      window.speechSynthesis.cancel();
+
+      const message = new SpeechSynthesisUtterance(
+        "Welcome to ZhuuSite"
+      );
+
+      message.volume = 0.25;
+      message.rate = 0.9;
+      message.pitch = 0.95;
+
+      window.speechSynthesis.speak(message);
+    };
+
+    const unlockAudio = () => {
+      setIsPlaying(true);
+      speakWelcome();
+
+      window.removeEventListener("pointerdown", unlockAudio);
+      window.removeEventListener("keydown", unlockAudio);
+      window.removeEventListener("touchstart", unlockAudio);
+    };
+
+    // Try immediately. Browsers may block audible autoplay.
+    setIsPlaying(true);
+
+    window.addEventListener("pointerdown", unlockAudio, { once: true });
+    window.addEventListener("keydown", unlockAudio, { once: true });
+    window.addEventListener("touchstart", unlockAudio, { once: true });
+
+    return () => {
+      window.removeEventListener("pointerdown", unlockAudio);
+      window.removeEventListener("keydown", unlockAudio);
+      window.removeEventListener("touchstart", unlockAudio);
+    };
+  }, []);
 
   useEffect(() => {
     const audio = audioRef.current;
@@ -76,6 +181,30 @@ export default function MusicPlayer() {
 
   return (
     <>
+      <style>{`
+        @keyframes welcomeIn {
+          0% {
+            opacity: 0;
+            transform: translateY(10px) scale(0.96);
+            filter: blur(8px);
+          }
+          25% {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+            filter: blur(0);
+          }
+          75% {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+            filter: blur(0);
+          }
+          100% {
+            opacity: 0;
+            transform: translateY(-5px) scale(1.01);
+            filter: blur(2px);
+          }
+        }
+      `}</style>
       {currentSong && (
         <audio
           ref={audioRef}
@@ -88,9 +217,36 @@ export default function MusicPlayer() {
         />
       )}
 
+      <audio
+        ref={welcomeAudioRef}
+        src="https://files.catbox.moe/xw6708.mp3"
+        preload="auto"
+      />
+
+      {showWelcome && (
+        <div
+          className="fixed inset-0 z-[70] pointer-events-none flex items-center justify-center"
+          aria-hidden="true"
+        >
+          <div className="absolute inset-0 bg-black/25 backdrop-blur-[2px]" />
+
+          <div className="relative text-center px-6 animate-[welcomeIn_2600ms_ease-out_forwards]">
+            <div className="mb-3 text-[10px] sm:text-xs uppercase tracking-[0.45em] text-white/45">
+              Welcome to
+            </div>
+
+            <div className="text-3xl sm:text-5xl font-semibold tracking-[0.18em] text-white/95 drop-shadow-[0_0_28px_rgba(255,255,255,0.18)]">
+              ZHUUSITE
+            </div>
+
+            <div className="mx-auto mt-4 h-px w-16 bg-white/20" />
+          </div>
+        </div>
+      )}
+
       <div
         data-testid="music-player"
-        className="fixed top-[calc(4.5rem+var(--announcement-height,0px))] left-1/2 -translate-x-1/2 sm:top-[calc(5rem+var(--announcement-height,0px))] sm:left-1/2 sm:right-auto sm:-translate-x-1/2 z-40 flex flex-col items-end gap-2 max-w-[calc(100vw-1rem)] pointer-events-none"
+        className="fixed bottom-20 left-3 sm:bottom-6 sm:left-4 z-40 flex flex-col items-start gap-2 max-w-[calc(100vw-1.5rem)] pointer-events-none"
       >
         {/* Playlist panel */}
         {showPlaylist && !isCollapsed && (
@@ -138,16 +294,16 @@ export default function MusicPlayer() {
         )}
 
         {/* Main player */}
-        <div className="pointer-events-auto glass-card rounded-2xl overflow-hidden w-[min(18rem,calc(100vw-1rem))] shadow-2xl shadow-black/30 border border-white/10 backdrop-blur-xl transition-all duration-200">
+        <div className="pointer-events-auto glass-card rounded-2xl overflow-hidden w-[min(15rem,calc(100vw-1.5rem))] shadow-2xl shadow-black/30 border border-white/10 backdrop-blur-xl transition-all duration-200">
           {/* Header */}
-          <div className="flex items-center justify-between px-2.5 py-2 border-b border-white/10 bg-white/[0.025]">
+          <div className="flex items-center justify-between px-2.5 py-2 bg-white/[0.025]">
             <div className="flex items-center gap-2 min-w-0">
               <Music size={14} className="shrink-0 text-white/70" />
               <div className="min-w-0">
-                <span className="block text-[10px] font-medium uppercase tracking-wider text-white/80/70">
+                <span className="block text-[9px] font-medium uppercase tracking-wider text-white/50">
                   Now Playing
                 </span>
-                <span className="block max-w-[10rem] truncate text-xs font-semibold text-white/90">
+                <span className="block max-w-[9.5rem] truncate text-[11px] font-semibold text-white/90">
                   {currentSong?.title ?? "—"}
                 </span>
               </div>
