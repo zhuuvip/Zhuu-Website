@@ -251,11 +251,11 @@ export default function Navigation() {
           </div>
 
           <div className="flex items-center gap-2">
-            <Link href="/reseller-login">
+            <Link href="/reseller">
               <span
-                title="Login Reseller"
+                title="Reseller"
                 className={`inline-flex items-center gap-1.5 rounded-xl border px-3 py-2 text-sm font-medium transition ${
-                  isActive("/reseller-login")
+                  isActive("/reseller") || isActive("/reseller-login")
                     ? "border-white/20 bg-white/10 text-white"
                     : "border-white/[0.07] bg-white/[0.04] text-white/70 hover:bg-white/[0.08] hover:text-white"
                 }`}

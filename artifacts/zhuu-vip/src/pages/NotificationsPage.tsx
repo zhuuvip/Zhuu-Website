@@ -73,9 +73,18 @@ export default function NotificationsPage() {
     load();
   }, [load]);
 
+  const getNotificationLink = (item: NotificationItem) => {
+    if (!item.link) return null;
+    return item.link === "/public-chat"
+      ? "/zhuu-chat"
+      : item.link;
+  };
+
   const markRead = async (item: NotificationItem) => {
+    const link = getNotificationLink(item);
+
     if (item.read) {
-      if (item.link) window.location.href = item.link;
+      if (link) window.location.href = link;
       return;
     }
 
@@ -96,7 +105,7 @@ export default function NotificationsPage() {
       ),
     );
 
-    if (item.link) window.location.href = item.link;
+    if (link) window.location.href = link;
   };
 
   const markAllRead = async () => {
