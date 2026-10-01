@@ -123,7 +123,7 @@ export default function MusicPlayer() {
         />
       )}
 
-      <div className={`fixed right-3 bottom-32 sm:right-5 sm:bottom-5 z-40 pointer-events-none transition-all duration-300 ${hideOnHistory ? "translate-y-4 opacity-0 pointer-events-none" : "translate-y-0 opacity-100"}`}>
+      <div className={`fixed right-3 bottom-44 sm:right-5 sm:bottom-5 z-40 pointer-events-none transition-all duration-300 ${hideOnHistory ? "translate-y-4 opacity-0 pointer-events-none" : "translate-y-0 opacity-100"}`}>
         <div className="flex flex-col items-end gap-2">
 
           {showPlaylist && (
