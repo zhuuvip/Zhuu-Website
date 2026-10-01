@@ -14,6 +14,7 @@ import Navigation from "@/components/Navigation";
 import NotificationsPage from "@/pages/NotificationsPage";
 import Footer from "@/components/Footer";
 import MusicPlayer from "@/components/MusicPlayer";
+import RecentPurchaseTicker from "@/components/RecentPurchaseTicker";
 
 import HomePage from "@/pages/HomePage";
 import AIPage from "@/pages/AIPage";
@@ -249,6 +250,7 @@ function AppRouter() {
       {!isFullScreenPage && <Footer />}
       </main>
       <MusicPlayer />
+      <RecentPurchaseTicker />
       <Toaster />
     </div>
   );

@@ -11,6 +11,7 @@ import {
 } from "@workspace/db";
 import { eq, and, sql, desc } from "drizzle-orm";
 import { getAuth } from "@clerk/express";
+import { createClerkClient } from "@clerk/backend";
 import { requireAdmin } from "../lib/auth.js";
 import { generateDripKey } from "../lib/dripApi.js";
 import {
@@ -717,6 +718,118 @@ router.post("/orders", async (req, res) => {
 
     return res.status(500).json({
       error: message || "Gagal melakukan pembelian",
+    });
+  }
+});
+
+
+/**
+ * Public recent purchase ticker.
+ *
+ * Hanya mengirim data yang aman untuk ditampilkan publik:
+ * - username yang sudah dimasking
+ * - nama produk
+ * - harga
+ * - logo produk
+ * - waktu pembelian
+ *
+ * Tidak mengirim userId, invoice, WhatsApp, paymentRef, atau delivery data.
+ */
+router.get("/orders/recent", async (_req, res) => {
+  try {
+    const rows = await db
+      .select({
+        userId: walletTransactionsTable.userId,
+        productId: ordersTable.productId,
+        productName: ordersTable.productName,
+        amount: ordersTable.amount,
+        createdAt: ordersTable.createdAt,
+        imageUrl: productsTable.imageUrl,
+      })
+      .from(walletTransactionsTable)
+      .innerJoin(
+        ordersTable,
+        eq(walletTransactionsTable.reference, ordersTable.invoice),
+      )
+      .leftJoin(
+        productsTable,
+        eq(productsTable.id, ordersTable.productId),
+      )
+      .where(
+        and(
+          eq(walletTransactionsTable.type, "PURCHASE"),
+          eq(ordersTable.status, "PAID"),
+        ),
+      )
+      .orderBy(desc(ordersTable.createdAt))
+      .limit(12);
+
+    if (!rows.length) {
+      return res.json([]);
+    }
+
+    const secretKey = process.env.CLERK_SECRET_KEY;
+
+    if (!secretKey) {
+      return res.status(500).json({
+        error: "CLERK_SECRET_KEY belum dikonfigurasi di server",
+      });
+    }
+
+    const clerk = createClerkClient({ secretKey });
+
+    const uniqueUserIds = [...new Set(rows.map((row) => row.userId))];
+
+    const userEntries = await Promise.all(
+      uniqueUserIds.map(async (userId) => {
+        try {
+          const user = await clerk.users.getUser(userId);
+
+          const rawName =
+            typeof user.username === "string" && user.username.trim()
+              ? user.username.trim()
+              : typeof user.firstName === "string" && user.firstName.trim()
+                ? user.firstName.trim()
+                : "Member";
+
+          return [userId, rawName] as const;
+        } catch {
+          return [userId, "Member"] as const;
+        }
+      }),
+    );
+
+    const usernames = new Map(userEntries);
+
+    const maskName = (name: string) => {
+      const clean = name.trim();
+
+      if (!clean || clean.toLowerCase() === "member") {
+        return "Member";
+      }
+
+      if (clean.length <= 2) {
+        return `${clean[0]}***`;
+      }
+
+      return `${clean.slice(0, 2)}***${clean.slice(-1)}`;
+    };
+
+    return res.json(
+      rows.map((row) => ({
+        productId: row.productId,
+        productName: row.productName,
+        amount: row.amount,
+        createdAt: row.createdAt,
+        imageUrl: row.imageUrl || "",
+        username: maskName(usernames.get(row.userId) || "Member"),
+      })),
+    );
+  } catch (err) {
+    console.error("Recent purchase ticker error:", err);
+
+    return res.status(500).json({
+      error: "Gagal mengambil pembelian terbaru",
     });
   }
 });
