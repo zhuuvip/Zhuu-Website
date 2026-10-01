@@ -899,9 +899,9 @@ export default function ResellerDashboardPage() {
               }
             }}
           >
-            <div className="relative my-auto w-[calc(100%-2rem)] max-w-[26rem] sm:w-full sm:max-w-[28rem] overflow-hidden rounded-2xl border border-white/[0.07] bg-[#09090b] shadow-2xl shadow-black/80">
+            <div className="relative my-auto w-[calc(100%-2rem)] max-w-[26rem] sm:w-full sm:max-w-[28rem] lg:max-w-[38rem] overflow-hidden rounded-2xl border border-white/[0.07] bg-[#09090b] shadow-2xl shadow-black/80">
                 {/* Header */}
-                <div className="relative shrink-0 p-3.5 sm:p-4">
+                <div className="relative shrink-0 p-3.5 sm:p-4 lg:p-6">
                   <button
                     type="button"
                     onClick={() => {
@@ -913,8 +913,8 @@ export default function ResellerDashboardPage() {
                     ✕
                   </button>
 
-                  <div className="flex gap-4 pr-10">
-                    <div className="flex size-14 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-white/[0.07] bg-black/40 sm:size-16">
+                  <div className="flex gap-4 pr-10 lg:gap-5">
+                    <div className="flex size-14 shrink-0 items-center justify-center overflow-hidden rounded-xl border lg:size-20 lg:rounded-2xl border-white/[0.07] bg-black/40 sm:size-16">
                       {getProductLogo(selectedProduct) ? (
                         <img
                           src={getProductLogo(selectedProduct)}
@@ -932,12 +932,12 @@ export default function ResellerDashboardPage() {
                         {getCategory(selectedProduct.name)}
                       </span>
 
-                      <h2 className="mt-2 text-lg font-bold leading-6 sm:text-xl">
+                      <h2 className="mt-2 text-lg font-bold leading-6 sm:text-xl lg:text-2xl lg:leading-7">
                         {selectedProduct.name}
                       </h2>
 
                       {selectedProduct.description && (
-                        <div className="mt-1 max-h-16 overflow-y-auto overscroll-contain pr-1">
+                        <div className="mt-1 max-h-16 overflow-y-auto overscroll-contain pr-1 lg:max-h-20">
                           <p className="text-xs leading-5 text-white/35">
                             {selectedProduct.description}
                           </p>
@@ -948,7 +948,7 @@ export default function ResellerDashboardPage() {
                 </div>
 
                 {/* Duration */}
-                <div className="flex flex-col border-t border-white/8 px-5 py-5 sm:px-4 sm:px-6">
+                <div className="flex flex-col border-t border-white/8 px-5 py-5 sm:px-4 sm:px-6 lg:px-6 lg:py-5">
                   <div className="mb-3 flex items-center justify-between">
                     <div>
                       <p className="text-sm font-bold">Pilih Durasi</p>
@@ -958,7 +958,7 @@ export default function ResellerDashboardPage() {
                     </div>
                   </div>
 
-                  <div className="max-h-40 space-y-2 overflow-y-auto overscroll-contain pr-1">
+                  <div className="max-h-40 space-y-2 overflow-y-auto overscroll-contain pr-1 lg:grid lg:max-h-56 lg:grid-cols-2 lg:gap-3 lg:space-y-0">
                     {selectedProduct.options.map((option) => {
                       const stock = getAvailableStock(option);
                       const active = selectedOption?.id === option.id;
@@ -969,7 +969,7 @@ export default function ResellerDashboardPage() {
                           type="button"
                           disabled={stock <= 0}
                           onClick={() => selectOption(option)}
-                          className={`w-full rounded-2xl border p-3.5 text-left transition ${
+                          className={`w-full rounded-2xl border p-3.5 text-left transition lg:p-4 ${
                             active
                               ? "border-purple-400/40 bg-purple-500/10 shadow-lg shadow-purple-950/20"
                               : "border-white/8 bg-white/[0.025] hover:border-white/15 hover:bg-white/[0.05]"
@@ -1011,8 +1011,8 @@ export default function ResellerDashboardPage() {
 
                 {/* Wallet + Checkout */}
                 {selectedOption && (
-                  <div className="border-t border-white/8 bg-white/[0.018] p-3.5 sm:p-4">
-                    <div className="mb-3 flex items-center justify-between rounded-2xl border border-white/8 bg-black/20 p-3.5">
+                  <div className="border-t border-white/8 bg-white/[0.018] p-3.5 sm:p-4 lg:p-5">
+                    <div className="mb-3 flex items-center justify-between rounded-2xl border border-white/8 bg-black/20 p-3.5 lg:p-4 lg:p-4">
                       <div>
                         <p className="text-[10px] uppercase tracking-[0.12em] text-white/30">
                           Saldo Reseller
@@ -1032,7 +1032,7 @@ export default function ResellerDashboardPage() {
                       </a>
                     </div>
 
-                                          <div className="mb-3 rounded-2xl border border-white/8 bg-black/20 p-4">
+                                          <div className="mb-3 rounded-2xl border border-white/8 bg-black/20 p-4 lg:p-5">
                         <p className="mb-2 text-[10px] font-bold uppercase tracking-[0.12em] text-white/35">
                           Kode Promo
                         </p>
