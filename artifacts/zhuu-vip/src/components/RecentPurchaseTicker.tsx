@@ -151,7 +151,7 @@ export default function RecentPurchaseTicker() {
         visible
           ? "translate-y-0 opacity-100"
           : "translate-y-1 opacity-0",
-        "hidden sm:block",
+        "block",
         "lg:w-[310px]",
       ].join(" ")}
     >
