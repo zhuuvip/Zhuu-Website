@@ -794,7 +794,7 @@ export default function ProductsPage() {
           >
             <div className="relative my-auto w-full max-w-[min(100%,32rem)] overflow-hidden rounded-3xl border border-white/10 bg-[#09090b] shadow-2xl shadow-black/80">
                 {/* Header */}
-                <div className="relative shrink-0 p-5 sm:p-6">
+                <div className="relative shrink-0 p-4 sm:p-5">
                   <button
                     type="button"
                     onClick={() => {
@@ -807,7 +807,7 @@ export default function ProductsPage() {
                   </button>
 
                   <div className="flex gap-4 pr-10">
-                    <div className="flex size-20 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-white/10 bg-black/40 sm:size-24">
+                    <div className="flex size-16 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-white/10 bg-black/40 sm:size-20">
                       {getProductLogo(selectedProduct) ? (
                         <img
                           src={getProductLogo(selectedProduct)}
@@ -830,7 +830,7 @@ export default function ProductsPage() {
                       </h2>
 
                       {selectedProduct.description && (
-                        <div className="mt-1 max-h-20 overflow-y-auto overscroll-contain pr-1">
+                        <div className="mt-1 max-h-16 overflow-y-auto overscroll-contain pr-1">
                           <p className="text-xs leading-5 text-white/35">
                             {selectedProduct.description}
                           </p>
@@ -841,7 +841,7 @@ export default function ProductsPage() {
                 </div>
 
                 {/* Duration */}
-                <div className="flex flex-col border-t border-white/8 px-5 py-5 sm:px-6">
+                <div className="flex flex-col border-t border-white/8 px-4 py-4 sm:px-5">
                   <div className="mb-3 flex items-center justify-between">
                     <div>
                       <p className="text-sm font-bold">Pilih Durasi</p>
@@ -851,7 +851,7 @@ export default function ProductsPage() {
                     </div>
                   </div>
 
-                  <div className="max-h-56 space-y-2 overflow-y-auto overscroll-contain pr-1">
+                  <div className="max-h-40 space-y-2 overflow-y-auto overscroll-contain pr-1">
                     {selectedProduct.options.map((option) => {
                       const stock = getAvailableStock(option);
                       const active = selectedOption?.id === option.id;
@@ -904,8 +904,8 @@ export default function ProductsPage() {
 
                 {/* Wallet + Checkout */}
                 {selectedOption && (
-                  <div className="border-t border-white/8 bg-white/[0.018] p-5 sm:p-6">
-                    <div className="mb-4 flex items-center justify-between rounded-2xl border border-white/8 bg-black/20 p-3.5">
+                  <div className="border-t border-white/8 bg-white/[0.018] p-4 sm:p-5">
+                    <div className="mb-3 flex items-center justify-between rounded-2xl border border-white/8 bg-black/20 p-3.5">
                       <div>
                         <p className="text-[10px] uppercase tracking-wider text-white/30">
                           Saldo Wallet
@@ -926,7 +926,7 @@ export default function ProductsPage() {
                     </div>
 
                     {/* Promo Code */}
-      <div className="mb-4 rounded-2xl border border-white/8 bg-black/20 p-3.5">
+      <div className="mb-3 rounded-2xl border border-white/8 bg-black/20 p-3.5">
         <p className="text-[10px] uppercase tracking-wider text-white/30">
           Kode Promo
         </p>
@@ -1006,7 +1006,7 @@ export default function ProductsPage() {
                       type="button"
                       onClick={buyProduct}
                       disabled={!canBuy}
-                      className="w-full rounded-2xl bg-gradient-to-r from-purple-500 to-blue-500 px-5 py-4 text-sm font-black shadow-lg shadow-purple-950/30 transition hover:brightness-110 active:scale-[0.98] disabled:cursor-not-allowed disabled:bg-white/10 disabled:bg-none disabled:text-white/30 disabled:shadow-none"
+                      className="w-full rounded-2xl bg-gradient-to-r from-purple-500 to-blue-500 px-4 py-3 text-sm font-black shadow-lg shadow-purple-950/30 transition hover:brightness-110 active:scale-[0.98] disabled:cursor-not-allowed disabled:bg-white/10 disabled:bg-none disabled:text-white/30 disabled:shadow-none"
                     >
                       {buying
                         ? "Memproses..."

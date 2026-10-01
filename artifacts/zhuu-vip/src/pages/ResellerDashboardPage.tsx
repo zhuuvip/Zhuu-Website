@@ -901,7 +901,7 @@ export default function ResellerDashboardPage() {
           >
             <div className="relative my-auto w-full max-w-[min(100%,32rem)] overflow-hidden rounded-3xl border border-white/[0.07] bg-[#09090b] shadow-2xl shadow-black/80">
                 {/* Header */}
-                <div className="relative shrink-0 p-5 sm:p-6">
+                <div className="relative shrink-0 p-4 sm:p-5">
                   <button
                     type="button"
                     onClick={() => {
@@ -914,7 +914,7 @@ export default function ResellerDashboardPage() {
                   </button>
 
                   <div className="flex gap-4 pr-10">
-                    <div className="flex size-20 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-white/[0.07] bg-black/40 sm:size-24">
+                    <div className="flex size-16 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-white/[0.07] bg-black/40 sm:size-20">
                       {getProductLogo(selectedProduct) ? (
                         <img
                           src={getProductLogo(selectedProduct)}
@@ -937,7 +937,7 @@ export default function ResellerDashboardPage() {
                       </h2>
 
                       {selectedProduct.description && (
-                        <div className="mt-1 max-h-20 overflow-y-auto overscroll-contain pr-1">
+                        <div className="mt-1 max-h-16 overflow-y-auto overscroll-contain pr-1">
                           <p className="text-xs leading-5 text-white/35">
                             {selectedProduct.description}
                           </p>
@@ -958,7 +958,7 @@ export default function ResellerDashboardPage() {
                     </div>
                   </div>
 
-                  <div className="max-h-56 space-y-2 overflow-y-auto overscroll-contain pr-1">
+                  <div className="max-h-40 space-y-2 overflow-y-auto overscroll-contain pr-1">
                     {selectedProduct.options.map((option) => {
                       const stock = getAvailableStock(option);
                       const active = selectedOption?.id === option.id;
@@ -1011,8 +1011,8 @@ export default function ResellerDashboardPage() {
 
                 {/* Wallet + Checkout */}
                 {selectedOption && (
-                  <div className="border-t border-white/8 bg-white/[0.018] p-5 sm:p-6">
-                    <div className="mb-4 flex items-center justify-between rounded-2xl border border-white/8 bg-black/20 p-3.5">
+                  <div className="border-t border-white/8 bg-white/[0.018] p-4 sm:p-5">
+                    <div className="mb-3 flex items-center justify-between rounded-2xl border border-white/8 bg-black/20 p-3.5">
                       <div>
                         <p className="text-[10px] uppercase tracking-[0.12em] text-white/30">
                           Saldo Reseller
@@ -1032,7 +1032,7 @@ export default function ResellerDashboardPage() {
                       </a>
                     </div>
 
-                                          <div className="mb-4 rounded-2xl border border-white/8 bg-black/20 p-4">
+                                          <div className="mb-3 rounded-2xl border border-white/8 bg-black/20 p-4">
                         <p className="mb-2 text-[10px] font-bold uppercase tracking-[0.12em] text-white/35">
                           Kode Promo
                         </p>
@@ -1109,7 +1109,7 @@ export default function ResellerDashboardPage() {
                       type="button"
                       onClick={buyProduct}
                       disabled={!canBuy}
-                      className="w-full rounded-2xl bg-gradient-to-r from-purple-500 to-blue-500 px-5 py-4 text-sm font-bold shadow-lg shadow-purple-950/30 transition hover:brightness-110 active:scale-[0.98] disabled:cursor-not-allowed disabled:bg-white/[0.035] disabled:bg-none disabled:text-white/30 disabled:shadow-none"
+                      className="w-full rounded-2xl bg-gradient-to-r from-purple-500 to-blue-500 px-4 py-3 text-sm font-bold shadow-lg shadow-purple-950/30 transition hover:brightness-110 active:scale-[0.98] disabled:cursor-not-allowed disabled:bg-white/[0.035] disabled:bg-none disabled:text-white/30 disabled:shadow-none"
                     >
                       {buying
                         ? "Memproses..."
