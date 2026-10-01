@@ -528,7 +528,7 @@ export default function ResellerDashboardPage() {
             {[1, 2, 3, 4, 5, 6].map((item) => (
               <div
                 key={item}
-                className="h-80 animate-pulse rounded-3xl border border-white/[0.07] bg-white/[0.03]"
+                className="h-80 animate-pulse rounded-2xl border border-white/[0.07] bg-white/[0.03]"
               />
             ))}
           </div>
@@ -593,7 +593,7 @@ export default function ResellerDashboardPage() {
         </section>
 
         {/* Wallet */}
-        <section className="mb-8 overflow-hidden rounded-3xl border border-white/[0.07] bg-white/[0.035] shadow-2xl shadow-black/30 backdrop-blur-xl">
+        <section className="mb-8 overflow-hidden rounded-2xl border border-white/[0.07] bg-white/[0.035] shadow-2xl shadow-black/30 backdrop-blur-xl">
           <div className="flex flex-col gap-4 sm:p-5 p-4 sm:p-5 sm:flex-row sm:items-center sm:justify-between sm:p-4 sm:p-6">
             <div className="flex items-center gap-4">
               <div className="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-purple-500/20 to-blue-500/20 ring-1 ring-white/10">
@@ -709,7 +709,7 @@ export default function ResellerDashboardPage() {
           </div>
 
           {filteredProducts.length === 0 ? (
-            <div className="rounded-3xl border border-white/[0.07] bg-white/[0.025] p-12 text-center">
+            <div className="rounded-2xl border border-white/[0.07] bg-white/[0.025] p-12 text-center">
               <div className="text-4xl">⌕</div>
               <h2 className="mt-4 text-lg font-bold">
                 Produk tidak ditemukan
@@ -891,7 +891,7 @@ export default function ResellerDashboardPage() {
       {/* Product Detail Modal */}
         {selectedProduct && !purchaseResult && (
           <div
-            className="fixed inset-0 z-40 flex items-start justify-center overflow-y-auto overscroll-contain bg-black/75 p-2 backdrop-blur-md sm:items-center sm:p-4"
+            className="fixed inset-0 z-40 flex items-center justify-center overflow-y-auto overscroll-contain bg-black/75 p-3 backdrop-blur-md sm:items-center sm:p-4"
             onMouseDown={(e) => {
               if (e.target === e.currentTarget) {
                 setSelectedProduct(null);
@@ -899,9 +899,9 @@ export default function ResellerDashboardPage() {
               }
             }}
           >
-            <div className="relative my-auto w-full max-w-[min(100%,32rem)] overflow-hidden rounded-3xl border border-white/[0.07] bg-[#09090b] shadow-2xl shadow-black/80">
+            <div className="relative my-auto w-[calc(100%-2rem)] max-w-[26rem] sm:w-full sm:max-w-[28rem] overflow-hidden rounded-2xl border border-white/[0.07] bg-[#09090b] shadow-2xl shadow-black/80">
                 {/* Header */}
-                <div className="relative shrink-0 p-4 sm:p-5">
+                <div className="relative shrink-0 p-3.5 sm:p-4">
                   <button
                     type="button"
                     onClick={() => {
@@ -914,7 +914,7 @@ export default function ResellerDashboardPage() {
                   </button>
 
                   <div className="flex gap-4 pr-10">
-                    <div className="flex size-16 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-white/[0.07] bg-black/40 sm:size-20">
+                    <div className="flex size-14 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-white/[0.07] bg-black/40 sm:size-16">
                       {getProductLogo(selectedProduct) ? (
                         <img
                           src={getProductLogo(selectedProduct)}
@@ -1011,7 +1011,7 @@ export default function ResellerDashboardPage() {
 
                 {/* Wallet + Checkout */}
                 {selectedOption && (
-                  <div className="border-t border-white/8 bg-white/[0.018] p-4 sm:p-5">
+                  <div className="border-t border-white/8 bg-white/[0.018] p-3.5 sm:p-4">
                     <div className="mb-3 flex items-center justify-between rounded-2xl border border-white/8 bg-black/20 p-3.5">
                       <div>
                         <p className="text-[10px] uppercase tracking-[0.12em] text-white/30">
@@ -1261,7 +1261,7 @@ export default function ResellerDashboardPage() {
       )}
       {settingsOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4 backdrop-blur-sm">
-          <div className="w-full max-w-md rounded-3xl border border-white/10 bg-[#0b0b0f] p-6 shadow-2xl">
+          <div className="w-full max-w-md rounded-2xl border border-white/10 bg-[#0b0b0f] p-6 shadow-2xl">
             <div className="mb-6 flex items-start justify-between gap-4">
               <div>
                 <h2 className="text-xl font-bold">Pengaturan Akun</h2>
