@@ -144,20 +144,16 @@ export default function RecentPurchaseTicker() {
       data-testid="recent-purchase-ticker"
       aria-hidden="true"
       className={[
-        "pointer-events-none fixed right-4 z-30",
-        "bottom-24 sm:bottom-6",
-        "w-[min(300px,calc(100vw-32px))]",
+        "pointer-events-none relative w-full min-w-0",
         "transition-all duration-300",
         visible
           ? "translate-y-0 opacity-100"
           : "translate-y-1 opacity-0",
-        "block",
-        "lg:w-[310px]",
       ].join(" ")}
     >
-      <div className="overflow-hidden rounded-2xl border border-white/[0.07] bg-black/65 px-3 py-2.5 shadow-2xl shadow-black/30 backdrop-blur-xl">
-        <div className="flex items-center gap-2.5">
-          <div className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-white/[0.08] bg-white/[0.05]">
+      <div className="mx-auto flex h-9 w-full max-w-xl items-center overflow-hidden rounded-xl border border-white/[0.07] bg-white/[0.035] px-2.5 backdrop-blur-xl">
+        <div className="flex min-w-0 w-full items-center gap-2">
+          <div className="flex h-7 w-7 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-white/[0.08] bg-white/[0.05]">
             {productImage ? (
               <img
                 src={productImage}
@@ -196,7 +192,7 @@ export default function RecentPurchaseTicker() {
           </div>
 
           <div className="shrink-0 text-right">
-            <div className="text-[10px] font-semibold text-white/85">
+            <div className="text-[9px] font-semibold text-white/80">
               {formatPrice(purchase.amount)}
             </div>
             <div className="mt-0.5 text-[8px] text-white/30">
