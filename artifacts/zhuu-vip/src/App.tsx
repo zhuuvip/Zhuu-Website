@@ -13,7 +13,6 @@ import { setBaseUrl, setAuthTokenGetter } from "@workspace/api-client-react";
 import Navigation from "@/components/Navigation";
 import NotificationsPage from "@/pages/NotificationsPage";
 import Footer from "@/components/Footer";
-import MusicPlayer from "@/components/MusicPlayer";
 import RecentPurchaseTicker from "@/components/RecentPurchaseTicker";
 
 import HomePage from "@/pages/HomePage";
@@ -219,6 +218,7 @@ function AppRouter() {
     <div className="min-h-screen relative">
       <Navigation />
       <AnnouncementBanner />
+      <RecentPurchaseTicker />
 
       <main className="relative pt-[76px] pb-[88px] lg:pt-0 lg:pb-0">
       <Switch>
@@ -249,8 +249,7 @@ function AppRouter() {
 
       {!isFullScreenPage && <Footer />}
       </main>
-      <MusicPlayer />
-      <RecentPurchaseTicker />
+
       <Toaster />
     </div>
   );
