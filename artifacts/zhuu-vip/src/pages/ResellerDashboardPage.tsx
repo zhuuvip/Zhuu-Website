@@ -899,7 +899,7 @@ export default function ResellerDashboardPage() {
               }
             }}
           >
-            <div className="relative my-auto flex max-h-[90dvh] w-full max-w-[min(100%,32rem)] flex-col overflow-hidden rounded-3xl border border-white/[0.07] bg-[#09090b] shadow-2xl shadow-black/80 sm:max-h-[calc(100dvh-2rem)]">
+            <div className="relative my-auto w-full max-w-[min(100%,32rem)] overflow-hidden rounded-3xl border border-white/[0.07] bg-[#09090b] shadow-2xl shadow-black/80">
                 {/* Header */}
                 <div className="relative shrink-0 p-5 sm:p-6">
                   <button
@@ -948,7 +948,7 @@ export default function ResellerDashboardPage() {
                 </div>
 
                 {/* Duration */}
-                <div className="flex min-h-0 flex-none flex-col border-t border-white/8 px-5 py-5 sm:px-4 sm:px-6">
+                <div className="flex flex-col border-t border-white/8 px-5 py-5 sm:px-4 sm:px-6">
                   <div className="mb-3 flex items-center justify-between">
                     <div>
                       <p className="text-sm font-bold">Pilih Durasi</p>
@@ -958,7 +958,7 @@ export default function ResellerDashboardPage() {
                     </div>
                   </div>
 
-                  <div className="max-h-[28dvh] space-y-2 overflow-y-auto overscroll-contain pr-1">
+                  <div className="max-h-56 space-y-2 overflow-y-auto overscroll-contain pr-1">
                     {selectedProduct.options.map((option) => {
                       const stock = getAvailableStock(option);
                       const active = selectedOption?.id === option.id;
@@ -1011,7 +1011,7 @@ export default function ResellerDashboardPage() {
 
                 {/* Wallet + Checkout */}
                 {selectedOption && (
-                  <div className="shrink-0 max-h-[45dvh] overflow-y-auto border-t border-white/8 bg-white/[0.018] p-5 sm:p-6">
+                  <div className="border-t border-white/8 bg-white/[0.018] p-5 sm:p-6">
                     <div className="mb-4 flex items-center justify-between rounded-2xl border border-white/8 bg-black/20 p-3.5">
                       <div>
                         <p className="text-[10px] uppercase tracking-[0.12em] text-white/30">
