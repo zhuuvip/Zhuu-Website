@@ -687,3 +687,9 @@ body {
     font-size: .68rem;
   }
 }
+
+/* Keep floating music player out of the way while product detail is open */
+body:has(.product-detail-modal) [data-testid="music-player"] {
+  opacity: 0;
+  pointer-events: none;
+}

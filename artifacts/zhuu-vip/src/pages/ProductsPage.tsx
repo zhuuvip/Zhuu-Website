@@ -784,7 +784,7 @@ export default function ProductsPage() {
         {/* Product Detail Modal */}
         {selectedProduct && !purchaseResult && (
           <div
-            className="fixed inset-0 z-40 flex items-center justify-center overflow-y-auto overscroll-contain bg-black/75 p-3 backdrop-blur-md sm:items-center sm:p-4"
+            className="product-detail-modal fixed inset-0 z-[60] flex items-center justify-center overflow-y-auto overscroll-contain bg-black/75 p-3 backdrop-blur-md sm:items-center sm:p-4"
             onMouseDown={(e) => {
               if (e.target === e.currentTarget) {
                 setSelectedProduct(null);
