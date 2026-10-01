@@ -128,9 +128,9 @@ export default function ResellerDashboardPage() {
 
       setSelectedProduct((current) => {
         const next =
-          normalized.find((item) => item.id === current?.id) ??
-          normalized[0] ??
-          null;
+          current?.id
+          ? normalized.find((item) => item.id === current.id) ?? null
+          : null;
 
         if (next) {
           setSelectedOption((currentOption) => {
@@ -900,7 +900,6 @@ export default function ResellerDashboardPage() {
             }}
           >
             <div className="relative my-auto flex max-h-[calc(100dvh-1rem)] w-full max-w-[min(100%,32rem)] flex-col overflow-hidden rounded-3xl border border-white/[0.07] bg-[#09090b] shadow-2xl shadow-black/80 sm:max-h-[calc(100dvh-2rem)]">
-              <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain">
                 {/* Header */}
                 <div className="relative p-5 sm:p-6">
                   <button
@@ -938,9 +937,11 @@ export default function ResellerDashboardPage() {
                       </h2>
 
                       {selectedProduct.description && (
-                        <p className="mt-1 text-xs leading-5 text-white/35">
-                          {selectedProduct.description}
-                        </p>
+                        <div className="mt-1 max-h-20 overflow-y-auto overscroll-contain pr-1">
+                          <p className="text-xs leading-5 text-white/35">
+                            {selectedProduct.description}
+                          </p>
+                        </div>
                       )}
                     </div>
                   </div>
@@ -957,7 +958,7 @@ export default function ResellerDashboardPage() {
                     </div>
                   </div>
 
-                  <div className="space-y-2">
+                  <div className="max-h-[min(38vh,20rem)] space-y-2 overflow-y-auto overscroll-contain pr-1">
                     {selectedProduct.options.map((option) => {
                       const stock = getAvailableStock(option);
                       const active = selectedOption?.id === option.id;
@@ -1130,7 +1131,6 @@ export default function ResellerDashboardPage() {
                 )}
               </div>
             </div>
-          </div>
         )}
 
         {/* Help */}
