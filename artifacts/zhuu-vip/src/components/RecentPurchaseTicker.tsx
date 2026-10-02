@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { ShoppingBag } from "lucide-react";
+import { getImageUrl } from "../lib/imageUrl";
 
 const API_BASE = (
   import.meta.env.VITE_API_URL || "https://zhuuapi.vercel.app"
@@ -125,14 +126,14 @@ export default function RecentPurchaseTicker() {
     if (!purchase) return "";
 
     if (purchase.imageUrl) {
-      return purchase.imageUrl;
+      return getImageUrl(purchase.imageUrl);
     }
 
     const product = products.find(
       (item) => Number(item.id) === Number(purchase.productId),
     );
 
-    return product?.imageUrl || "";
+    return getImageUrl(product?.imageUrl || "");
   }, [purchase, products]);
 
   if (!purchase) {

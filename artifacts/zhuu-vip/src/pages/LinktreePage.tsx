@@ -1,4 +1,5 @@
 import { useListLinks } from "@workspace/api-client-react";
+import { getImageUrl } from "../lib/imageUrl";
 import { ExternalLink, Waves, Loader2, Heart, Wrench } from "lucide-react";
 import {
   SiDiscord, SiYoutube, SiTiktok, SiInstagram, SiTwitch, SiX,
@@ -68,7 +69,7 @@ export default function LinktreePage() {
     <div
       className="zhuu-page-bg min-h-screen flex flex-col items-center px-4 pt-8 pb-24 relative"
       style={settings.bannerUrl ? {
-        backgroundImage: `linear-gradient(to bottom, rgba(1,10,15,0.85) 0%, rgba(2,15,26,0.9) 100%), url(${settings.bannerUrl})`,
+        backgroundImage: `linear-gradient(to bottom, rgba(1,10,15,0.85) 0%, rgba(2,15,26,0.9) 100%), url(${getImageUrl(settings.bannerUrl)})`,
         backgroundSize: "cover",
         backgroundPosition: "center",
       } : undefined}

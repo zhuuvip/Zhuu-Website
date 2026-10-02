@@ -1,3 +1,4 @@
+import { getImageUrl } from "../lib/imageUrl";
 import { useState, useEffect, useRef } from "react";
 import { useUser, useAuth } from "@clerk/react";
 import { Link } from "wouter";
@@ -640,6 +641,8 @@ const addKeys = async (productId: number, optionId: number) => {
 
   const [productName, setProductName] = useState("");
 const [imageUrl, setImageUrl] = useState("");
+const [imageFile, setImageFile] = useState<File | null>(null);
+const [editImageFiles, setEditImageFiles] = useState<Record<number, File>>({});
   const [deliveryType, setDeliveryType] = useState("WHATSAPP");
 const [deliveryValue, setDeliveryValue] = useState("");
   const [selectedProductId, setSelectedProductId] = useState("");
@@ -661,10 +664,12 @@ const [deliveryValue, setDeliveryValue] = useState("");
   const [editingSongId, setEditingSongId] = useState<number | null>(null);
   const [songForm, setSongForm] = useState<SongForm>({ title: "", artist: "", url: "", coverUrl: "", sortOrder: 0 });
   const [songSaving, setSongSaving] = useState(false);
+    const [songCoverFile, setSongCoverFile] = useState<File | null>(null);
   const [deletingSongId, setDeletingSongId] = useState<number | null>(null);
 
   // Settings state
   const [settings, setSettings] = useState<SiteSettings>({});
+  const [bannerFile, setBannerFile] = useState<File | null>(null);
   const [settingsLoading, setSettingsLoading] = useState(false);
   const [settingsSaving, setSettingsSaving] = useState(false);
   const [settingsSaved, setSettingsSaved] = useState(false);
@@ -773,20 +778,56 @@ const [deliveryValue, setDeliveryValue] = useState("");
     setSettingsLoading(false);
   };
 
-const saveSettings = async () => {
-  setSettingsSaving(true);
-  try {
-    const res = await fetch(`${API_BASE}/api/settings`, {
-      method: "PUT",
-      headers: await authHeaders(),
-      body: JSON.stringify(settings),
-    });
-    if (res.ok) {
-      setSettings(await res.json());
-      setSettingsSaved(true);
-      setTimeout(() => setSettingsSaved(false), 2500);
-    }
-  } catch {}
+  const saveSettings = async () => {
+    setSettingsSaving(true);
+    try {
+      let bannerUrl = settings.bannerUrl ?? "";
+
+      if (bannerFile) {
+        const buffer = await bannerFile.arrayBuffer();
+        const bytes = new Uint8Array(buffer);
+        let binary = "";
+        const chunkSize = 0x8000;
+
+        for (let i = 0; i < bytes.length; i += chunkSize) {
+          binary += String.fromCharCode(...bytes.subarray(i, i + chunkSize));
+        }
+
+        const upload = await fetch(`${API_BASE}/api/image-upload`, {
+          method: "POST",
+          headers: await authHeaders(),
+          body: JSON.stringify({
+            filename: bannerFile.name,
+            contentType: bannerFile.type,
+            data: btoa(binary),
+            folder: "banner",
+          }),
+        });
+
+        const uploadData = await upload.json().catch(() => ({}));
+
+        if (!upload.ok) {
+          alert(uploadData?.error || "Gagal upload banner.");
+          return;
+        }
+
+        bannerUrl = uploadData.pathname || "";
+      }
+
+      const res = await fetch(`${API_BASE}/api/settings`, {
+        method: "PUT",
+        headers: await authHeaders(),
+        body: JSON.stringify({ ...settings, bannerUrl }),
+      });
+
+      if (res.ok) {
+        setSettings(await res.json());
+        setBannerFile(null);
+        setSettingsSaved(true);
+        setTimeout(() => setSettingsSaved(false), 2500);
+      }
+    } catch {}
+    setSettingsSaving(false);
   };
 
   useEffect(() => {
@@ -821,6 +862,40 @@ const saveSettings = async () => {
   try {
       const method = editingSongId !== null ? "PATCH" : "POST";
       const url = editingSongId !== null ? `${API_BASE}/api/songs/${editingSongId}` : `${API_BASE}/api/songs`;
+
+      let uploadedCoverUrl = songForm.coverUrl || null;
+
+      if (songCoverFile) {
+        const buffer = await songCoverFile.arrayBuffer();
+        const bytes = new Uint8Array(buffer);
+        let binary = "";
+        const chunkSize = 0x8000;
+
+        for (let i = 0; i < bytes.length; i += chunkSize) {
+          binary += String.fromCharCode(...bytes.subarray(i, i + chunkSize));
+        }
+
+        const upload = await fetch(`${API_BASE}/api/image-upload`, {
+          method: "POST",
+          headers: await authHeaders(),
+          body: JSON.stringify({
+            filename: songCoverFile.name,
+            contentType: songCoverFile.type,
+            data: btoa(binary),
+            folder: "songs",
+          }),
+        });
+
+        const uploadData = await upload.json().catch(() => ({}));
+
+        if (!upload.ok) {
+          alert(uploadData?.error || "Gagal upload cover.");
+          return;
+        }
+
+        uploadedCoverUrl = uploadData.pathname || null;
+      }
+
       const res = await fetch(url, {
         method,
       headers: await authHeaders(),
@@ -828,7 +903,7 @@ const saveSettings = async () => {
           title: songForm.title,
           artist: songForm.artist,
           url: songForm.url,
-          coverUrl: songForm.coverUrl || null,
+          coverUrl: uploadedCoverUrl,
           sortOrder: songForm.sortOrder,
         }),
       });
@@ -859,6 +934,7 @@ const saveSettings = async () => {
   const resetSongForm = () => {
     setEditingSongId(null); setShowSongForm(false);
     setSongForm({ title: "", artist: "", url: "", coverUrl: "", sortOrder: 0 });
+  setSongCoverFile(null);
   };
 
   // Link actions
@@ -1943,7 +2019,6 @@ const saveSettings = async () => {
                   { label: "Song Title *", key: "title" as keyof SongForm, placeholder: "ZhuuSite Theme" },
                   { label: "Artist *", key: "artist" as keyof SongForm, placeholder: "Zhuu & DeepBeats" },
                   { label: "Audio URL *", key: "url" as keyof SongForm, placeholder: "https://... (MP3, YouTube, Spotify)" },
-                  { label: "Cover Image URL", key: "coverUrl" as keyof SongForm, placeholder: "https://... (optional)" },
                 ].map((field) => (
                   <div key={field.key} className={field.key === "url" ? "sm:col-span-2" : ""}>
                     <label className="text-xs text-zinc-400/50 mb-1 block">{field.label}</label>
@@ -1952,6 +2027,23 @@ const saveSettings = async () => {
                       className="w-full bg-white/5 border border-purple-400/20 rounded-xl px-3 py-2.5 text-sm text-zinc-200 placeholder-blue-300/25 focus:outline-none focus:border-purple-400/50 focus:ring-1 focus:ring-purple-400/20 transition-all duration-200" />
                   </div>
                 ))}
+                  <div>
+                    <label className="text-xs text-zinc-400/50 mb-1 block">Cover Image</label>
+                    <label className="w-full flex items-center rounded-xl bg-white/5 border border-purple-400/20 px-3 py-2.5 text-sm text-zinc-400 cursor-pointer hover:bg-white/[0.07] transition-all duration-200">
+                      <span className="truncate">
+                        {songCoverFile ? songCoverFile.name : "Pilih cover lagu (opsional)"}
+                      </span>
+                      <input
+                        type="file"
+                        accept="image/jpeg,image/png,image/webp"
+                        className="hidden"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0] || null;
+                          setSongCoverFile(file);
+                        }}
+                      />
+                    </label>
+                  </div>
                 <div>
                   <label className="text-xs text-zinc-400/50 mb-1 block">Sort Order</label>
                   <input type="number" value={songForm.sortOrder} onChange={(e) => setSongForm({ ...songForm, sortOrder: Number(e.target.value) })}
@@ -1977,7 +2069,7 @@ const saveSettings = async () => {
                 <div key={song.id} data-testid={`admin-song-${song.id}`}
                   className="glass-card rounded-xl px-4 py-3.5 flex items-center gap-3 hover:border-purple-400/25 transition-all duration-200">
                   {song.coverUrl ? (
-                    <img src={song.coverUrl} alt={song.title} className="w-10 h-10 rounded-lg object-cover flex-shrink-0 border border-purple-400/20" />
+                    <img src={getImageUrl(song.coverUrl)} alt={song.title} className="w-10 h-10 rounded-lg object-cover flex-shrink-0 border border-purple-400/20" />
                   ) : (
                     <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-purple-500/20 to-pink-500/20 border border-purple-400/20 flex items-center justify-center flex-shrink-0">
                       <Music size={16} className="text-purple-400/60" />
@@ -2141,10 +2233,21 @@ const saveSettings = async () => {
                     <p className="text-xs text-blue-300/30 mt-1">Supports PNG, JPG, WEBP, SVG, GIF with transparency</p>
                   </div>
                   <div>
-                    <label className="text-xs text-zinc-400/50 mb-1 block">Banner / Background Image URL</label>
-                    <input value={settings.bannerUrl ?? ""} onChange={(e) => setSettings({ ...settings, bannerUrl: e.target.value })}
-                      placeholder="https://... (optional background image)"
-                      className="w-full bg-white/5 border border-purple-400/20 rounded-xl px-3 py-2.5 text-sm text-zinc-200 placeholder-blue-300/25 focus:outline-none focus:border-purple-400/50 focus:ring-1 focus:ring-purple-400/20 transition-all duration-200" />
+                    <label className="text-xs text-zinc-400/50 mb-1 block">Banner / Background Image</label>
+                    <label className="w-full flex items-center rounded-xl bg-white/5 border border-purple-400/20 px-3 py-2.5 text-sm text-zinc-400 cursor-pointer hover:bg-white/[0.07] transition-all duration-200">
+                      <span className="truncate">
+                        {bannerFile ? bannerFile.name : "Pilih banner (opsional)"}
+                      </span>
+                      <input
+                        type="file"
+                        accept="image/jpeg,image/png,image/webp"
+                        className="hidden"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0] || null;
+                          setBannerFile(file);
+                        }}
+                      />
+                    </label>
                   </div>
                 </div>
               </div>
@@ -2704,12 +2807,21 @@ const saveSettings = async () => {
     <div className="grid sm:grid-cols-4 gap-2">
       <input value={productName} onChange={e => setProductName(e.target.value)} placeholder="Nama produk" className="px-3 py-2 rounded-lg bg-black/20 text-sm" />
           <div className="flex gap-2 items-center">
-            <input
-              value={imageUrl}
-              onChange={e => setImageUrl(e.target.value)}
-              placeholder="URL gambar produk, contoh https://files.catbox.moe/xsm1bo.jpg"
-              className="flex-1 px-3 py-2 rounded-lg bg-black/20 text-sm"
-            />
+              <label className="flex-1 px-3 py-2 rounded-lg bg-black/20 text-sm cursor-pointer border border-white/5 hover:bg-white/[0.04]">
+                <span className="text-zinc-400">
+                  {imageFile ? imageFile.name : "Pilih gambar produk"}
+                </span>
+                <input
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp"
+                  className="hidden"
+                  onChange={e => {
+                    const file = e.target.files?.[0] || null;
+                    setImageFile(file);
+                    setImageUrl(file ? URL.createObjectURL(file) : "");
+                  }}
+                />
+              </label>
             {imageUrl.trim() && (
               <img
                 src={imageUrl.trim()}
@@ -2738,32 +2850,70 @@ const saveSettings = async () => {
 
     <div className="flex gap-2 mt-3 flex-wrap">
       <button type="button"
-        onClick={async () => {
-          if (!productName.trim()) return;
-          try {
-          const r = await fetch(`${API_BASE}/api/products`, {
-            method: "POST",
-      headers: await authHeaders(),
-            body: JSON.stringify({
-  name: productName,
-  imageUrl: imageUrl || null,
-  deliveryType,
-  deliveryValue: deliveryValue || null,
-  sortOrder: sortOrder.trim() ? Number(sortOrder) : null,
-})
-          });
-          const data = await r.json().catch(() => ({}));
-          if (!r.ok) {
-            alert(data?.error || "Gagal menambahkan produk");
-            return;
-          }
-          setProductName("");
-          setSortOrder("");
-          loadProducts();
-          } catch (e) {
-            alert(e instanceof Error ? e.message : "Gagal menambahkan produk");
-          }
-        }}
+          onClick={async () => {
+            if (!productName.trim()) return;
+            try {
+              let uploadedImageUrl = imageUrl || null;
+
+              if (imageFile) {
+                const buffer = await imageFile.arrayBuffer();
+                const bytes = new Uint8Array(buffer);
+                let binary = "";
+                const chunkSize = 0x8000;
+                for (let i = 0; i < bytes.length; i += chunkSize) {
+                  binary += String.fromCharCode(...bytes.subarray(i, i + chunkSize));
+                }
+
+                const upload = await fetch(`${API_BASE}/api/image-upload`, {
+                  method: "POST",
+                  headers: {
+                    ...(await authHeaders()),
+                    "Content-Type": "application/json",
+                  },
+                  body: JSON.stringify({
+                    filename: imageFile.name,
+                    contentType: imageFile.type,
+                    data: btoa(binary),
+                    folder: "products",
+                  }),
+                });
+
+                const uploadData = await upload.json().catch(() => ({}));
+                if (!upload.ok) {
+                  alert(uploadData?.error || "Gagal upload gambar");
+                  return;
+                }
+
+                uploadedImageUrl = uploadData.pathname || null;
+              }
+
+              const r = await fetch(`${API_BASE}/api/products`, {
+                method: "POST",
+                headers: await authHeaders(),
+                body: JSON.stringify({
+                  name: productName,
+                  imageUrl: uploadedImageUrl,
+                  deliveryType,
+                  deliveryValue: deliveryValue || null,
+                  sortOrder: sortOrder.trim() ? Number(sortOrder) : null,
+                })
+              });
+
+              const data = await r.json().catch(() => ({}));
+              if (!r.ok) {
+                alert(data?.error || "Gagal menambahkan produk");
+                return;
+              }
+
+              setProductName("");
+              setImageFile(null);
+              setImageUrl("");
+              setSortOrder("");
+              loadProducts();
+            } catch (e) {
+              alert(e instanceof Error ? e.message : "Gagal menambahkan produk");
+            }
+          }}
         className="px-4 py-2 rounded-lg bg-white/[0.05] text-zinc-200 text-sm"
       >
         + Add Product
@@ -2923,63 +3073,110 @@ const saveSettings = async () => {
                             className="flex-1 px-3 py-2 rounded-lg bg-black/20 text-zinc-200 font-semibold"
                           />
 
-                          {editingProductId === p.id && (
-                            <>
-                              <input
-                                id={`product-image-${p.id}`}
-                                defaultValue={p.imageUrl || ""}
-                                placeholder="URL logo/gambar produk"
-                                className="flex-1 px-3 py-2 rounded-lg bg-black/20 text-sm"
+                            {editingProductId === p.id && (
+                              <>
+                                <label className="flex-1 px-3 py-2 rounded-lg bg-black/20 text-sm cursor-pointer border border-white/5 hover:bg-white/[0.04]">
+                                  <span className="text-zinc-400">
+                                    {editImageFiles[p.id] ? editImageFiles[p.id].name : "Pilih gambar produk"}
+                                  </span>
+                                  <input
+                                    type="file"
+                                    accept="image/jpeg,image/png,image/webp"
+                                    className="hidden"
+                                    onChange={e => {
+                                      const file = e.target.files?.[0];
+                                      if (file) {
+                                        setEditImageFiles(prev => ({ ...prev, [p.id]: file }));
+                                      }
+                                    }}
+                                  />
+                                </label>
+
+                                <input
+                                  id={`product-sort-${p.id}`}
+                                  defaultValue={p.sortOrder ?? 1}
+                                  placeholder="No. Urutan"
+                                  type="number"
+                                  min="0"
+                                  className="w-28 px-3 py-2 rounded-lg bg-black/20 text-sm"
                                 />
-                              <input
-                                id={`product-sort-${p.id}`}
-                                defaultValue={p.sortOrder ?? 1}
-                                placeholder="No. Urutan"
-                                type="number"
-                                min="0"
-                                className="w-28 px-3 py-2 rounded-lg bg-black/20 text-sm"
-                              />
 
-                              <select
-                                id={`delivery-type-${p.id}`}
-                                defaultValue={p.deliveryType || "WHATSAPP"}
-                                className="px-3 py-2 rounded-lg bg-black/20 text-sm"
-                              >
-                                <option value="WHATSAPP">WhatsApp</option>
-                                <option value="DOWNLOAD">Download</option>
-                                <option value="LINK">Link</option>
-                                <option value="KEY">Key</option>
-                              </select>
+                                <select
+                                  id={`delivery-type-${p.id}`}
+                                  defaultValue={p.deliveryType || "WHATSAPP"}
+                                  className="px-3 py-2 rounded-lg bg-black/20 text-sm"
+                                >
+                                  <option value="WHATSAPP">WhatsApp</option>
+                                  <option value="DOWNLOAD">Download</option>
+                                  <option value="LINK">Link</option>
+                                  <option value="KEY">Key</option>
+                                </select>
 
-                              <input
-                                id={`delivery-value-${p.id}`}
-                                defaultValue={p.deliveryValue || ""}
-                                placeholder="URL delivery (MediaFire, dll)"
-                                className="flex-1 px-3 py-2 rounded-lg bg-black/20 text-sm"
-                              />
-                            </>
-                          )}
+                                <input
+                                  id={`delivery-value-${p.id}`}
+                                  defaultValue={p.deliveryValue || ""}
+                                  placeholder="URL delivery (MediaFire, dll)"
+                                  className="flex-1 px-3 py-2 rounded-lg bg-black/20 text-sm"
+                                />
+                              </>
+                            )}
 
                           <button
                             type="button"
                             onClick={async () => {
                               if (editingProductId === p.id) {
                                 const el = document.getElementById(`product-name-${p.id}`) as HTMLInputElement;
-                                const imageEl = document.getElementById(`product-image-${p.id}`) as HTMLInputElement;
                                 const typeEl = document.getElementById(`delivery-type-${p.id}`) as HTMLSelectElement;
                                 const valueEl = document.getElementById(`delivery-value-${p.id}`) as HTMLInputElement;
                                 const sortEl = document.getElementById(`product-sort-${p.id}`) as HTMLInputElement;
 
                                 try {
+                                  let uploadedImageUrl = p.imageUrl || null;
+                                  const editImageFile = editImageFiles[p.id];
+
+                                  if (editImageFile) {
+                                    const buffer = await editImageFile.arrayBuffer();
+                                    const bytes = new Uint8Array(buffer);
+                                    let binary = "";
+                                    const chunkSize = 0x8000;
+
+                                    for (let i = 0; i < bytes.length; i += chunkSize) {
+                                      binary += String.fromCharCode(...bytes.subarray(i, i + chunkSize));
+                                    }
+
+                                    const upload = await fetch(`${API_BASE}/api/image-upload`, {
+                                      method: "POST",
+                                      headers: {
+                                        ...(await authHeaders()),
+                                        "Content-Type": "application/json",
+                                      },
+                                      body: JSON.stringify({
+                                        filename: editImageFile.name,
+                                        contentType: editImageFile.type,
+                                        data: btoa(binary),
+                                        folder: "products",
+                                      }),
+                                    });
+
+                                    const uploadData = await upload.json().catch(() => ({}));
+
+                                    if (!upload.ok) {
+                                      alert(uploadData?.error || "Gagal upload gambar");
+                                      return;
+                                    }
+
+                                    uploadedImageUrl = uploadData.pathname || null;
+                                  }
+
                                   const r = await fetch(`${API_BASE}/api/products/${p.id}`, {
                                     method: "PATCH",
                                     headers: await authHeaders(),
                                     body: JSON.stringify({
                                       name: el.value,
-                                      imageUrl: imageEl.value.trim() || null,
+                                      imageUrl: uploadedImageUrl,
                                       deliveryType: typeEl.value,
                                       deliveryValue: valueEl?.value || null,
-                                                              sortOrder: Number(sortEl?.value || 1),
+                                      sortOrder: Number(sortEl?.value || 1),
                                     }),
                                   });
 
@@ -2988,6 +3185,11 @@ const saveSettings = async () => {
                                     return;
                                   }
 
+                                  setEditImageFiles(prev => {
+                                    const next = { ...prev };
+                                    delete next[p.id];
+                                    return next;
+                                  });
                                   setEditingProductId(null);
                                   loadProducts();
                                 } catch (e) {

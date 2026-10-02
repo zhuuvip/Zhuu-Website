@@ -1,3 +1,4 @@
+import { getImageUrl } from "../lib/imageUrl";
 import { useEffect, useState } from "react";
 import { useAuth } from "@clerk/react";
 
@@ -52,6 +53,7 @@ export default function FreeHubPage() {
   const [postCategory, setPostCategory] = useState("FREE_PRODUCT");
   const [link, setLink] = useState("");
   const [imageUrl, setImageUrl] = useState("");
+  const [imageFile, setImageFile] = useState<File | null>(null);
   const [posting, setPosting] = useState(false);
 
   async function loadPosts() {
@@ -91,20 +93,56 @@ export default function FreeHubPage() {
       setPosting(true);
       const token = await getToken();
 
-      const res = await fetch(`${API}/api/free/posts`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          ...(token ? { Authorization: `Bearer ${token}` } : {}),
-        },
-        body: JSON.stringify({
-          title: title.trim(),
-          description: description.trim() || null,
-          category: postCategory,
-          link: link.trim() || null,
-          imageUrl: imageUrl.trim() || null,
-        }),
-      });
+        let uploadedImageUrl = imageUrl.trim() || null;
+
+        if (imageFile) {
+          const buffer = await imageFile.arrayBuffer();
+          const bytes = new Uint8Array(buffer);
+          let binary = "";
+          const chunkSize = 0x8000;
+
+          for (let i = 0; i < bytes.length; i += chunkSize) {
+            binary += String.fromCharCode(...bytes.subarray(i, i + chunkSize));
+          }
+
+          const upload = await fetch(`${API}/api/image-upload`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              ...(token ? { Authorization: `Bearer ${token}` } : {}),
+            },
+            body: JSON.stringify({
+              filename: imageFile.name,
+              contentType: imageFile.type,
+              data: btoa(binary),
+              folder: "free",
+            }),
+          });
+
+          const uploadData = await upload.json().catch(() => ({}));
+
+          if (!upload.ok) {
+            alert(uploadData?.error || "Gagal upload gambar.");
+            return;
+          }
+
+          uploadedImageUrl = uploadData.pathname || null;
+        }
+
+        const res = await fetch(`${API}/api/free/posts`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          },
+          body: JSON.stringify({
+            title: title.trim(),
+            description: description.trim() || null,
+            category: postCategory,
+            link: link.trim() || null,
+            imageUrl: uploadedImageUrl,
+          }),
+        });
 
       const data = await res.json();
 
@@ -118,6 +156,7 @@ export default function FreeHubPage() {
       setPostCategory("FREE_PRODUCT");
       setLink("");
       setImageUrl("");
+        setImageFile(null);
       setShowForm(false);
       await loadPosts();
     } catch {
@@ -248,7 +287,7 @@ export default function FreeHubPage() {
                 >
                   {promotion.imageUrl && (
                     <img
-                      src={promotion.imageUrl}
+                      src={getImageUrl(promotion.imageUrl)}
                       alt=""
                       className="w-full aspect-video object-cover"
                     />
@@ -344,13 +383,20 @@ export default function FreeHubPage() {
                   className="rounded-2xl bg-black/20 border border-white/10 px-4 py-3 outline-none"
                 />
               </div>
-
-              <input
-                value={imageUrl}
-                onChange={(e) => setImageUrl(e.target.value)}
-                placeholder="URL gambar (opsional)"
-                className="w-full rounded-2xl bg-black/20 border border-white/10 px-4 py-3 outline-none"
-              />
+                <label className="w-full rounded-2xl bg-black/20 border border-white/10 px-4 py-3 outline-none cursor-pointer">
+                  <span className="text-zinc-400">
+                    {imageFile ? imageFile.name : "Pilih gambar (opsional)"}
+                  </span>
+                  <input
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp"
+                    className="hidden"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0] || null;
+                      setImageFile(file);
+                    }}
+                  />
+                </label>
 
               <div className="flex justify-end">
                 <button
@@ -419,7 +465,7 @@ export default function FreeHubPage() {
               >
                 {post.imageUrl && (
                   <img
-                    src={post.imageUrl}
+                    src={getImageUrl(post.imageUrl)}
                     alt=""
                     className="w-full aspect-video object-cover"
                   />

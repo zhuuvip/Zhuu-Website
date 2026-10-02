@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { getImageUrl } from "../lib/imageUrl";
 
 const API_BASE = (import.meta.env.VITE_API_URL || "https://zhuuapi.vercel.app").replace(/\/$/, "");
 const WA = "62882005730502";
@@ -212,7 +213,7 @@ export default function ResellerDashboardPage() {
   }, []);
 
   const getProductLogo = (product: Product) =>
-    product.imageUrl || product.image || product.logo || "";
+    getImageUrl(product.imageUrl || product.image || product.logo || "");
 
   const getCategory = (name: string) => {
     const upper = name.toUpperCase();

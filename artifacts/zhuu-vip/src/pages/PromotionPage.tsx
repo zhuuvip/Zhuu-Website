@@ -50,6 +50,7 @@ export default function PromotionPage() {
   const [description, setDescription] = useState("");
   const [link, setLink] = useState("");
   const [imageUrl, setImageUrl] = useState("");
+  const [imageFile, setImageFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
 
@@ -122,6 +123,41 @@ export default function PromotionPage() {
     try {
       const token = await getToken();
 
+      let uploadedImageUrl = imageUrl.trim() || null;
+
+      if (imageFile) {
+        const buffer = await imageFile.arrayBuffer();
+        const bytes = new Uint8Array(buffer);
+        let binary = "";
+        const chunkSize = 0x8000;
+
+        for (let i = 0; i < bytes.length; i += chunkSize) {
+          binary += String.fromCharCode(...bytes.subarray(i, i + chunkSize));
+        }
+
+        const upload = await fetch(`${API}/api/image-upload`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          },
+          body: JSON.stringify({
+            filename: imageFile.name,
+            contentType: imageFile.type,
+            data: btoa(binary),
+            folder: "promotions",
+          }),
+        });
+
+        const uploadData = await upload.json().catch(() => ({}));
+
+        if (!upload.ok) {
+          throw new Error(uploadData?.error || "Gagal upload gambar.");
+        }
+
+        uploadedImageUrl = uploadData.pathname || null;
+      }
+
       const res = await fetch(`${API}/api/promotions`, {
         method: "POST",
         headers: {
@@ -133,7 +169,8 @@ export default function PromotionPage() {
           description: description.trim(),
           category,
           link: link.trim(),
-          imageUrl: imageUrl.trim(),
+          imageUrl: uploadedImageUrl,
+
           durationDays: selectedDays,
         }),
       });
@@ -150,6 +187,7 @@ export default function PromotionPage() {
       setDescription("");
       setLink("");
       setImageUrl("");
+      setImageFile(null);
 
       window.alert(
         "Promosi berhasil dibuat dan langsung aktif.",
@@ -360,18 +398,25 @@ export default function PromotionPage() {
           </div>
 
           <div className="mt-4">
-            <label className="block text-sm font-bold text-zinc-200 mb-2">
-              URL Gambar
-            </label>
-            <input
-              value={imageUrl}
-              onChange={(e) => setImageUrl(e.target.value)}
-              placeholder="https://..."
-              className="w-full rounded-2xl bg-black/30 border border-white/10 px-4 py-3 text-zinc-200 outline-none focus:border-white/20"
-            />
-          </div>
-
-          <div className="mt-6 rounded-2xl bg-white/5 border border-white/10 p-4">
+                <label className="block text-sm font-bold text-zinc-200 mb-2">
+                  Gambar Promosi
+                </label>
+                <label className="w-full flex items-center rounded-2xl bg-black/30 border border-white/10 px-4 py-3 text-sm text-zinc-400 cursor-pointer hover:bg-white/[0.04] transition-all duration-200">
+                  <span className="truncate">
+                    {imageFile ? imageFile.name : "Pilih gambar promosi (opsional)"}
+                  </span>
+                  <input
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp"
+                    className="hidden"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0] || null;
+                      setImageFile(file);
+                    }}
+                  />
+                </label>
+              </div>
+              <div className="mt-6 rounded-2xl bg-white/5 border border-white/10 p-4">
             <div className="flex items-center justify-between">
               <span className="text-sm text-zinc-400/50">
                 Total pembayaran
