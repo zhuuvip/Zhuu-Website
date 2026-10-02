@@ -11,6 +11,7 @@ const NAV_LINKS = [
   { label: "Tools", href: "/tools" },
   { label: "Resources", href: "/resources" },
   { label: "Feedback", href: "/feedback" },
+  { label: "Testimoni", href: "/testimoni" },
 ];
 
 const SOCIAL = [

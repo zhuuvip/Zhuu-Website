@@ -26,6 +26,7 @@ import PortfolioPage from "@/pages/PortfolioPage";
 import SpeedTestPage from "@/pages/SpeedTestPage";
 import CommunityPage from "@/pages/CommunityPage";
 import PublicChatPage from "@/pages/PublicChatPage";
+import TestimonialsPage from "@/pages/TestimonialsPage";
 import FeedbackPage from "@/pages/FeedbackPage";
 import ResourceLinksPage from "@/pages/ResourceLinksPage";
 import DevToolsPage from "@/pages/DevToolsPage";
@@ -230,6 +231,7 @@ function AppRouter() {
         <Route path="/community" component={CommunityPage} />
         <Route path="/zhuu-chat" component={PublicChatPage} />
         <Route path="/feedback" component={FeedbackPage} />
+        <Route path="/testimoni" component={TestimonialsPage} />
         <Route path="/resources" component={ResourceLinksPage} />
         <Route path="/tools" component={DevToolsPage} />
         <Route path="/member" component={MemberPage} />

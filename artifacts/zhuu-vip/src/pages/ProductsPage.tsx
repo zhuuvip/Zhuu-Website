@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { useAuth } from "@clerk/react";
+import { useAuth, useUser } from "@clerk/react";
 
 const API_BASE = "https://zhuuapi.vercel.app";
 const WA = "62882005730502";
@@ -31,6 +31,7 @@ const getAvailableStock = (option: ProductOption) =>
 
 export default function ProductsPage() {
   const { getToken } = useAuth();
+  const { user } = useUser();
 
   const [products, setProducts] = useState<Product[]>([]);
   const purchaseRank = [...products]
@@ -75,6 +76,7 @@ export default function ProductsPage() {
   const [promoError, setPromoError] = useState("");
 
   const [purchaseResult, setPurchaseResult] = useState<{
+    orderId: number;
     product: string;
     duration: string;
     deliveryKey?: string;
@@ -82,6 +84,11 @@ export default function ProductsPage() {
   } | null>(null);
 
   const [copied, setCopied] = useState(false);
+  const [showTestimonialForm, setShowTestimonialForm] = useState(false);
+  const [testimonialRating, setTestimonialRating] = useState(5);
+  const [testimonialMessage, setTestimonialMessage] = useState("");
+  const [testimonialImage, setTestimonialImage] = useState<File | null>(null);
+  const [testimonialSubmitting, setTestimonialSubmitting] = useState(false);
 
   const formatRupiah = (value: number) =>
     `Rp${Number(value || 0).toLocaleString("id-ID")}`;
@@ -436,6 +443,7 @@ export default function ProductsPage() {
       }
 
       setPurchaseResult({
+        orderId: Number(data.id),
         product: selectedProduct.name,
         duration: selectedOption.duration,
         deliveryKey: data.deliveryKey || undefined,
@@ -454,6 +462,96 @@ export default function ProductsPage() {
       );
     } finally {
       setBuying(false);
+    }
+  };
+
+  const submitTestimonial = async () => {
+    if (!purchaseResult?.orderId) return;
+
+    if (!testimonialMessage.trim()) {
+      alert("Tulis feedback kamu dulu.");
+      return;
+    }
+
+    try {
+      setTestimonialSubmitting(true);
+
+      const token = await getToken();
+      if (!token) {
+        alert("Silakan login terlebih dahulu.");
+        return;
+      }
+
+      let imageUrl: string | undefined;
+
+      if (testimonialImage) {
+        const buffer = await testimonialImage.arrayBuffer();
+        const bytes = new Uint8Array(buffer);
+        let binary = "";
+        const chunkSize = 0x8000;
+
+        for (let i = 0; i < bytes.length; i += chunkSize) {
+          binary += String.fromCharCode(
+            ...bytes.subarray(i, Math.min(i + chunkSize, bytes.length)),
+          );
+        }
+
+        const uploadRes = await fetch("/api/testimonial-upload", {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            filename: testimonialImage.name,
+            contentType: testimonialImage.type,
+            data: btoa(binary),
+          }),
+        });
+
+        const uploadData = await uploadRes.json();
+
+        if (!uploadRes.ok) {
+          throw new Error(uploadData.error || "Gagal upload foto.");
+        }
+
+        imageUrl = uploadData.pathname;
+      }
+
+      const res = await fetch("/api/testimonials", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          orderId: purchaseResult.orderId,
+          customerName: user?.fullName || user?.username || user?.firstName || "Customer",
+          rating: testimonialRating,
+          message: testimonialMessage.trim(),
+          imageUrl,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.error || "Gagal mengirim testimoni.");
+      }
+
+      alert("Testimoni berhasil dikirim dan menunggu persetujuan admin.");
+      setShowTestimonialForm(false);
+      setTestimonialMessage("");
+      setTestimonialRating(5);
+      setTestimonialImage(null);
+    } catch (err) {
+      alert(
+        err instanceof Error
+          ? err.message
+          : "Gagal mengirim testimoni.",
+      );
+    } finally {
+      setTestimonialSubmitting(false);
     }
   };
 
@@ -1245,6 +1343,92 @@ export default function ProductsPage() {
                     >
                       Buka Link
                     </a>
+                  </div>
+                </div>
+              )}
+
+              <button
+                onClick={() => setShowTestimonialForm(true)}
+                className="mt-4 w-full rounded-xl bg-amber-400 px-4 py-3 text-sm font-black text-black transition hover:bg-amber-300 active:scale-[0.98]"
+              >
+                ⭐ Beri Testimoni
+              </button>
+
+              {showTestimonialForm && (
+                <div className="mt-4 rounded-2xl border border-white/10 bg-white/[0.025] p-4 text-left">
+                  <div className="mb-4">
+                    <h3 className="text-base font-black">Bagikan Pengalamanmu</h3>
+                    <p className="mt-1 text-xs text-white/40">
+                      Testimoni akan ditampilkan setelah disetujui admin.
+                    </p>
+                  </div>
+
+                  <div>
+                    <p className="mb-2 text-xs font-bold text-white/50">Rating</p>
+                    <div className="flex gap-1">
+                      {[1, 2, 3, 4, 5].map((star) => (
+                        <button
+                          key={star}
+                          type="button"
+                          onClick={() => setTestimonialRating(star)}
+                          className={`text-2xl transition ${
+                            star <= testimonialRating
+                              ? "text-amber-400"
+                              : "text-white/20"
+                          }`}
+                        >
+                          ★
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="mt-4">
+                    <label className="mb-2 block text-xs font-bold text-white/50">
+                      Feedback
+                    </label>
+                    <textarea
+                      value={testimonialMessage}
+                      onChange={(e) => setTestimonialMessage(e.target.value)}
+                      placeholder="Ceritakan pengalaman kamu..."
+                      rows={4}
+                      maxLength={1000}
+                      className="w-full resize-none rounded-xl border border-white/10 bg-black/20 px-3 py-3 text-sm outline-none transition placeholder:text-white/20 focus:border-amber-400/40"
+                    />
+                  </div>
+
+                  <div className="mt-4">
+                    <label className="mb-2 block text-xs font-bold text-white/50">
+                      Foto / Screenshot <span className="font-normal text-white/30">(opsional)</span>
+                    </label>
+                    <input
+                      type="file"
+                      accept="image/jpeg,image/png,image/webp"
+                      onChange={(e) => setTestimonialImage(e.target.files?.[0] || null)}
+                      className="w-full text-xs text-white/50 file:mr-3 file:rounded-lg file:border-0 file:bg-white/10 file:px-3 file:py-2 file:text-xs file:font-bold file:text-white"
+                    />
+                    <p className="mt-1 text-[10px] text-white/25">
+                      JPG, PNG, atau WebP • maksimal 5 MB
+                    </p>
+                  </div>
+
+                  <div className="mt-4 flex gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setShowTestimonialForm(false)}
+                      disabled={testimonialSubmitting}
+                      className="flex-1 rounded-xl border border-white/10 px-3 py-3 text-xs font-bold text-white/60 transition hover:bg-white/[0.05] disabled:opacity-40"
+                    >
+                      Batal
+                    </button>
+                    <button
+                      type="button"
+                      onClick={submitTestimonial}
+                      disabled={testimonialSubmitting}
+                      className="flex-1 rounded-xl bg-white px-3 py-3 text-xs font-black text-black transition hover:bg-zinc-200 disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                      {testimonialSubmitting ? "Mengirim..." : "Kirim Testimoni"}
+                    </button>
                   </div>
                 </div>
               )}

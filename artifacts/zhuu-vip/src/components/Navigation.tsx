@@ -41,6 +41,7 @@ const MORE_ITEMS = [
   { path: "/zhuu-chat", label: "Chat", Icon: MessageSquare },
   { path: "/promote", label: "Promotion", Icon: Gift },
   { path: "/feedback", label: "Feedback", Icon: MessageSquare },
+  { path: "/testimoni", label: "Testimoni", Icon: MessageSquare },
   { path: "/sharecard", label: "Share Card", Icon: Link2 },
 ];
 

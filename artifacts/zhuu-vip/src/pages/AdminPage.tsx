@@ -37,6 +37,18 @@ interface SongForm {
   title: string; artist: string; url: string; coverUrl: string; sortOrder: number;
 }
 
+interface TestimonialItem {
+  id: number;
+  customerName: string;
+  productName: string;
+  duration: string;
+  rating: number;
+  message: string;
+  imageUrl: string | null;
+  status: string;
+  purchaseType: string;
+  createdAt: string;
+}
 interface FeedbackItem {
   id: number; category: string | null; rating: number | null;
   name: string | null; email: string | null; message: string; createdAt: string;
@@ -99,7 +111,7 @@ interface SiteSettings {
 
 import AdminResellerTab from "@/components/AdminResellerTab";
 
-type Tab = "reseller" | "stats" | "links" | "songs" | "settings" | "feedback" | "products" | "orders" | "deposits" | "wallet" | "promo" | "activity";
+type Tab = "reseller" | "stats" | "links" | "songs" | "settings" | "feedback" | "testimonials" | "products" | "orders" | "deposits" | "wallet" | "promo" | "activity";
 
 const iconOptions = ["SiDiscord","SiYoutube","SiTiktok","SiInstagram","SiTwitch","SiX","SiGithub","SiSpotify","SiPatreon","SiReddit","SiWhatsapp"];
 
@@ -665,6 +677,20 @@ const [deliveryValue, setDeliveryValue] = useState("");
   const [feedback, setFeedback] = useState<FeedbackItem[]>([]);
   const [feedbackLoading, setFeedbackLoading] = useState(false);
   const [deletingFeedbackId, setDeletingFeedbackId] = useState<number | null>(null);
+  const [testimonials, setTestimonials] = useState<TestimonialItem[]>([]);
+  const [testimonialsLoading, setTestimonialsLoading] = useState(false);
+  const [testimonialActionId, setTestimonialActionId] = useState<number | null>(null);
+  const [showTestimonialForm, setShowTestimonialForm] = useState(false);
+  const [testimonialForm, setTestimonialForm] = useState({
+    customerName: "",
+    productId: "",
+    productName: "",
+    duration: "",
+    rating: 5,
+    message: "",
+  });
+  const [testimonialImage, setTestimonialImage] = useState<File | null>(null);
+  const [testimonialSaving, setTestimonialSaving] = useState(false);
 
   // Stats state
   const [stats, setStats] = useState<Stats | null>(null);
@@ -696,6 +722,15 @@ const [deliveryValue, setDeliveryValue] = useState("");
       if (res.ok) setFeedback(await res.json());
       } catch {}
     setFeedbackLoading(false);
+  };
+
+  const fetchTestimonials = async () => {
+    try {
+      setTestimonialsLoading(true);
+      const res = await fetch(`${API_BASE}/api/admin/testimonials`, { headers: await authHeaders() });
+      if (res.ok) setTestimonials(await res.json());
+    } catch {}
+    setTestimonialsLoading(false);
   };
 
   const fetchAnnouncement = async () => {
@@ -758,6 +793,7 @@ const saveSettings = async () => {
     if (!isAdmin || !user) return;
     if (tab === "stats") fetchStats();
     if (tab === "feedback") fetchFeedback();
+    if (tab === "testimonials") fetchTestimonials();
     if (tab === "settings") { fetchSettings(); fetchAnnouncement(); }
     if (tab === "products") {
       loadProducts();
@@ -855,6 +891,144 @@ const saveSettings = async () => {
     setDeletingFeedbackId(null);
   };
 
+  const submitManualTestimonial = async () => {
+    if (!testimonialForm.customerName.trim()) {
+      alert("Nama customer wajib diisi.");
+      return;
+    }
+
+    if (!testimonialForm.productName.trim()) {
+      alert("Nama produk wajib diisi.");
+      return;
+    }
+
+    if (!testimonialForm.duration.trim()) {
+      alert("Durasi wajib diisi.");
+      return;
+    }
+
+    if (!testimonialForm.message.trim()) {
+      alert("Pesan testimoni wajib diisi.");
+      return;
+    }
+
+    setTestimonialSaving(true);
+
+    try {
+      let imageUrl: string | undefined;
+
+      if (testimonialImage) {
+        const buffer = await testimonialImage.arrayBuffer();
+        const bytes = new Uint8Array(buffer);
+        let binary = "";
+        const chunkSize = 0x8000;
+
+        for (let i = 0; i < bytes.length; i += chunkSize) {
+          binary += String.fromCharCode(
+            ...bytes.subarray(i, Math.min(i + chunkSize, bytes.length)),
+          );
+        }
+
+        const uploadRes = await fetch(`${API_BASE}/api/testimonial-upload`, {
+          method: "POST",
+          headers: await authHeaders(),
+          body: JSON.stringify({
+            filename: testimonialImage.name,
+            contentType: testimonialImage.type,
+            data: btoa(binary),
+          }),
+        });
+
+        const uploadData = await uploadRes.json();
+
+        if (!uploadRes.ok) {
+          throw new Error(uploadData.error || "Gagal upload foto.");
+        }
+
+        imageUrl = uploadData.pathname;
+      }
+
+      const res = await fetch(`${API_BASE}/api/admin/testimonials`, {
+        method: "POST",
+        headers: await authHeaders(),
+        body: JSON.stringify({
+          customerName: testimonialForm.customerName.trim(),
+          productId: testimonialForm.productId
+            ? Number(testimonialForm.productId)
+            : undefined,
+          productName: testimonialForm.productName.trim(),
+          duration: testimonialForm.duration.trim(),
+          rating: testimonialForm.rating,
+          message: testimonialForm.message.trim(),
+          imageUrl,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.error || "Gagal menyimpan testimoni.");
+      }
+
+      setTestimonials((prev) => [data, ...prev]);
+
+      setTestimonialForm({
+        customerName: "",
+        productId: "",
+        productName: "",
+        duration: "",
+        rating: 5,
+        message: "",
+      });
+
+      setTestimonialImage(null);
+      setShowTestimonialForm(false);
+    } catch (error) {
+      alert(
+        error instanceof Error
+          ? error.message
+          : "Gagal menyimpan testimoni.",
+      );
+    } finally {
+      setTestimonialSaving(false);
+    }
+  };
+
+  const handleTestimonialAction = async (
+    id: number,
+    action: "publish" | "reject" | "delete",
+  ) => {
+    if (action === "delete") {
+      if (!await window.zhuuConfirm("Hapus testimoni ini?")) return;
+    }
+
+    setTestimonialActionId(id);
+
+    try {
+      const method = action === "delete" ? "DELETE" : "PATCH";
+      const res = await fetch(
+        `${API_BASE}/api/admin/testimonials/${id}${action === "delete" ? "" : `/${action}`}`,
+        {
+          method,
+          headers: await authHeaders(),
+        },
+      );
+
+      if (res.ok) {
+        if (action === "delete") {
+          setTestimonials((prev) => prev.filter((item) => item.id !== id));
+        } else {
+          const updated = await res.json();
+          setTestimonials((prev) =>
+            prev.map((item) => (item.id === id ? updated : item)),
+          );
+        }
+      }
+    } catch {}
+
+    setTestimonialActionId(null);
+  };
+
   const startEditLink = (link: typeof links[0]) => {
     setEditingLinkId(link.id);
     setLinkForm({ title: link.title, url: link.url, icon: link.icon ?? "", sortOrder: link.sortOrder, isActive: link.isActive });
@@ -873,6 +1047,7 @@ const saveSettings = async () => {
     { id: "songs", label: "Songs", icon: <Music size={14} /> },
     { id: "settings", label: "Settings", icon: <Settings size={14} /> },
     { id: "feedback", label: "Feedback", icon: <MessageSquare size={14} /> },
+    { id: "testimonials", label: "Testimoni", icon: <Star size={14} /> },
     { id: "products", label: "Products", icon: <ShoppingCart size={14} /> },
     { id: "orders", label: "Orders", icon: <ShoppingCart size={14} /> },
     { id: "deposits", label: "Deposits", icon: <WalletCards size={14} /> },
@@ -3532,6 +3707,276 @@ const saveSettings = async () => {
           )}
         </div>
       )}
+    {tab === "testimonials" && (
+      <div className="space-y-5">
+        <div className="flex items-center justify-between gap-3">
+          <div>
+            <h2 className="text-lg font-semibold text-zinc-200">
+              Testimoni Pembelian
+              <span className="ml-2 text-sm font-normal text-zinc-400/40">
+                ({testimonials.length})
+              </span>
+            </h2>
+            <p className="mt-1 text-xs text-zinc-400/40">
+              Kelola testimoni website dan pembelian manual.
+            </p>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setShowTestimonialForm((prev) => !prev)}
+              className="rounded-lg bg-amber-400 px-3 py-1.5 text-xs font-bold text-black transition hover:bg-amber-300"
+            >
+              {showTestimonialForm ? "Tutup" : "+ Tambah Manual"}
+            </button>
+
+            <button
+              type="button"
+              onClick={fetchTestimonials}
+              className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs text-zinc-400/60 transition-all duration-200 hover:bg-white/[0.05] hover:text-zinc-200"
+            >
+              <RefreshCw size={12} className={testimonialsLoading ? "animate-spin" : ""} />
+              Refresh
+            </button>
+          </div>
+        </div>
+
+        {showTestimonialForm && (
+          <div className="rounded-2xl border border-white/[0.07] bg-white/[0.025] p-5 backdrop-blur-xl">
+            <div className="mb-4">
+              <h3 className="text-sm font-bold text-zinc-200">
+                Tambah Testimoni Manual
+              </h3>
+              <p className="mt-1 text-xs text-zinc-400/40">
+                Testimoni manual langsung dipublikasikan setelah disimpan.
+              </p>
+            </div>
+
+            <div className="grid gap-3 sm:grid-cols-2">
+              <input
+                value={testimonialForm.customerName}
+                onChange={(e) =>
+                  setTestimonialForm((prev) => ({
+                    ...prev,
+                    customerName: e.target.value,
+                  }))
+                }
+                placeholder="Nama customer"
+                className="rounded-xl border border-white/[0.07] bg-white/[0.035] px-3 py-2.5 text-sm text-white outline-none placeholder:text-white/25 focus:border-amber-400/40"
+              />
+
+              <input
+                value={testimonialForm.productName}
+                onChange={(e) =>
+                  setTestimonialForm((prev) => ({
+                    ...prev,
+                    productName: e.target.value,
+                  }))
+                }
+                placeholder="Nama produk"
+                className="rounded-xl border border-white/[0.07] bg-white/[0.035] px-3 py-2.5 text-sm text-white outline-none placeholder:text-white/25 focus:border-amber-400/40"
+              />
+
+              <input
+                value={testimonialForm.productId}
+                onChange={(e) =>
+                  setTestimonialForm((prev) => ({
+                    ...prev,
+                    productId: e.target.value.replace(/\D/g, ""),
+                  }))
+                }
+                placeholder="ID produk (opsional)"
+                inputMode="numeric"
+                className="rounded-xl border border-white/[0.07] bg-white/[0.035] px-3 py-2.5 text-sm text-white outline-none placeholder:text-white/25 focus:border-amber-400/40"
+              />
+
+              <input
+                value={testimonialForm.duration}
+                onChange={(e) =>
+                  setTestimonialForm((prev) => ({
+                    ...prev,
+                    duration: e.target.value,
+                  }))
+                }
+                placeholder="Durasi, contoh: 30 Hari"
+                className="rounded-xl border border-white/[0.07] bg-white/[0.035] px-3 py-2.5 text-sm text-white outline-none placeholder:text-white/25 focus:border-amber-400/40"
+              />
+
+              <div className="sm:col-span-2">
+                <p className="mb-2 text-xs text-zinc-400/50">Rating</p>
+                <div className="flex items-center gap-1">
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <button
+                      key={star}
+                      type="button"
+                      onClick={() =>
+                        setTestimonialForm((prev) => ({
+                          ...prev,
+                          rating: star,
+                        }))
+                      }
+                      className={`text-2xl transition ${
+                        star <= testimonialForm.rating
+                          ? "text-amber-400"
+                          : "text-white/15 hover:text-white/30"
+                      }`}
+                    >
+                      ★
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <textarea
+                value={testimonialForm.message}
+                onChange={(e) =>
+                  setTestimonialForm((prev) => ({
+                    ...prev,
+                    message: e.target.value,
+                  }))
+                }
+                placeholder="Pesan / pengalaman customer"
+                rows={4}
+                className="sm:col-span-2 resize-none rounded-xl border border-white/[0.07] bg-white/[0.035] px-3 py-2.5 text-sm leading-6 text-white outline-none placeholder:text-white/25 focus:border-amber-400/40"
+              />
+
+              <div className="sm:col-span-2">
+                <label className="block cursor-pointer rounded-xl border border-dashed border-white/[0.10] bg-white/[0.02] px-4 py-4 text-center transition hover:bg-white/[0.04]">
+                  <span className="text-xs text-zinc-400/60">
+                    {testimonialImage
+                      ? testimonialImage.name
+                      : "Upload foto / screenshot (opsional)"}
+                  </span>
+                  <input
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp"
+                    className="hidden"
+                    onChange={(e) =>
+                      setTestimonialImage(e.target.files?.[0] ?? null)
+                    }
+                  />
+                </label>
+              </div>
+            </div>
+
+            <div className="mt-4 flex justify-end gap-2">
+              <button
+                type="button"
+                onClick={() => setShowTestimonialForm(false)}
+                disabled={testimonialSaving}
+                className="rounded-xl bg-white/[0.05] px-4 py-2.5 text-xs font-semibold text-zinc-300 transition hover:bg-white/[0.08] disabled:opacity-50"
+              >
+                Batal
+              </button>
+
+              <button
+                type="button"
+                onClick={submitManualTestimonial}
+                disabled={testimonialSaving}
+                className="rounded-xl bg-amber-400 px-4 py-2.5 text-xs font-black text-black transition hover:bg-amber-300 disabled:opacity-50"
+              >
+                {testimonialSaving ? "Menyimpan..." : "Simpan Testimoni"}
+              </button>
+            </div>
+          </div>
+        )}
+
+        {testimonialsLoading ? (
+          <div className="flex justify-center py-12">
+            <Loader2 size={24} className="animate-spin text-zinc-200" />
+          </div>
+        ) : testimonials.length === 0 ? (
+          <div className="glass-card rounded-2xl py-12 text-center text-sm text-blue-300/30">
+            Belum ada testimoni.
+          </div>
+        ) : (
+          <div className="flex flex-col gap-3">
+            {testimonials.map((item) => (
+              <div
+                key={item.id}
+                className="glass-card rounded-2xl p-4 transition-all duration-200 hover:border-white/10"
+              >
+                <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                  <div className="min-w-0 flex-1">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="font-semibold text-zinc-200">
+                        {item.customerName}
+                      </span>
+
+                      <span className="rounded-full bg-white/[0.05] px-2 py-0.5 text-[10px] text-zinc-400">
+                        {item.purchaseType}
+                      </span>
+
+                      <span
+                        className={`rounded-full px-2 py-0.5 text-[10px] ${
+                          item.status === "PUBLISHED"
+                            ? "bg-emerald-400/10 text-emerald-300"
+                            : item.status === "REJECTED"
+                              ? "bg-red-400/10 text-red-300"
+                              : "bg-yellow-400/10 text-yellow-300"
+                        }`}
+                      >
+                        {item.status}
+                      </span>
+                    </div>
+
+                    <div className="mt-1 text-xs text-zinc-400/50">
+                      {item.productName} · {item.duration}
+                    </div>
+
+                    <div className="mt-2 text-amber-400">
+                      {"★".repeat(Math.max(0, Math.min(5, item.rating)))}
+                    </div>
+
+                    <p className="mt-3 text-sm leading-relaxed text-blue-200/70">
+                      {item.message}
+                    </p>
+
+                    <div className="mt-2 text-[11px] text-zinc-400/30">
+                      {new Date(item.createdAt).toLocaleString("id-ID")}
+                    </div>
+                  </div>
+
+                  <div className="flex flex-wrap gap-2 sm:justify-end">
+                    {item.status !== "PUBLISHED" && (
+                      <button
+                        type="button"
+                        disabled={testimonialActionId === item.id}
+                        onClick={() => handleTestimonialAction(item.id, "publish")}
+                        className="rounded-xl bg-emerald-400/10 px-3 py-2 text-xs font-semibold text-emerald-300 transition hover:bg-emerald-400/20 disabled:opacity-50"
+                      >
+                        ✓ Publish
+                      </button>
+                    )}
+
+                    {item.status !== "REJECTED" && (
+                      <button
+                        type="button"
+                        disabled={testimonialActionId === item.id}
+                        onClick={() => handleTestimonialAction(item.id, "reject")}
+                        className="rounded-xl bg-yellow-400/10 px-3 py-2 text-xs font-semibold text-yellow-300 transition hover:bg-yellow-400/20 disabled:opacity-50"
+                      >
+                        Tolak
+                      </button>
+                    )}
+
+                    <button
+                      type="button"
+                      disabled={testimonialActionId === item.id}
+                      onClick={() => handleTestimonialAction(item.id, "delete")}
+                      className="rounded-xl bg-red-400/10 px-3 py-2 text-xs font-semibold text-red-300 transition hover:bg-red-400/20 disabled:opacity-50"
+                    >
+                      Hapus
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    )}
     </div>
   );
 }

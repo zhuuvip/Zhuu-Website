@@ -25,3 +25,4 @@ export * from "./pushSubscriptions.js";
 export * from "./notificationPreferences.js";
 
 export * from "./promotions.js";
+export * from "./testimonials.js";
