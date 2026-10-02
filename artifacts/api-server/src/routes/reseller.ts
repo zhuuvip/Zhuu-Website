@@ -370,13 +370,15 @@ router.post(
         throw new HttpError(409, "Kamu sudah reseller lifetime");
       }
 
+      const walletUserId = String(existing?.wallet_user_id || userId);
+
       await tx.execute(
-        sql`INSERT INTO wallets (user_id, balance) VALUES (${userId}, 0) ON CONFLICT (user_id) DO NOTHING`,
+        sql`INSERT INTO wallets (user_id, balance) VALUES (${walletUserId}, 0) ON CONFLICT (user_id) DO NOTHING`,
       );
       const debit = rowsOf(
         await tx.execute(sql`
           UPDATE wallets SET balance = balance - ${price}, updated_at = NOW()
-          WHERE user_id = ${userId} AND balance >= ${price}
+          WHERE user_id = ${walletUserId} AND balance >= ${price}
           RETURNING balance
         `),
       )[0];
@@ -398,7 +400,7 @@ router.post(
 
       await tx.execute(sql`
         INSERT INTO wallet_transactions (user_id, type, amount, reference, description, status)
-        VALUES (${userId}, 'PURCHASE', ${-price},
+        VALUES (${walletUserId}, 'PURCHASE', ${-price},
                 ${`RESELLER-${plan.toUpperCase()}-${Date.now()}`},
                 ${`Rank Reseller Products (${plan === "monthly" ? "Bulanan" : "Lifetime"})`}, 'PAID')
       `);
