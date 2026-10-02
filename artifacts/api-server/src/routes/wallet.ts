@@ -263,17 +263,31 @@ router.patch("/admin/wallet/deposits/:id/confirm", requireAdmin, async (req, res
       return res.status(400).json({ error: "Deposit sudah diproses" });
     }
 
+    // Reseller yang terhubung ke Member harus menerima deposit
+    // ke wallet Member tersebut, bukan membuat/mengisi wallet reseller sendiri.
+    const resellerRows = await db.execute(
+      sql`SELECT wallet_user_id FROM reseller_members WHERE user_id = ${transaction.userId} LIMIT 1`,
+    );
+
+    const resellerMember = Array.isArray(resellerRows)
+      ? resellerRows[0]
+      : (resellerRows as any)?.rows?.[0];
+
+    const walletUserId = String(
+      resellerMember?.wallet_user_id || transaction.userId,
+    );
+
     let [wallet] = await db
       .select()
       .from(walletsTable)
-      .where(eq(walletsTable.userId, transaction.userId))
+      .where(eq(walletsTable.userId, walletUserId))
       .limit(1);
 
     if (!wallet) {
       [wallet] = await db
         .insert(walletsTable)
         .values({
-          userId: transaction.userId,
+          userId: walletUserId,
           balance: 0,
         })
         .returning();

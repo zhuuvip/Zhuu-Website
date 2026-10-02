@@ -87,6 +87,10 @@ function ensureResellerTables(): Promise<void> {
       await db.execute(sql`ALTER TABLE reseller_members ADD COLUMN IF NOT EXISTS wallet_user_id TEXT`);
       await db.execute(sql`ALTER TABLE reseller_members ADD COLUMN IF NOT EXISTS wallet_email TEXT`);
   await db.execute(sql`ALTER TABLE reseller_members ADD COLUMN IF NOT EXISTS wallet_username TEXT`);
+      await db.execute(sql`ALTER TABLE reseller_members ADD COLUMN IF NOT EXISTS api_key_hash TEXT`);
+      await db.execute(sql`ALTER TABLE reseller_members ADD COLUMN IF NOT EXISTS api_key_prefix TEXT`);
+      await db.execute(sql`ALTER TABLE reseller_members ADD COLUMN IF NOT EXISTS api_enabled BOOLEAN NOT NULL DEFAULT FALSE`);
+      await db.execute(sql`ALTER TABLE reseller_members ADD COLUMN IF NOT EXISTS api_created_at TIMESTAMPTZ`);
       await db.execute(sql`
         CREATE TABLE IF NOT EXISTS wallets (
           id SERIAL PRIMARY KEY,
@@ -129,6 +133,19 @@ function verifyPassword(pw: string, stored: string) {
   const known = Buffer.from(hash, "hex");
   return known.length === test.length && crypto.timingSafeEqual(known, test);
 }
+function generateResellerApiKey() {
+  const raw = crypto.randomBytes(32).toString("base64url");
+  return `zhuu_live_${raw}`;
+}
+
+function hashResellerApiKey(apiKey: string) {
+  return crypto.createHash("sha256").update(apiKey).digest("hex");
+}
+
+function apiKeyPrefix(apiKey: string) {
+  return apiKey.slice(0, 16);
+}
+
 function secret() {
   const s = process.env.RESELLER_SECRET;
   if (!s || s.length < 16) throw new Error("RESELLER_SECRET belum diatur");
@@ -315,6 +332,7 @@ async function requireReseller(req: Request, res: Response, next: NextFunction) 
       plan: row.plan,
       expiresAt: row.expires_at,
       balance: await walletBalance(db, userId),
+        wallet_user_id: row.wallet_user_id || null,
       walletEmail: row.wallet_email || null,
     };
 
@@ -328,6 +346,59 @@ async function requireReseller(req: Request, res: Response, next: NextFunction) 
 }
 
 /* ================= MEMBER (Clerk) ================= */
+
+async function requireResellerApi(req: Request, res: Response, next: NextFunction) {
+  try {
+    const auth = req.headers.authorization || "";
+    if (!auth.startsWith("Bearer ")) {
+      return res.status(401).json({ error: "API key required" });
+    }
+
+    const apiKey = auth.slice(7).trim();
+    if (!apiKey.startsWith("zhuu_live_")) {
+      return res.status(401).json({ error: "Invalid API key" });
+    }
+
+    const hash = hashResellerApiKey(apiKey);
+
+    const rows = await db.execute(sql`
+      SELECT *
+      FROM reseller_members
+      WHERE api_key_hash = ${hash}
+      LIMIT 1
+    `);
+
+    const acc = rows.rows?.[0] as any;
+
+    if (!acc || !acc.api_enabled) {
+      return res.status(401).json({ error: "Invalid or disabled API key" });
+    }
+
+    if (acc.status !== "ACTIVE") {
+      return res.status(403).json({ error: "Reseller account is not active" });
+    }
+
+    if (acc.expires_at && new Date(acc.expires_at).getTime() < Date.now()) {
+      return res.status(403).json({ error: "Reseller plan expired" });
+    }
+
+    (req as any).reseller = {
+      userId: acc.user_id,
+      username: acc.username,
+      plan: acc.plan,
+      expiresAt: acc.expires_at,
+      balance: await walletBalance(db, acc.user_id),
+      wallet_user_id: acc.wallet_user_id || null,
+      walletEmail: acc.wallet_email || null,
+    };
+
+    return next();
+  } catch (err) {
+    console.error("[reseller-api-auth]", err);
+    return res.status(500).json({ error: "API authentication failed" });
+  }
+}
+
 router.get(
   "/reseller/plans",
   h(async (req, res) => {
@@ -572,6 +643,154 @@ router.post(
   }),
 );
 
+
+router.post("/reseller/api-key", requireReseller, async (req, res) => {
+  try {
+    const acc = (req as any).reseller;
+    const apiKey = generateResellerApiKey();
+    const hash = hashResellerApiKey(apiKey);
+    const prefix = apiKeyPrefix(apiKey);
+
+    await db.execute(sql`
+      UPDATE reseller_members
+      SET
+        api_key_hash = ${hash},
+        api_key_prefix = ${prefix},
+        api_enabled = TRUE,
+        api_created_at = NOW()
+      WHERE user_id = ${acc.userId}
+    `);
+
+    return res.json({
+      success: true,
+      apiKey,
+      prefix,
+      enabled: true,
+      warning: "Simpan API key ini sekarang. Key lengkap hanya ditampilkan saat dibuat."
+    });
+  } catch (err) {
+    console.error("[reseller-api-key-create]", err);
+    return res.status(500).json({ error: "Failed to generate API key" });
+  }
+});
+
+router.get("/reseller/api-key", requireReseller, async (req, res) => {
+  try {
+    const acc = (req as any).reseller;
+
+    const rows = await db.execute(sql`
+      SELECT api_key_prefix, api_enabled, api_created_at
+      FROM reseller_members
+      WHERE user_id = ${acc.userId}
+      LIMIT 1
+    `);
+
+    const row = rows.rows?.[0] as any;
+
+    return res.json({
+      enabled: !!row?.api_enabled,
+      prefix: row?.api_key_prefix || null,
+      createdAt: row?.api_created_at || null
+    });
+  } catch (err) {
+    console.error("[reseller-api-key-info]", err);
+    return res.status(500).json({ error: "Failed to get API key info" });
+  }
+});
+
+router.delete("/reseller/api-key", requireReseller, async (req, res) => {
+  try {
+    const acc = (req as any).reseller;
+
+    await db.execute(sql`
+      UPDATE reseller_members
+      SET api_key_hash = NULL,
+          api_key_prefix = NULL,
+          api_enabled = FALSE,
+          api_created_at = NULL
+      WHERE user_id = ${acc.userId}
+    `);
+
+    return res.json({
+      success: true,
+      enabled: false
+    });
+  } catch (err) {
+    console.error("[reseller-api-key-revoke]", err);
+    return res.status(500).json({ error: "Failed to revoke API key" });
+  }
+});
+
+
+router.get("/reseller/v1/balance", requireResellerApi, async (req, res) => {
+  try {
+    const acc = (req as any).reseller;
+    const balance = await walletBalance(db, acc.userId);
+
+    return res.json({
+      success: true,
+      balance,
+      currency: "IDR"
+    });
+  } catch (err) {
+    console.error("[reseller-api-balance]", err);
+    return res.status(500).json({ error: "Failed to get balance" });
+  }
+});
+
+router.get("/reseller/v1/products", requireResellerApi, async (req, res) => {
+  try {
+    const result = await db.execute(sql`
+      SELECT
+        p.id,
+        p.name,
+        p.description,
+        p.image,
+        p.category,
+        o.id AS option_id,
+        o.name AS option_name,
+        o.reseller_price,
+        o.stock
+      FROM products p
+      LEFT JOIN product_options o ON o.product_id = p.id
+      WHERE p.active = TRUE
+      ORDER BY p.id ASC, o.id ASC
+    `);
+
+    const products = new Map<string, any>();
+
+    for (const row of result.rows as any[]) {
+      if (!products.has(row.id)) {
+        products.set(row.id, {
+          id: row.id,
+          name: row.name,
+          description: row.description,
+          image: row.image,
+          category: row.category,
+          options: []
+        });
+      }
+
+      if (row.option_id) {
+        products.get(row.id).options.push({
+          id: row.option_id,
+          name: row.option_name,
+          price: row.reseller_price,
+          stock: row.stock
+        });
+      }
+    }
+
+    return res.json({
+      success: true,
+      products: Array.from(products.values())
+    });
+  } catch (err) {
+    console.error("[reseller-api-products]", err);
+    return res.status(500).json({ error: "Failed to get products" });
+  }
+});
+
 router.get("/reseller/me", requireReseller, (req, res) => {
   const a = (req as any).reseller;
   res.json({
@@ -678,10 +897,7 @@ router.post(
   }),
 );
 
-router.post(
-  "/reseller/orders",
-  requireReseller,
-  h(async (req, res) => {
+async function createResellerOrder(req: Request, res: Response) {
     const acc = (req as any).reseller;
 
     await ensureOrdersIdempotencySchema();
@@ -1332,8 +1548,51 @@ router.post(
           : "Pembelian gagal. Saldo sudah dikembalikan.",
       );
     }
-  }),
+}
+
+router.post(
+  "/reseller/orders",
+  requireReseller,
+  h(createResellerOrder),
 );
+
+router.post(
+  "/reseller/v1/orders",
+  requireResellerApi,
+  h(createResellerOrder),
+);
+
+router.get("/reseller/v1/orders/:id", requireResellerApi, h(async (req, res) => {
+  const acc = (req as any).reseller;
+  const orderId = Number(req.params.id);
+
+  if (!Number.isInteger(orderId) || orderId <= 0) {
+    throw new HttpError(400, "Order ID tidak valid");
+  }
+
+  const tag = `reseller:${acc.username}`;
+
+  const [order] = await db
+    .select()
+    .from(ordersTable)
+    .where(
+      and(
+        eq(ordersTable.id, orderId),
+        eq(ordersTable.whatsapp, tag),
+      ),
+    )
+    .limit(1);
+
+  if (!order) {
+    throw new HttpError(404, "Order tidak ditemukan");
+  }
+
+  return res.json({
+    success: true,
+    order,
+  });
+}));
+
 router.get(
   "/reseller/orders",
   requireReseller,
