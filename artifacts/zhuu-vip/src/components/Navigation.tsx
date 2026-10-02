@@ -28,6 +28,7 @@ const MAIN_ITEMS = [
   { path: "/", label: "Home", Icon: Home },
   { path: "/products", label: "Products", Icon: ShoppingBag },
   { path: "/free", label: "Free Hub", Icon: Gift },
+  { path: "/testimoni", label: "Testimoni", Icon: MessageSquare },
   { path: "/member", label: "Member", Icon: Sparkles },
 ];
 
@@ -41,7 +42,6 @@ const MORE_ITEMS = [
   { path: "/zhuu-chat", label: "Chat", Icon: MessageSquare },
   { path: "/promote", label: "Promotion", Icon: Gift },
   { path: "/feedback", label: "Feedback", Icon: MessageSquare },
-  { path: "/testimoni", label: "Testimoni", Icon: MessageSquare },
   { path: "/sharecard", label: "Share Card", Icon: Link2 },
 ];
 
