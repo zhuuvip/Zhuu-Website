@@ -1,13 +1,11 @@
 packages:
   - artifacts/*
   - lib/*
-  - lib/*
-  - lib/integrations/*
   - scripts
 
 allowBuilds:
-  '@clerk/shared': set this to true or false
-  esbuild: set this to true or false
+  '@clerk/shared': false
+  esbuild: true
 
 autoInstallPeers: false
 

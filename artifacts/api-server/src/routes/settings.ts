@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { db } from "@workspace/db";
 import { settingsTable } from "@workspace/db";
-import { eq } from "drizzle-orm";
+import { sql } from "drizzle-orm";
 import { requireAdmin } from "../lib/auth.js";
 
 const router = Router();
@@ -58,37 +58,74 @@ router.put("/settings", requireAdmin, async (req, res) => {
   }
 });
 
-export default router;
-
 // Announcements
+// Tabel `announcements` tidak ada di lib/db/src/schema (hanya di drizzle/schema.ts hasil introspeksi),
+// jadi `drizzle-kit push` di database baru tidak membuatnya. Pastikan tabelnya ada.
+let announcementsReady: Promise<void> | null = null;
+
+function ensureAnnouncementsTable(): Promise<void> {
+  if (!announcementsReady) {
+    announcementsReady = (async () => {
+      await db.execute(sql`
+        CREATE TABLE IF NOT EXISTS announcements (
+          id SERIAL PRIMARY KEY,
+          message TEXT NOT NULL,
+          is_active BOOLEAN NOT NULL DEFAULT TRUE,
+          color TEXT NOT NULL DEFAULT '#00d4ff',
+          created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
+        )
+      `);
+    })().catch((e) => {
+      announcementsReady = null;
+      throw e;
+    });
+  }
+  return announcementsReady;
+}
+
+const HEX_COLOR_RE = /^#(?:[0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/;
+
 router.get("/announcements", async (req, res) => {
   try {
-    const result = await db.execute(`SELECT * FROM announcements WHERE is_active = true ORDER BY created_at DESC LIMIT 1`);
+    await ensureAnnouncementsTable();
+    const result = await db.execute(
+      sql`SELECT * FROM announcements WHERE is_active = true ORDER BY created_at DESC LIMIT 1`
+    );
     return res.json(result.rows[0] || null);
   } catch (err) {
+    req.log.error(err);
     return res.status(500).json({ error: "Failed to fetch announcement" });
   }
 });
 
 router.post("/announcements", requireAdmin, async (req, res) => {
-  const { message, color } = req.body as { message: string; color?: string };
-  if (!message?.trim()) return res.status(400).json({ error: "Message required" });
+  const { message, color } = (req.body ?? {}) as { message?: string; color?: string };
+  if (typeof message !== "string" || !message.trim()) {
+    return res.status(400).json({ error: "Message required" });
+  }
+  const safeColor = typeof color === "string" && HEX_COLOR_RE.test(color) ? color : "#00d4ff";
   try {
-    await db.execute(`UPDATE announcements SET is_active = false`);
+    await ensureAnnouncementsTable();
+    await db.execute(sql`UPDATE announcements SET is_active = false`);
     const result = await db.execute(
-      `INSERT INTO announcements (message, color) VALUES ('${message.replace(/'/g, "''")}', '${color || "#00d4ff"}') RETURNING *`
+      sql`INSERT INTO announcements (message, color) VALUES (${message.trim()}, ${safeColor}) RETURNING *`
     );
     return res.json(result.rows[0]);
   } catch (err) {
+    req.log.error(err);
     return res.status(500).json({ error: "Failed to create announcement" });
   }
 });
 
 router.delete("/announcements", requireAdmin, async (req, res) => {
   try {
-    await db.execute(`UPDATE announcements SET is_active = false`);
+    await ensureAnnouncementsTable();
+    await db.execute(sql`UPDATE announcements SET is_active = false`);
     return res.json({ success: true });
   } catch (err) {
+    req.log.error(err);
     return res.status(500).json({ error: "Failed to delete announcement" });
   }
 });
+
+export default router;

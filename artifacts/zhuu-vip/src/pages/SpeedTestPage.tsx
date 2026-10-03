@@ -42,11 +42,13 @@ function SpeedGauge({ value, max, label, unit, color }: { value: number; max: nu
   );
 }
 
+const API_BASE = (import.meta.env.VITE_API_URL || "").replace(/\/$/, "");
+
 async function measurePing(): Promise<{ ping: number; jitter: number }> {
   const pings: number[] = [];
   for (let i = 0; i < 5; i++) {
     const start = performance.now();
-    try { await fetch("/api/healthz", { cache: "no-store" }); } catch { }
+    try { await fetch(`${API_BASE}/api/healthz?t=${Date.now()}`, { cache: "no-store" }); } catch { }
     pings.push(performance.now() - start);
     await new Promise(r => setTimeout(r, 100));
   }

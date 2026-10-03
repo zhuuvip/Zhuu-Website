@@ -679,7 +679,11 @@ function parseMarkdown(md: string): string {
     .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
     .replace(/\*(.+?)\*/g, "<em>$1</em>")
     .replace(/~~(.+?)~~/g, "<del>$1</del>")
-    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>')
+    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, (_m, label: string, url: string) =>
+      /^(https?:\/\/|mailto:|\/|#)/i.test(url.trim())
+        ? `<a href="${url.trim().replace(/"/g, "&quot;")}" target="_blank" rel="noopener noreferrer">${label}</a>`
+        : label,
+    )
     .replace(/^>\s(.+)$/gm, "<blockquote>$1</blockquote>")
     .replace(/^---$/gm, "<hr>")
     .replace(/^\d+\.\s(.+)$/gm, "<li>$1</li>")

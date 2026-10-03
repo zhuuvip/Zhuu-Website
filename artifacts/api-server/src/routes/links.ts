@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { db } from "@workspace/db";
 import { linksTable } from "@workspace/db";
-import { eq } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import {
   CreateLinkBody,
   UpdateLinkBody,
@@ -65,14 +65,12 @@ router.delete("/links/:id", requireAdmin, async (req, res) => {
   }
 });
 
-export default router;
-
 router.post("/links/:id/click", async (req, res) => {
   const id = Number(req.params.id);
-  if (isNaN(id)) return res.status(400).json({ error: "Invalid id" });
+  if (!Number.isInteger(id)) return res.status(400).json({ error: "Invalid id" });
   try {
     await db.execute(
-      `UPDATE links SET click_count = click_count + 1 WHERE id = ${id}`
+      sql`UPDATE links SET click_count = click_count + 1 WHERE id = ${id}`
     );
     return res.json({ success: true });
   } catch (err) {
@@ -80,3 +78,5 @@ router.post("/links/:id/click", async (req, res) => {
     return res.status(500).json({ error: "Failed to track click" });
   }
 });
+
+export default router;

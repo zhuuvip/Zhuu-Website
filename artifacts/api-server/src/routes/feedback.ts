@@ -101,8 +101,6 @@ router.delete("/feedback/:id", requireAdmin, async (req, res) => {
   }
 });
 
-export default router;
-
 router.get("/guestbook", async (req, res) => {
   try {
     const rows = await db
@@ -122,3 +120,5 @@ router.get("/guestbook", async (req, res) => {
     res.status(500).json({ error: "Failed to fetch guestbook" });
   }
 });
+
+export default router;

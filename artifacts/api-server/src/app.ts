@@ -1,4 +1,5 @@
 import express from "express";
+import type { NextFunction, Request, Response } from "express";
 import cors from "cors";
 import pinoHttp from "pino-http";
 import { clerkMiddleware } from "@clerk/express";
@@ -40,5 +41,27 @@ app.use(clerkMiddleware());
    ROUTES
 ========================= */
 app.use("/api", router);
+
+/* =========================
+   ERROR HANDLER
+   Body JSON rusak / terlalu besar, dsb. dibalas JSON (bukan halaman HTML Express).
+========================= */
+app.use((err: any, req: Request, res: Response, next: NextFunction) => {
+  if (res.headersSent) return next(err);
+
+  const status = Number(err?.status ?? err?.statusCode) || 500;
+  const code = status >= 400 && status < 600 ? status : 500;
+
+  (req as any).log?.error?.(err);
+
+  res.status(code).json({
+    error:
+      code === 413
+        ? "Ukuran data terlalu besar."
+        : code < 500
+          ? "Request tidak valid."
+          : "Internal server error",
+  });
+});
 
 export default app;

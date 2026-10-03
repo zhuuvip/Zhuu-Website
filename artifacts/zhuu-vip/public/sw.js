@@ -14,8 +14,15 @@ self.addEventListener("activate", (e) => {
 });
 
 self.addEventListener("fetch", (e) => {
+  // Hanya tangani GET. POST/PUT/DELETE (API, upload, SSE chat) dibiarkan langsung ke network.
+  if (e.request.method !== "GET") return;
+
   e.respondWith(
-    fetch(e.request).catch(() => caches.match(e.request)),
+    fetch(e.request).catch(async () => {
+      const cached = await caches.match(e.request);
+      // respondWith() wajib menerima Response; jangan pernah kirim undefined.
+      return cached || Response.error();
+    }),
   );
 });
 
@@ -34,8 +41,8 @@ self.addEventListener("push", (event) => {
   event.waitUntil(
     self.registration.showNotification(title, {
       body: data.message || "",
-      icon: data.icon || "/favicon.ico",
-      badge: data.badge || "/favicon.ico",
+      icon: data.icon || "/icon-192.png",
+      badge: data.badge || "/icon-192.png",
       data: {
         link: data.link || "/notifications",
       },

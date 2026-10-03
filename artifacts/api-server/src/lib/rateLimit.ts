@@ -10,12 +10,14 @@ const store = new Map<string, RateLimitEntry>();
 export function rateLimit(options: { windowMs: number; max: number; message?: string }) {
   const { windowMs, max, message = "Too many requests, please try again later." } = options;
 
-  setInterval(() => {
+  const cleanup = setInterval(() => {
     const now = Date.now();
     for (const [key, entry] of store.entries()) {
       if (entry.resetAt <= now) store.delete(key);
     }
   }, windowMs);
+  // Jangan tahan proses Node tetap hidup hanya karena timer pembersih ini.
+  (cleanup as unknown as { unref?: () => void }).unref?.();
 
   return function rateLimitMiddleware(req: Request, res: Response, next: NextFunction): void {
     const ip = (req.headers["x-forwarded-for"] as string)?.split(",")[0]?.trim() || req.socket?.remoteAddress || "unknown";

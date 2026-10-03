@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useAuth, useUser } from "@clerk/react";
 import { getImageUrl } from "../lib/imageUrl";
 
-const API_BASE = "https://zhuuapi.vercel.app";
+const API_BASE = (import.meta.env.VITE_API_URL || "https://zhuuapi.vercel.app").replace(/\/$/, "");
 const WA = "62882005730502";
 
 type ProductOption = {
@@ -497,7 +497,7 @@ export default function ProductsPage() {
           );
         }
 
-        const uploadRes = await fetch("/api/testimonial-upload", {
+        const uploadRes = await fetch(`${API_BASE}/api/testimonial-upload`, {
           method: "POST",
           headers: {
             Authorization: `Bearer ${token}`,
@@ -519,7 +519,7 @@ export default function ProductsPage() {
         imageUrl = uploadData.pathname;
       }
 
-      const res = await fetch("/api/testimonials", {
+      const res = await fetch(`${API_BASE}/api/testimonials`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,

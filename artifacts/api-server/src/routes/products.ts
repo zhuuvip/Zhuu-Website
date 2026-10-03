@@ -83,7 +83,7 @@ function ensureProductsSchema(): Promise<void> {
       throw e;
     });
   }
-  return productsSchemaReady;
+  return productsSchemaReady as Promise<void>;
 }
 
 router.get("/products", async (req, res) => {

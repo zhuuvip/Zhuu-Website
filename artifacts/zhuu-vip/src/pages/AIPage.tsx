@@ -156,6 +156,15 @@ function DailyLimitCard({
   );
 }
 
+function escapeHtml(value: string): string {
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
 function formatContent(text: string): React.ReactNode {
   if (!text) return null;
   const codeBlockRe = /```(\w+)?\n?([\s\S]*?)```/g;
@@ -178,14 +187,14 @@ function formatContent(text: string): React.ReactNode {
   for (const m of allMatches) {
     if (m.index > lastIndex) {
       const seg = text.slice(lastIndex, m.index);
-      parts.push(<span key={lastIndex} dangerouslySetInnerHTML={{ __html: seg.replace(inlineCodeRe, '<code style="background:rgba(255,255,255,0.06);padding:2px 5px;border-radius:4px;color:#e4e4e7;font-size:0.9em">$1</code>').replace(/\n/g, "<br/>") }} />);
+      parts.push(<span key={lastIndex} dangerouslySetInnerHTML={{ __html: escapeHtml(seg).replace(inlineCodeRe, '<code style="background:rgba(255,255,255,0.06);padding:2px 5px;border-radius:4px;color:#e4e4e7;font-size:0.9em">$1</code>').replace(/\n/g, "<br/>") }} />);
     }
     parts.push(m.node);
     lastIndex = m.end;
   }
   if (lastIndex < text.length) {
     const seg = text.slice(lastIndex);
-    parts.push(<span key={lastIndex} dangerouslySetInnerHTML={{ __html: seg.replace(inlineCodeRe, '<code style="background:rgba(255,255,255,0.06);padding:2px 5px;border-radius:4px;color:#e4e4e7;font-size:0.9em">$1</code>').replace(/\n/g, "<br/>") }} />);
+    parts.push(<span key={lastIndex} dangerouslySetInnerHTML={{ __html: escapeHtml(seg).replace(inlineCodeRe, '<code style="background:rgba(255,255,255,0.06);padding:2px 5px;border-radius:4px;color:#e4e4e7;font-size:0.9em">$1</code>').replace(/\n/g, "<br/>") }} />);
   }
   return parts;
 }
@@ -222,7 +231,7 @@ function useVoiceRecorder(onTranscript: (text: string) => void) {
 
     recognition.continuous = false;
     recognition.interimResults = false;
-    recognition.lang = "en-US";
+    recognition.lang = navigator.language || "id-ID";
 
     recognition.onresult = (e: any) => {
       const transcript = e.results[0]?.[0]?.transcript;

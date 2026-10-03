@@ -45,13 +45,29 @@ async function callGeminiWithRetry(
   history: { role: string; content: string }[],
   retries = 2
 ): Promise<string> {
-  const messages = history
+  // Prompt dikirim lewat query string (GET), jadi panjangnya harus dibatasi.
+  // Ambil pesan terbaru saja & potong tiap pesan, supaya tidak kena error 414 / URL terlalu panjang.
+  const MAX_HISTORY_MESSAGES = 12;
+  const MAX_MESSAGE_CHARS = 1500;
+  const MAX_TOTAL_CHARS = 5000;
+
+  const lines = history
     .filter((m) => m.content && m.content.trim())
+    .slice(-MAX_HISTORY_MESSAGES)
     .map((m) => {
       const role = m.role === "assistant" ? "ZhuuAI" : "User";
-      return `${role}: ${m.content.trim()}`;
-    })
-    .join("\n\n");
+      const text = m.content.trim();
+      const clipped =
+        text.length > MAX_MESSAGE_CHARS ? `${text.slice(0, MAX_MESSAGE_CHARS)}…` : text;
+      return `${role}: ${clipped}`;
+    });
+
+  // Buang pesan paling lama sampai total muat, tapi selalu sisakan pesan terakhir.
+  while (lines.length > 1 && lines.join("\n\n").length > MAX_TOTAL_CHARS) {
+    lines.shift();
+  }
+
+  const messages = lines.join("\n\n");
 
   if (!messages) {
     return "Silakan kirim pesan untuk memulai percakapan dengan ZhuuAI.";
@@ -128,9 +144,9 @@ ZhuuAI:`;
         (raw.trim() || null);
 
       if (text) {
-        return text
-          .replace(/^:::writing[\\s\\S]*?\\n/, "")
-          .replace(/\\n:::\s*$/, "")
+        return String(text)
+          .replace(/^:::writing[^\n]*\n/, "")
+          .replace(/\n:::\s*$/, "")
           .trim();
       }
 
@@ -292,6 +308,14 @@ router.post("/anthropic/conversations/:id/messages", async (req, res): Promise<v
       history.map((m) => ({ role: m.role, content: m.content }))
     );
 
+    // Simpan dulu sebelum response ditutup. Di Vercel (serverless) proses bisa dibekukan
+    // begitu res.end() dipanggil, sehingga insert setelahnya bisa tidak pernah selesai.
+    await db.insert(messages).values({
+      conversationId: params.data.id,
+      role: "assistant",
+      content: fullContent,
+    });
+
     res.setHeader("Content-Type", "text/event-stream");
     res.setHeader("Cache-Control", "no-cache");
     res.setHeader("Connection", "keep-alive");
@@ -299,12 +323,6 @@ router.post("/anthropic/conversations/:id/messages", async (req, res): Promise<v
     res.write(`data: ${JSON.stringify({ content: fullContent })}\n\n`);
     res.write(`data: ${JSON.stringify({ done: true })}\n\n`);
     res.end();
-
-    await db.insert(messages).values({
-      conversationId: params.data.id,
-      role: "assistant",
-      content: fullContent,
-    });
   } catch (err) {
     req.log.error(err);
     if (!res.headersSent) {
