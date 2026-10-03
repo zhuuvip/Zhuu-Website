@@ -74,6 +74,14 @@ export default function ResellerDashboardPage() {
 
   const [copied, setCopied] = useState(false);
 
+  const [apiKeyPrefix, setApiKeyPrefix] = useState("");
+  const [apiKeyEnabled, setApiKeyEnabled] = useState(false);
+  const [apiKeyCreatedAt, setApiKeyCreatedAt] = useState("");
+  const [newApiKey, setNewApiKey] = useState("");
+  const [apiKeyLoading, setApiKeyLoading] = useState(false);
+  const [apiKeyCopied, setApiKeyCopied] = useState(false);
+  const [apiKeyMsg, setApiKeyMsg] = useState("");
+
   const formatRupiah = (value: number) =>
     `Rp${Number(value || 0).toLocaleString("id-ID")}`;
 
@@ -179,6 +187,93 @@ export default function ResellerDashboardPage() {
     }
   };
 
+  const loadApiKey = async () => {
+    try {
+      const data = await resellerApi("/api/reseller/api-key");
+      setApiKeyPrefix(String(data.prefix || ""));
+      setApiKeyEnabled(Boolean(data.enabled));
+      setApiKeyCreatedAt(String(data.createdAt || ""));
+    } catch {
+      setApiKeyPrefix("");
+      setApiKeyEnabled(false);
+      setApiKeyCreatedAt("");
+    }
+  };
+
+  const generateApiKey = async () => {
+    if (
+      !window.confirm(
+        apiKeyEnabled
+          ? "Generate API Key baru? API Key lama akan langsung tidak berlaku."
+          : "Generate API Key untuk akun reseller ini?"
+      )
+    ) {
+      return;
+    }
+
+    try {
+      setApiKeyLoading(true);
+      setApiKeyMsg("");
+      setNewApiKey("");
+
+      const data = await resellerApi("/api/reseller/api-key", {
+        method: "POST",
+      });
+
+      setNewApiKey(String(data.apiKey || ""));
+      setApiKeyPrefix(String(data.prefix || ""));
+      setApiKeyEnabled(Boolean(data.enabled));
+      setApiKeyCreatedAt(new Date().toISOString());
+      setApiKeyCopied(false);
+      setApiKeyMsg("API Key berhasil dibuat. Simpan sekarang, key lengkap hanya ditampilkan sekali.");
+    } catch (err) {
+      setApiKeyMsg(
+        err instanceof Error ? err.message : "Gagal membuat API Key."
+      );
+    } finally {
+      setApiKeyLoading(false);
+    }
+  };
+
+  const copyApiKey = async () => {
+    if (!newApiKey) return;
+
+    try {
+      await navigator.clipboard.writeText(newApiKey);
+      setApiKeyCopied(true);
+      window.setTimeout(() => setApiKeyCopied(false), 2000);
+    } catch {
+      setApiKeyMsg("Gagal menyalin API Key.");
+    }
+  };
+
+  const revokeApiKey = async () => {
+    if (!window.confirm("Revoke API Key? Semua request dengan key ini akan ditolak.")) {
+      return;
+    }
+
+    try {
+      setApiKeyLoading(true);
+      setApiKeyMsg("");
+
+      await resellerApi("/api/reseller/api-key", {
+        method: "DELETE",
+      });
+
+      setNewApiKey("");
+      setApiKeyPrefix("");
+      setApiKeyEnabled(false);
+      setApiKeyCreatedAt("");
+      setApiKeyMsg("API Key berhasil di-revoke.");
+    } catch (err) {
+      setApiKeyMsg(
+        err instanceof Error ? err.message : "Gagal revoke API Key."
+      );
+    } finally {
+      setApiKeyLoading(false);
+    }
+  };
+
   const loadHistory = async () => {
     try {
       const data = await resellerApi("/api/reseller/orders");
@@ -199,6 +294,7 @@ export default function ResellerDashboardPage() {
     loadProducts();
     loadWallet();
     loadHistory();
+    loadApiKey();
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -644,6 +740,113 @@ export default function ResellerDashboardPage() {
                 ↻
               </button>
             </div>
+          </div>
+        </section>
+
+        {/* Reseller API Key */}
+        <section className="mb-8 overflow-hidden rounded-2xl border border-white/[0.07] bg-white/[0.035] shadow-2xl shadow-black/30 backdrop-blur-xl">
+          <div className="flex flex-col gap-5 p-4 sm:p-6">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.12em] text-white/40">
+                  Developer Access
+                </p>
+                <h2 className="mt-1 text-xl font-bold">
+                  Reseller API Key
+                </h2>
+                <p className="mt-1 text-sm leading-6 text-white/40">
+                  Gunakan API Key untuk mengakses produk, saldo, dan order reseller.
+                </p>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <span
+                  className={`rounded-full px-3 py-1.5 text-xs font-bold ${
+                    apiKeyEnabled
+                      ? "bg-emerald-400/10 text-emerald-300 ring-1 ring-emerald-400/20"
+                      : "bg-white/[0.05] text-white/35 ring-1 ring-white/[0.07]"
+                  }`}
+                >
+                  {apiKeyEnabled ? "● Aktif" : "○ Belum aktif"}
+                </span>
+              </div>
+            </div>
+
+            {apiKeyEnabled && (
+              <div className="rounded-xl border border-white/[0.06] bg-black/20 p-4">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                  <div className="min-w-0">
+                    <p className="text-xs text-white/35">API Key</p>
+                    <p className="mt-1 truncate font-mono text-sm text-white/70">
+                      {apiKeyPrefix || "zhuu_live_••••••••"}
+                    </p>
+                    {apiKeyCreatedAt && (
+                      <p className="mt-1 text-xs text-white/25">
+                        Dibuat {new Date(apiKeyCreatedAt).toLocaleString("id-ID")}
+                      </p>
+                    )}
+                  </div>
+
+                  <button
+                    onClick={generateApiKey}
+                    disabled={apiKeyLoading}
+                    className="shrink-0 rounded-xl border border-purple-400/20 bg-purple-500/10 px-4 py-3 text-sm font-bold text-purple-200 transition hover:bg-purple-500/15 disabled:opacity-40"
+                  >
+                    {apiKeyLoading ? "Memproses..." : "Generate Baru"}
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {newApiKey && (
+              <div className="rounded-xl border border-amber-400/20 bg-amber-400/[0.05] p-4">
+                <p className="text-xs font-bold uppercase tracking-wider text-amber-300/80">
+                  Simpan API Key sekarang
+                </p>
+                <div className="mt-3 flex flex-col gap-2 sm:flex-row">
+                  <code className="min-w-0 flex-1 overflow-x-auto rounded-xl border border-white/[0.07] bg-black/30 px-4 py-3 text-xs text-white/75">
+                    {newApiKey}
+                  </code>
+                  <button
+                    onClick={copyApiKey}
+                    className="shrink-0 rounded-xl border border-white/[0.07] px-4 py-3 text-sm font-bold text-white/70 transition hover:bg-white/[0.06] hover:text-white"
+                  >
+                    {apiKeyCopied ? "✓ Disalin" : "Salin Key"}
+                  </button>
+                </div>
+                <p className="mt-3 text-xs leading-5 text-amber-200/50">
+                  Key lengkap hanya ditampilkan setelah dibuat. Jangan bagikan key ini kepada orang lain.
+                </p>
+              </div>
+            )}
+
+            {!apiKeyEnabled && !newApiKey && (
+              <button
+                onClick={generateApiKey}
+                disabled={apiKeyLoading}
+                className="w-full rounded-xl border border-purple-400/20 bg-purple-500/10 px-4 py-3 text-sm font-bold text-purple-200 transition hover:bg-purple-500/15 disabled:opacity-40"
+              >
+                {apiKeyLoading ? "Membuat API Key..." : "Generate API Key"}
+              </button>
+            )}
+
+            {apiKeyEnabled && (
+              <div className="flex flex-col gap-2 sm:flex-row sm:justify-end">
+                <button
+                  onClick={revokeApiKey}
+                  disabled={apiKeyLoading}
+                  className="rounded-xl border border-red-400/20 px-4 py-3 text-sm font-bold text-red-300 transition hover:bg-red-500/10 disabled:opacity-40"
+                >
+                  Revoke API Key
+                </button>
+              </div>
+            )}
+
+            {apiKeyMsg && (
+              <p className="text-sm leading-5 text-white/50">
+                {apiKeyMsg}
+              </p>
+            )}
           </div>
         </section>
 
