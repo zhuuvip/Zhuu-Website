@@ -13,8 +13,15 @@ import {
 } from "@workspace/db";
 import { requireAdmin } from "../lib/auth.js";
 import { sql } from "drizzle-orm";
+import { DRIP_CATALOG } from "../data/dripCatalog.js";
 
 const router = Router();
+
+const DRIP_MODAL_BY_VARIANT = new Map(
+  DRIP_CATALOG.flatMap((product) =>
+    product.variants.map((variant) => [Number(variant.id), Number(variant.modal)]),
+  ),
+);
 
 router.get("/admin/stats", requireAdmin, async (req, res) => {
   try {
@@ -248,6 +255,38 @@ router.get("/admin/stats", requireAdmin, async (req, res) => {
         .limit(10),
     ]);
 
+    const profitOrders = await db
+      .select({
+        amount: ordersTable.amount,
+        dripVariantId: productOptionsTable.dripVariantId,
+      })
+      .from(ordersTable)
+      .leftJoin(
+        productOptionsTable,
+        sql`${productOptionsTable.id} = ${ordersTable.optionId}`,
+      )
+      .where(sql`UPPER(${ordersTable.status}) = 'PAID'`);
+
+    let profitRevenue = 0;
+    let dripCost = 0;
+    let countedOrders = 0;
+
+    for (const order of profitOrders) {
+      const variantId = order.dripVariantId;
+      if (variantId == null) continue;
+
+      const modal = DRIP_MODAL_BY_VARIANT.get(Number(variantId));
+      if (modal == null) continue;
+
+      profitRevenue += Number(order.amount) || 0;
+      dripCost += modal;
+      countedOrders++;
+    }
+
+    const netProfit = profitRevenue - dripCost;
+    const yourFee = Math.max(0, Math.round(netProfit * 0.60));
+    const richoProfit = netProfit - yourFee;
+
     res.json({
       links,
       songs,
@@ -269,6 +308,14 @@ router.get("/admin/stats", requireAdmin, async (req, res) => {
         depositTotal,
         topProducts,
         lowStockProducts,
+        profit: {
+          revenue: profitRevenue,
+          dripCost,
+          netProfit,
+          yourFee,
+          richoProfit,
+          countedOrders,
+        },
       },
     });
   } catch (err) {

@@ -72,6 +72,14 @@ interface Stats {
     orders7d: number;
     pendingDeposits: number;
     depositTotal: number;
+    profit: {
+      revenue: number;
+      dripCost: number;
+      netProfit: number;
+      yourFee: number;
+      richoProfit: number;
+      countedOrders: number;
+    };
     orderAnalytics7d: {
       date: string;
       total_orders: number;
@@ -1312,6 +1320,105 @@ const [deliveryValue, setDeliveryValue] = useState("");
                     icon={<Eye size={17} />}
                     color="#f472b6"
                   />
+                </div>
+              </div>
+
+              {/* Profit & Fee */}
+              <div>
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="w-1 h-5 rounded-full bg-emerald-300/80" />
+                  <h3 className="text-sm font-semibold text-zinc-100 tracking-tight">
+                    Profit & Fee
+                  </h3>
+                </div>
+
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2.5">
+                  <div className="glass-card rounded-2xl p-4 border border-white/[0.07] bg-white/[0.018]">
+                    <div className="text-[9px] uppercase tracking-[0.14em] font-semibold text-zinc-500/70 mb-2">
+                      Omzet Terhitung
+                    </div>
+                    <div className="text-lg font-bold tracking-tight text-zinc-100">
+                      Rp{(stats.business?.profit?.revenue ?? 0).toLocaleString("id-ID")}
+                    </div>
+                    <div className="text-[10px] text-zinc-500/60 mt-1">
+                      {stats.business?.profit?.countedOrders ?? 0} order
+                    </div>
+                  </div>
+
+                  <div className="glass-card rounded-2xl p-4 border border-white/[0.07] bg-white/[0.018]">
+                    <div className="text-[9px] uppercase tracking-[0.14em] font-semibold text-zinc-500/70 mb-2">
+                      Modal DRIP
+                    </div>
+                    <div className="text-lg font-bold tracking-tight text-zinc-100">
+                      Rp{(stats.business?.profit?.dripCost ?? 0).toLocaleString("id-ID")}
+                    </div>
+                    <div className="text-[10px] text-zinc-500/60 mt-1">
+                      Modal produk terjual
+                    </div>
+                  </div>
+
+                  <div className="glass-card rounded-2xl p-4 border border-white/[0.07] bg-white/[0.018]">
+                    <div className="text-[9px] uppercase tracking-[0.14em] font-semibold text-zinc-500/70 mb-2">
+                      Profit Bersih
+                    </div>
+                    <div className="text-lg font-bold tracking-tight text-emerald-200">
+                      Rp{(stats.business?.profit?.netProfit ?? 0).toLocaleString("id-ID")}
+                    </div>
+                    <div className="text-[10px] text-zinc-500/60 mt-1">
+                      Omzet − modal
+                    </div>
+                  </div>
+
+                  <div className="glass-card rounded-2xl p-4 border border-emerald-300/[0.08] bg-emerald-300/[0.018]">
+                    <div className="text-[9px] uppercase tracking-[0.14em] font-semibold text-emerald-300/60 mb-2">
+                      Fee Kamu · 60%
+                    </div>
+                    <div className="text-lg font-bold tracking-tight text-emerald-200">
+                      Rp{(stats.business?.profit?.yourFee ?? 0).toLocaleString("id-ID")}
+                    </div>
+                    <div className="text-[10px] text-zinc-500/60 mt-1">
+                      Dari profit bersih
+                    </div>
+                  </div>
+
+                  <div className="col-span-2 md:col-span-1 glass-card rounded-2xl p-4 border border-white/[0.07] bg-white/[0.018]">
+                    <div className="text-[9px] uppercase tracking-[0.14em] font-semibold text-zinc-500/70 mb-2">
+                      Richo · 40%
+                    </div>
+                    <div className="text-lg font-bold tracking-tight text-zinc-100">
+                      Rp{(stats.business?.profit?.richoProfit ?? 0).toLocaleString("id-ID")}
+                    </div>
+                    <div className="text-[10px] text-zinc-500/60 mt-1">
+                      Profit setelah fee
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mt-2.5 glass-card rounded-2xl p-4 border border-white/[0.06] bg-white/[0.012]">
+                  <div className="flex items-start gap-3">
+                    <div className="p-2 rounded-xl bg-white/[0.04] border border-white/[0.05] text-zinc-300">
+                      <BarChart3 size={15} />
+                    </div>
+                    <div className="min-w-0">
+                      <div className="text-xs font-semibold text-zinc-200">
+                        Transparansi Perhitungan
+                      </div>
+                      <div className="text-[11px] leading-relaxed text-zinc-500/80 mt-1.5">
+                        Setiap order PAID yang memiliki mapping modal DRIP dihitung otomatis.
+                        Omzet yang benar-benar dibayar customer dikurangi modal DRIP untuk
+                        mendapatkan profit bersih. Dari profit bersih tersebut, 60% menjadi
+                        fee operasional untuk pengelolaan website, API, pengembangan,
+                        maintenance, dan operasional sistem, sedangkan 40% menjadi bagian
+                        profit Richo. Modal yang Richo masukkan tetap dianggap sebagai modal,
+                        bukan profit.
+                      </div>
+                      <div className="text-[10px] text-zinc-500/55 mt-2">
+                        Rumus: Harga jual − Modal DRIP = Profit Bersih → 60% Fee Kamu + 40% Richo.
+                        Order tanpa mapping modal tidak dimasukkan agar perhitungan tidak
+                        menghasilkan angka profit yang keliru.
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
 
