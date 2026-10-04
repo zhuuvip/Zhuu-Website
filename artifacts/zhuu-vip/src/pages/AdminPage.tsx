@@ -1398,7 +1398,7 @@ const [deliveryValue, setDeliveryValue] = useState("");
                       Saldo DRIP
                     </div>
                     <div className="text-lg font-bold tracking-tight text-sky-200">
-                      Rp{Number(dripBalance?.balance ?? dripBalance?.data?.balance ?? 0).toLocaleString("id-ID")}
+                      ${Number(dripBalance?.balance ?? dripBalance?.data?.balance ?? 0).toFixed(2)} USD
                     </div>
                     <div className="text-[10px] text-zinc-500/60 mt-1">
                       Saldo modal saat ini
