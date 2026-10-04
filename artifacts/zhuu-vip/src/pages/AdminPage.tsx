@@ -1381,15 +1381,27 @@ const [deliveryValue, setDeliveryValue] = useState("");
                     </div>
                   </div>
 
-                  <div className="col-span-2 md:col-span-1 glass-card rounded-2xl p-4 border border-white/[0.07] bg-white/[0.018]">
+                  <div className="glass-card rounded-2xl p-4 border border-white/[0.07] bg-white/[0.018]">
                     <div className="text-[9px] uppercase tracking-[0.14em] font-semibold text-zinc-500/70 mb-2">
-                      Richo · 40%
+                      Partner · 40%
                     </div>
                     <div className="text-lg font-bold tracking-tight text-zinc-100">
                       Rp{(stats.business?.profit?.richoProfit ?? 0).toLocaleString("id-ID")}
                     </div>
                     <div className="text-[10px] text-zinc-500/60 mt-1">
                       Profit setelah fee
+                    </div>
+                  </div>
+
+                  <div className="glass-card rounded-2xl p-4 border border-sky-300/[0.08] bg-sky-300/[0.018]">
+                    <div className="text-[9px] uppercase tracking-[0.14em] font-semibold text-sky-300/60 mb-2">
+                      Saldo DRIP
+                    </div>
+                    <div className="text-lg font-bold tracking-tight text-sky-200">
+                      Rp{Number(dripBalance?.balance ?? dripBalance?.data?.balance ?? 0).toLocaleString("id-ID")}
+                    </div>
+                    <div className="text-[10px] text-zinc-500/60 mt-1">
+                      Saldo modal saat ini
                     </div>
                   </div>
                 </div>
@@ -1409,11 +1421,11 @@ const [deliveryValue, setDeliveryValue] = useState("");
                         mendapatkan profit bersih. Dari profit bersih tersebut, 60% menjadi
                         fee operasional untuk pengelolaan website, API, pengembangan,
                         maintenance, dan operasional sistem, sedangkan 40% menjadi bagian
-                        profit Richo. Modal yang Richo masukkan tetap dianggap sebagai modal,
+                        profit Partner. Modal yang Partner masukkan tetap dianggap sebagai modal,
                         bukan profit.
                       </div>
                       <div className="text-[10px] text-zinc-500/55 mt-2">
-                        Rumus: Harga jual − Modal DRIP = Profit Bersih → 60% Fee Kamu + 40% Richo.
+                        Rumus: Harga jual − Modal DRIP = Profit Bersih → 60% Fee Kamu + 40% Partner.
                         Order tanpa mapping modal tidak dimasukkan agar perhitungan tidak
                         menghasilkan angka profit yang keliru.
                       </div>
