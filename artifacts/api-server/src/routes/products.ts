@@ -667,8 +667,8 @@ router.post(
 
   if (days === null || days <= 1) {
     return {
-      resellerPrice: Math.max(base + 5000, 5000),
-      memberPrice: Math.max(base + 8000, 8000),
+      resellerPrice: Math.max(base + 3000, 5000),
+      memberPrice: Math.max(base + 5000, 7000),
     };
   }
 
@@ -681,49 +681,49 @@ router.post(
 
   if (days <= 7) {
     return {
-      resellerPrice: base + 10000,
-      memberPrice: base + 15000,
-    };
-  }
-
-  if (days === 10) {
-    return {
       resellerPrice: base + 12000,
       memberPrice: base + 18000,
     };
   }
 
+  if (days === 10) {
+    return {
+      resellerPrice: base + 14000,
+      memberPrice: base + 20000,
+    };
+  }
+
   if (days === 14 || days === 15) {
     return {
-      resellerPrice: base + 16000,
-      memberPrice: base + 24000,
+      resellerPrice: base + 18000,
+      memberPrice: base + 26000,
     };
   }
 
   if (days === 20) {
-    return {
-      resellerPrice: base + 18000,
-      memberPrice: base + 27000,
-    };
-  }
-
-  if (days === 28) {
     return {
       resellerPrice: base + 20000,
       memberPrice: base + 29000,
     };
   }
 
-  if (days === 30 || days === 31) {
+  if (days === 28) {
     return {
       resellerPrice: base + 22000,
       memberPrice: base + 32000,
     };
   }
 
+  if (days === 30 || days === 31) {
+    return {
+      resellerPrice: base + 25000,
+      memberPrice: base + 35000,
+    };
+  }
+
   return {
-    resellerPrice: base + 10000,
-    memberPrice: base + 15000,
+    resellerPrice: base + 12000,
+    memberPrice: base + 18000,
   };
 };
 
