@@ -10,6 +10,7 @@ import {
 import { and, eq, sql } from "drizzle-orm";
 import { requireAdmin, isAdmin } from "../lib/auth.js";
 import { getDripProducts } from "../lib/dripApi.js";
+import { priceProductVariants } from "../lib/pricing.js";
 
 const router = Router();
 
@@ -651,101 +652,6 @@ router.post(
         return usd * DRIP_USD_TO_IDR;
       };
 
-      const ceil1000 = (value: number): number =>
-        Math.ceil(value / 1000) * 1000;
-
-      const calculateNewPrices = (
-  modal: number,
-  duration: string,
-): {
-  resellerPrice: number;
-  memberPrice: number;
-} => {
-  const normalized = duration.trim().toLowerCase();
-  const base = ceil1000(modal);
-
-  // Hour-based products: 1h, 3h, 6h, 12h, etc.
-  const hourMatch = normalized.match(/^(\d+)\s*h(?:our|hours)?$/);
-  if (hourMatch) {
-    return {
-      resellerPrice: Math.max(base + 3000, 5000),
-      memberPrice: Math.max(base + 5000, 7000),
-    };
-  }
-
-  // Day-based products: 1d, 1 day, 1day, 3 days, 30day, etc.
-  const dayMatch = normalized.match(/^(\d+)\s*(?:d|day|days)$/);
-  const days = dayMatch ? Number(dayMatch[1]) : null;
-
-  if (days === null) {
-    return {
-      resellerPrice: base + 12000,
-      memberPrice: base + 18000,
-    };
-  }
-
-  if (days <= 1) {
-    return {
-      resellerPrice: Math.max(base + 3000, 5000),
-      memberPrice: Math.max(base + 5000, 7000),
-    };
-  }
-
-  if (days <= 3) {
-    return {
-      resellerPrice: base + 7000,
-      memberPrice: base + 11000,
-    };
-  }
-
-  if (days <= 7) {
-    return {
-      resellerPrice: base + 12000,
-      memberPrice: base + 18000,
-    };
-  }
-
-  if (days === 10) {
-    return {
-      resellerPrice: base + 14000,
-      memberPrice: base + 20000,
-    };
-  }
-
-  if (days === 14 || days === 15) {
-    return {
-      resellerPrice: base + 18000,
-      memberPrice: base + 26000,
-    };
-  }
-
-  if (days === 20) {
-    return {
-      resellerPrice: base + 20000,
-      memberPrice: base + 29000,
-    };
-  }
-
-  if (days === 28) {
-    return {
-      resellerPrice: base + 22000,
-      memberPrice: base + 32000,
-    };
-  }
-
-  if (days === 30 || days === 31) {
-    return {
-      resellerPrice: base + 25000,
-      memberPrice: base + 35000,
-    };
-  }
-
-  return {
-    resellerPrice: base + 12000,
-    memberPrice: base + 18000,
-  };
-};
-
       const productGroups = new Map<
         string,
         {
@@ -759,7 +665,6 @@ router.post(
         if (!name) continue;
 
         const existing = productGroups.get(name);
-
         if (existing) {
           existing.variants.push(...getVariants(item));
         } else {
@@ -772,7 +677,7 @@ router.post(
 
       const liveCatalog = Array.from(productGroups.values())
         .map((product) => {
-          const variants = product.variants
+          const rawVariants = product.variants
             .map((variant: any) => {
               const id = getVariantId(variant);
               if (!id) return null;
@@ -789,31 +694,6 @@ router.post(
 
               const modal = getApiModal(variant);
 
-              // Untuk varian lama, pertahankan harga katalog yang sudah
-              // terbukti benar. Varian baru dihitung otomatis dari modal.
-              let memberPrice: number | null = null;
-              let resellerPrice: number | null = null;
-
-              if (modal !== null) {
-                const calculated = calculateNewPrices(
-                  modal,
-                  duration,
-                );
-
-                resellerPrice = calculated.resellerPrice;
-                memberPrice = calculated.memberPrice;
-              } else {
-                resellerPrice = old?.resellerPrice ?? null;
-                memberPrice = old?.memberPrice ?? null;
-              }
-
-              if (memberPrice === null || resellerPrice === null) {
-                console.warn(
-                  `Variant DRIP ${id} dilewati: harga tidak ditemukan.`,
-                );
-                return null;
-              }
-
               const stock = getNumber(
                 variant?.in_stock,
                 variant?.local_stock,
@@ -823,12 +703,85 @@ router.post(
               return {
                 id,
                 duration,
-                memberPrice: Math.round(memberPrice),
-                resellerPrice: Math.round(resellerPrice),
+                modal,
+                old,
                 stock:
                   stock !== null && stock >= 0
                     ? Math.floor(stock)
                     : 0,
+              };
+            })
+            .filter(
+              (
+                value,
+              ): value is {
+                id: number;
+                duration: string;
+                modal: number | null;
+                old:
+                  | {
+                      duration: string;
+                      resellerPrice: number;
+                      memberPrice: number;
+                    }
+                  | undefined;
+                stock: number;
+              } => value !== null,
+            );
+
+          const pricedInput = rawVariants
+            .filter(
+              (value) =>
+                value.modal !== null &&
+                Number.isFinite(value.modal) &&
+                value.modal > 0,
+            )
+            .map((value) => ({
+              id: value.id,
+              duration: value.duration,
+              modal: value.modal as number,
+            }));
+
+          const calculated = pricedInput.length
+            ? priceProductVariants(pricedInput, {
+                productName: product.name,
+              })
+            : [];
+
+          const calculatedById = new Map(
+            calculated.map((result: any, index: number) => [
+              pricedInput[index]?.id,
+              result,
+            ]),
+          );
+
+          const variants = rawVariants
+            .map((value) => {
+              const calculatedPrice = calculatedById.get(value.id);
+
+              const resellerPrice =
+                calculatedPrice?.resellerPrice ??
+                value.old?.resellerPrice ??
+                null;
+
+              const memberPrice =
+                calculatedPrice?.memberPrice ??
+                value.old?.memberPrice ??
+                null;
+
+              if (memberPrice === null || resellerPrice === null) {
+                console.warn(
+                  `Variant DRIP ${value.id} dilewati: harga tidak ditemukan.`,
+                );
+                return null;
+              }
+
+              return {
+                id: value.id,
+                duration: value.duration,
+                memberPrice: Math.round(memberPrice),
+                resellerPrice: Math.round(resellerPrice),
+                stock: value.stock,
               };
             })
             .filter(
