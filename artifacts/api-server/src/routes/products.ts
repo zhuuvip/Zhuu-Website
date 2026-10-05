@@ -655,72 +655,79 @@ router.post(
         Math.ceil(value / 1000) * 1000;
 
       const calculateNewPrices = (
-        modal: number,
-        duration: string,
-      ): {
-        resellerPrice: number;
-        memberPrice: number;
-      } => {
-        const match = duration.match(/(\d+)/);
-        const days = match ? Number(match[1]) : null;
-        const base = ceil1000(modal);
+  modal: number,
+  duration: string,
+): {
+  resellerPrice: number;
+  memberPrice: number;
+} => {
+  const match = duration.match(/(\d+)/);
+  const days = match ? Number(match[1]) : null;
+  const base = ceil1000(modal);
 
-        if (days === null || days <= 3) {
-          return {
-            resellerPrice: Math.max(base, 5000),
-            memberPrice: Math.max(base + 2000, 7000),
-          };
-        }
+  if (days === null || days <= 1) {
+    return {
+      resellerPrice: Math.max(base + 5000, 5000),
+      memberPrice: Math.max(base + 8000, 8000),
+    };
+  }
 
-        if (days === 7) {
-          return {
-            resellerPrice: base + 10000,
-            memberPrice: base + 15000,
-          };
-        }
+  if (days <= 3) {
+    return {
+      resellerPrice: base + 7000,
+      memberPrice: base + 11000,
+    };
+  }
 
-        if (days === 10) {
-          return {
-            resellerPrice: base + 12000,
-            memberPrice: base + 18000,
-          };
-        }
+  if (days <= 7) {
+    return {
+      resellerPrice: base + 10000,
+      memberPrice: base + 15000,
+    };
+  }
 
-        if (days === 14 || days === 15) {
-          return {
-            resellerPrice: base + 16000,
-            memberPrice: base + 24000,
-          };
-        }
+  if (days === 10) {
+    return {
+      resellerPrice: base + 12000,
+      memberPrice: base + 18000,
+    };
+  }
 
-        if (days === 20) {
-          return {
-            resellerPrice: base + 18000,
-            memberPrice: base + 27000,
-          };
-        }
+  if (days === 14 || days === 15) {
+    return {
+      resellerPrice: base + 16000,
+      memberPrice: base + 24000,
+    };
+  }
 
-        if (days === 28) {
-          return {
-            resellerPrice: base + 20000,
-            memberPrice: base + 29000,
-          };
-        }
+  if (days === 20) {
+    return {
+      resellerPrice: base + 18000,
+      memberPrice: base + 27000,
+    };
+  }
 
-        if (days === 30) {
-          return {
-            resellerPrice: base + 20000,
-            memberPrice: base + 28000,
-          };
-        }
+  if (days === 28) {
+    return {
+      resellerPrice: base + 20000,
+      memberPrice: base + 29000,
+    };
+  }
 
-        return {
-          resellerPrice: base,
-          memberPrice: base,
-        };
-      };
+  if (days === 30 || days === 31) {
+    return {
+      resellerPrice: base + 22000,
+      memberPrice: base + 32000,
+    };
+  }
 
-      // API DRIP mengembalikan SATU ROW untuk setiap varian.
+  return {
+    resellerPrice: base + 10000,
+    memberPrice: base + 15000,
+  };
+};
+
+// API DRIP mengembalikan SATU ROW untuk setiap varian.
       // Kelompokkan berdasarkan product_id agar 184 varian tidak
       // dianggap sebagai 184 produk.
       const productGroups = new Map<
@@ -775,10 +782,10 @@ router.post(
 
               // Untuk varian lama, pertahankan harga katalog yang sudah
               // terbukti benar. Varian baru dihitung otomatis dari modal.
-              let memberPrice = old?.memberPrice ?? null;
-              let resellerPrice = old?.resellerPrice ?? null;
+              let memberPrice: number | null = null;
+              let resellerPrice: number | null = null;
 
-              if (!old && modal !== null) {
+              if (modal !== null) {
                 const calculated = calculateNewPrices(
                   modal,
                   duration,
@@ -786,6 +793,9 @@ router.post(
 
                 resellerPrice = calculated.resellerPrice;
                 memberPrice = calculated.memberPrice;
+              } else {
+                resellerPrice = old?.resellerPrice ?? null;
+                memberPrice = old?.memberPrice ?? null;
               }
 
               if (memberPrice === null || resellerPrice === null) {
