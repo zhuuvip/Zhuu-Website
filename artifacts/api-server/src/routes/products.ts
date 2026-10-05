@@ -661,11 +661,30 @@ router.post(
   resellerPrice: number;
   memberPrice: number;
 } => {
-  const match = duration.match(/(\d+)/);
-  const days = match ? Number(match[1]) : null;
+  const normalized = duration.trim().toLowerCase();
   const base = ceil1000(modal);
 
-  if (days === null || days <= 1) {
+  // Hour-based products: 1h, 3h, 6h, 12h, etc.
+  const hourMatch = normalized.match(/^(\d+)\s*h(?:our|hours)?$/);
+  if (hourMatch) {
+    return {
+      resellerPrice: Math.max(base + 3000, 5000),
+      memberPrice: Math.max(base + 5000, 7000),
+    };
+  }
+
+  // Day-based products: 1d, 1 day, 1day, 3 days, 30day, etc.
+  const dayMatch = normalized.match(/^(\d+)\s*(?:d|day|days)$/);
+  const days = dayMatch ? Number(dayMatch[1]) : null;
+
+  if (days === null) {
+    return {
+      resellerPrice: base + 12000,
+      memberPrice: base + 18000,
+    };
+  }
+
+  if (days <= 1) {
     return {
       resellerPrice: Math.max(base + 3000, 5000),
       memberPrice: Math.max(base + 5000, 7000),
@@ -727,11 +746,8 @@ router.post(
   };
 };
 
-// API DRIP mengembalikan SATU ROW untuk setiap varian.
-      // Kelompokkan berdasarkan product_id agar 184 varian tidak
-      // dianggap sebagai 184 produk.
       const productGroups = new Map<
-        number,
+        string,
         {
           name: string;
           variants: any[];
@@ -739,26 +755,19 @@ router.post(
       >();
 
       for (const item of dripProducts) {
-        const productId = getNumber(item?.product_id);
-        const name = getText(
-          item?.product_name,
-          item?.productName,
-          item?.name,
-        );
+        const name = getProductName(item);
+        if (!name) continue;
 
-        if (productId === null || !name) continue;
+        const existing = productGroups.get(name);
 
-        let group = productGroups.get(productId);
-
-        if (!group) {
-          group = {
+        if (existing) {
+          existing.variants.push(...getVariants(item));
+        } else {
+          productGroups.set(name, {
             name,
-            variants: [],
-          };
-          productGroups.set(productId, group);
+            variants: [...getVariants(item)],
+          });
         }
-
-        group.variants.push(item);
       }
 
       const liveCatalog = Array.from(productGroups.values())
