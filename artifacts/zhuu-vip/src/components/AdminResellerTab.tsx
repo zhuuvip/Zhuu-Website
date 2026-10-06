@@ -272,7 +272,7 @@ export default function AdminResellerTab() {
           Masukkan email user yang sudah terdaftar di website.
         </p>
 
-        <div className="grid gap-2 sm:grid-cols-[1fr_180px_auto]">
+        <div className="grid gap-2 sm:grid-cols-[minmax(0,1fr)_180px_auto]">
           <input
             className={inputCls}
             type="email"

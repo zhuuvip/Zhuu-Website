@@ -122,7 +122,7 @@ export default function PublicChatPage() {
 
   if (!isLoaded) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-dvh flex items-center justify-center">
         <div className="text-zinc-200">Memuat...</div>
       </div>
     );
@@ -130,7 +130,7 @@ export default function PublicChatPage() {
 
   if (!isSignedIn) {
     return (
-      <div className="min-h-screen flex items-center justify-center px-4">
+      <div className="min-h-dvh flex items-center justify-center px-4">
         <div className="glass-card w-full max-w-md p-8 rounded-3xl text-center">
           <div className="text-5xl mb-4">💬</div>
 
@@ -153,7 +153,7 @@ export default function PublicChatPage() {
   }
 
   return (
-    <div className="relative min-h-screen overflow-hidden px-3 sm:px-4 pt-5 pb-28">
+    <div className="relative min-h-dvh overflow-hidden px-3 sm:px-4 pt-5 pb-10">
       <div className="pointer-events-none fixed inset-0 -z-10">
         <div className="absolute left-[10%] top-16 h-56 w-56 rounded-full bg-white/[0.025] blur-3xl" />
         <div className="absolute right-[8%] top-[35%] h-72 w-72 rounded-full bg-indigo-500/[0.025] blur-3xl" />
@@ -199,7 +199,7 @@ export default function PublicChatPage() {
 
           <div
             ref={chatScrollRef}
-            className="h-[60vh] min-h-[420px] overflow-y-auto p-3.5 sm:p-6 space-y-3.5 scroll-smooth [scrollbar-width:thin] [scrollbar-color:rgba(255,255,255,0.08)_transparent]"
+            className="h-[60dvh] min-h-[300px] overflow-y-auto p-3.5 sm:p-6 space-y-3.5 scroll-smooth [scrollbar-width:thin] [scrollbar-color:rgba(255,255,255,0.08)_transparent]"
           >
             {loading ? (
               <div className="h-full flex items-center justify-center text-zinc-500/50">

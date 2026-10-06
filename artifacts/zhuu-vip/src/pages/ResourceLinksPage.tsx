@@ -71,7 +71,7 @@ export default function ResourceLinksPage() {
     .filter(cat => cat.items.length > 0);
 
   return (
-    <div className="zhuu-page-bg min-h-screen pt-6 pb-28 px-4">
+    <div className="zhuu-page-bg min-h-dvh pt-6 pb-10 px-4">
       <div className="max-w-5xl mx-auto">
         <div className="text-center mb-10">
           <div className="text-4xl mb-3">🔗</div>

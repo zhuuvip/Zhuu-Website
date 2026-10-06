@@ -202,7 +202,7 @@ export default function FreeHubPage() {
       : posts.filter((post) => post.category === category);
 
   return (
-    <div className="min-h-screen px-3 sm:px-4 pt-4 pb-28">
+    <div className="min-h-dvh px-3 sm:px-4 pt-4 pb-10">
       <div className="max-w-6xl mx-auto">
         <div className="mb-6">
           <div className="flex items-center justify-between gap-3">

@@ -614,7 +614,7 @@ export default function ResellerDashboardPage() {
 
   if (loading) {
     return (
-      <main className="min-h-screen bg-black px-4 py-10 text-white">
+      <main className="min-h-dvh bg-black px-4 py-10 text-white">
         <div className="mx-auto max-w-7xl">
           <div className="mb-10 space-y-3">
             <div className="mx-auto h-10 w-56 animate-pulse rounded-xl bg-white/[0.035]" />
@@ -636,7 +636,7 @@ export default function ResellerDashboardPage() {
 
   if (error) {
     return (
-      <main className="min-h-screen bg-black px-4 py-16 text-white">
+      <main className="min-h-dvh bg-black px-4 py-16 text-white">
         <div className="mx-auto max-w-xl rounded-3xl border border-red-500/20 bg-red-500/[0.04] p-8 text-center">
           <div className="mx-auto mb-5 flex size-16 items-center justify-center rounded-2xl bg-red-500/10 text-2xl">
             !
@@ -661,7 +661,7 @@ export default function ResellerDashboardPage() {
   }
 
   return (
-    <main className="min-h-screen bg-black text-white">
+    <main className="min-h-dvh bg-black text-white">
       {/* Ambient background */}
       <div className="pointer-events-none fixed inset-0 overflow-hidden">
         <div className="absolute left-1/2 top-0 h-[500px] w-[700px] -translate-x-1/2 rounded-full bg-purple-600/[0.08] blur-[140px]" />
@@ -1095,7 +1095,7 @@ export default function ResellerDashboardPage() {
       {/* Product Detail Modal */}
         {selectedProduct && !purchaseResult && (
           <div
-            className="product-detail-modal fixed inset-0 z-[60] flex items-center justify-center overflow-y-auto overscroll-contain bg-black/75 p-3 backdrop-blur-md sm:items-center sm:p-4"
+            className="product-detail-modal fixed inset-0 z-[60] flex items-center justify-center overflow-y-auto overscroll-contain bg-black/75 pt-[max(0.75rem,env(safe-area-inset-top))] pb-[max(0.75rem,env(safe-area-inset-bottom))] pl-[max(0.75rem,env(safe-area-inset-left))] pr-[max(0.75rem,env(safe-area-inset-right))] backdrop-blur-md sm:items-center sm:p-4"
             onMouseDown={(e) => {
               if (e.target === e.currentTarget) {
                 setSelectedProduct(null);
@@ -1103,7 +1103,7 @@ export default function ResellerDashboardPage() {
               }
             }}
           >
-            <div className="relative my-auto w-[calc(100%-2rem)] max-w-[26rem] sm:w-full sm:max-w-[28rem] lg:max-w-[38rem] overflow-hidden rounded-2xl border border-white/[0.07] bg-[#09090b] shadow-2xl shadow-black/80">
+            <div className="relative my-auto w-[calc(100%_-_2rem)] max-w-[26rem] sm:w-full sm:max-w-[28rem] lg:max-w-[38rem] overflow-hidden rounded-2xl border border-white/[0.07] bg-[#09090b] shadow-2xl shadow-black/80">
                 {/* Header */}
                 <div className="relative shrink-0 p-3.5 sm:p-4 lg:p-6">
                   <button
@@ -1357,8 +1357,8 @@ export default function ResellerDashboardPage() {
 
       {/* Purchase success modal */}
       {purchaseResult && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 p-4 backdrop-blur-md">
-          <div className="w-full max-w-md overflow-hidden rounded-3xl border border-emerald-400/20 bg-[#09090b] shadow-2xl shadow-black/70">
+        <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto overscroll-contain bg-black/75 pt-[max(1rem,env(safe-area-inset-top))] pb-[max(1rem,env(safe-area-inset-bottom))] pl-[max(1rem,env(safe-area-inset-left))] pr-[max(1rem,env(safe-area-inset-right))] backdrop-blur-md">
+          <div className="my-auto w-full max-w-md overflow-hidden rounded-3xl border border-emerald-400/20 bg-[#09090b] shadow-2xl shadow-black/70">
             <div className="p-4 sm:p-6 sm:p-7">
               <div className="mx-auto flex size-16 items-center justify-center rounded-2xl bg-emerald-400/10 text-3xl ring-1 ring-emerald-400/20">
                 ✓
@@ -1464,8 +1464,8 @@ export default function ResellerDashboardPage() {
         </div>
       )}
       {settingsOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4 backdrop-blur-sm">
-          <div className="w-full max-w-md rounded-2xl border border-white/10 bg-[#0b0b0f] p-6 shadow-2xl">
+        <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto overscroll-contain bg-black/70 pt-[max(1rem,env(safe-area-inset-top))] pb-[max(1rem,env(safe-area-inset-bottom))] pl-[max(1rem,env(safe-area-inset-left))] pr-[max(1rem,env(safe-area-inset-right))] backdrop-blur-sm">
+          <div className="my-auto w-full max-w-md rounded-2xl border border-white/10 bg-[#0b0b0f] p-4 shadow-2xl sm:p-6">
             <div className="mb-6 flex items-start justify-between gap-4">
               <div>
                 <h2 className="text-xl font-bold">Pengaturan Akun</h2>

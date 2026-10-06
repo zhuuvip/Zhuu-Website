@@ -103,14 +103,14 @@ export default function MusicPlayer() {
         <button
           onClick={() => setIsPlaying(!isPlaying)}
           aria-label={isPlaying ? "Pause music" : "Play music"}
-          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white text-black transition hover:scale-105"
+          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white text-black transition hover:scale-105 sm:h-8 sm:w-8"
         >
           {isPlaying ? <Pause size={13} /> : <Play size={13} />}
         </button>
 
         <button
           onClick={() => setShowPlaylist(!showPlaylist)}
-          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl text-white/40 transition hover:bg-white/[0.06] hover:text-white"
+          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-white/40 transition hover:bg-white/[0.06] hover:text-white sm:h-8 sm:w-8"
           aria-label="Open playlist"
         >
           <List size={14} />
@@ -132,7 +132,7 @@ export default function MusicPlayer() {
 
           <div
             onClick={handleSeek}
-            className="mt-1.5 h-1 cursor-pointer overflow-hidden rounded-full bg-white/[0.08]"
+            className="mt-1.5 h-1 cursor-pointer overflow-hidden rounded-full bg-white/[0.08] touch-manipulation"
           >
             <div
               className="h-full rounded-full bg-white/55 transition-all"
@@ -166,7 +166,7 @@ export default function MusicPlayer() {
       </div>
 
       {showPlaylist && (
-        <div className="absolute left-0 right-0 top-[calc(100%+8px)] z-[60] max-h-60 overflow-y-auto rounded-2xl border border-white/[0.08] bg-[#0b0f15]/98 p-1.5 shadow-2xl backdrop-blur-xl">
+        <div className="absolute left-0 right-0 top-[calc(100%+8px)] z-[60] max-h-[min(15rem,50dvh)] overflow-y-auto overscroll-contain rounded-2xl border border-white/[0.08] bg-[#0b0f15]/98 p-1.5 shadow-2xl backdrop-blur-xl">
           {songs.map((song, index) => (
             <button
               key={song.id}

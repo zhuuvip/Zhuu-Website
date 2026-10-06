@@ -175,9 +175,9 @@ export default function Navigation() {
           scrolled ? "border-white/[0.07] bg-[#080b10]/95 shadow-lg" : "bg-[#080b10]/80"
         }`}
       >
-        <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-3 sm:h-16 sm:px-4 sm:px-6">
-          <Link href="/" className="shrink-0">
-            <div className="flex items-center gap-2.5">
+        <div className="mx-auto grid max-w-7xl grid-cols-[auto_minmax(0,1fr)] grid-rows-[var(--zs-nav-row)_var(--zs-nav-player)] items-center gap-x-2 px-3 sm:flex sm:h-[var(--zs-nav-row)] sm:justify-between sm:px-6">
+          <Link href="/" className="col-start-1 row-start-1 min-w-0 shrink-0">
+            <div className="flex items-center gap-2 sm:gap-2.5">
               <div className="h-8 w-8 overflow-hidden rounded-full border border-white/15 bg-white/[0.05] sm:h-9 sm:w-9">
                 <img
                   src={logoPath}
@@ -234,7 +234,7 @@ export default function Navigation() {
               </button>
 
               {moreOpen && (
-                <div className="absolute right-0 top-[calc(100%+10px)] w-56 rounded-2xl border border-white/[0.07] bg-[#0b0f15]/98 p-1.5 shadow-2xl backdrop-blur-xl">
+                <div className="absolute right-0 top-[calc(100%+10px)] max-h-[calc(100dvh_-_6rem)] w-56 max-w-[calc(100vw_-_2rem)] overflow-y-auto rounded-2xl border border-white/[0.07] bg-[#0b0f15]/98 p-1.5 shadow-2xl backdrop-blur-xl">
                   {moreItems.map(({ path, label, Icon }) => (
                     <Link key={path} href={path}>
                       <span
@@ -255,15 +255,16 @@ export default function Navigation() {
           </div>
 
 
-          <div className="mx-2 flex min-w-0 flex-1 lg:mx-4">
+          <div className="zs-nav-player col-span-2 row-start-2 flex min-w-0 items-center sm:col-auto sm:row-auto sm:mx-2 sm:flex-1 lg:mx-4">
             <MusicPlayer />
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="col-start-2 row-start-1 flex min-w-0 items-center justify-end gap-1.5 justify-self-end sm:gap-2">
             <Link href="/reseller">
               <span
                 title="Reseller"
-                className={`inline-flex h-9 items-center gap-1.5 rounded-xl border px-3 text-[12px] font-medium transition-all duration-200 ${
+                aria-label="Reseller"
+                className={`inline-flex h-9 w-9 items-center justify-center gap-1.5 rounded-xl border px-0 text-[12px] font-medium transition-all duration-200 sm:w-auto sm:px-3 ${
                   isActive("/reseller") || isActive("/reseller-login")
                     ? "border-white/20 bg-white/10 text-white"
                     : "border-white/[0.07] bg-white/[0.04] text-white/70 hover:bg-white/[0.08] hover:text-white"
@@ -298,7 +299,7 @@ export default function Navigation() {
         </div>
 
         {mobileOpen && (
-          <div className="border-t border-white/[0.07] bg-[#080b10]/98 px-3 pb-4 pt-2 shadow-2xl lg:hidden">
+          <div className="max-h-[calc(100dvh_-_var(--zs-header-h))] overflow-y-auto overscroll-contain border-t border-white/[0.07] bg-[#080b10]/98 px-3 pb-4 pt-2 shadow-2xl lg:hidden">
             {[...MAIN_ITEMS, ...moreItems].map(({ path, label, Icon }) => (
               <Link key={path} href={path}>
                 <span
@@ -325,21 +326,21 @@ export default function Navigation() {
         )}
       </nav>
 
-      <div className="h-14 sm:h-16" />
+      <div aria-hidden="true" style={{ height: "var(--zs-header-h)" }} />
 
-      <div className="fixed bottom-3 left-3 right-3 z-40 lg:hidden">
+      <div className="fixed bottom-[max(0.75rem,env(safe-area-inset-bottom))] left-[max(0.75rem,env(safe-area-inset-left))] right-[max(0.75rem,env(safe-area-inset-right))] z-40 lg:hidden">
         <div className="flex items-center justify-around rounded-2xl border border-white/[0.07] bg-[#090c12]/95 p-1.5 shadow-2xl backdrop-blur-xl">
           {MAIN_ITEMS.map(({ path, label, Icon }) => (
-            <Link key={path} href={path}>
+            <Link key={path} href={path} className="min-w-0 flex-1">
               <span
-                className={`flex min-w-[58px] flex-col items-center gap-1 rounded-xl px-2 py-2 text-[10px] transition ${
+                className={`zs-bottom-nav-item flex min-w-0 flex-col items-center gap-1 rounded-xl px-0.5 py-2 text-[10px] leading-tight transition max-[359px]:text-[9px] min-[360px]:px-1 ${
                   isActive(path)
                     ? "bg-white/[0.09] text-white"
                     : "text-white/40"
                 }`}
               >
-                <Icon size={17} />
-                {label}
+                <Icon size={17} className="shrink-0" />
+                <span className="block w-full truncate text-center">{label}</span>
               </span>
             </Link>
           ))}
@@ -347,10 +348,11 @@ export default function Navigation() {
           <button
             type="button"
             onClick={() => setMobileOpen(true)}
-            className="flex min-w-[58px] flex-col items-center gap-1 rounded-xl px-2 py-2 text-[10px] text-white/40"
+            aria-label="Open menu"
+            className="zs-bottom-nav-item flex min-w-0 flex-1 flex-col items-center gap-1 rounded-xl px-0.5 py-2 text-[10px] leading-tight text-white/40 max-[359px]:text-[9px] min-[360px]:px-1"
           >
-            <MoreHorizontal size={17} />
-            More
+            <MoreHorizontal size={17} className="shrink-0" />
+            <span className="block w-full truncate text-center">More</span>
           </button>
         </div>
       </div>

@@ -127,7 +127,7 @@ export default function ShareCardPage() {
   };
 
   return (
-    <div className="zhuu-page-bg min-h-screen pt-6 pb-28 px-4">
+    <div className="zhuu-page-bg min-h-dvh pt-6 pb-10 px-4">
       <div className="max-w-2xl mx-auto">
         <div className="text-center mb-8">
           <div className="text-3xl font-bold text-white/70 mb-3">Z</div>

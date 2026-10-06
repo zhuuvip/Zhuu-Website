@@ -50,7 +50,7 @@ export default function AnnouncementBanner() {
   return (
     <div
       ref={bannerRef}
-      className="w-full px-4 py-3 flex items-center justify-between gap-3 text-sm font-medium"
+      className="w-full px-4 py-2 flex items-center justify-between gap-3 text-sm font-medium"
       style={{
         background: announcement.color + "22",
         borderBottom: `1px solid ${announcement.color}44`,
@@ -63,7 +63,7 @@ export default function AnnouncementBanner() {
       </div>
       <button
         onClick={() => setDismissed(true)}
-        className="flex-shrink-0 hover:opacity-70 transition-opacity"
+        aria-label="Close announcement" className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg hover:opacity-70 transition-opacity"
       >
         <X size={16} />
       </button>

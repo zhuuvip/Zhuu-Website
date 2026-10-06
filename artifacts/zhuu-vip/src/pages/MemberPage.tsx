@@ -698,7 +698,7 @@ function ResetKeySection() {
               setError("");
               setMessage("");
             }}
-            className={`rounded-xl border px-3 py-3 text-sm font-bold transition ${
+            className={`rounded-xl border px-2 py-3 text-sm font-bold transition sm:px-3 ${
               api === "drip"
                 ? "border-white/[0.09] bg-white/[0.05] text-zinc-200"
                 : "border-white/[0.07] bg-white/[.03] text-zinc-400/40 hover:text-zinc-400/70"
@@ -714,7 +714,7 @@ function ResetKeySection() {
               setError("");
               setMessage("");
             }}
-            className={`rounded-xl border px-3 py-3 text-sm font-bold transition ${
+            className={`rounded-xl border px-2 py-3 text-sm font-bold transition sm:px-3 ${
               api === "fluorite"
                 ? "border-purple-400/40 bg-purple-400/10 text-purple-200"
                 : "border-white/[0.07] bg-white/[.03] text-zinc-400/40 hover:text-zinc-400/70"
@@ -730,7 +730,7 @@ function ResetKeySection() {
               setError("");
               setMessage("");
             }}
-            className={`rounded-xl border px-3 py-3 text-sm font-bold transition ${
+            className={`rounded-xl border px-2 py-3 text-sm font-bold transition sm:px-3 ${
               api === "hg"
                 ? "border-amber-400/40 bg-amber-400/10 text-amber-200"
                 : "border-white/[0.07] bg-white/[.03] text-zinc-400/40 hover:text-zinc-400/70"
@@ -802,7 +802,7 @@ function RankSection() {
 
 export default function MemberPage() {
   const [tab, setTab] = useState<"topup" | "rank" | "reset">("topup");
-  return <main className="zhuu-page-bg min-h-screen px-4 pb-28 pt-24"><div className="mx-auto max-w-xl page-enter"><Link href="/" className="mb-7 inline-flex items-center gap-2 text-xs font-semibold text-zinc-400/50 transition-colors hover:text-zinc-200"><ArrowLeft className="size-4" /> Kembali ke home</Link><div className="mb-7">
+  return <main className="zhuu-page-bg min-h-dvh px-4 pb-10 pt-6"><div className="mx-auto max-w-xl page-enter"><Link href="/" className="mb-7 inline-flex items-center gap-2 text-xs font-semibold text-zinc-400/50 transition-colors hover:text-zinc-200"><ArrowLeft className="size-4" /> Kembali ke home</Link><div className="mb-7">
 <div className="mb-4 flex items-center justify-between gap-3">
   <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[.25em] text-zinc-200/55">
     <Sparkles className="size-3.5" /> ZhuuSite Member

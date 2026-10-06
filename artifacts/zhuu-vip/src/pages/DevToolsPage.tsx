@@ -551,7 +551,7 @@ function PasswordGenerator() {
         <input type="range" min={6} max={64} value={length} onChange={e => setLength(+e.target.value)}
           className="w-full accent-white" style={{ accentColor: "#f4f4f5" }} />
       </div>
-      <div className="grid grid-cols-3 gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
         {(Object.keys(opts) as (keyof typeof opts)[]).map(k => (
           <button key={k} onClick={() => setOpts(o => ({ ...o, [k]: !o[k] }))} className="flex items-center gap-2 p-3 rounded-xl text-sm font-medium capitalize cursor-pointer transition-all duration-200"
             style={{ background: opts[k] ? "rgba(255,255,255,0.05)" : "rgba(255,255,255,0.03)", border: opts[k] ? "1px solid rgba(255,255,255,0.12)" : "1px solid rgba(255,255,255,0.05)", color: opts[k] ? "#f4f4f5" : "rgba(255,255,255,0.45)" }}>
@@ -1330,7 +1330,7 @@ export default function DevToolsPage() {
 
   return (
     <ToolUsageContext.Provider value={trackToolUse}>
-      <div className="zhuu-page-bg min-h-screen pt-6 pb-28 px-4">
+      <div className="zhuu-page-bg min-h-dvh pt-6 pb-10 px-4">
       <div className="max-w-3xl mx-auto">
         {/* Header */}
         <div className="text-center mb-10">

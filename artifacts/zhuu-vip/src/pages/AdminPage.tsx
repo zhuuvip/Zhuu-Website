@@ -1141,13 +1141,13 @@ const [deliveryValue, setDeliveryValue] = useState("");
   ];
 
   if (!user) return (
-    <div className="min-h-screen flex items-center justify-center">
+    <div className="min-h-dvh flex items-center justify-center">
       <Loader2 size={24} className="text-zinc-200 animate-spin" />
     </div>
   );
 
   if (!isAdmin) return (
-    <div className="min-h-screen flex flex-col items-center justify-center px-4 text-center">
+    <div className="min-h-dvh flex flex-col items-center justify-center px-4 text-center">
       <div className="glass-card rounded-3xl p-10 max-w-sm w-full">
         <Shield size={40} className="text-red-400/60 mx-auto mb-4" />
         <h2 className="text-xl font-bold text-zinc-200 mb-2">Access Denied</h2>
@@ -1159,15 +1159,15 @@ const [deliveryValue, setDeliveryValue] = useState("");
 
 
   return (
-    <div className="min-h-screen px-4 py-8 max-w-4xl mx-auto" data-testid="admin-page">
+    <div className="min-h-dvh px-4 py-8 max-w-4xl mx-auto" data-testid="admin-page">
       {/* Header */}
-      <div className="flex items-center gap-3 mb-7">
-        <div className="w-10 h-10 rounded-xl bg-white/[0.06] border border-white/10 flex items-center justify-center shadow-[0_8px_30px_rgba(0,0,0,0.18)]">
+      <div className="flex items-center gap-3 mb-7 min-w-0">
+        <div className="w-10 h-10 shrink-0 rounded-xl bg-white/[0.06] border border-white/10 flex items-center justify-center shadow-[0_8px_30px_rgba(0,0,0,0.18)]">
           <Shield size={18} className="text-zinc-200" />
         </div>
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight text-zinc-100" style={{ fontFamily: "'Orbitron', sans-serif" }}>Admin Panel</h1>
-          <p className="text-zinc-400/55 text-[13px] mt-0.5">Welcome back, {user.firstName || "Admin"} · {email}</p>
+        <div className="min-w-0">
+          <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-zinc-100" style={{ fontFamily: "'Orbitron', sans-serif" }}>Admin Panel</h1>
+          <p className="text-zinc-400/55 text-[13px] mt-0.5 break-all sm:break-words">Welcome back, {user.firstName || "Admin"} · {email}</p>
         </div>
       </div>
 
@@ -2037,7 +2037,7 @@ const [deliveryValue, setDeliveryValue] = useState("");
             <div className="glass-card rounded-2xl p-5" data-testid="link-form">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-sm font-semibold text-zinc-200">{editingLinkId !== null ? "Edit Link" : "New Link"}</h3>
-                <button onClick={resetLinkForm} className="text-zinc-400/50 hover:text-blue-300 p-1 rounded-lg hover:bg-white/5 transition-all duration-200"><X size={16} /></button>
+                <button onClick={resetLinkForm} className="text-zinc-400/50 hover:text-blue-300 p-2.5 sm:p-1 rounded-lg hover:bg-white/5 transition-all duration-200"><X size={16} /></button>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
                 {[
@@ -2101,9 +2101,9 @@ const [deliveryValue, setDeliveryValue] = useState("");
                   {link.isActive ? <Eye size={13} className="text-zinc-400/40" /> : <EyeOff size={13} className="text-blue-300/20" />}
                   <div className="flex gap-1">
                     <button onClick={() => startEditLink(link)} data-testid={`btn-edit-link-${link.id}`}
-                      className="p-1.5 rounded-lg text-zinc-400/50 hover:text-zinc-200 hover:bg-white/[0.05] transition-all duration-200"><Edit2 size={13} /></button>
+                      className="p-2.5 sm:p-1.5 rounded-lg text-zinc-400/50 hover:text-zinc-200 hover:bg-white/[0.05] transition-all duration-200"><Edit2 size={13} /></button>
                     <button onClick={() => handleDeleteLink(link.id)} data-testid={`btn-delete-link-${link.id}`} disabled={deleteLink.isPending}
-                      className="p-1.5 rounded-lg text-zinc-400/50 hover:text-red-400 hover:bg-red-400/10 transition-all duration-200"><Trash2 size={13} /></button>
+                      className="p-2.5 sm:p-1.5 rounded-lg text-zinc-400/50 hover:text-red-400 hover:bg-red-400/10 transition-all duration-200"><Trash2 size={13} /></button>
                   </div>
                 </div>
               ))}
@@ -2128,7 +2128,7 @@ const [deliveryValue, setDeliveryValue] = useState("");
             <div className="glass-card rounded-2xl p-5 border border-white/[0.06]">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-sm font-semibold text-purple-300">{editingSongId !== null ? "Edit Song" : "Add New Song"}</h3>
-                <button onClick={resetSongForm} className="text-zinc-400/50 hover:text-blue-300 p-1 rounded-lg hover:bg-white/5 transition-all duration-200"><X size={16} /></button>
+                <button onClick={resetSongForm} className="text-zinc-400/50 hover:text-blue-300 p-2.5 sm:p-1 rounded-lg hover:bg-white/5 transition-all duration-200"><X size={16} /></button>
               </div>
               <div className="space-y-1 mb-3 text-xs text-zinc-400/40">
                 💡 Paste any direct audio URL, YouTube URL (for display only), or Spotify track link
@@ -2201,9 +2201,9 @@ const [deliveryValue, setDeliveryValue] = useState("");
                   </div>
                   <div className="flex gap-1 flex-shrink-0">
                     <button onClick={() => startEditSong(song)}
-                      className="p-1.5 rounded-lg text-zinc-400/50 hover:text-purple-300 hover:bg-purple-400/10 transition-all duration-200"><Edit2 size={13} /></button>
+                      className="p-2.5 sm:p-1.5 rounded-lg text-zinc-400/50 hover:text-purple-300 hover:bg-purple-400/10 transition-all duration-200"><Edit2 size={13} /></button>
                     <button onClick={() => handleDeleteSong(song.id)} disabled={deletingSongId === song.id}
-                      className="p-1.5 rounded-lg text-zinc-400/50 hover:text-red-400 hover:bg-red-400/10 transition-all duration-200">
+                      className="p-2.5 sm:p-1.5 rounded-lg text-zinc-400/50 hover:text-red-400 hover:bg-red-400/10 transition-all duration-200">
                       {deletingSongId === song.id ? <Loader2 size={13} className="animate-spin" /> : <Trash2 size={13} />}
                     </button>
                   </div>
@@ -2385,7 +2385,7 @@ const [deliveryValue, setDeliveryValue] = useState("");
                 <div className="flex gap-2 flex-wrap">
                   {["#f4f4f5", "#a78bfa", "#4ade80", "#f9a8d4", "#fbbf24", "#f87171"].map((c) => (
                     <button key={c} onClick={() => setSettings({ ...settings, themeColor: c })}
-                      className="w-7 h-7 rounded-full border-2 transition-all hover:scale-110"
+                      className="w-9 h-9 sm:w-7 sm:h-7 rounded-full border-2 transition-all hover:scale-110"
                       style={{ background: c, borderColor: settings.themeColor === c ? "white" : "transparent" }} />
                   ))}
                 </div>
@@ -4016,7 +4016,7 @@ const [deliveryValue, setDeliveryValue] = useState("");
                     <div className="flex items-center gap-2 flex-shrink-0">
                       <span className="text-xs text-blue-300/30">{new Date(item.createdAt).toLocaleDateString()}</span>
                       <button onClick={() => handleDeleteFeedback(item.id)} disabled={deletingFeedbackId === item.id}
-                        className="p-1.5 rounded-lg text-blue-300/30 hover:text-red-400 hover:bg-red-400/10 transition-all duration-200">
+                        className="p-2.5 sm:p-1.5 rounded-lg text-blue-300/30 hover:text-red-400 hover:bg-red-400/10 transition-all duration-200">
                         {deletingFeedbackId === item.id ? <Loader2 size={13} className="animate-spin" /> : <Trash2 size={13} />}
                       </button>
                     </div>

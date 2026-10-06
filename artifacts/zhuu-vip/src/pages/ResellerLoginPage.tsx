@@ -30,7 +30,7 @@ export default function ResellerLoginPage() {
   };
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-black px-4 text-white">
+    <main className="flex min-h-dvh items-center justify-center bg-black px-4 text-white">
       <div className="w-full max-w-sm rounded-3xl border border-white/[0.07] bg-white/[0.035] p-4 sm:p-6 shadow-2xl shadow-black/40 backdrop-blur-xl sm:p-8">
         <div className="mb-6 text-center">
           <div className="mx-auto mb-4 flex size-14 items-center justify-center rounded-2xl bg-gradient-to-br from-purple-500/20 to-blue-500/20 text-2xl ring-1 ring-white/10">

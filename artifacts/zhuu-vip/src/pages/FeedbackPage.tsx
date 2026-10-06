@@ -59,7 +59,7 @@ export default function FeedbackPage() {
 
   if (submitted) {
     return (
-      <div className="zhuu-page-bg min-h-screen pt-6 pb-28 px-4 flex items-center justify-center">
+      <div className="zhuu-page-bg min-h-dvh pt-6 pb-10 px-4 flex items-center justify-center">
         <div className="glass-card p-12 text-center max-w-md w-full rounded-2xl">
           <div className="text-6xl mb-4"></div>
           <h2 className="text-2xl font-black gradient-text mb-3">Thanks for the feedback!</h2>
@@ -78,7 +78,7 @@ export default function FeedbackPage() {
   }
 
   return (
-    <div className="zhuu-page-bg min-h-screen pt-6 pb-28 px-4">
+    <div className="zhuu-page-bg min-h-dvh pt-6 pb-10 px-4">
       <div className="max-w-2xl mx-auto">
         <div className="text-center mb-10">
           <div className="text-4xl mb-3">💬</div>
@@ -89,13 +89,13 @@ export default function FeedbackPage() {
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="glass-card p-6 rounded-2xl">
             <h3 className="font-semibold mb-4" style={{ color: "rgba(0,200,220,0.8)" }}>Overall Experience</h3>
-            <div className="flex justify-center gap-4">
+            <div className="flex flex-wrap justify-center gap-2 sm:gap-4">
               {RATINGS.map((emoji, i) => (
                 <button
                   key={i}
                   type="button"
                   onClick={() => setRating(i)}
-                  className="text-3xl transition-all duration-200 rounded-full p-2"
+                  className="text-3xl transition-all duration-200 rounded-full p-1.5 sm:p-2"
                   style={{
                     opacity: rating === null || rating === i ? 1 : 0.4,
                     transform: rating === i ? "scale(1.3)" : "scale(1)",

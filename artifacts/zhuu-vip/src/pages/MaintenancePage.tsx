@@ -6,7 +6,7 @@ interface MaintenancePageProps {
 
 export default function MaintenancePage({ reason }: MaintenancePageProps) {
   return (
-    <div className="min-h-screen flex items-center justify-center px-5 relative z-10">
+    <div className="min-h-dvh flex items-center justify-center px-5 relative z-10">
       <div className="w-full max-w-lg text-center">
         <div className="glass-card rounded-3xl p-8 border border-white/10">
           <div className="mx-auto mb-5 w-16 h-16 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center">

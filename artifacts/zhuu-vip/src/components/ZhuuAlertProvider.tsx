@@ -175,7 +175,7 @@ export default function ZhuuAlertProvider({
 
       {alert.open && (
         <div
-          className="fixed inset-0 z-[99999] flex items-center justify-center p-5"
+          className="fixed inset-0 z-[99999] flex items-center justify-center overflow-y-auto overscroll-contain pt-[max(1.25rem,env(safe-area-inset-top))] pb-[max(1.25rem,env(safe-area-inset-bottom))] pl-[max(1.25rem,env(safe-area-inset-left))] pr-[max(1.25rem,env(safe-area-inset-right))]"
           role="dialog"
           aria-modal="true"
           aria-label="ZhuuSite notification"
@@ -189,7 +189,7 @@ export default function ZhuuAlertProvider({
           {/* iOS-style card */}
           <div
             className={[
-              "relative w-full max-w-[390px] overflow-hidden",
+              "relative my-auto w-full max-w-[390px] overflow-hidden",
               "rounded-[30px]",
               "border border-white/[.11]",
               "bg-[#07111f]/[.94]",
@@ -227,7 +227,7 @@ export default function ZhuuAlertProvider({
                   };
                 })
               }
-              className="absolute right-4 top-4 z-10 flex size-8 items-center justify-center rounded-full border border-white/[.06] bg-white/[.045] text-white/35 transition-all duration-200 hover:bg-white/[.09] hover:text-white/80 active:scale-90"
+              className="absolute right-4 top-4 z-10 flex size-10 items-center justify-center rounded-full sm:size-8 border border-white/[.06] bg-white/[.045] text-white/35 transition-all duration-200 hover:bg-white/[.09] hover:text-white/80 active:scale-90"
               aria-label="Tutup"
             >
               <X className="size-4" />

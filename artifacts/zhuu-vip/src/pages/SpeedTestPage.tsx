@@ -11,8 +11,8 @@ function SpeedGauge({ value, max, label, unit, color }: { value: number; max: nu
 
   return (
     <div className="flex flex-col items-center gap-2">
-      <div className="relative" style={{ width: 180, height: 140 }}>
-        <svg width={180} height={160} viewBox="0 0 180 160" style={{ overflow: "visible" }}>
+      <div className="relative w-full" style={{ maxWidth: 180, aspectRatio: "180 / 140" }}>
+        <svg viewBox="0 0 180 160" className="block h-auto w-full" style={{ overflow: "visible" }}>
           <defs>
             <linearGradient id={`grad-${label}`} x1="0%" y1="0%" x2="100%" y2="0%">
               <stop offset="0%" stopColor={color} stopOpacity="0.4" />
@@ -146,7 +146,7 @@ export default function SpeedTestPage() {
   };
 
   return (
-    <div className="zhuu-page-bg min-h-screen pt-6 pb-28 px-4">
+    <div className="zhuu-page-bg min-h-dvh pt-6 pb-10 px-4">
       <div className="max-w-3xl mx-auto">
         <div className="text-center mb-10">
           <div className="text-4xl mb-3">⚡</div>
@@ -154,8 +154,8 @@ export default function SpeedTestPage() {
           <p style={{ color: "rgba(0,200,220,0.5)" }}>Measure your internet connection speed</p>
         </div>
 
-        <div className="glass-card p-8 mb-6 rounded-2xl">
-          <div className="grid grid-cols-3 gap-4 mb-8">
+        <div className="glass-card p-5 sm:p-8 mb-6 rounded-2xl">
+          <div className="grid grid-cols-1 min-[480px]:grid-cols-3 gap-6 min-[480px]:gap-3 mb-8 justify-items-center">
             <SpeedGauge value={download} max={500} label="Download" unit="Mbps" color="#f4f4f5" />
             <SpeedGauge value={upload} max={250} label="Upload" unit="Mbps" color="#34d399" />
             <SpeedGauge value={pingMs} max={200} label="Ping" unit="ms" color="#f9a8d4" />
@@ -184,7 +184,7 @@ export default function SpeedTestPage() {
 
           <div className="flex justify-center gap-4">
             {(phase === "idle" || phase === "done") && (
-              <button onClick={runTest} className="bg-white text-black hover:bg-zinc-200 transition-colors px-10 py-4 rounded-full font-bold text-base">
+              <button onClick={runTest} className="bg-white text-black hover:bg-zinc-200 transition-colors px-8 sm:px-10 py-4 rounded-full font-bold text-base">
                 {phase === "done" ? "▶ Run Again" : "▶ Start Test"}
               </button>
             )}
@@ -200,7 +200,7 @@ export default function SpeedTestPage() {
           <div className="glass-card p-6 rounded-2xl">
             <h3 className="font-bold text-lg mb-4 gradient-text" style={{ fontFamily: "Poppins, Inter, sans-serif" }}>Recent Tests</h3>
             <div className="overflow-x-auto">
-              <table className="w-full text-sm">
+              <table className="w-full min-w-[420px] text-sm [&_td]:whitespace-nowrap [&_td]:pr-4 [&_th]:whitespace-nowrap [&_th]:pr-4">
                 <thead>
                   <tr style={{ borderBottom: "1px solid rgba(0,255,255,0.1)" }}>
                     {["Time", "↓ Download", "↑ Upload", "Ping", "Jitter"].map(h => (

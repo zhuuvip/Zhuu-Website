@@ -6,7 +6,7 @@ const basePath = import.meta.env.BASE_URL.replace(/\/$/, "");
 export default function SignUpPage() {
   return (
     <div
-      className="min-h-[calc(100vh-64px)] flex flex-col items-center justify-center px-4 py-12"
+      className="min-h-[calc(100dvh_-_var(--zs-header-h)_-_var(--zs-bottom-clear))] flex flex-col items-center justify-center px-4 py-12"
       data-testid="sign-up-page"
     >
       {/* Ambient glow */}

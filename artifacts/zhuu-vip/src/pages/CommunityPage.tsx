@@ -18,7 +18,7 @@ const RULES = [
 
 export default function CommunityPage() {
   return (
-    <div className="zhuu-page-bg min-h-screen pt-6 pb-28 px-4">
+    <div className="zhuu-page-bg min-h-dvh pt-6 pb-10 px-4">
       <div className="max-w-5xl mx-auto">
         <div className="text-center mb-12">
           <div className="text-5xl mb-4"></div>

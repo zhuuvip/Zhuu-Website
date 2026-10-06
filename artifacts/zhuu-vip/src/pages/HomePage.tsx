@@ -75,7 +75,7 @@ export default function HomePage() {
   }, []);
 
   return (
-    <main className="min-h-screen bg-[#080b10] text-white">
+    <main className="min-h-dvh bg-[#080b10] text-white">
       <section className="relative overflow-hidden border-b border-white/[0.06]">
 
         <div className="relative mx-auto flex min-h-[650px] max-w-6xl flex-col items-center justify-center px-5 py-24 text-center sm:px-6">

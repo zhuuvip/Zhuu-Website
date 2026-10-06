@@ -38,7 +38,7 @@ export default function TestimonialsPage() {
   }, []);
 
   return (
-    <div className="zhuu-page-bg min-h-screen px-4 pb-28 pt-6">
+    <div className="zhuu-page-bg min-h-dvh px-4 pb-10 pt-6">
       <div className="mx-auto max-w-5xl">
         <div className="mb-10 text-center">
           <div className="mb-3 text-4xl">⭐</div>

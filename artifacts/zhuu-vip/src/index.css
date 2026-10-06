@@ -191,8 +191,15 @@ body {
   background-color: hsl(var(--background));
   color: hsl(var(--foreground));
   font-family: var(--app-font-sans);
-  overflow-x: hidden;
+  /* Jaring pengaman terakhir saja. Penyebab overflow ditangani di komponen
+     (min-w-0, overflow-wrap, tabel scroll sendiri, dll). `clip` tidak membuat
+     scroll container, jadi position: sticky tetap bekerja. */
+  overflow-x: clip;
   min-height: 100vh;
+  min-height: 100dvh;
+  /* Kata/URL/email panjang boleh dipatahkan agar flex/grid item bisa menyusut
+     (tanpa ini min-width:auto membuat item menembus layar). */
+  overflow-wrap: anywhere;
 }
 
 /* ━━━━ ZhuuSite premium card system ━━━━ */
@@ -403,9 +410,10 @@ body {
   overflow: hidden;
 }
 
-/* Prevent floating player from covering important bottom content. */
+/* Jarak ke bottom navigation sudah ditangani <main> (--zs-bottom-clear);
+   halaman cukup memakai padding bawah normal. */
 .zhuu-page-bg {
-  padding-bottom: calc(100px + env(safe-area-inset-bottom));
+  padding-bottom: 2.5rem;
 }
 
 /* Better mobile hero proportions. */
@@ -468,7 +476,7 @@ body {
   }
 
   .zhuu-page-bg {
-    padding-bottom: 40px;
+    padding-bottom: 3rem;
   }
 }
 
@@ -692,4 +700,101 @@ body {
 body:has(.product-detail-modal) [data-testid="music-player"] {
   opacity: 0;
   pointer-events: none;
+}
+
+/* =========================================================
+   RESPONSIVE HARDENING (shell, safe-area, form, landscape)
+   ========================================================= */
+
+:root {
+  /* Tinggi header: baris utama + (mobile) baris music player + safe-area atas. */
+  --zs-safe-top: env(safe-area-inset-top, 0px);
+  --zs-nav-row: 56px;
+  --zs-nav-player: 44px;
+  --zs-header-h: calc(var(--zs-safe-top) + var(--zs-nav-row) + var(--zs-nav-player));
+  /* Ruang yang dipakai bottom navigation (hanya di bawah lg). */
+  --zs-bottom-clear: calc(4.5rem + max(0.75rem, env(safe-area-inset-bottom, 0px)));
+}
+
+@media (min-width: 640px) {
+  :root {
+    --zs-nav-row: 64px;
+    --zs-nav-player: 0px;
+  }
+}
+
+@media (min-width: 1024px) {
+  :root {
+    --zs-bottom-clear: 0px;
+  }
+}
+
+/* Music player kosong (belum ada lagu) -> jangan sisakan baris kosong di mobile. */
+:root:has(.zs-nav-player:empty) {
+  --zs-nav-player: 0px;
+}
+
+.zs-nav {
+  padding-top: var(--zs-safe-top);
+  padding-left: env(safe-area-inset-left, 0px);
+  padding-right: env(safe-area-inset-right, 0px);
+}
+
+/* Input/textarea/select tidak boleh memaksa lebar container.
+   Di @layer base supaya utility Tailwind (w-*, min-w-*, dst.) tetap menang. */
+@layer base {
+  input,
+  textarea,
+  select {
+    max-width: 100%;
+    min-width: 0;
+  }
+}
+
+/* iOS zoom otomatis saat fokus jika font < 16px; itu merusak layout di mobile. */
+@media (max-width: 767px) and (pointer: coarse) {
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]):not([type="file"]),
+  textarea,
+  select {
+    font-size: 16px !important;
+  }
+}
+
+/* Konten media tidak boleh melebihi container-nya. */
+@layer base {
+  img,
+  video,
+  canvas,
+  iframe {
+    max-width: 100%;
+  }
+}
+
+/* Fokus keyboard tetap terlihat (default saja; utility seperti focus:outline-none tetap menang). */
+@layer base {
+  :focus-visible {
+    outline: 2px solid rgba(0, 212, 255, 0.7);
+    outline-offset: 2px;
+  }
+}
+
+/* Layar landscape pendek: bottom nav dipadatkan (ikon + label sejajar) agar
+   tidak memakan sepertiga layar. */
+@media (max-height: 480px) and (orientation: landscape) {
+  :root {
+    --zs-bottom-clear: calc(3.25rem + max(0.5rem, env(safe-area-inset-bottom, 0px)));
+  }
+
+  .zs-bottom-nav-item {
+    flex-direction: row !important;
+    gap: 0.375rem !important;
+    padding-top: 0.375rem !important;
+    padding-bottom: 0.375rem !important;
+  }
+}
+
+@media (min-width: 1024px) and (max-height: 480px) {
+  :root {
+    --zs-bottom-clear: 0px;
+  }
 }

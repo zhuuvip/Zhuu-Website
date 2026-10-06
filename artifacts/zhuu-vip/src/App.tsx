@@ -216,12 +216,12 @@ function AppRouter() {
   const isFullScreenPage = location.startsWith("/ai");
 
   return (
-    <div className="min-h-screen relative">
+    <div className="relative min-h-dvh">
       <Navigation />
       <AnnouncementBanner />
       <RecentPurchaseTicker />
 
-      <main className="relative pt-[76px] pb-[88px] lg:pt-0 lg:pb-0">
+      <main className="relative pb-[var(--zs-bottom-clear)]">
       <Switch>
         <Route path="/" component={HomePage} />
         <Route path="/ai" component={AIPage} />

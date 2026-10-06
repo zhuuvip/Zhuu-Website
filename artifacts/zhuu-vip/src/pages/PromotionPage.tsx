@@ -203,7 +203,7 @@ export default function PromotionPage() {
 
   if (!isSignedIn) {
     return (
-      <div className="min-h-screen px-4 py-10">
+      <div className="min-h-dvh px-4 py-10">
         <div className="max-w-3xl mx-auto glass-card rounded-3xl p-8 text-center">
           <h1 className="text-3xl font-black text-zinc-200">
             Paid Promotion
@@ -217,7 +217,7 @@ export default function PromotionPage() {
   }
 
   return (
-    <div className="min-h-screen px-3 sm:px-4 py-5 pb-28">
+    <div className="min-h-dvh px-3 sm:px-4 py-5 pb-10">
       <div className="max-w-5xl mx-auto">
         <div className="mb-6">
           <span className="text-xs font-black uppercase tracking-[0.25em] text-zinc-200">

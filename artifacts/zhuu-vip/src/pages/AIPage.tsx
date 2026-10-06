@@ -271,6 +271,7 @@ function AIChat() {
   const deleteConv = useDeleteAnthropicConversation();
 
   const [activeConvId, setActiveConvId] = useState<number | null>(null);
+  const [historyOpen, setHistoryOpen] = useState(false); // drawer riwayat di mobile
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [streaming, setStreaming] = useState(false);
@@ -539,12 +540,24 @@ function AIChat() {
   };
 
   return (
-    <div className="flex h-[calc(100vh-64px)]" data-testid="ai-page">
-      {/* Sidebar */}
-      <div className="w-64 flex-shrink-0 border-r border-white/10 flex-col bg-zinc-950/60 backdrop-blur-xl hidden md:flex">
+    <div className="flex h-[calc(100dvh_-_var(--zs-header-h)_-_var(--zs-bottom-clear))] min-h-0" data-testid="ai-page">
+      {/* Backdrop drawer riwayat (mobile) */}
+      {historyOpen && (
+        <div className="fixed inset-0 z-[65] bg-black/60 md:hidden" onClick={() => setHistoryOpen(false)} aria-hidden="true" />
+      )}
+
+      {/* Sidebar: drawer di mobile, kolom tetap di >= md */}
+      <div className={`${historyOpen ? "fixed inset-y-0 left-0 z-[70] flex w-[min(20rem,85vw)] pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)] pl-[env(safe-area-inset-left)] shadow-2xl" : "hidden"} flex-col border-r border-white/10 bg-zinc-950/95 backdrop-blur-xl md:static md:z-auto md:flex md:w-64 md:flex-shrink-0 md:bg-zinc-950/60 md:p-0 md:shadow-none`}>
+        <div className="flex items-center justify-between px-4 pt-3 md:hidden">
+          <span className="text-xs font-semibold uppercase tracking-wider text-zinc-400/60">Chats</span>
+          <button type="button" onClick={() => setHistoryOpen(false)} aria-label="Close chat history"
+            className="flex h-10 w-10 items-center justify-center rounded-xl text-zinc-400 hover:bg-white/5 hover:text-zinc-200">
+            <X size={18} />
+          </button>
+        </div>
         <div className="p-4 border-b border-white/10">
           <button
-            onClick={newConversation}
+            onClick={() => { newConversation(); setHistoryOpen(false); }}
             disabled={createConv.isPending}
             data-testid="btn-new-conversation"
             className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-white/[0.06] to-zinc-500/[0.06] border border-white/10 text-zinc-200 text-sm font-medium hover:from-white/25 hover:to-zinc-500/25 transition-all"
@@ -560,12 +573,12 @@ function AIChat() {
             conversations.map((conv) => (
               <div key={conv.id} data-testid={`conversation-item-${conv.id}`}
                 className={`group flex items-center gap-2 px-3 py-2.5 rounded-xl mb-1 cursor-pointer transition-all ${activeConvId === conv.id ? "bg-white/5 border border-white/10 text-zinc-200" : "text-zinc-400/60 hover:bg-white/5"}`}
-                onClick={() => { setActiveConvId(conv.id); setMessages([]); }}>
+                onClick={() => { setActiveConvId(conv.id); setMessages([]); setHistoryOpen(false); }}>
                 <MessageSquare size={13} className="flex-shrink-0" />
                 <span className="flex-1 text-xs truncate">{conv.title}</span>
                 <button onClick={(e) => { e.stopPropagation(); deleteConversation(conv.id); }}
                   data-testid={`btn-delete-conversation-${conv.id}`}
-                  className="opacity-0 group-hover:opacity-100 text-red-400/60 hover:text-red-400 transition-all p-0.5">
+                  className="opacity-0 group-hover:opacity-100 focus-visible:opacity-100 [@media(hover:none)]:opacity-100 text-red-400/60 hover:text-red-400 transition-all p-2 -m-1.5">
                   <Trash2 size={12} />
                 </button>
               </div>
@@ -581,13 +594,17 @@ function AIChat() {
 
       {/* Chat area */}
       <div className="flex-1 flex flex-col min-w-0">
-        <div className="px-6 py-4 border-b border-white/10 flex items-center gap-3 bg-zinc-950/40 backdrop-blur-xl flex-shrink-0">
-          <div className="w-8 h-8 rounded-full bg-gradient-to-r from-white to-zinc-500 flex items-center justify-center">
+        <div className="px-3 sm:px-6 py-3 sm:py-4 border-b border-white/10 flex items-center gap-3 bg-zinc-950/40 backdrop-blur-xl flex-shrink-0">
+          <button type="button" onClick={() => setHistoryOpen(true)} aria-label="Open chat history"
+            className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl border border-white/10 text-zinc-300 hover:bg-white/5 md:hidden">
+            <MessageSquare size={16} />
+          </button>
+          <div className="w-8 h-8 flex-shrink-0 rounded-full bg-gradient-to-r from-white to-zinc-500 flex items-center justify-center">
             <Cpu size={16} className="text-white" />
           </div>
-          <div>
+          <div className="min-w-0">
             <div className="text-sm font-semibold text-zinc-200">Zhuu AI</div>
-            <div className="text-xs text-blue-300/40">Powered by Claude · File upload & voice enabled</div>
+            <div className="truncate text-xs text-blue-300/40">Powered by Claude · File upload & voice enabled</div>
           </div>
         </div>
 
@@ -687,7 +704,7 @@ function AIChat() {
                     </div>
                   )}
                   <button onClick={() => removeAttachment(i)}
-                    className="absolute top-0.5 right-0.5 w-4 h-4 rounded-full bg-red-500/80 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all">
+                    aria-label="Remove attachment" className="absolute top-0.5 right-0.5 w-5 h-5 rounded-full bg-red-500/80 flex items-center justify-center opacity-0 group-hover:opacity-100 focus-visible:opacity-100 [@media(hover:none)]:opacity-100 transition-all">
                     <X size={10} className="text-white" />
                   </button>
                 </div>
@@ -750,7 +767,7 @@ export default function AIPage() {
         <AIChat />
       </Show>
       <Show when="signed-out">
-        <div className="zhuu-page-bg min-h-[calc(100vh-64px)] flex flex-col items-center justify-center px-4 text-center">
+        <div className="zhuu-page-bg min-h-[calc(100dvh_-_var(--zs-header-h)_-_var(--zs-bottom-clear))] flex flex-col items-center justify-center px-4 text-center">
           <div className="glass-card rounded-3xl p-10 max-w-md w-full">
             <div className="w-16 h-16 rounded-2xl bg-gradient-to-r from-white/[0.08] to-zinc-500/[0.08] border border-white/10 flex items-center justify-center mx-auto mb-6">
               <Cpu size={28} className="text-zinc-200" />

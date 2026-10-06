@@ -3,7 +3,7 @@ import { Waves, Home } from "lucide-react";
 
 export default function NotFoundPage() {
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center px-4 text-center">
+    <div className="min-h-dvh flex flex-col items-center justify-center px-4 text-center">
       <div className="animate-float mb-8">
         <Waves size={64} className="text-zinc-200/30 mx-auto" />
       </div>

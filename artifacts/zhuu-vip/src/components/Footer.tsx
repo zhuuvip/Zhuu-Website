@@ -24,7 +24,7 @@ const SOCIAL = [
 export default function Footer() {
   return (
     <footer
-      className="border-t pb-28 pt-12 mt-4"
+      className="border-t pb-10 pt-12 mt-4"
       style={{ borderColor: "rgba(255,255,255,0.08)" }}
     >
       <div className="max-w-5xl mx-auto px-4 sm:px-6">

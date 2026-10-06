@@ -67,7 +67,7 @@ export default function LinktreePage() {
 
   return (
     <div
-      className="zhuu-page-bg min-h-screen flex flex-col items-center px-4 pt-8 pb-24 relative"
+      className="zhuu-page-bg min-h-dvh flex flex-col items-center px-4 pt-8 pb-10 relative"
       style={settings.bannerUrl ? {
         backgroundImage: `linear-gradient(to bottom, rgba(1,10,15,0.85) 0%, rgba(2,15,26,0.9) 100%), url(${getImageUrl(settings.bannerUrl)})`,
         backgroundSize: "cover",

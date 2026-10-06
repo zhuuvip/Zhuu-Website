@@ -220,7 +220,7 @@ export default function NotificationsPage() {
   };
 
   return (
-    <div className="min-h-screen px-3 sm:px-4 pt-4 pb-28">
+    <div className="min-h-dvh px-3 sm:px-4 pt-4 pb-10">
       <div className="max-w-3xl mx-auto">
           {pushSupported && (
             <div className="glass-card rounded-2xl p-4 mb-4 flex items-center gap-3">
