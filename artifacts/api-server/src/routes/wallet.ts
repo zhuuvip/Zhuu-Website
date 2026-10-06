@@ -22,7 +22,8 @@ async function ensureWalletTables() {
   await db.execute(sql`
     CREATE TABLE IF NOT EXISTS wallets (
       id SERIAL PRIMARY KEY,
-      user_id TEXT NOT NULL UNIQUE,
+      user_id TEXT NOT NULL,
+      scope TEXT NOT NULL DEFAULT 'site',
       balance INTEGER NOT NULL DEFAULT 0,
       created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
       updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
@@ -30,9 +31,48 @@ async function ensureWalletTables() {
   `);
 
   await db.execute(sql`
+    ALTER TABLE wallets
+    ADD COLUMN IF NOT EXISTS scope TEXT NOT NULL DEFAULT 'site'
+  `);
+
+  await db.execute(sql`
+    UPDATE wallets
+    SET scope = 'site'
+    WHERE scope IS NULL OR scope = ''
+  `);
+
+  await db.execute(sql`
+    DO $$
+    DECLARE
+      constraint_name TEXT;
+    BEGIN
+      SELECT conname
+      INTO constraint_name
+      FROM pg_constraint
+      WHERE conrelid = 'wallets'::regclass
+        AND contype = 'u'
+        AND pg_get_constraintdef(oid) LIKE '%(user_id)%'
+      LIMIT 1;
+
+      IF constraint_name IS NOT NULL THEN
+        EXECUTE format(
+          'ALTER TABLE wallets DROP CONSTRAINT %I',
+          constraint_name
+        );
+      END IF;
+    END $$;
+  `);
+
+  await db.execute(sql`
+    CREATE UNIQUE INDEX IF NOT EXISTS wallets_user_scope_unique
+    ON wallets (user_id, scope)
+  `);
+
+  await db.execute(sql`
     CREATE TABLE IF NOT EXISTS wallet_transactions (
       id SERIAL PRIMARY KEY,
       user_id TEXT NOT NULL,
+      scope TEXT NOT NULL DEFAULT 'site',
       type TEXT NOT NULL,
       amount INTEGER NOT NULL,
       reference TEXT UNIQUE,
@@ -41,7 +81,184 @@ async function ensureWalletTables() {
       created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
     )
   `);
+
+  await db.execute(sql`
+    ALTER TABLE wallet_transactions
+    ADD COLUMN IF NOT EXISTS scope TEXT NOT NULL DEFAULT 'site'
+  `);
+
+  await db.execute(sql`
+    UPDATE wallet_transactions
+    SET scope = 'site'
+    WHERE scope IS NULL OR scope = ''
+  `);
 }
+
+
+async function getOrCreateScopedWallet(userId: string, scope: "site" | "shop") {
+  await ensureWalletTables();
+
+  let [wallet] = await db
+    .select()
+    .from(walletsTable)
+    .where(
+      and(
+        eq(walletsTable.userId, userId),
+        eq(walletsTable.scope, scope),
+      ),
+    )
+    .limit(1);
+
+  if (!wallet) {
+    [wallet] = await db
+      .insert(walletsTable)
+      .values({
+        userId,
+        scope,
+        balance: 0,
+      })
+      .returning();
+  }
+
+  return wallet;
+}
+
+
+router.get("/shop/wallet", async (req, res) => {
+  try {
+    const userId = getUserId(req, res);
+    if (!userId) return;
+
+    const wallet = await getOrCreateScopedWallet(userId, "shop");
+
+    res.json({
+      ...wallet,
+      scope: "shop",
+    });
+  } catch (error) {
+    console.error("GET /shop/wallet error:", error);
+    res.status(500).json({ error: "Gagal mengambil saldo ZhuuShop." });
+  }
+});
+
+router.get("/shop/wallet/transactions", async (req, res) => {
+  try {
+    const userId = getUserId(req, res);
+    if (!userId) return;
+
+    await ensureWalletTables();
+
+    const transactions = await db
+      .select()
+      .from(walletTransactionsTable)
+      .where(
+        and(
+          eq(walletTransactionsTable.userId, userId),
+          eq(walletTransactionsTable.scope, "shop"),
+        ),
+      )
+      .orderBy(desc(walletTransactionsTable.createdAt));
+
+    res.json(transactions);
+  } catch (error) {
+    console.error("GET /shop/wallet/transactions error:", error);
+    res.status(500).json({ error: "Gagal mengambil transaksi ZhuuShop." });
+  }
+});
+
+router.post("/shop/wallet/deposit", async (req, res) => {
+  try {
+    const userId = getUserId(req, res);
+    if (!userId) return;
+
+    const amount = Number(req.body?.amount);
+
+    if (!Number.isInteger(amount) || amount < 1000) {
+      return res.status(400).json({
+        error: "Minimal deposit adalah Rp1.000.",
+      });
+    }
+
+    await ensureWalletTables();
+
+    const reference = `SHOP-DEP-${Date.now()}-${Math.random()
+      .toString(36)
+      .slice(2, 8)
+      .toUpperCase()}`;
+
+    const [transaction] = await db
+      .insert(walletTransactionsTable)
+      .values({
+        userId,
+        scope: "shop",
+        type: "DEPOSIT",
+        amount,
+        reference,
+        description: "Deposit ZhuuShop QRIS DANA",
+        status: "PENDING",
+      })
+      .returning();
+
+    res.json({
+      transaction,
+      qrisProvider: "DANA",
+      status: "PENDING",
+      qrUrl: "/attached_assets/IMG_20260917_085309.jpg",
+    });
+  } catch (error) {
+    console.error("POST /shop/wallet/deposit error:", error);
+    res.status(500).json({ error: "Gagal membuat deposit ZhuuShop." });
+  }
+});
+
+router.patch("/shop/wallet/transactions/:id/check", async (req, res) => {
+  try {
+    const userId = getUserId(req, res);
+    if (!userId) return;
+
+    const id = Number(req.params.id);
+
+    if (!Number.isInteger(id)) {
+      return res.status(400).json({ error: "ID transaksi tidak valid." });
+    }
+
+    const [transaction] = await db
+      .select()
+      .from(walletTransactionsTable)
+      .where(
+        and(
+          eq(walletTransactionsTable.id, id),
+          eq(walletTransactionsTable.userId, userId),
+          eq(walletTransactionsTable.scope, "shop"),
+          eq(walletTransactionsTable.type, "DEPOSIT"),
+        ),
+      )
+      .limit(1);
+
+    if (!transaction) {
+      return res.status(404).json({ error: "Transaksi tidak ditemukan." });
+    }
+
+    if (transaction.status !== "PENDING") {
+      return res.status(400).json({
+        error: "Transaksi sudah diproses.",
+      });
+    }
+
+    const [updated] = await db
+      .update(walletTransactionsTable)
+      .set({
+        description: `${transaction.description || "Deposit ZhuuShop"} | MEMBER_CHECKED`,
+      })
+      .where(eq(walletTransactionsTable.id, id))
+      .returning();
+
+    res.json({ transaction: updated });
+  } catch (error) {
+    console.error("PATCH /shop/wallet/transactions/:id/check error:", error);
+    res.status(500).json({ error: "Gagal mengonfirmasi pembayaran." });
+  }
+});
 
 router.get("/wallet", async (req, res) => {
   try {
@@ -244,104 +461,137 @@ router.patch("/admin/wallet/deposits/:id/confirm", requireAdmin, async (req, res
     await ensureWalletTables();
 
     const id = Number(req.params.id);
+    if (!Number.isInteger(id) || id <= 0) {
+      return res.status(400).json({ error: "ID deposit tidak valid" });
+    }
 
-    const [transaction] = await db
-      .select()
-      .from(walletTransactionsTable)
-      .where(
-        and(
-          eq(walletTransactionsTable.id, id),
-          eq(walletTransactionsTable.type, "DEPOSIT")
+    const result = await db.transaction(async (tx) => {
+      const [transaction] = await tx
+        .update(walletTransactionsTable)
+        .set({ status: "PAID" })
+        .where(
+          and(
+            eq(walletTransactionsTable.id, id),
+            eq(walletTransactionsTable.type, "DEPOSIT"),
+            eq(walletTransactionsTable.status, "PENDING"),
+            like(walletTransactionsTable.description, "%MEMBER_CHECKED%"),
+          ),
         )
-      );
-
-    if (!transaction) {
-      return res.status(404).json({ error: "Deposit tidak ditemukan" });
-    }
-
-    if (transaction.status !== "PENDING") {
-      return res.status(400).json({ error: "Deposit sudah diproses" });
-    }
-
-    // Reseller yang terhubung ke Member harus menerima deposit
-    // ke wallet Member tersebut, bukan membuat/mengisi wallet reseller sendiri.
-    const resellerRows = await db.execute(
-      sql`SELECT wallet_user_id FROM reseller_members WHERE user_id = ${transaction.userId} LIMIT 1`,
-    );
-
-    const resellerMember = Array.isArray(resellerRows)
-      ? resellerRows[0]
-      : (resellerRows as any)?.rows?.[0];
-
-    const walletUserId = String(
-      resellerMember?.wallet_user_id || transaction.userId,
-    );
-
-    let [wallet] = await db
-      .select()
-      .from(walletsTable)
-      .where(eq(walletsTable.userId, walletUserId))
-      .limit(1);
-
-    if (!wallet) {
-      [wallet] = await db
-        .insert(walletsTable)
-        .values({
-          userId: walletUserId,
-          balance: 0,
-        })
         .returning();
-    }
 
-    console.log("DEBUG ACC BEFORE:", {
-      transactionId: transaction.id,
-      userId: transaction.userId,
-      amount: transaction.amount,
-      balanceBefore: wallet.balance,
+      if (!transaction) {
+        throw new Error(
+          "Deposit tidak ditemukan, belum dikonfirmasi member, atau sudah diproses",
+        );
+      }
+
+      const walletScope = transaction.scope === "shop" ? "shop" : "site";
+
+      let walletUserId = transaction.userId;
+
+      // Reseller wallet mapping hanya berlaku untuk ZhuuSite.
+      // ZhuuShop selalu menggunakan wallet milik user + scope=shop.
+      if (walletScope === "site") {
+        const resellerRows = await tx.execute(
+          sql`SELECT wallet_user_id
+              FROM reseller_members
+              WHERE user_id = ${transaction.userId}
+              LIMIT 1`,
+        );
+
+        const resellerMember = Array.isArray(resellerRows)
+          ? resellerRows[0]
+          : (resellerRows as any)?.rows?.[0];
+
+        walletUserId = String(
+          resellerMember?.wallet_user_id || transaction.userId,
+        );
+      }
+
+      let [wallet] = await tx
+        .select()
+        .from(walletsTable)
+        .where(
+          and(
+            eq(walletsTable.userId, walletUserId),
+            eq(walletsTable.scope, walletScope),
+          ),
+        )
+        .limit(1);
+
+      if (!wallet) {
+        [wallet] = await tx
+          .insert(walletsTable)
+          .values({
+            userId: walletUserId,
+            scope: walletScope,
+            balance: 0,
+          })
+          .returning();
+      }
+
+      console.log("DEBUG ATOMIC DEPOSIT BEFORE:", {
+        transactionId: transaction.id,
+        userId: transaction.userId,
+        scope: walletScope,
+        walletUserId,
+        amount: transaction.amount,
+        balanceBefore: wallet.balance,
+      });
+
+      const [updatedWallet] = await tx
+        .update(walletsTable)
+        .set({
+          balance: sql`${walletsTable.balance} + ${transaction.amount}`,
+          updatedAt: new Date(),
+        })
+        .where(eq(walletsTable.id, wallet.id))
+        .returning();
+
+      if (!updatedWallet) {
+        throw new Error("Gagal memperbarui saldo wallet");
+      }
+
+      console.log("DEBUG ATOMIC DEPOSIT AFTER:", {
+        walletId: updatedWallet.id,
+        walletUserId,
+        scope: walletScope,
+        balanceAfter: updatedWallet.balance,
+      });
+
+      return {
+        wallet: updatedWallet,
+        transaction,
+      };
     });
-
-    const [updatedWallet] = await db
-      .update(walletsTable)
-      .set({
-        balance: wallet.balance + transaction.amount,
-        updatedAt: new Date(),
-      })
-      .where(eq(walletsTable.id, wallet.id))
-      .returning();
-
-    console.log("DEBUG ACC AFTER:", {
-      walletId: updatedWallet.id,
-      balanceAfter: updatedWallet.balance,
-    });
-
-    const [updatedTransaction] = await db
-      .update(walletTransactionsTable)
-      .set({
-        status: "PAID",
-      })
-      .where(eq(walletTransactionsTable.id, transaction.id))
-      .returning();
 
     await createNotification({
-      userId: transaction.userId,
+      userId: result.transaction.userId,
       type: "wallet",
       title: "Deposit berhasil 💰",
-      message: `Saldo Rp${Number(transaction.amount).toLocaleString("id-ID")} sudah masuk ke wallet kamu.`,
+      message: `Saldo Rp${Number(result.transaction.amount).toLocaleString("id-ID")} sudah masuk ke wallet kamu.`,
       link: "/member",
     }).catch((error) => {
       console.error("Deposit confirmation notification failed:", error);
     });
 
-    return res.json({
-      wallet: updatedWallet,
-      transaction: updatedTransaction,
-    });
+    return res.json(result);
   } catch (err) {
-    console.error(err);
-    return res.status(500).json({ error: "Gagal mengonfirmasi deposit" });
+    const message = err instanceof Error ? err.message : "";
+
+    if (
+      message ===
+      "Deposit tidak ditemukan, belum dikonfirmasi member, atau sudah diproses"
+    ) {
+      return res.status(400).json({ error: message });
+    }
+
+    console.error("Deposit confirmation error:", err);
+    return res.status(500).json({
+      error: "Gagal mengonfirmasi deposit",
+    });
   }
 });
-
 
 router.get("/admin/wallet/users", requireAdmin, async (req, res) => {
   try {

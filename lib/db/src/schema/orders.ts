@@ -4,6 +4,7 @@ export const ordersTable = pgTable("orders", {
   id: serial("id").primaryKey(),
   invoice: text("invoice").notNull().unique(),
   idempotencyKey: text("idempotency_key").unique(),
+  scope: text("scope").notNull().default("site"),
   productId: integer("product_id").notNull(),
   optionId: integer("option_id").notNull(),
   productName: text("product_name").notNull(),

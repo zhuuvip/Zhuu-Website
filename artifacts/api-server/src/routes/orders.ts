@@ -33,6 +33,17 @@ function ensureOrdersIdempotencySchema(): Promise<void> {
       `);
 
       await db.execute(sql`
+        ALTER TABLE orders
+        ADD COLUMN IF NOT EXISTS scope TEXT NOT NULL DEFAULT 'site'
+      `);
+
+      await db.execute(sql`
+        UPDATE orders
+        SET scope = 'site'
+        WHERE scope IS NULL OR scope = ''
+      `);
+
+      await db.execute(sql`
         CREATE UNIQUE INDEX IF NOT EXISTS orders_idempotency_key_unique
         ON orders (idempotency_key)
         WHERE idempotency_key IS NOT NULL
@@ -127,7 +138,8 @@ router.post("/orders/validate-promo", async (req, res) => {
   }
 });
 
-router.post("/orders", async (req, res) => {
+router.post(["/orders", "/shop/orders"], async (req, res) => {
+  const walletScope = req.path === "/shop/orders" ? "shop" : "site";
   let pendingOrderId: number | null = null;
   let pendingInvoice: string | null = null;
   let pendingUserId: string | null = null;
@@ -216,7 +228,8 @@ router.post("/orders", async (req, res) => {
       await tx.execute(sql`
         CREATE TABLE IF NOT EXISTS wallets (
           id SERIAL PRIMARY KEY,
-          user_id TEXT NOT NULL UNIQUE,
+          user_id TEXT NOT NULL,
+          scope TEXT NOT NULL DEFAULT 'site',
           balance INTEGER NOT NULL DEFAULT 0,
           created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
           updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
@@ -224,9 +237,15 @@ router.post("/orders", async (req, res) => {
       `);
 
       await tx.execute(sql`
+        ALTER TABLE wallets
+        ADD COLUMN IF NOT EXISTS scope TEXT NOT NULL DEFAULT 'site'
+      `);
+
+      await tx.execute(sql`
         CREATE TABLE IF NOT EXISTS wallet_transactions (
           id SERIAL PRIMARY KEY,
           user_id TEXT NOT NULL,
+          scope TEXT NOT NULL DEFAULT 'site',
           type TEXT NOT NULL,
           amount INTEGER NOT NULL,
           reference TEXT UNIQUE,
@@ -236,10 +255,20 @@ router.post("/orders", async (req, res) => {
         )
       `);
 
+      await tx.execute(sql`
+        ALTER TABLE wallet_transactions
+        ADD COLUMN IF NOT EXISTS scope TEXT NOT NULL DEFAULT 'site'
+      `);
+
       let [wallet] = await tx
         .select()
         .from(walletsTable)
-        .where(eq(walletsTable.userId, userId))
+        .where(
+          and(
+            eq(walletsTable.userId, userId),
+            eq(walletsTable.scope, walletScope),
+          ),
+        )
         .limit(1);
 
       if (!wallet) {
@@ -247,7 +276,8 @@ router.post("/orders", async (req, res) => {
           .insert(walletsTable)
           .values({
             userId,
-            balance: 0,
+            scope: walletScope,
+                                                                     balance: 0,
           })
           .returning();
       }
@@ -319,6 +349,7 @@ router.post("/orders", async (req, res) => {
         .values({
           invoice,
           idempotencyKey,
+          scope: walletScope,
           productId: product.id,
           optionId: option.id,
           productName: product.name,
@@ -332,6 +363,7 @@ router.post("/orders", async (req, res) => {
 
       await tx.insert(walletTransactionsTable).values({
         userId,
+        scope: walletScope,
         type: "PURCHASE",
         amount: -finalPrice,
         reference: invoice,
@@ -497,14 +529,24 @@ router.post("/orders", async (req, res) => {
               balance: sql`${walletsTable.balance} + ${prepared.order.amount}`,
               updatedAt: new Date(),
             })
-            .where(eq(walletsTable.userId, userId));
+            .where(
+        and(
+          eq(walletsTable.userId, userId),
+          eq(walletsTable.scope, walletScope),
+        ),
+      );
 
           await tx
             .update(walletTransactionsTable)
             .set({
               status: "REFUNDED",
             })
-            .where(eq(walletTransactionsTable.reference, prepared.order.invoice));
+            .where(
+        and(
+          eq(walletTransactionsTable.reference, prepared.order.invoice),
+          eq(walletTransactionsTable.scope, walletScope),
+        ),
+      );
 
           await tx
             .update(productOptionsTable)
@@ -638,14 +680,24 @@ router.post("/orders", async (req, res) => {
                 balance: sql`${walletsTable.balance} + ${refundAmount}`,
                 updatedAt: new Date(),
               })
-              .where(eq(walletsTable.userId, refundUserId));
+              .where(
+          and(
+            eq(walletsTable.userId, refundUserId),
+            eq(walletsTable.scope, walletScope),
+          ),
+        );
 
             await tx
               .update(walletTransactionsTable)
               .set({
                 status: "REFUNDED",
               })
-              .where(eq(walletTransactionsTable.reference, refundInvoice));
+              .where(
+          and(
+            eq(walletTransactionsTable.reference, refundInvoice),
+            eq(walletTransactionsTable.scope, walletScope),
+          ),
+        );
 
             if (!pendingIsDrip && pendingOptionId !== null) {
               await tx
@@ -758,7 +810,9 @@ router.get("/orders/recent", async (_req, res) => {
       .where(
         and(
           eq(walletTransactionsTable.type, "PURCHASE"),
-          eq(ordersTable.status, "PAID"),
+          eq(walletTransactionsTable.scope, "site"),
+              eq(ordersTable.scope, "site"),
+              eq(ordersTable.status, "PAID"),
         ),
       )
       .orderBy(desc(ordersTable.createdAt))
@@ -864,7 +918,9 @@ router.get("/orders", async (req, res) => {
       .where(
         and(
           eq(walletTransactionsTable.userId, userId),
-          eq(walletTransactionsTable.type, "PURCHASE"),
+          eq(walletTransactionsTable.scope, "site"),
+              eq(ordersTable.scope, "site"),
+              eq(walletTransactionsTable.type, "PURCHASE"),
         ),
       )
       .orderBy(desc(walletTransactionsTable.createdAt));
@@ -884,6 +940,7 @@ router.get("/admin/orders", requireAdmin, async (_req, res) => {
     const orders = await db
       .select()
       .from(ordersTable)
+      .where(eq(ordersTable.scope, "site"))
       .orderBy(sql`${ordersTable.createdAt} DESC`);
 
     return res.json(orders);
