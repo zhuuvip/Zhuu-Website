@@ -85,6 +85,8 @@ function ensureResellerTables(): Promise<void> {
       await db.execute(sql`ALTER TABLE product_options ADD COLUMN IF NOT EXISTS reseller_price INTEGER`);
       await db.execute(sql`ALTER TABLE reseller_members ADD COLUMN IF NOT EXISTS credential_version INTEGER NOT NULL DEFAULT 0`);
       await db.execute(sql`ALTER TABLE reseller_members ADD COLUMN IF NOT EXISTS wallet_user_id TEXT`);
+      await db.execute(sql`ALTER TABLE reseller_members ADD COLUMN IF NOT EXISTS scope TEXT NOT NULL DEFAULT 'site'`);
+      await db.execute(sql`UPDATE reseller_members SET scope = 'site' WHERE scope IS NULL OR scope = ''`);
       await db.execute(sql`ALTER TABLE reseller_members ADD COLUMN IF NOT EXISTS wallet_email TEXT`);
   await db.execute(sql`ALTER TABLE reseller_members ADD COLUMN IF NOT EXISTS wallet_username TEXT`);
       await db.execute(sql`ALTER TABLE reseller_members ADD COLUMN IF NOT EXISTS api_key_hash TEXT`);
@@ -111,6 +113,38 @@ function ensureResellerTables(): Promise<void> {
           status TEXT NOT NULL DEFAULT 'PENDING',
           created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
         )
+      `);
+
+      await db.execute(sql`
+        ALTER TABLE wallet_transactions
+        ADD COLUMN IF NOT EXISTS scope TEXT NOT NULL DEFAULT 'site'
+      `);
+
+      await db.execute(sql`
+        UPDATE wallet_transactions
+        SET scope = 'site'
+        WHERE scope IS NULL OR scope = ''
+      `);
+
+      await db.execute(sql`
+        ALTER TABLE wallets
+        ADD COLUMN IF NOT EXISTS scope TEXT NOT NULL DEFAULT 'site'
+      `);
+
+      await db.execute(sql`
+        UPDATE wallets
+        SET scope = 'site'
+        WHERE scope IS NULL OR scope = ''
+      `);
+
+      await db.execute(sql`
+        ALTER TABLE wallets
+        DROP CONSTRAINT IF EXISTS wallets_user_id_key
+      `);
+
+      await db.execute(sql`
+        CREATE UNIQUE INDEX IF NOT EXISTS wallets_user_scope_unique
+        ON wallets (user_id, scope)
       `);
     })().catch((e) => {
       tablesReady = null;
@@ -252,15 +286,21 @@ async function getPlanPrices() {
 async function walletBalance(ex: any, userId: string) {
   const member = rowsOf(
     await ex.execute(
-      sql`SELECT wallet_user_id FROM reseller_members WHERE user_id = ${userId}`,
+      sql`SELECT wallet_user_id, scope
+          FROM reseller_members
+          WHERE user_id = ${userId}`,
     ),
   )[0];
 
   const walletUserId = String(member?.wallet_user_id || userId);
+  const scope = String(member?.scope || "site");
 
   const r = rowsOf(
     await ex.execute(
-      sql`SELECT balance FROM wallets WHERE user_id = ${walletUserId}`,
+      sql`SELECT balance
+          FROM wallets
+          WHERE user_id = ${walletUserId}
+            AND scope = ${scope}`,
     ),
   )[0];
 
@@ -387,6 +427,7 @@ async function requireResellerApi(req: Request, res: Response, next: NextFunctio
       username: acc.username,
       plan: acc.plan,
       expiresAt: acc.expires_at,
+      scope: acc.scope || "site",
       balance: await walletBalance(db, acc.user_id),
       wallet_user_id: acc.wallet_user_id || null,
       walletEmail: acc.wallet_email || null,
@@ -449,7 +490,9 @@ router.post(
       const debit = rowsOf(
         await tx.execute(sql`
           UPDATE wallets SET balance = balance - ${price}, updated_at = NOW()
-          WHERE user_id = ${walletUserId} AND balance >= ${price}
+          WHERE user_id = ${walletUserId}
+            AND scope = ${walletScope}
+            AND balance >= ${price}
           RETURNING balance
         `),
       )[0];
@@ -470,8 +513,9 @@ router.post(
       `);
 
       await tx.execute(sql`
-        INSERT INTO wallet_transactions (user_id, type, amount, reference, description, status)
-        VALUES (${walletUserId}, 'PURCHASE', ${-price},
+        INSERT INTO wallet_transactions
+          (user_id, scope, type, amount, reference, description, status)
+        VALUES (${walletUserId}, ${walletScope}, 'PURCHASE', ${-price},
                 ${`RESELLER-${plan.toUpperCase()}-${Date.now()}`},
                 ${`Rank Reseller Products (${plan === "monthly" ? "Bulanan" : "Lifetime"})`}, 'PAID')
       `);
@@ -1048,6 +1092,7 @@ async function createResellerOrder(req: Request, res: Response) {
       const walletUserId = String(
         acc.wallet_user_id || acc.userId,
       );
+      const walletScope = String(acc.scope || "site");
 
       if (!walletUserId) {
         throw new HttpError(
@@ -1069,6 +1114,7 @@ async function createResellerOrder(req: Request, res: Response) {
             balance = balance - ${finalPrice},
             updated_at = NOW()
           WHERE user_id = ${walletUserId}
+            AND scope = ${walletScope}
             AND balance >= ${finalPrice}
           RETURNING balance
         `),
@@ -1754,6 +1800,332 @@ router.post(
       email,
       duration: days,
       expiresAt: base.toISOString(),
+    });
+  }),
+);
+
+router.get(
+  "/admin/shop/resellers",
+  requireAdmin,
+  h(async (_req, res) => {
+    const rows = rowsOf(
+      await db.execute(sql`
+        SELECT
+          r.id,
+          r.user_id,
+          r.plan,
+          r.expires_at,
+          r.username,
+          r.active,
+          r.created_at,
+          r.wallet_user_id,
+          r.wallet_email,
+          r.wallet_username,
+          r.scope,
+          COALESCE(w.balance, 0) AS balance
+        FROM reseller_members r
+        LEFT JOIN wallets w
+          ON w.user_id = r.wallet_user_id
+         AND w.scope = 'shop'
+        WHERE r.scope = 'shop'
+        ORDER BY r.id DESC
+      `),
+    );
+
+    return res.json(
+      rows.map((r) => ({
+        ...r,
+        balance: Number(r.balance || 0),
+        valid: isActiveMember(r),
+      })),
+    );
+  }),
+);
+
+router.patch(
+  "/admin/shop/resellers/:id",
+  requireAdmin,
+  h(async (req, res) => {
+    const id = Number(req.params.id);
+
+    if (!Number.isInteger(id) || id <= 0) {
+      throw new HttpError(400, "ID reseller tidak valid");
+    }
+
+    const active =
+      typeof req.body.active === "boolean"
+        ? req.body.active
+        : null;
+
+    if (active === null) {
+      throw new HttpError(400, "Status active harus boolean");
+    }
+
+    const updated = rowsOf(
+      await db.execute(sql`
+        UPDATE reseller_members
+        SET active = ${active}
+        WHERE id = ${id}
+          AND scope = 'shop'
+        RETURNING
+          id,
+          user_id,
+          plan,
+          expires_at,
+          username,
+          active,
+          created_at,
+          wallet_user_id,
+          wallet_email,
+          wallet_username,
+          scope
+      `),
+    )[0];
+
+    if (!updated) {
+      throw new HttpError(404, "Reseller ZhuuShop tidak ditemukan");
+    }
+
+    return res.json({
+      ok: true,
+      reseller: {
+        ...updated,
+        valid: isActiveMember(updated),
+      },
+    });
+  }),
+);
+
+router.delete(
+  "/admin/shop/resellers/:id",
+  requireAdmin,
+  h(async (req, res) => {
+    const id = Number(req.params.id);
+
+    if (!Number.isInteger(id) || id <= 0) {
+      throw new HttpError(400, "ID reseller tidak valid");
+    }
+
+    const deleted = rowsOf(
+      await db.execute(sql`
+        DELETE FROM reseller_members
+        WHERE id = ${id}
+          AND scope = 'shop'
+        RETURNING
+          id,
+          user_id,
+          username,
+          wallet_user_id,
+          wallet_email,
+          wallet_username,
+          scope
+      `),
+    )[0];
+
+    if (!deleted) {
+      throw new HttpError(404, "Reseller ZhuuShop tidak ditemukan");
+    }
+
+    return res.json({
+      ok: true,
+      reseller: deleted,
+    });
+  }),
+);
+
+router.post(
+  "/admin/shop/resellers",
+  requireAdmin,
+  h(async (req, res) => {
+    const email =
+      typeof req.body.email === "string"
+        ? req.body.email.trim().toLowerCase()
+        : "";
+
+    const duration =
+      typeof req.body.duration === "string"
+        ? req.body.duration
+        : "";
+
+    const allowedDays: Record<string, number> = {
+      "1": 1,
+      "3": 3,
+      "7": 7,
+      "14": 14,
+      "30": 30,
+    };
+
+    if (!email || !email.includes("@")) {
+      throw new HttpError(400, "Email Member tidak valid");
+    }
+
+    if (duration !== "lifetime" && !allowedDays[duration]) {
+      throw new HttpError(400, "Durasi reseller tidak valid");
+    }
+
+    const secretKey = process.env.CLERK_SECRET_KEY;
+
+    if (!secretKey) {
+      throw new HttpError(
+        500,
+        "CLERK_SECRET_KEY belum dikonfigurasi di server",
+      );
+    }
+
+    const clerk = createClerkClient({ secretKey });
+
+    const result = await clerk.users.getUserList({
+      limit: 100,
+      query: email,
+    });
+
+    const user = result.data.find((u) =>
+      u.emailAddresses.some(
+        (item) => item.emailAddress.toLowerCase() === email,
+      ),
+    );
+
+    if (!user) {
+      throw new HttpError(
+        404,
+        "Member dengan email tersebut tidak ditemukan",
+      );
+    }
+
+    const primaryEmail =
+      user.emailAddresses.find(
+        (item) => item.id === user.primaryEmailAddressId,
+      )?.emailAddress ||
+      user.emailAddresses[0]?.emailAddress ||
+      email;
+
+    const username =
+      user.username ||
+      [user.firstName, user.lastName]
+        .filter(Boolean)
+        .join(" ")
+        .trim() ||
+      primaryEmail.split("@")[0];
+
+    const existing = rowsOf(
+      await db.execute(sql`
+        SELECT
+          id,
+          user_id,
+          plan,
+          expires_at,
+          username,
+          active,
+          wallet_user_id,
+          wallet_email,
+          wallet_username,
+          scope
+        FROM reseller_members
+        WHERE user_id = ${user.id}
+          AND scope = 'shop'
+        LIMIT 1
+      `),
+    )[0];
+
+    let plan = "basic";
+    let expiresIso: string | null = null;
+
+    if (duration !== "lifetime") {
+      const expires = new Date();
+      expires.setUTCDate(
+        expires.getUTCDate() + allowedDays[duration],
+      );
+      expiresIso = expires.toISOString();
+    }
+
+    if (existing) {
+      const updated = rowsOf(
+        await db.execute(sql`
+          UPDATE reseller_members
+          SET
+            plan = ${plan},
+            expires_at = ${expiresIso}::timestamptz,
+            active = TRUE,
+            wallet_user_id = ${user.id},
+            wallet_email = ${primaryEmail},
+            wallet_username = ${username},
+            scope = 'shop'
+          WHERE id = ${existing.id}
+          RETURNING
+            id,
+            user_id,
+            plan,
+            expires_at,
+            username,
+            active,
+            created_at,
+            wallet_user_id,
+            wallet_email,
+            wallet_username,
+            scope
+        `),
+      )[0];
+
+      return res.status(200).json({
+        ok: true,
+        reseller: updated,
+        existing: true,
+        duration,
+      });
+    }
+
+    const inserted = rowsOf(
+      await db.execute(sql`
+        INSERT INTO reseller_members
+        (
+          user_id,
+          plan,
+          expires_at,
+          username,
+          password_hash,
+          active,
+          wallet_user_id,
+          wallet_email,
+          wallet_username,
+          scope
+        )
+        VALUES
+        (
+          ${user.id},
+          ${plan},
+          ${expiresIso}::timestamptz,
+          ${username},
+          NULL,
+          TRUE,
+          ${user.id},
+          ${primaryEmail},
+          ${username},
+          'shop'
+        )
+        RETURNING
+          id,
+          user_id,
+          plan,
+          expires_at,
+          username,
+          active,
+          created_at,
+          wallet_user_id,
+          wallet_email,
+          wallet_username,
+          scope
+      `),
+    )[0];
+
+    if (!inserted) {
+      throw new HttpError(500, "Gagal membuat reseller");
+    }
+
+    return res.status(201).json({
+      ok: true,
+      reseller: inserted,
+      existing: false,
+      duration,
     });
   }),
 );
