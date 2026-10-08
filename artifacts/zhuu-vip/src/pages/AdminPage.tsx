@@ -18,7 +18,7 @@ import {
   MessageSquare, ShoppingCart, BarChart3, Star, Users, Bot, RefreshCw,
   Settings, Image as ImageIcon, Palette, Upload, CheckCircle2,
   GripVertical, ExternalLink, WalletCards, TicketPercent, History,
-  Wallet, Clock3, CreditCard, AlertTriangle, ChevronRight, Package
+  Wallet, Clock3, CreditCard, AlertTriangle, ChevronRight, Package, RotateCcw
 } from "lucide-react";
 
 
@@ -728,6 +728,34 @@ const [deliveryValue, setDeliveryValue] = useState("");
     setStatsLoading(false);
   };
 
+  const handleResetProfitCalculation = async () => {
+    const confirmed = await window.zhuuConfirm(
+      "Statistik Profit & Fee akan mulai dihitung ulang dari sekarang. Data order dan transaksi tidak akan dihapus.",
+      {
+        title: "Reset Perhitungan?",
+        confirmText: "Reset Perhitungan",
+        cancelText: "Batal",
+      },
+    );
+
+    if (!confirmed) return;
+
+    try {
+      const res = await fetch(`${API_BASE}/api/admin/stats/reset`, {
+        method: "POST",
+        headers: await authHeaders(),
+      });
+
+      if (!res.ok) {
+        throw new Error("Failed to reset profit calculation");
+      }
+
+      await fetchStats();
+    } catch {
+      window.alert("Gagal mereset perhitungan Profit & Fee.");
+    }
+  };
+
   const fetchFeedback = async () => {
   try {
     setFeedbackLoading(true);
@@ -1241,13 +1269,23 @@ const [deliveryValue, setDeliveryValue] = useState("");
               </p>
             </div>
 
-            <button
-              onClick={fetchStats}
-              className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs text-zinc-400/60 hover:text-zinc-200 hover:bg-white/[0.05] border border-transparent hover:border-white/10 transition-all duration-200"
-            >
-              <RefreshCw size={13} className={statsLoading ? "animate-spin" : ""} />
-              Refresh
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={handleResetProfitCalculation}
+                className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs text-amber-300/70 hover:text-amber-200 hover:bg-amber-300/[0.06] border border-transparent hover:border-amber-300/10 transition-all duration-200"
+              >
+                <RotateCcw size={13} />
+                Reset Perhitungan
+              </button>
+
+              <button
+                onClick={fetchStats}
+                className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs text-zinc-400/60 hover:text-zinc-200 hover:bg-white/[0.05] border border-transparent hover:border-white/10 transition-all duration-200"
+              >
+                <RefreshCw size={13} className={statsLoading ? "animate-spin" : ""} />
+                Refresh
+              </button>
+            </div>
           </div>
 
           {statsLoading && !stats ? (

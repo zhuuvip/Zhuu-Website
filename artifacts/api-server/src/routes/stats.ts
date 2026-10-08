@@ -10,6 +10,7 @@ import {
   walletTransactionsTable,
   productsTable,
   productOptionsTable,
+  settingsTable,
 } from "@workspace/db";
 import { requireAdmin } from "../lib/auth.js";
 import { sql } from "drizzle-orm";
@@ -22,6 +23,36 @@ const DRIP_MODAL_BY_VARIANT = new Map(
     product.variants.map((variant) => [Number(variant.id), Number(variant.modal)]),
   ),
 );
+
+router.post("/admin/stats/reset", requireAdmin, async (req, res) => {
+  try {
+    const resetAt = new Date();
+
+    await db
+      .insert(settingsTable)
+      .values({
+        key: "profit_calculation_reset_at",
+        value: resetAt.toISOString(),
+      })
+      .onConflictDoUpdate({
+        target: settingsTable.key,
+        set: {
+          value: resetAt.toISOString(),
+          updatedAt: resetAt,
+        },
+      });
+
+    return res.json({
+      success: true,
+      resetAt: resetAt.toISOString(),
+    });
+  } catch (err) {
+    req.log.error(err);
+    return res.status(500).json({
+      error: "Failed to reset profit calculation",
+    });
+  }
+});
 
 router.get("/admin/stats", requireAdmin, async (req, res) => {
   try {
@@ -254,6 +285,16 @@ router.get("/admin/stats", requireAdmin, async (req, res) => {
         )
         .limit(10),
     ]);
+
+    const [profitResetSetting] = await db
+      .select({ value: settingsTable.value })
+      .from(settingsTable)
+      .where(sql`${settingsTable.key} = 'profit_calculation_reset_at'`)
+      .limit(1);
+
+    const profitResetAt = profitResetSetting?.value
+      ? new Date(profitResetSetting.value)
+      : null;
 
     const profitOrders = await db
       .select({
