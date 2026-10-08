@@ -720,7 +720,7 @@ const [deliveryValue, setDeliveryValue] = useState("");
 
   const fetchStats = async () => {
     setStatsLoading(true); try {
-      const res = await fetch(`${API_BASE}/api/admin/stats`, { headers: await authHeaders() });
+      const res = await fetch(`${API_BASE}/api/admin/stats?t=${Date.now()}`, { headers: await authHeaders(), cache: "no-store" });
       const visRes = await fetch(`${API_BASE}/api/visitors`);
       const visData = await visRes.json();
       if (res.ok) { const statsData = await res.json(); setStats({ ...statsData, visitors: visData.count ?? 0 }); }
