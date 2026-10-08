@@ -306,7 +306,11 @@ router.get("/admin/stats", requireAdmin, async (req, res) => {
         productOptionsTable,
         sql`${productOptionsTable.id} = ${ordersTable.optionId}`,
       )
-      .where(sql`UPPER(${ordersTable.status}) = 'PAID'`);
+      .where(
+        profitResetAt
+          ? sql`UPPER(${ordersTable.status}) = 'PAID' AND ${ordersTable.createdAt} >= ${profitResetAt}`
+          : sql`UPPER(${ordersTable.status}) = 'PAID'`,
+      );
 
     let profitRevenue = 0;
     let dripCost = 0;
@@ -356,6 +360,7 @@ router.get("/admin/stats", requireAdmin, async (req, res) => {
           yourFee,
           richoProfit,
           countedOrders,
+          resetAt: profitResetAt?.toISOString() ?? null,
         },
       },
     });
@@ -364,6 +369,163 @@ router.get("/admin/stats", requireAdmin, async (req, res) => {
     res.status(500).json({ error: "Failed to fetch stats" });
   }
 });
+
+
+// ZhuuShop Admin dashboard stats
+router.get("/admin/shop/stats", requireAdmin, async (_req, res) => {
+  try {
+    const [
+      [{ totalOrders }],
+      [{ successfulOrders }],
+      [{ pendingOrders }],
+      [{ revenue }],
+      [{ revenue7d }],
+      [{ revenueMonth }],
+      [{ orders7d }],
+      analytics7d,
+      recentOrders,
+    ] = await Promise.all([
+      db
+        .select({
+          totalOrders: sql<number>`count(*)::int`,
+        })
+        .from(ordersTable)
+        .where(sql`${ordersTable.scope} = 'shop'`),
+
+      db
+        .select({
+          successfulOrders: sql<number>`count(*)::int`,
+        })
+        .from(ordersTable)
+        .where(
+          sql`
+            ${ordersTable.scope} = 'shop'
+            AND UPPER(${ordersTable.status}) = 'PAID'
+          `,
+        ),
+
+      db
+        .select({
+          pendingOrders: sql<number>`count(*)::int`,
+        })
+        .from(ordersTable)
+        .where(
+          sql`
+            ${ordersTable.scope} = 'shop'
+            AND UPPER(${ordersTable.status}) = 'PENDING'
+          `,
+        ),
+
+      db
+        .select({
+          revenue: sql<number>`COALESCE(SUM(${ordersTable.amount}), 0)::int`,
+        })
+        .from(ordersTable)
+        .where(
+          sql`
+            ${ordersTable.scope} = 'shop'
+            AND UPPER(${ordersTable.status}) = 'PAID'
+          `,
+        ),
+
+      db
+        .select({
+          revenue7d: sql<number>`COALESCE(SUM(${ordersTable.amount}), 0)::int`,
+        })
+        .from(ordersTable)
+        .where(
+          sql`
+            ${ordersTable.scope} = 'shop'
+            AND UPPER(${ordersTable.status}) = 'PAID'
+            AND ${ordersTable.createdAt} >= NOW() - INTERVAL '7 days'
+          `,
+        ),
+
+      db
+        .select({
+          revenueMonth: sql<number>`COALESCE(SUM(${ordersTable.amount}), 0)::int`,
+        })
+        .from(ordersTable)
+        .where(
+          sql`
+            ${ordersTable.scope} = 'shop'
+            AND UPPER(${ordersTable.status}) = 'PAID'
+            AND ${ordersTable.createdAt} >= date_trunc('month', NOW())
+          `,
+        ),
+
+      db
+        .select({
+          orders7d: sql<number>`count(*)::int`,
+        })
+        .from(ordersTable)
+        .where(
+          sql`
+            ${ordersTable.scope} = 'shop'
+            AND ${ordersTable.createdAt} >= NOW() - INTERVAL '7 days'
+          `,
+        ),
+
+      db.execute(sql`
+        SELECT
+          TO_CHAR(DATE(created_at), 'YYYY-MM-DD') AS date,
+          COUNT(*)::int AS total_orders,
+          COUNT(*) FILTER (
+            WHERE UPPER(status) = 'PAID'
+          )::int AS successful_orders,
+          COUNT(*) FILTER (
+            WHERE UPPER(status) = 'PENDING'
+          )::int AS pending_orders,
+          COALESCE(
+            SUM(amount) FILTER (
+              WHERE UPPER(status) = 'PAID'
+            ),
+            0
+          )::int AS revenue
+        FROM orders
+        WHERE
+          scope = 'shop'
+          AND created_at >= CURRENT_DATE - INTERVAL '6 days'
+        GROUP BY DATE(created_at)
+        ORDER BY DATE(created_at) ASC
+      `),
+
+      db
+        .select({
+          id: ordersTable.id,
+          invoice: ordersTable.invoice,
+          productId: ordersTable.productId,
+          optionId: ordersTable.optionId,
+          productName: ordersTable.productName,
+          duration: ordersTable.duration,
+          amount: ordersTable.amount,
+          status: ordersTable.status,
+          createdAt: ordersTable.createdAt,
+        })
+        .from(ordersTable)
+        .where(sql`${ordersTable.scope} = 'shop'`)
+        .orderBy(sql`${ordersTable.createdAt} DESC`)
+        .limit(8),
+    ])
+
+    return res.json({
+      totalOrders: Number(totalOrders) || 0,
+      successfulOrders: Number(successfulOrders) || 0,
+      pendingOrders: Number(pendingOrders) || 0,
+      revenue: Number(revenue) || 0,
+      revenue7d: Number(revenue7d) || 0,
+      revenueMonth: Number(revenueMonth) || 0,
+      orders7d: Number(orders7d) || 0,
+      orderAnalytics7d: analytics7d.rows,
+      recentOrders,
+    })
+  } catch (err) {
+    req.log.error(err)
+    return res.status(500).json({
+      error: "Failed to fetch ZhuuShop stats",
+    })
+  }
+})
 
 // Track visitor
 router.post("/visitors", async (req, res) => {
