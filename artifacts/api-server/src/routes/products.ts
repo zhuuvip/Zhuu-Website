@@ -504,16 +504,25 @@ router.post(
               ? raw.products
               : [];
 
-      if (String(_req.query.debug ?? "") === "__disabled__") {
+      if (String(_req.query.debug ?? "") === "1") {
         return res.json({
           debug: true,
-          rawType: Array.isArray(raw) ? "array" : typeof raw,
-          rawKeys:
-            raw && typeof raw === "object" && !Array.isArray(raw)
-              ? Object.keys(raw)
-              : [],
           totalDetected: dripProducts.length,
-          sample: dripProducts.slice(0, 2),
+          products: dripProducts
+            .filter((product: any) =>
+              /wire/i.test(String(product?.name ?? product?.product_name ?? product?.title ?? ""))
+            )
+            .map((product: any) => ({
+              name: product?.name ?? product?.product_name ?? product?.title ?? null,
+              variants: Array.isArray(product?.variants)
+                ? product.variants.map((variant: any) => ({
+                    id: variant?.variant_id ?? variant?.variantId ?? variant?.id ?? null,
+                    name: variant?.variant_name ?? variant?.duration ?? variant?.period ?? variant?.name ?? null,
+                    price: variant?.price ?? null,
+                    stock: variant?.in_stock ?? variant?.local_stock ?? variant?.stock ?? null,
+                  }))
+                : [],
+            })),
         });
       }
 
@@ -646,6 +655,9 @@ router.post(
 
       const getApiResellerPrice = (_variant: any): number | null => null;
 
+      // Harga pilihan admin: jangan ditimpa kalkulasi harga impor.
+      const PINNED_DRIP_PRICE_IDS = new Set<number>([182, 184, 181, 183, 162, 164, 168, 167, 163, 165, 166, 172, 185, 187, 189, 191, 186, 188, 190, 192]);
+
       const getApiModal = (variant: any): number | null => {
         const usd = getNumber(variant?.price);
         if (usd === null || usd <= 0) return null;
@@ -759,15 +771,13 @@ router.post(
             .map((value) => {
               const calculatedPrice = calculatedById.get(value.id);
 
-              const resellerPrice =
-                calculatedPrice?.resellerPrice ??
-                value.old?.resellerPrice ??
-                null;
+              const resellerPrice = PINNED_DRIP_PRICE_IDS.has(value.id)
+              ? value.old?.resellerPrice ?? calculatedPrice?.resellerPrice ?? null
+              : calculatedPrice?.resellerPrice ?? value.old?.resellerPrice ?? null;
 
-              const memberPrice =
-                calculatedPrice?.memberPrice ??
-                value.old?.memberPrice ??
-                null;
+              const memberPrice = PINNED_DRIP_PRICE_IDS.has(value.id)
+              ? value.old?.memberPrice ?? calculatedPrice?.memberPrice ?? null
+              : calculatedPrice?.memberPrice ?? value.old?.memberPrice ?? null;
 
               if (memberPrice === null || resellerPrice === null) {
                 console.warn(

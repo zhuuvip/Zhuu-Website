@@ -22,6 +22,25 @@ import {
 
 const router = Router();
 
+async function getActiveReseller(userId: string) {
+  const result = await db.execute(sql`
+    SELECT active, plan, expires_at
+    FROM reseller_members
+    WHERE user_id = ${userId}
+    LIMIT 1
+  `);
+
+  const row = (result.rows as any[])?.[0];
+
+  if (!row || !row.active) return false;
+  if (row.plan === "lifetime") return true;
+
+  return Boolean(
+    row.expires_at &&
+      new Date(row.expires_at).getTime() > Date.now(),
+  );
+}
+
 let ordersSchemaReady: Promise<void> | null = null;
 
 function ensureOrdersIdempotencySchema(): Promise<void> {
@@ -97,16 +116,21 @@ router.post("/orders/validate-promo", async (req, res) => {
         throw new Error("Produk atau durasi tidak valid");
       }
 
+      const isReseller = await getActiveReseller(userId);
+      const basePrice = isReseller
+        ? Number(option.resellerPrice ?? option.price)
+        : Number(option.price);
+
       const promo = await applyPromo(tx, {
         code,
-        audience: "MEMBER",
+        audience: isReseller ? "RESELLER" : "MEMBER",
         userId,
-        basePrice: option.price,
+        basePrice,
       });
 
       return {
         ...promo,
-        originalPrice: option.price,
+        originalPrice: basePrice,
       };
     });
 
@@ -139,7 +163,12 @@ router.post("/orders/validate-promo", async (req, res) => {
 });
 
 router.post(["/orders", "/shop/orders"], async (req, res) => {
-  const walletScope = req.path === "/shop/orders" ? "shop" : "site";
+  const walletScope = req.originalUrl.split("?")[0].endsWith("/shop/orders") ? "shop" : "site";
+  console.log("[ORDER WALLET SCOPE]", {
+    originalUrl: req.originalUrl,
+    path: req.path,
+    walletScope,
+  });
   let pendingOrderId: number | null = null;
   let pendingInvoice: string | null = null;
   let pendingUserId: string | null = null;
@@ -282,11 +311,16 @@ router.post(["/orders", "/shop/orders"], async (req, res) => {
           .returning();
       }
 
+      const isReseller = await getActiveReseller(userId);
+      const basePrice = isReseller
+        ? Number(option.resellerPrice ?? option.price)
+        : Number(option.price);
+
       const promoResult = await applyPromo(tx, {
         code: promoCode,
-        audience: "MEMBER",
+        audience: isReseller ? "RESELLER" : "MEMBER",
         userId,
-        basePrice: option.price,
+        basePrice,
       });
 
       const finalPrice = promoResult.finalPrice;
@@ -375,7 +409,7 @@ router.post(["/orders", "/shop/orders"], async (req, res) => {
         await recordPromoUsage(tx, {
           promoId: promoResult.promo.id,
           userId,
-          audience: "MEMBER",
+          audience: isReseller ? "RESELLER" : "MEMBER",
           orderId: order.id,
           discount: promoResult.discount,
         });
@@ -392,7 +426,7 @@ router.post(["/orders", "/shop/orders"], async (req, res) => {
               id: promoResult.promo.id,
               code: promoResult.promo.code,
               discount: promoResult.discount,
-              originalPrice: option.price,
+              originalPrice: basePrice,
               finalPrice,
             }
           : null,
@@ -931,6 +965,35 @@ router.get("/orders", async (req, res) => {
 
     return res.status(500).json({
       error: "Gagal mengambil riwayat transaksi",
+    });
+  }
+});
+
+router.get("/admin/shop/orders", requireAdmin, async (_req, res) => {
+  try {
+    const orders = await db
+      .select({
+        id: ordersTable.id,
+        invoice: ordersTable.invoice,
+        productId: ordersTable.productId,
+        optionId: ordersTable.optionId,
+        productName: ordersTable.productName,
+        duration: ordersTable.duration,
+        amount: ordersTable.amount,
+        whatsapp: ordersTable.whatsapp,
+        status: ordersTable.status,
+        paymentRef: ordersTable.paymentRef,
+        createdAt: ordersTable.createdAt,
+      })
+      .from(ordersTable)
+      .where(eq(ordersTable.scope, "shop"))
+      .orderBy(sql`${ordersTable.createdAt} DESC`);
+
+    return res.json(orders);
+  } catch (err) {
+    console.error("Admin Shop Orders error:", err);
+    return res.status(500).json({
+      error: "Gagal mengambil order ZhuuShop",
     });
   }
 });
